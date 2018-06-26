@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "precommit": "npm run lint-staged",
-    "start": "set port=7100 && cross-env DISABLE_ESLINT=true roadhog dev",
+    "start": "set port=7777 && cross-env DISABLE_ESLINT=true roadhog dev",
     "start:no-proxy": "cross-env NO_PROXY=true ESLINT=none roadhog dev",
     "build": "cross-env ESLINT=none roadhog build",
     "site": "roadhog-api-doc static && gh-pages -d dist",
@@ -54,6 +54,7 @@
     "react-native-xmpp": "^1.0.3",
     "rollbar": "^2.3.4",
     "strophe.js": "^1.2.15",
+    "strophejs-plugin-pubsub": "0.0.2",
     "url-polyfill": "^1.0.10"
   },
   "devDependencies": {
