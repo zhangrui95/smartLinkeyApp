@@ -1,0 +1,101 @@
+html,
+body,
+:global(#root) {
+  height: 100%;
+}
+
+:global(.ant-layout) {
+  min-height: 100%;
+}
+
+canvas {
+  display: block;
+}
+*, *::after, *::before {
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-app-region: no-drag;
+  //cursor: default;
+}
+
+body {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  -webkit-app-region: drag;
+  -webkit-app-region: no-drag;
+  -webkit-user-select: none;
+}
+
+.globalSpin {
+  width: 100%;
+  margin: 40px 0 !important;
+}
+
+// temp fix for https://github.com/ant-design/ant-design/commit/a1fafb5b727b62cb0be29ce6e9eca8f579d4f8b7
+:global {
+  .ant-spin-container {
+    overflow: visible !important;
+  }
+  .ant-menu ant-menu-dark ant-menu-root ant-menu-inline {
+    background: #00adcb;
+  }
+  .ant-input-affix-wrapper {
+    width: 235px !important;
+    margin-left: 23px !important;
+  }
+  .ant-btn{
+    &:hover{
+      border: 1px solid #00adcb!important;
+      color: #00adcb!important;
+    }
+  }
+  .ant-btn-primary {
+    //width: 235px !important;
+    background: #00adcb !important;
+    border: 0 !important;
+    margin-left: 23px !important;
+    margin-top: 0 !important;
+    height: 32px !important;
+    &:hover{
+      border: none!important;
+      color: #fff!important;
+    }
+  }
+  .ant-tabs-tab {
+    //margin-right: 10px!important;
+  }
+  .ant-tabs-nav .ant-tabs-tab-active {
+    color: #fea200 !important;
+  }
+  .ant-tabs-ink-bar {
+    background: #fea200 !important;
+    height: 3px!important;
+  }
+  .ant-tabs-tab {
+    &:hover {
+      color: #fea200 !important;
+    }
+  }
+  .ant-layout-content {
+    margin: 1px 0 0 0 !important;
+  }
+  .ant-avatar {
+    width: auto !important;
+    height: auto !important;
+    margin-left: 14px !important;
+  }
+  .ant-list-item-meta-description {
+    font-size: 12px !important;
+  }
+  .ant-input,.ant-select-selection{
+    &:hover{
+      border: 1px solid #00adcb!important;
+    }
+    &:focus{
+      border: 1px solid #00adcb!important;
+      box-shadow: 0 0 2px #00adcb!important;
+    }
+  }
+}

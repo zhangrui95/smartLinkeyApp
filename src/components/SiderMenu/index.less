@@ -1,0 +1,142 @@
+@import '~antd/lib/style/themes/default.less';
+@ease-in-out-circ: cubic-bezier(0.78, 0.14, 0.15, 0.86);
+.logo {
+  height: 64px;
+  position: relative;
+  line-height: 64px;
+  padding-left: 15px;
+  transition: all 0.3s;
+  background: #002140;
+  cursor: pointer;
+  overflow: hidden;
+  img {
+    background: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 100px;
+  }
+  h1 {
+    color: white;
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 20px;
+    margin: 0 0 0 12px;
+    font-family: 'Myriad Pro', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    font-weight: 600;
+  }
+}
+
+.sider {
+  min-height: 100vh;
+  box-shadow: 2px 0 6px rgba(0, 21, 41, 0.35);
+  position: relative;
+  z-index: 10;
+  background: url('../../../public/images/bg.png') no-repeat #00adcb;
+  background-size: cover;
+  &.ligth {
+    background-color: white;
+    .logo {
+      background: white;
+      h1 {
+        color: #002140;
+      }
+    }
+  }
+}
+
+.icon {
+  width: 28px;
+  margin-right: 10px;
+}
+
+:global {
+  .drawer .drawer-content {
+    background: #001529;
+  }
+  .ant-menu-inline-collapsed {
+    & > .ant-menu-item .sider-menu-item-img + span,
+    &
+      > .ant-menu-item-group
+      > .ant-menu-item-group-list
+      > .ant-menu-item
+      .sider-menu-item-img
+      + span,
+    & > .ant-menu-submenu > .ant-menu-submenu-title .sider-menu-item-img + span {
+      max-width: 0;
+      display: inline-block;
+      opacity: 0;
+    }
+  }
+  .ant-menu-item .sider-menu-item-img + span,
+  .ant-menu-submenu-title .sider-menu-item-img + span {
+    transition: opacity 0.3s @ease-in-out, width 0.3s @ease-in-out;
+    opacity: 1;
+  }
+  .ant-menu-dark {
+    background: transparent;
+  }
+}
+:global {
+  .ant-menu-item {
+    padding-left: 20px !important;
+    margin-bottom: 20px !important;
+  }
+  .ant-badge-count{
+    min-width: 18px;
+    height: 18px;
+    line-height: 18px;
+  }
+  .ant-menu-item-selected{
+    background: transparent!important;
+  }
+}
+.szMenu {
+  width: 200px;
+  height: 220px;
+  position: absolute;
+  top: -10px;
+  left: 35px;
+  z-index: 999;
+  border-radius: 4px;
+  box-shadow: 0 0 10px #c0c0c0 !important;
+}
+.nameMenu {
+  font-size: 18px !important;
+  margin: 8px 0 !important;
+  color: #343434;
+  font-weight: 600;
+  cursor: default;
+  &:hover {
+    color: #343434;
+    background: none;
+  }
+}
+.MenuListMargin {
+  margin: 6px 0 !important;
+  color: #343434;
+  &:hover {
+    color: #343434;
+    background: none;
+  }
+}
+.changePwd {
+  margin: 6px 0 !important;
+  color: #00adcb;
+  text-decoration: underline;
+  &:hover {
+    color: #00adcb;
+    background: none;
+  }
+}
+.showMenu {
+  display: block;
+}
+.hideMenu {
+  display: none;
+}
+.badgeStyle{
+  position: absolute;
+  right: 12px;
+  top: 84px;
+  z-index: 99;
+}
