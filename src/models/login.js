@@ -38,7 +38,7 @@ export default {
       if (response.reason === null) {
         callback(response);
       } else {
-        message.warning('提示：' + response.reason.text);
+        // message.warning('提示：' + response.reason.text);
       }
     },
     *logout(_, { put, select }) {

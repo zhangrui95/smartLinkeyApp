@@ -44,7 +44,7 @@ export default function request(url, options) {
     newOptions.headers = {
       Accept: 'application/json',
       'Content-Type': 'application/json; charset=utf-8',
-      'Authorization': sessionStorage.getItem('userToken') || '',
+      'Authorization': (sessionStorage.getItem('user') === undefined || sessionStorage.getItem('user') === null) ? '' : JSON.parse(sessionStorage.getItem('user')).token,
       ...newOptions.headers,
     };
     newOptions.body = JSON.stringify(newOptions.body);

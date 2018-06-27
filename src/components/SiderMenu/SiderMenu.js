@@ -212,6 +212,7 @@ class SiderMenu extends PureComponent {
     this.props.getPathItem(item.path);
   };
   getChangePassWord = () => {
+    this.props.form.resetFields();
     this.setState({
       visible: true,
     });
