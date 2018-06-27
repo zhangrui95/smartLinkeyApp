@@ -1,9 +1,10 @@
 import React, { PureComponent } from 'react';
-import { Layout, Menu, Icon, Dropdown,Badge,Modal,Form,Input,Select } from 'antd';
+import { Layout, Menu, Icon, Dropdown, Badge, Modal, Form, Input, Select, message } from 'antd';
 import pathToRegexp from 'path-to-regexp';
 import { Link } from 'dva/router';
 import styles from './index.less';
 import { urlToList } from '../_utils/pathTools';
+// import { connect } from 'dva';
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -44,6 +45,9 @@ export const getFlatMenuKeys = menu =>
  * @param  flatMenuKeys: [/abc, /abc/:id, /abc/:id/info]
  * @param  paths: [/abc, /abc/11, /abc/11/info]
  */
+// @connect(({ login }) => ({
+//   login,
+// }))
 export const getMenuMatchKeys = (flatMenuKeys, paths) =>
   paths.reduce(
     (matchKeys, path) =>
@@ -61,8 +65,8 @@ class SiderMenu extends PureComponent {
       iconIndex: 0,
       iconImg: 'images/message1.png',
       visible: false,
-      xtszvisible:false,
-      aboutvisible:false,
+      xtszvisible: false,
+      aboutvisible: false,
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -115,11 +119,11 @@ class SiderMenu extends PureComponent {
         }
       >
         {this.state.iconIndex === index ? (
-            <img
-              src={this.state.iconImg}
-              alt="icon"
-              className={`${styles.icon} sider-menu-item-img`}
-            />
+          <img
+            src={this.state.iconImg}
+            alt="icon"
+            className={`${styles.icon} sider-menu-item-img`}
+          />
         ) : (
           icon
         )}
@@ -205,33 +209,33 @@ class SiderMenu extends PureComponent {
       iconIndex: index,
       iconImg: item.icon.replace('2', '1'),
     });
-    console.log('item===>',item)
-    console.log('this.props===>',this.props)
-    this.props.getPathItem(item.path)
+    console.log('item===>', item);
+    console.log('this.props===>', this.props);
+    this.props.getPathItem(item.path);
   };
   getChangePassWord = () => {
     this.setState({
-      visible: true
+      visible: true,
     });
-  }
+  };
   getSystem = () => {
     this.setState({
-      xtszvisible: true
+      xtszvisible: true,
     });
-  }
+  };
   aboutSmart = () => {
     this.setState({
-      aboutvisible: true
+      aboutvisible: true,
     });
-  }
+  };
   handleCancel = () => {
     this.setState({
       visible: false,
       xtszvisible: false,
-      aboutvisible: false
+      aboutvisible: false,
     });
-  }
- showConfirm = () => {
+  };
+  showConfirm = () => {
     confirm({
       title: '是否确定退出登录?',
       okText: '确定',
@@ -243,8 +247,19 @@ class SiderMenu extends PureComponent {
         console.log('Cancel');
       },
     });
-  }
-
+  };
+  handleOk = () => {
+    this.props.form.validateFields((err, values) => {
+      if (!err) {
+        console.log(err, values);
+        if (values.newsPwd !== values.newPwd) {
+          message.warn('提示：两次密码输入一致');
+          return;
+        } else {
+        }
+      }
+    });
+  };
   render() {
     const formItemLayout = {
       labelCol: {
@@ -318,7 +333,7 @@ class SiderMenu extends PureComponent {
           selectedKeys={selectedKeys}
           style={{ padding: '16px 0', width: '100%' }}
         >
-          <Badge count={5} className={styles.badgeStyle}/>
+          <Badge count={5} className={styles.badgeStyle} />
           <Modal
             title="修改密码"
             visible={this.state.visible}
@@ -327,41 +342,35 @@ class SiderMenu extends PureComponent {
             maskClosable={false}
           >
             <Form>
-              <FormItem
-                {...formItemLayout}
-                label="原密码"
-              >
+              <FormItem {...formItemLayout} label="原密码">
                 {getFieldDecorator('oldPwd', {
-                  rules: [{
-                    required: true, message: '请输入原密码',
-                  }],
-                })(
-                  <Input type="password"/>
-                )}
+                  rules: [
+                    {
+                      required: true,
+                      message: '请输入原密码',
+                    },
+                  ],
+                })(<Input type="password" />)}
               </FormItem>
-              <FormItem
-                {...formItemLayout}
-                label="新密码"
-              >
+              <FormItem {...formItemLayout} label="新密码">
                 {getFieldDecorator('newPwd', {
-                  rules: [{
-                    required: true, message: '请输入新密码',
-                  }],
-                })(
-                  <Input type="password"/>
-                )}
+                  rules: [
+                    {
+                      required: true,
+                      message: '请输入新密码',
+                    },
+                  ],
+                })(<Input type="password" />)}
               </FormItem>
-              <FormItem
-                {...formItemLayout}
-                label="确认密码"
-              >
+              <FormItem {...formItemLayout} label="确认密码">
                 {getFieldDecorator('newsPwd', {
-                  rules: [{
-                    required: true, message: '请输入确认密码',
-                  }],
-                })(
-                  <Input type="password"/>
-                )}
+                  rules: [
+                    {
+                      required: true,
+                      message: '请输入确认密码',
+                    },
+                  ],
+                })(<Input type="password" />)}
               </FormItem>
             </Form>
           </Modal>
@@ -373,15 +382,12 @@ class SiderMenu extends PureComponent {
             maskClosable={false}
           >
             <Form>
-              <FormItem
-                {...formItemLayout}
-                label="登录方式"
-              >
-                  <Select>
-                    <Option value="">两者均可</Option>
-                    <Option value="0">账号密码登录</Option>
-                    <Option value="1">PKI登录</Option>
-                  </Select>
+              <FormItem {...formItemLayout} label="登录方式">
+                <Select>
+                  <Option value="">两者均可</Option>
+                  <Option value="0">账号密码登录</Option>
+                  <Option value="1">PKI登录</Option>
+                </Select>
               </FormItem>
             </Form>
           </Modal>

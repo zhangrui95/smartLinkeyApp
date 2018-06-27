@@ -76,19 +76,19 @@ export const getRouterData = app => {
       component: dynamicWrapper(app, ['login'], () => import('../routes/User/Login')),
     },
     '/smartList/smartAll': {
-      component: dynamicWrapper(app, ['chart'], () => import('../routes/SmartList/SmartAll')),
+      component: dynamicWrapper(app, [], () => import('../routes/SmartList/SmartAll')),
     },
     '/smartList/smartItem': {
-      component: dynamicWrapper(app, ['chart'], () => import('../routes/SmartList/SmartItem')),
+      component: dynamicWrapper(app, [], () => import('../routes/SmartList/SmartItem')),
     },
     '/smartList/PoliceSmartItem': {
-      component: dynamicWrapper(app, ['chart'], () => import('../routes/SmartList/PoliceSmartItem')),
+      component: dynamicWrapper(app, [], () => import('../routes/SmartList/PoliceSmartItem')),
     },
     '/smartList/smartLink': {
-      component: dynamicWrapper(app, ['chart'], () => import('../routes/SmartList/SmartLink')),
+      component: dynamicWrapper(app, [], () => import('../routes/SmartList/SmartLink')),
     },
     '/smartList/smartSave': {
-      component: dynamicWrapper(app, ['chart'], () => import('../routes/SmartList/SmartSave')),
+      component: dynamicWrapper(app, [], () => import('../routes/SmartList/SmartSave')),
     },
     '/dashboard/analysis': {
       component: dynamicWrapper(app, ['chart'], () => import('../routes/Dashboard/Analysis')),

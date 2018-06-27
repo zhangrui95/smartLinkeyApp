@@ -91,7 +91,7 @@ class BasicLayout extends React.PureComponent {
   };
   state = {
     isMobile,
-    pathItem:''
+    pathItem: '',
   };
   getChildContext() {
     const { location, routerData } = this.props;
@@ -101,6 +101,10 @@ class BasicLayout extends React.PureComponent {
     };
   }
   componentDidMount() {
+    const user = sessionStorage.getItem('user');
+    if (user === null || user === undefined) {
+      this.props.dispatch(routerRedux.push('/user'));
+    }
     this.enquireHandler = enquireScreen(mobile => {
       this.setState({
         isMobile: mobile,
@@ -115,8 +119,8 @@ class BasicLayout extends React.PureComponent {
   }
   getPathItem(pathItem) {
     this.setState({
-      pathItem
-    })
+      pathItem,
+    });
   }
   getPageTitle() {
     const { routerData, location } = this.props;
@@ -210,7 +214,7 @@ class BasicLayout extends React.PureComponent {
         />
         <Layout>
           <Header style={{ padding: 0 }}>
-            <GlobalHeader pathItem={this.state.pathItem}/>
+            <GlobalHeader pathItem={this.state.pathItem} />
           </Header>
           <Content style={{ margin: '24px 24px 0', height: '100%' }}>
             <Switch>
