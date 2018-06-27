@@ -24,7 +24,7 @@ class SmartLink extends Component {
     let listMenu = [];
     menu.map(item => {
       if (item.resourceCode === 'baq_btn') {
-        listMenu.push({ name: '办案区管理系统', link: '', img: 'images/bananqu.png' });
+        listMenu.push({ name: '办案区管理系统', link: 'http://139.199.107.156', img: 'images/bananqu.png' });
       } else if (item.resourceCode === 'zhag_btn') {
         listMenu.push({ name: '智慧案管系统', link: '', img: 'images/anjian.png' });
       } else if (item.resourceCode === 'sjcw_btn') {

@@ -17,7 +17,7 @@ export default class GlobalHeader extends PureComponent {
       <div className={styles.header}>
         <div className={styles.headerLeft}>
           <Search
-            placeholder={this.props.pathItem === '/smartList/smartItem'?"搜索案件名称、案件编号、办案人":'搜索内容'}
+            placeholder={this.props.pathItem === '/smartList/smartAll'?"搜索案件名称、案件编号、办案人":'搜索内容'}
             onSearch={value => console.log(value)}
           />
         </div>

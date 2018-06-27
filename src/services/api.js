@@ -76,8 +76,22 @@ export async function getUpdatePassword(params) {
   });
 }
 
+export async function getUpdateLoginSetting(params) {
+  return request(`${configUrl.testUrl}/LoginSetting/updateLoginSetting`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
 export async function fakeRegister(params) {
   return request('/api/register', {
+    method: 'POST',
+    body: params,
+  });
+}
+
+export async function getLoginSetting(params) {
+  return request(`${configUrl.testUrl}/LoginSetting/getLoginSetting`, {
     method: 'POST',
     body: params,
   });

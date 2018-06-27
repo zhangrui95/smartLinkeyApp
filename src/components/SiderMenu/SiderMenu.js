@@ -218,6 +218,7 @@ class SiderMenu extends PureComponent {
     });
   };
   getSystem = () => {
+    this.props.form.resetFields();
     this.setState({
       xtszvisible: true,
     });
@@ -251,6 +252,22 @@ class SiderMenu extends PureComponent {
       },
     });
   };
+  handleOks = () => {
+    this.props.form.validateFields((err, values) => {
+        this.props.dispatch({
+          type: 'login/updateLoginSetting',
+          payload: {
+            login_way:values.login_way,
+            priority:'800001'
+          },
+          callback: response => {
+              this.setState({
+                xtszvisible: false,
+              })
+          },
+        });
+    })
+  }
   handleOk = () => {
     this.props.form.validateFields((err, values) => {
       if (!err) {
@@ -312,13 +329,13 @@ class SiderMenu extends PureComponent {
     const { getFieldDecorator } = this.props.form;
     const menu = (
       <Menu className={styles.szMenu} selectedKeys={[]}>
-        <Menu.Item className={styles.nameMenu}>{JSON.parse(sessionStorage.getItem('user')).user.name}</Menu.Item>
+        <Menu.Item className={styles.nameMenu}>{sessionStorage.getItem('user') ? JSON.parse(sessionStorage.getItem('user')).user.name : ''}</Menu.Item>
         <Menu.Divider />
         <Menu.Item className={styles.changePwd} onClick={this.getChangePassWord}>
           修改密码
         </Menu.Item>
         <Menu.Item className={styles.MenuListMargin} onClick={this.getSystem}>
-          设置系统
+          系统设置
         </Menu.Item>
         <Menu.Item className={styles.MenuListMargin} onClick={this.aboutSmart}>
           关于Smartlinkey
@@ -402,17 +419,26 @@ class SiderMenu extends PureComponent {
           <Modal
             title="系统设置"
             visible={this.state.xtszvisible}
-            onOk={this.handleOk}
+            onOk={this.handleOks}
             onCancel={this.handleCancel}
             maskClosable={false}
           >
             <Form>
               <FormItem {...formItemLayout} label="登录方式">
-                <Select>
-                  <Option value="">两者均可</Option>
-                  <Option value="0">账号密码登录</Option>
-                  <Option value="1">PKI登录</Option>
-                </Select>
+                {getFieldDecorator('login_way', {
+                  rules: [
+                    {
+                      required: true,
+                      message: '请选择登录方式',
+                    },
+                  ],
+                })(
+                  <Select>
+                    <Option value="700003">两者均可</Option>
+                    <Option value="700001">账号密码登录</Option>
+                    <Option value="700002">PKI登录</Option>
+                  </Select>
+                )}
               </FormItem>
             </Form>
           </Modal>

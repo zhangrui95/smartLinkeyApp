@@ -9,11 +9,19 @@ export default class PoliceSmartDetail extends Component {
     super(props);
     this.state = {};
   }
+  componentDidMount(){
+    document.getElementById('scroll').scrollTop = 535;
+  }
+  componentWillReceiveProps(next){
+    if(this.props.getTitle !== next.getTitle){
+      document.getElementById('scroll').scrollTop = 535;
+    }
+  }
   render() {
     return (
       <div>
         <div className={styles.headerTitle}>{this.props.getTitle}</div>
-        <div className={styles.rightScroll}>
+        <div className={styles.rightScroll} id='scroll'>
           <div className={styles.boxItem}>
             <div className={styles.timeStyle}>6月19号 19:32</div>
             <div>

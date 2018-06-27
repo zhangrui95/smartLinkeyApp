@@ -27,13 +27,24 @@ class LoginPage extends Component {
       name: cookies.get('name') || '',
       type: 'account',
       autoLogin: true,
+      login_way: '700003'
     };
   }
   // state = {
   //   type: 'account',
   //   autoLogin: true,
   // };
-
+  componentDidMount(){
+    this.props.dispatch({
+      type: 'login/getLoginSetting',
+      payload: {},
+      callback: response => {
+        this.setState({
+          login_way: response.result.login_way,
+        })
+      },
+    });
+  }
   onTabChange = type => {
     this.setState({ type });
   };
@@ -78,6 +89,10 @@ class LoginPage extends Component {
   render() {
     const { login, submitting } = this.props;
     const { type } = this.state;
+    let PKI = this.state.login_way === '700001' ? '' : <Tab key="PKI" tab="PKI登录">
+      <img style={{ width: '44%',margin:'0 28%' }} src='images/pki.png' alt=''/>
+      <div style={{ color: '#1890FF', fontSize: '14px', marginTop: '16px',textAlign:'center' }}>插入PKI</div>
+    </Tab>;
     return (
       <div className={styles.main}>
         <div style={{height:'42px',background:'#00adcb',color:'#fff',padding:'0 20px',lineHeight:'42px',fontSize:'18px'}}>
@@ -85,7 +100,7 @@ class LoginPage extends Component {
           <span style={{float:'right'}}><Icon type="close" className={styles.iconWindows} onClick={this.CloseWindow} /></span>
         </div>
         <Login defaultActiveKey={type} onTabChange={this.onTabChange} onSubmit={this.handleSubmit} className={styles.loginAllStyle}>
-          <Tab key="account" tab="账户密码登录" style={{marginRight:'0!important'}}>
+          <Tab key="account" tab="账户密码登录" style={{marginRight:'0!important'}} className={this.state.login_way === '700002' ? styles.none : ''}>
             {login.status === 'error' &&
             login.type === 'account' &&
             !submitting &&
@@ -94,10 +109,7 @@ class LoginPage extends Component {
             <Password name="password" placeholder="请输入密码" />
             <Submit loading={submitting} style={{width:'235px'}}>登录</Submit>
           </Tab>
-          <Tab key="PKI" tab="PKI登录">
-            <img style={{ width: '44%',margin:'0 28%' }} src='images/pki.png' alt=''/>
-            <div style={{ color: '#1890FF', fontSize: '14px', marginTop: '16px',textAlign:'center' }}>插入PKI</div>
-          </Tab>
+          {PKI}
         </Login>
       </div>
     );

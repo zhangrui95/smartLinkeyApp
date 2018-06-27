@@ -1,5 +1,5 @@
 import { routerRedux } from 'dva/router';
-import { fakeAccountLogin, getUpdatePassword } from '../services/api';
+import { fakeAccountLogin, getUpdatePassword, getUpdateLoginSetting, getLoginSetting} from '../services/api';
 import { setAuthority } from '../utils/authority';
 import { reloadAuthorized } from '../utils/Authorized';
 import { message } from 'antd';
@@ -40,6 +40,27 @@ export default {
       } else {
         // message.warning('提示：' + response.reason.text);
       }
+    },
+    *updateLoginSetting({ payload, callback }, { call, put }) {
+      const response = yield call(getUpdateLoginSetting, payload);
+      yield put({
+        type: 'changeLoginStatus',
+        payload: response,
+      });
+      if (response.result === 'success') {
+        message.success('提示：修改成功!');
+        callback(response);
+      } else {
+        message.warning('提示：修改失败，请重新操作!');
+      }
+    },
+    *getLoginSetting({ payload, callback }, { call, put }) {
+      const response = yield call(getLoginSetting, payload);
+      yield put({
+        type: 'changeLoginStatus',
+        payload: response,
+      });
+      callback(response);
     },
     *logout(_, { put, select }) {
       try {
