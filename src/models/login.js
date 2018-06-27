@@ -1,8 +1,8 @@
 import { routerRedux } from 'dva/router';
-import { fakeAccountLogin } from '../services/api';
+import { fakeAccountLogin, getUpdatePassword } from '../services/api';
 import { setAuthority } from '../utils/authority';
 import { reloadAuthorized } from '../utils/Authorized';
-import { message} from 'antd';
+import { message } from 'antd';
 
 export default {
   namespace: 'login',
@@ -12,7 +12,7 @@ export default {
   },
 
   effects: {
-    *login({ payload, callback}, { call, put }) {
+    *login({ payload, callback }, { call, put }) {
       const response = yield call(fakeAccountLogin, payload);
       yield put({
         type: 'changeLoginStatus',
@@ -20,14 +20,26 @@ export default {
       });
       // Login successfully
       if (response.error === null) {
-        callback(response)
+        callback(response);
         yield put(routerRedux.push('/smartList/smartAll'));
-      }else{
+      } else {
         message.warning('提示：' + response.error.text);
       }
       // if (response.status === 'ok') {
       //   yield put(routerRedux.push('/smartList/smartItem'));
       // }
+    },
+    *updatePassword({ payload, callback }, { call, put }) {
+      const response = yield call(getUpdatePassword, payload);
+      yield put({
+        type: 'changeLoginStatus',
+        payload: response,
+      });
+      if (response.reason === null) {
+        callback(response);
+      } else {
+        message.warning('提示：' + response.reason.text);
+      }
     },
     *logout(_, { put, select }) {
       try {

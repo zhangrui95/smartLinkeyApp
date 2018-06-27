@@ -62,7 +62,15 @@ export async function queryFakeList(params) {
 
 export async function fakeAccountLogin(params) {
   // return request('/api/login/account', {
-    return request(`${configUrl.testUrl}/api/login`, {
+  return request(`${configUrl.testUrl}/api/login`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+export async function getUpdatePassword(params) {
+  // return request(`${configUrl.testUrl}/login/updatePassword`, {
+  return request(`${configUrl.testUrl}/login/updatePassword`, {
     method: 'POST',
     body: params,
   });

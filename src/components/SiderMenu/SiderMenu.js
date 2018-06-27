@@ -4,7 +4,8 @@ import pathToRegexp from 'path-to-regexp';
 import { Link } from 'dva/router';
 import styles from './index.less';
 import { urlToList } from '../_utils/pathTools';
-// import { connect } from 'dva';
+import { connect } from 'dva';
+import MD5 from 'md5-es';
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -45,16 +46,15 @@ export const getFlatMenuKeys = menu =>
  * @param  flatMenuKeys: [/abc, /abc/:id, /abc/:id/info]
  * @param  paths: [/abc, /abc/11, /abc/11/info]
  */
-// @connect(({ login }) => ({
-//   login,
-// }))
 export const getMenuMatchKeys = (flatMenuKeys, paths) =>
   paths.reduce(
     (matchKeys, path) =>
       matchKeys.concat(flatMenuKeys.filter(item => pathToRegexp(item).test(path))),
     []
   );
-
+@connect(({ login }) => ({
+  login,
+}))
 class SiderMenu extends PureComponent {
   constructor(props) {
     super(props);
@@ -209,8 +209,6 @@ class SiderMenu extends PureComponent {
       iconIndex: index,
       iconImg: item.icon.replace('2', '1'),
     });
-    console.log('item===>', item);
-    console.log('this.props===>', this.props);
     this.props.getPathItem(item.path);
   };
   getChangePassWord = () => {
@@ -236,12 +234,16 @@ class SiderMenu extends PureComponent {
     });
   };
   showConfirm = () => {
+    let _this = this;
     confirm({
       title: '是否确定退出登录?',
       okText: '确定',
       cancelText: '取消',
       onOk() {
-        console.log('OK');
+        sessionStorage.clear();
+        _this.props.dispatch({
+          type: 'login/logout',
+        });
       },
       onCancel() {
         console.log('Cancel');
@@ -256,6 +258,28 @@ class SiderMenu extends PureComponent {
           message.warn('提示：两次密码输入一致');
           return;
         } else {
+          this.props.dispatch({
+            type: 'login/updatePassword',
+            payload: {
+              idcard:
+                JSON.parse(sessionStorage.getItem('user')).user.idCard ||
+                JSON.parse(sessionStorage.getItem('user')).user.pcard,
+              newPassword: MD5.hash(values.newPwd),
+              oldPassword: MD5.hash(values.oldPwd),
+            },
+            callback: response => {
+              if (response.reason === null) {
+                this.setState({
+                  visible: false,
+                });
+                message.success('提示：密码修改成功，请重新登陆!');
+                sessionStorage.clear();
+                this.props.dispatch({
+                  type: 'login/logout',
+                });
+              }
+            },
+          });
         }
       }
     });

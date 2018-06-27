@@ -84,15 +84,17 @@ export default class SmartAll extends Component {
   render() {
     const user = sessionStorage.getItem('user');
     const userItem = JSON.parse(user).user;
+    let item = ''
+    {userItem.job.map(jobs => {
+      if(jobs.code === '200001'){
+        item = <PoliceSmartItem />;
+      }else if (jobs.code === '200003'||jobs.code === '200002') {
+        item = <SmartItem />;
+      }
+    })}
     return (
       <div>
-        {userItem.job.map(jobs => {
-          if (jobs.code === '200003' || jobs.code === '200002') {
-            return <SmartItem />;
-          } else {
-            return <PoliceSmartItem />;
-          }
-        })}
+        {item}
       </div>
     );
   }
