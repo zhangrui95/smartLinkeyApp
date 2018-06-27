@@ -312,7 +312,7 @@ class SiderMenu extends PureComponent {
     const { getFieldDecorator } = this.props.form;
     const menu = (
       <Menu className={styles.szMenu} selectedKeys={[]}>
-        <Menu.Item className={styles.nameMenu}>王金斗</Menu.Item>
+        <Menu.Item className={styles.nameMenu}>{JSON.parse(sessionStorage.getItem('user')).user.name}</Menu.Item>
         <Menu.Divider />
         <Menu.Item className={styles.changePwd} onClick={this.getChangePassWord}>
           修改密码
