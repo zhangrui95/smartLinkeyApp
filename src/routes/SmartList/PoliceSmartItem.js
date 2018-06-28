@@ -38,14 +38,8 @@ class PoliceSmartItem extends Component {
     super(props);
     this.state = {
       index: 0,
-      title: data[0].title,
-      xmppList:[]
+      title: data[0].title
     };
-  }
-  componentWillReceiveProps(next){
-    if(this.props.xpmmList !== next.xpmmList){
-      this.state.xmppList = next.xpmmList
-    }
   }
   componentDidMount() {
     console.log(this.props)
@@ -83,7 +77,7 @@ class PoliceSmartItem extends Component {
               <List.Item.Meta
                 style={{ cursor: 'pointer' }}
                 avatar={<Avatar src={item.icon} />}
-                title={<div style={{width:'95%',overflow:'hidden'}}>
+                title={<div style={{width:'94%',overflow:'hidden'}}>
                   <span style={{float:'left'}}>{item.title}</span>
                   <span style={{float:'right',fontSize:'13px'}}>{item.time}</span>
                 </div>}

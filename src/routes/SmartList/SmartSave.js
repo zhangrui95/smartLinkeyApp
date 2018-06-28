@@ -12,7 +12,6 @@ class SmartSave extends Component {
   constructor(props) {
     super(props);
     const { cookies } = props;
-    console.log('cookies.get(name)===>',cookies.get('name'))
   }
   render() {
     return (

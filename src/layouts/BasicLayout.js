@@ -15,6 +15,10 @@ import NotFound from '../routes/Exception/404';
 import { getRoutes } from '../utils/utils';
 import Authorized from '../utils/Authorized';
 import { getMenuData } from '../common/menu';
+import { Strophe, $pres } from 'strophe.js';
+import { getSubscriptions } from 'strophejs-plugin-pubsub';
+const BOSH_SERVICE = 'http://pc-20170308pkrs:7070/http-bind/';
+let connection = '';
 // import logo from '../assets/logo.svg';
 
 const { Content, Header, Footer } = Layout;
@@ -104,6 +108,8 @@ class BasicLayout extends React.PureComponent {
     const user = sessionStorage.getItem('user');
     if (user === null || user === undefined) {
       this.props.dispatch(routerRedux.push('/user'));
+    }else{
+      this.getXmpp();
     }
     this.enquireHandler = enquireScreen(mobile => {
       this.setState({
@@ -117,6 +123,84 @@ class BasicLayout extends React.PureComponent {
   componentWillUnmount() {
     unenquireScreen(this.enquireHandler);
   }
+  //连接XMPP
+  getXmpp(){
+    connection = new Strophe.Connection(BOSH_SERVICE);
+    connection.connect(
+      'gm@pc-20170308pkrs',
+      '123456',
+      this.onConnect
+    );
+  }
+  onConnect = status => {
+    console.log('status======>', status);
+    console.log('Strophe.Status======>', Strophe.Status);
+    if (status == Strophe.Status.CONNFAIL) {
+      console.log('连接失败！');
+      this.getXmpp();
+    } else if (status == Strophe.Status.AUTHFAIL) {
+      console.log('登录失败！');
+    } else if (status == Strophe.Status.DISCONNECTED) {
+      console.log('连接断开！');
+      this.getXmpp();
+    } else if (status == Strophe.Status.CONNECTED) {
+      console.log('连接成功！');
+      connection.addHandler(this.onMessage, null, null, null, null, null);
+      connection.send($pres().tree());
+      //获取订阅的主题信息
+      connection.pubsub.getSubscriptions(this.onMessage, 5000);
+    }
+  };
+  onMessage = msg => {
+    console.log('--- msg ---', msg);
+    let node = []
+    let names = msg.getElementsByTagName('subscription');
+    if (names.length > 0) {
+      // console.log('names=====>', names);
+      for (let i = 0; i < names.length; i++) {
+        // console.log('node====>', names[i].attributes[0].textContent);
+        node.push(names[i].attributes[0].textContent)
+        // console.log('jid====>', names[i].attributes[1].textContent);
+        // console.log('subscription====>', names[i].attributes[2].textContent);
+        // console.log('subid====>', names[i].attributes[3].textContent);
+        // connection.pubsub.items(names[i].attributes[0].textContent, null, null, 5000);
+        this.getXmppList(msg, names[i].attributes[0].textContent);
+      }
+    }
+    console.log('________________________node____________________',{ nodeid: node.join(','), userid: 'gm' })
+    this.getReadTime(node);//查询主题读取时间点
+  };
+  //查询主题读取时间点
+  getReadTime = (node) => {
+    if(node.length > 0){
+      this.props.dispatch({
+        type: 'user/query',
+        payload: {
+          nodeid: node.join(','),
+          userid: 'gm'
+        },
+        callback: response => {
+          console.log('res-------------------',response.data);
+          sessionStorage.setItem('lastReadTimes', JSON.stringify(response.data));
+        },
+      });
+    }
+  }
+  //获取推送消息列表内容
+  getXmppList = (msg, node) => {
+    console.log('msg:', msg);
+    connection.pubsub.items(node, null, null, 5000);
+    let item = msg.getElementsByTagName('item');
+    console.log('item====>', item);
+    sessionStorage.setItem('msgList', JSON.stringify(item));
+    if (item.length > 0) {
+      for (let i = 0; i < item.length; i++) {
+        let messagecontent = item[i].getElementsByTagName('messagecontent');
+        console.log('messagecontent====>', messagecontent[0].textContent);
+      }
+    }
+  }
+
   getPathItem(pathItem) {
     this.setState({
       pathItem,
@@ -189,6 +273,9 @@ class BasicLayout extends React.PureComponent {
       });
     }
   };
+  menuRight = (e) => {
+    e.preventDefault();
+  }
   render() {
     const {
       currentUser,
@@ -271,7 +358,7 @@ class BasicLayout extends React.PureComponent {
     return (
       <DocumentTitle title={this.getPageTitle()}>
         <ContainerQuery query={query}>
-          {params => <div className={classNames(params)}>{layout}</div>}
+          {params => <div className={classNames(params)} onContextMenu={(e) => this.menuRight(e)}>{layout}</div>}
         </ContainerQuery>
       </DocumentTitle>
     );

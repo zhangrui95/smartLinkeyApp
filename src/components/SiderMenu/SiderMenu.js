@@ -53,7 +53,7 @@ export const getMenuMatchKeys = (flatMenuKeys, paths) =>
     []
   );
 @connect(({ login }) => ({
-  login,
+  login
 }))
 class SiderMenu extends PureComponent {
   constructor(props) {
@@ -67,7 +67,7 @@ class SiderMenu extends PureComponent {
       visible: false,
       xtszvisible: false,
       aboutvisible: false,
-      loginWay:''
+      loginWay:'',
     };
   }
   componentWillReceiveProps(nextProps) {

@@ -25,7 +25,6 @@ export default class SmartDetail extends Component {
     // }
   }
   render() {
-    console.log('child-child-xmppList============>',this.props.xmppList)
     return (
       <div>
         <div className={styles.headerTitle}>{this.props.getTitle}</div>
