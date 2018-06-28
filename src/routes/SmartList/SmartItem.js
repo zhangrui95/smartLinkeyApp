@@ -39,13 +39,20 @@ class SmartItem extends Component {
     super(props);
     this.state = {
       index: 0,
-      title:'问题案件'
+      title:'问题案件',
+      xmppList:[]
     };
+  }
+  componentWillReceiveProps(next){
+    if(this.props.xpmmList !== next.xpmmList){
+      this.setState({
+        xmppList:next.xpmmList
+      })
+    }
   }
   componentDidMount() {
     console.log(this.props)
   }
-
   getListClick = (index,item) => {
     this.setState({
       index: index,
@@ -53,6 +60,7 @@ class SmartItem extends Component {
     });
   };
   render() {
+    console.log('child-xmppList===>',this.state.xmppList)
     return (
       <div>
         <List
@@ -87,7 +95,7 @@ class SmartItem extends Component {
           )}
         />
         <div style={{ float: 'left',width:'calc(100% - 225px)'}}>
-          <SmartDetail newsId={this.state.index} getTitle={this.state.title}/>
+          <SmartDetail newsId={this.state.index} getTitle={this.state.title} xmppList={this.state.xmppList}/>
         </div>
       </div>
     );

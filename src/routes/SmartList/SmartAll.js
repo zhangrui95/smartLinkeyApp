@@ -15,7 +15,8 @@ export default class SmartAll extends Component {
     super(props);
     this.state = {
       nodeList: '',
-      searchList:[]
+      searchList:[],
+      XmppList:[],
     };
   }
   componentDidMount() {
@@ -37,10 +38,10 @@ export default class SmartAll extends Component {
       console.log('连接断开！');
     } else if (status == Strophe.Status.CONNECTED) {
       console.log('连接成功！');
-      connection.addHandler(this.onMessage, null, null, null, null, null);
+      // connection.addHandler(this.onMessage, null, null, null, null, null);
       connection.send($pres().tree());
       //获取订阅的主题信息
-      connection.pubsub.getSubscriptions(this.onMessage1, 5000);
+      connection.pubsub.getSubscriptions(this.onMessage, 5000);
     }
   };
   onMessage = msg => {
@@ -48,21 +49,36 @@ export default class SmartAll extends Component {
     let node = []
     let names = msg.getElementsByTagName('subscription');
     if (names.length > 0) {
-      console.log('names=====>', names);
+      // console.log('names=====>', names);
       for (let i = 0; i < names.length; i++) {
-        console.log('node====>', names[i].attributes[0].textContent);
+        // console.log('node====>', names[i].attributes[0].textContent);
         node.push(names[i].attributes[0].textContent)
-        console.log('jid====>', names[i].attributes[1].textContent);
-        console.log('subscription====>', names[i].attributes[2].textContent);
-        console.log('subid====>', names[i].attributes[3].textContent);
-        // connection.pubsub.getSubOptions(names[i].attributes[0].textContent,names[i].attributes[3].textContent,this.onMessage);
-        // connection.pubsub.getConfig(names[i].attributes[0].textContent,this.onMessage);
-        connection.pubsub.items(names[i].attributes[0].textContent, null, null, 5000);
+        // console.log('jid====>', names[i].attributes[1].textContent);
+        // console.log('subscription====>', names[i].attributes[2].textContent);
+        // console.log('subid====>', names[i].attributes[3].textContent);
+        // connection.pubsub.items(names[i].attributes[0].textContent, null, null, 5000);
+        this.getXmppList(msg, names[i].attributes[0].textContent);
       }
     }
     console.log('________________________node____________________',{ nodeid: node.join(','), userid: 'gm' })
+    this.getReadTime(node);//查询主题读取时间点
+  };
 
-    //查询主题读取时间点
+  onMessage1 = msg => {
+    console.log('--- msg1 ---', msg);
+    // 解析出<message>的from、type属性，以及body子元素
+    var from = msg.getAttribute('from');
+    var type = msg.getAttribute('type');
+    var elems = msg.getElementsByTagName('body');
+    if (type == 'chat' && elems.length > 0) {
+      var body = elems[0];
+      console.log(from, Strophe.getText(body));
+    }
+    return true;
+  };
+
+  //查询主题读取时间点
+  getReadTime = (node) => {
     if(node.length > 0){
       this.props.dispatch({
         type: 'user/query',
@@ -78,42 +94,24 @@ export default class SmartAll extends Component {
         },
       });
     }
+  }
+
+  //获取推送消息列表内容
+  getXmppList = (msg, node) => {
+    console.log('msg:', msg);
+    connection.pubsub.items(node, null, null, 5000);
     let item = msg.getElementsByTagName('item');
     console.log('item====>', item);
+    this.setState({
+      XmppList: item,
+    })
     if (item.length > 0) {
       for (let i = 0; i < item.length; i++) {
         let messagecontent = item[i].getElementsByTagName('messagecontent');
         console.log('messagecontent====>', messagecontent[0].textContent);
       }
     }
-    // var arr  = [];
-    // for (var i = 0; i < names.length; i++) {
-    //   arr[arr.length] = names[i].innerHTML;
-    // };
-
-    // 解析出<message>的from、type属性，以及body子元素
-    var from = msg.getAttribute('from');
-    var type = msg.getAttribute('type');
-    var elems = msg.getElementsByTagName('body');
-    if (type == 'chat' && elems.length > 0) {
-      var body = elems[0];
-      console.log(from, Strophe.getText(body));
-    }
-    return true;
-  };
-
-  onMessage1 = msg => {
-    console.log('--- msg1 ---', msg);
-    // 解析出<message>的from、type属性，以及body子元素
-    var from = msg.getAttribute('from');
-    var type = msg.getAttribute('type');
-    var elems = msg.getElementsByTagName('body');
-    if (type == 'chat' && elems.length > 0) {
-      var body = elems[0];
-      console.log(from, Strophe.getText(body));
-    }
-    return true;
-  };
+  }
 
   //更新主题读取的时间点
   getTimeSave = () => {
@@ -134,14 +132,15 @@ export default class SmartAll extends Component {
   }
 
   render() {
+    console.log('this.state.XmppList=====>',this.state.XmppList)
     const user = sessionStorage.getItem('user');
     const userItem = JSON.parse(user).user;
     let item = ''
     {userItem.job.map(jobs => {
       if(jobs.code === '200001'){
-        item = <PoliceSmartItem />;
+        item = <PoliceSmartItem xpmmList={this.state.XmppList}/>;
       }else if (jobs.code === '200003'||jobs.code === '200002') {
-        item = <SmartItem />;
+        item = <SmartItem xpmmList={this.state.XmppList}/>;
       }
     })}
     return (

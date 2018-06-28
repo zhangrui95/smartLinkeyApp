@@ -67,6 +67,7 @@ class SiderMenu extends PureComponent {
       visible: false,
       xtszvisible: false,
       aboutvisible: false,
+      loginWay:''
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -219,6 +220,15 @@ class SiderMenu extends PureComponent {
   };
   getSystem = () => {
     this.props.form.resetFields();
+    this.props.dispatch({
+      type: 'login/getLoginSetting',
+      payload: {},
+      callback: response => {
+        this.setState({
+          loginWay: response.result.login_way,
+        })
+      },
+    });
     this.setState({
       xtszvisible: true,
     });
@@ -432,6 +442,7 @@ class SiderMenu extends PureComponent {
                       message: '请选择登录方式',
                     },
                   ],
+                  initialValue:this.state.loginWay
                 })(
                   <Select>
                     <Option value="700003">两者均可</Option>

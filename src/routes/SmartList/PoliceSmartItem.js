@@ -38,8 +38,14 @@ class PoliceSmartItem extends Component {
     super(props);
     this.state = {
       index: 0,
-      title:'李建东'
+      title: data[0].title,
+      xmppList:[]
     };
+  }
+  componentWillReceiveProps(next){
+    if(this.props.xpmmList !== next.xpmmList){
+      this.state.xmppList = next.xpmmList
+    }
   }
   componentDidMount() {
     console.log(this.props)

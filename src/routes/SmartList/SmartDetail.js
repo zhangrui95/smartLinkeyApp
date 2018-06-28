@@ -7,7 +7,9 @@ export default class SmartDetail extends Component {
   constructor(props) {
     //初始化nowPage为1
     super(props);
-    this.state = {};
+    this.state = {
+      // xmppList:[],
+    };
   }
   componentDidMount(){
     document.getElementById('scroll').scrollTop = 535;
@@ -16,8 +18,14 @@ export default class SmartDetail extends Component {
     if(this.props.getTitle !== next.getTitle){
       document.getElementById('scroll').scrollTop = 535;
     }
+    // if(this.props.xmppList !== next.xmppList){
+    //   this.setState({
+    //     xmppList: next.xmppList
+    //   })
+    // }
   }
   render() {
+    console.log('child-child-xmppList============>',this.props.xmppList)
     return (
       <div>
         <div className={styles.headerTitle}>{this.props.getTitle}</div>
