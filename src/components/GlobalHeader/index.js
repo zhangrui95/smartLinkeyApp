@@ -17,10 +17,7 @@ export default class GlobalHeader extends PureComponent {
     return (
       <div className={styles.header}>
         <div className={styles.headerLeft}>
-          <Search
-            placeholder={(this.props.pathItem === '/smartList/smartAll'||this.props.pathItem === '')?"搜索案件名称、案件编号、办案人":'搜索内容'}
-            onSearch={value => console.log(value)}
-          />
+          {(this.props.pathItem === '/smartList/smartAll'||this.props.pathItem === '') ? <Search placeholder="搜索案件名称、案件编号、办案人" onSearch={value => console.log(value)}/> : ''}
         </div>
         <div className={styles.headerRight}>
           <Icon type="minus" className={styles.iconWindows} onClick={this.minWindows} />
