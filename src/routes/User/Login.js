@@ -69,12 +69,7 @@ class LoginPage extends Component {
           response.data.password = hex_md5(values.password);
           let userJson = JSON.stringify(response.data);
           sessionStorage.setItem('user', userJson);
-          // ipcRenderer.send('login-success', (event, userJson) => {
-          //   db.set('info',userJson).write()
-          //   createTray();
-          //   createWindow();
-          // });
-          // window.close();
+          // ipc.send('login-success')
         },
       });
     }

@@ -14,7 +14,8 @@ class SmartLink extends Component {
     const { cookies } = props;
   }
   goLink = path => {
-    window.open(path);
+    ipc.send('visit-page', path);
+    // window.open(path);
   };
   render() {
     const user = sessionStorage.getItem('user');

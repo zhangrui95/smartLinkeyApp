@@ -256,6 +256,7 @@ class SiderMenu extends PureComponent {
         _this.props.dispatch({
           type: 'login/logout',
         });
+        // ipc.send('window-normal');
       },
       onCancel() {
         console.log('Cancel');
@@ -280,35 +281,34 @@ class SiderMenu extends PureComponent {
   }
   handleOk = () => {
     this.props.form.validateFields((err, values) => {
-      if (!err) {
-        console.log(err, values);
-        if (values.newsPwd !== values.newPwd) {
-          message.warn('提示：两次密码输入一致');
-          return;
-        } else {
-          this.props.dispatch({
-            type: 'login/updatePassword',
-            payload: {
-              idcard:
-                JSON.parse(sessionStorage.getItem('user')).user.idCard ||
-                JSON.parse(sessionStorage.getItem('user')).user.pcard,
-              newPassword: MD5.hash(values.newPwd),
-              oldPassword: MD5.hash(values.oldPwd),
-            },
-            callback: response => {
-              if (response.reason === null) {
-                this.setState({
-                  visible: false,
-                });
-                message.success('提示：密码修改成功，请重新登陆!');
-                sessionStorage.clear();
-                this.props.dispatch({
-                  type: 'login/logout',
-                });
-              }
-            },
-          });
-        }
+      console.log(err, values);
+      if (values.newsPwd !== values.newPwd) {
+        message.warn('提示：两次密码输入一致');
+        return;
+      } else {
+        this.props.dispatch({
+          type: 'login/updatePassword',
+          payload: {
+            idcard:
+              JSON.parse(sessionStorage.getItem('user')).user.idCard ||
+              JSON.parse(sessionStorage.getItem('user')).user.pcard,
+            newPassword: MD5.hash(values.newPwd),
+            oldPassword: MD5.hash(values.oldPwd),
+          },
+          callback: response => {
+            if (response.reason === null) {
+              this.setState({
+                visible: false,
+              });
+              message.success('提示：密码修改成功，请重新登陆!');
+              sessionStorage.clear();
+              this.props.dispatch({
+                type: 'login/logout',
+              });
+              // ipc.send('window-normal');
+            }
+          },
+        });
       }
     });
   };
@@ -456,7 +456,6 @@ class SiderMenu extends PureComponent {
           <Modal
             title="关于Smartlinkey"
             visible={this.state.aboutvisible}
-            onOk={this.handleOk}
             onCancel={this.handleCancel}
             maskClosable={false}
             footer={null}

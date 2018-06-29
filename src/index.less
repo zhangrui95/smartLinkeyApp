@@ -2,6 +2,7 @@ html,
 body,
 :global(#root) {
   height: 100%;
+  -webkit-app-region: drag!important;
 }
 
 :global(.ant-layout) {
@@ -23,9 +24,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
-  -webkit-app-region: drag;
-  -webkit-app-region: no-drag;
-  -webkit-user-select: none;
+  -webkit-app-region: drag!important;
 }
 
 .globalSpin {

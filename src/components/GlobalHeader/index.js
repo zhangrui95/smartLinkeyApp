@@ -13,11 +13,12 @@ export default class GlobalHeader extends PureComponent {
     ipc.send('window-close');
   };
   render() {
+    console.log('this.props.pathItem------------------->',this.props.pathItem)
     return (
       <div className={styles.header}>
         <div className={styles.headerLeft}>
           <Search
-            placeholder={this.props.pathItem === '/smartList/smartAll'?"搜索案件名称、案件编号、办案人":'搜索内容'}
+            placeholder={(this.props.pathItem === '/smartList/smartAll'||this.props.pathItem === '')?"搜索案件名称、案件编号、办案人":'搜索内容'}
             onSearch={value => console.log(value)}
           />
         </div>
