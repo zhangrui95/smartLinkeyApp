@@ -81,6 +81,12 @@
 .boxItem {
   width: 100%;
   overflow: hidden;
+  position: relative;
+  z-index: 9;
+  margin: 30px 0;
+  &:first-child {
+    margin-top: 0px;
+  }
   &:last-child {
     margin-bottom: 30px;
   }
@@ -92,4 +98,7 @@
   text-align: center;
   font-size: 14px;
   float: right;
+}
+.none{
+  display: none;
 }

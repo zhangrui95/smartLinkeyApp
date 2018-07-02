@@ -1,4 +1,6 @@
 .grayList{
+  height: 80px;
+  width: 100%;
   background: #ebedf0!important;
 }
 .getNewWords{
@@ -10,7 +12,7 @@
 }
 .badgePos{
   position: absolute;
-  right: 8px;
+  right: 0px;
   top:40px;
 }
 :global{
@@ -50,4 +52,32 @@
 }
 .leftList{
   position: relative;
+}
+.itemList{
+  height: 80px;
+  width: 100%;
+}
+.floatLeft{
+  position: relative;
+  float: left;
+  .imgLeft{
+    float: left;
+    margin: 17px 14px;
+    width: 46px;
+    height: 46px;
+  }
+  .titles{
+    margin-top: 20px;
+    color: #333;
+    font-size: 14px;
+  }
+  .news{
+    color: #666;
+    font-size: 12px;
+    float: left;
+    width: 100px;
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap
+  }
 }

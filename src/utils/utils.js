@@ -160,3 +160,28 @@ export function getNowFormatDate() {
     + seperator2 + date.getSeconds();
   return currentdate;
 }
+//时间戳转换
+export function getLocalTime(nS) {
+  if(nS==null){
+    return '';
+  }
+  var date = new Date(nS);
+  var month = date.getMonth()+1;
+  var day = date.getDate();
+  var hours = date.getHours();
+  var min = date.getMinutes();
+  var second = date.getSeconds();
+  month = month<10?('0'+month):month;
+  day = day<10?('0'+day):day;
+  hours = hours<10?('0'+hours):hours;
+  min = min<10?('0'+min):min;
+  second = second<10?('0'+second):second;
+  return date.getFullYear()+'-'+month+'-'+day + ' '+hours+':'+min+':'+second
+};
+//时间转时间戳
+export function getTime(strtime) {
+  let date = new Date(strtime.replace(/-/g, '/'));
+  let time = date.getTime();
+  return time;
+}
+

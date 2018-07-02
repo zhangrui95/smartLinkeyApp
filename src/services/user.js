@@ -20,3 +20,9 @@ export async function getDataSave(params) {
     body: params,
   });
 }
+export async function getFind(params) {
+  return request(`${configUrl.GMUrl}/datahandle/find `, {
+    method: 'POST',
+    body: params,
+  });
+}

@@ -2,17 +2,17 @@ import { isUrl } from '../utils/utils';
 
 const menuData = [
   {
-    name: ' ',
+    name: '消息',
     icon: 'images/message2.png',
     path: 'smartList/smartAll',
   },
   {
-    name: ' ',
+    name: '系统',
     icon: 'images/system2.png',
     path: 'smartList/smartLink',
   },
   {
-    name: ' ',
+    name: '收藏',
     icon: 'images/guanzhu2.png',
     path: 'smartList/SmartSave',
   },

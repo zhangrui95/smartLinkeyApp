@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Layout, Menu, Icon, Dropdown, Badge, Modal, Form, Input, Select, message } from 'antd';
+import { Layout, Menu, Icon, Dropdown, Badge, Modal, Form, Input, Select, message,Tooltip } from 'antd';
 import pathToRegexp from 'path-to-regexp';
 import { Link } from 'dva/router';
 import styles from './index.less';
@@ -19,7 +19,7 @@ const confirm = Modal.confirm;
 //   icon: <Icon type="setting" />,
 const getIcon = icon => {
   if (typeof icon === 'string') {
-    return <img src={icon} alt="icon" className={`${styles.icon} sider-menu-item-img`} />;
+    return <img src={icon} alt="icon" className={`${styles.icon} sider-menu-item-img`} />
   }
   // if (typeof icon === 'string') {
   //   return <Icon type={icon} style={{ fontSize: '32px', color: '#b2ebf6' }} />;
@@ -52,8 +52,8 @@ export const getMenuMatchKeys = (flatMenuKeys, paths) =>
       matchKeys.concat(flatMenuKeys.filter(item => pathToRegexp(item).test(path))),
     []
   );
-@connect(({ login }) => ({
-  login
+@connect(({ login,user }) => ({
+  login,user
 }))
 class SiderMenu extends PureComponent {
   constructor(props) {
@@ -68,6 +68,7 @@ class SiderMenu extends PureComponent {
       xtszvisible: false,
       aboutvisible: false,
       loginWay:'',
+      allNum:0
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -75,6 +76,10 @@ class SiderMenu extends PureComponent {
       this.setState({
         openKeys: this.getDefaultCollapsedSubMenus(nextProps),
       });
+    }else if(this.props.user.allNum !== nextProps.user.allNum){
+      this.setState({
+        allNum: nextProps.user.allNum
+      })
     }
   }
   /**
@@ -107,28 +112,30 @@ class SiderMenu extends PureComponent {
       );
     }
     return (
-      <Link
-        to={itemPath}
-        target={target}
-        replace={itemPath === this.props.location.pathname}
-        onClick={
-          this.props.isMobile
-            ? () => {
+      <Tooltip placement="right" title={item.name}>
+        <Link
+          to={itemPath}
+          target={target}
+          replace={itemPath === this.props.location.pathname}
+          onClick={
+            this.props.isMobile
+              ? () => {
                 this.props.onCollapse(true);
               }
-            : undefined
-        }
-      >
-        {this.state.iconIndex === index ? (
-          <img
-            src={this.state.iconImg}
-            alt="icon"
-            className={`${styles.icon} sider-menu-item-img`}
-          />
-        ) : (
-          icon
-        )}
-      </Link>
+              : undefined
+          }
+        >
+          {this.state.iconIndex === index ? (
+            <img
+              src={this.state.iconImg}
+              alt="icon"
+              className={`${styles.icon} sider-menu-item-img`}
+            />
+          ) : (
+            icon
+          )}
+        </Link>
+      </Tooltip>
     );
   };
   /**
@@ -256,7 +263,7 @@ class SiderMenu extends PureComponent {
         _this.props.dispatch({
           type: 'login/logout',
         });
-        // ipc.send('window-normal');
+        // ipc.send('logout');
       },
       onCancel() {
         console.log('Cancel');
@@ -305,7 +312,7 @@ class SiderMenu extends PureComponent {
               this.props.dispatch({
                 type: 'login/logout',
               });
-              // ipc.send('window-normal');
+              // ipc.send('logout');
             }
           },
         });
@@ -385,7 +392,7 @@ class SiderMenu extends PureComponent {
           selectedKeys={selectedKeys}
           style={{ padding: '16px 0', width: '100%' }}
         >
-          <Badge count={5} className={styles.badgeStyle} />
+          <Badge count={this.state.allNum} className={styles.badgeStyle} />
           <Modal
             title="修改密码"
             visible={this.state.visible}

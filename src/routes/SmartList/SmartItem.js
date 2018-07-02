@@ -6,33 +6,7 @@ import SmartDetail from './SmartDetail';
 import { instanceOf } from 'prop-types';
 import { routerRedux } from 'dva/router';
 import { withCookies, Cookies } from 'react-cookie';
-import { getNowFormatDate } from '../../utils/utils'
-const data = [
-  {
-    name: '问题案件',
-    word: '南岗区盗窃案进度时间的时间',
-    icon: 'images/anjian.png',
-    num:'3',
-    nodeid:'/BAGGL/GJXX/TLGJ',
-    maxmessageid: "2018-06-19 15:06:58"
-  },
-  {
-    name: '未受理警情',
-    word: '南岗区盗窃案进度时间',
-    icon: 'images/weishoulijingqing.png',
-    num:'2',
-    nodeid:'/DUBAN',
-    maxmessageid: "2018-06-17 16:09:23"
-  },
-  {
-    name: '问题涉案物品',
-    word: '南岗区盗窃案进度时间',
-    icon: 'images/wentiwupin.png',
-    num:'0',
-    nodeid:'/BAGGL/GJXX/LCGJ',
-    maxmessageid: "2018-06-18 11:24:12"
-  },
-];
+import { getNowFormatDate,getTime } from '../../utils/utils'
 @connect(({ user }) => ({
   user,
 }))
@@ -44,38 +18,71 @@ class SmartItem extends Component {
     super(props);
     this.state = {
       index: 0,
-      title: data[0].name,
-      nodeId: data[0].nodeid
+      title: '',
+      nodeId: '',
+      msgLists:'',
+      data:[],
+      num:[]
     };
+    this.message = []
+  }
+  componentDidMount(){
+    this.setState({
+      msgLists: this.props.msgList
+    })
   }
   componentWillReceiveProps(next){
-
-  }
-  componentDidMount() {
-    if(sessionStorage.getItem('lastReadTimes') !== null || sessionStorage.getItem('lastReadTimes') !== undefined){
-      // let lastReadTimes = JSON.parse(sessionStorage.getItem('lastReadTimes'));
-      // let msgList = JSON.parse(sessionStorage.getItem('msgList'));
-      // lastReadTimes.map((item)=>{
-      //   data.push(
-      //     {
-      //       name: item.name,
-      //       word: '南岗区盗窃案进度时间',
-      //       icon: 'images/wentiwupin.png',
-      //       num:'0',
-      //       maxmessageid:item.maxmessageid
-      //     },
-      //   )
-      // })
-    }
-    this.getAllNumbers();
-  }
-  getAllNumbers(){
-    let nums = 0;
-    data.map((item)=>{
-      nums+=parseInt(item.num);
+    this.setState({
+      msgLists: next.msgList
     })
-    sessionStorage.setItem('allNum', nums)
-    console.log(nums)
+    if(this.props.msgList !== next.msgList){
+     this.getAllList(next);
+    }
+  }
+  getAllList = (next) => {
+    let dataList = [];
+    if(next.searchList){
+      next.searchList.map((item,index)=>{
+        if(!item.maxmessageid){
+          this.props.dispatch({
+            type: 'user/dataSave',
+            payload: {
+              nodeid: item.nodeid,//读取的主题node
+              maxmessageid: getNowFormatDate(),//读取最后一条的读取时间
+              userid:'zr'
+            },
+            callback: response => {},
+          });
+        }
+        dataList.push(
+          {
+            name: item.name,
+            icon: (item.nodeid === '/BAQ'? 'images/anjian.png':(item.nodeid === '/JQLC'? 'images/weishoulijingqing.png':(item.nodeid === '/SACW'? 'images/wentiwupin.png':'images/user.png'))),
+            maxmessageid: item.maxmessageid,
+            nodeid: item.nodeid
+          },
+        )
+      })
+      if(next.searchList.length > 0){
+        this.setState({
+          title: dataList[0].name,
+          nodeId: dataList[0].nodeid,
+        })
+        dataList[0].num = 0
+        this.props.dispatch({
+          type: 'user/dataSave',
+          payload: {
+            nodeid: dataList[0].nodeid,//读取的主题node
+            maxmessageid: getNowFormatDate(),//读取最后一条的读取时间
+            userid:'zr'
+          },
+          callback: response => {},
+        });
+      }
+    }
+    this.setState({
+      data: dataList,
+    })
   }
   getListClick = (index,item) => {
     this.setState({
@@ -83,20 +90,17 @@ class SmartItem extends Component {
       title: item.name,
       nodeId: item.nodeid
     });
-    if(parseInt(item.num) > 0) {
-      this.getTimeSave(item,index)
-    }
+    this.getTimeSave(item,index)
   };
   //更新主题读取的时间点
   getTimeSave = (item,index) => {
-    data[index].num = 0
-    this.getAllNumbers();
+    this.state.data[index].num = 0
     this.props.dispatch({
       type: 'user/dataSave',
       payload: {
         nodeid: item.nodeid,//读取的主题node
         maxmessageid: getNowFormatDate(),//读取最后一条的读取时间
-        userid:'gm'
+        userid:'zr'
       },
       callback: response => {
         console.log('res-------------------',response.data)
@@ -104,35 +108,62 @@ class SmartItem extends Component {
     });
   }
   render() {
+    sessionStorage.setItem('nodeid', this.state.nodeId);
+    let list = []
+    let listWord = (nodeid) => {
+      let res = ''
+        this.state.msgLists.map((msgItem)=>{
+          let result = JSON.parse(msgItem.messagecontent).result
+          if(msgItem.nodeid.toLowerCase() === nodeid.toLowerCase()){
+            if(result.ajxx){//办案区
+              res = result.ajxx[parseInt(result.ajxx.length) - 1].ajmc
+            }else if(result.jqxx){
+              res = result.jqxx[parseInt(result.jqxx.length) - 1].ajmc
+            }else if(result.wpxx){
+              res = result.wpxx[parseInt(result.wpxx.length) - 1].ajmc
+            }
+          }
+        })
+      return res
+    }
+    let numAll = 0
+    let listNum = (item) => {
+      let num = 0;
+      this.state.msgLists.map((msgItem)=>{
+        if(msgItem.nodeid.toLowerCase() === item.nodeid.toLowerCase()){
+          if(msgItem.id > getTime(item.maxmessageid)){
+            num++
+          }
+        }
+      })
+      numAll+=parseInt(num);
+      sessionStorage.setItem('allNum', numAll)
+      return num
+    }
+    this.state.data.map((item,index)=>{
+      list.push(
+        <div onClick={() => this.getListClick(index,item)} className={this.state.index === index ? styles.grayList : styles.itemList}>
+          <div className={styles.floatLeft}>
+            <img className={styles.imgLeft}  src={item.icon}/>
+          </div>
+          <div className={styles.floatLeft}>
+            <div className={styles.titles}>{item.name}</div>
+            <div className={styles.news}>{listWord(item.nodeid)}</div>
+          </div>
+          <div className={styles.floatLeft}>
+            <span style={{float:'right',fontSize:'13px',marginTop:'18px'}}>{item.maxmessageid ? item.maxmessageid.slice(5,10) : getNowFormatDate().slice(5,10)}</span>
+            <Badge className={styles.badgePos} count={listNum(item)}/>
+          </div>
+        </div>
+      )
+    })
     return (
       <div className={styles.leftList}>
-        <List
-          className={styles.listScroll}
-          itemLayout="horizontal"
-          dataSource={data}
-          renderItem={(item, index) => (
-            <List.Item
-              onClick={() => this.getListClick(index,item)}
-              className={this.state.index === index ? styles.grayList : ''}
-              // extra={<div>1</div>}
-            >
-              <List.Item.Meta
-                style={{ cursor: 'pointer' }}
-                avatar={<Avatar src={item.icon} />}
-                title={<div style={{width:'94%',overflow:'hidden'}}>
-                  <span style={{float:'left'}}>{item.name}</span>
-                  <span style={{float:'right',fontSize:'13px'}}>{item.maxmessageid.slice(5,10)}</span>
-                </div>}
-                description={<div>
-                  <span className={styles.getNewWords}>{item.word}</span>
-                  <Badge className={styles.badgePos} count={item.num}/>
-                </div>}
-              />
-            </List.Item>
-          )}
-        />
+        <div className={styles.listScroll}>
+          {list}
+        </div>
         <div style={{ float: 'left',width:'calc(100% - 225px)'}}>
-          <SmartDetail newsId={this.state.index} getTitle={this.state.title} nodeId={this.state.nodeId}/>
+          <SmartDetail newsId={this.state.index} getTitle={this.state.title} nodeId={this.state.nodeId} msgList={this.state.msgLists}/>
         </div>
       </div>
     );

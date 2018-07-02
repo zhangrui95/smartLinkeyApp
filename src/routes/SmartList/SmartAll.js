@@ -18,6 +18,7 @@ export default class SmartAll extends Component {
       searchList:[],
       msgList: []
     };
+    this.msgListAll = []
   }
   componentDidMount() {
     connection = new Strophe.Connection(BOSH_SERVICE);
@@ -51,50 +52,43 @@ export default class SmartAll extends Component {
       for (let i = 0; i < names.length; i++) {
         console.log('node====>', names[i].attributes[0].textContent);
         node.push(names[i].attributes[0].textContent)
-        console.log('jid====>', names[i].attributes[1].textContent);
-        console.log('subscription====>', names[i].attributes[2].textContent);
-        console.log('subid====>', names[i].attributes[3].textContent);
-        // connection.pubsub.getSubOptions(names[i].attributes[0].textContent,names[i].attributes[3].textContent,this.onMessage);
-        // connection.pubsub.getConfig(names[i].attributes[0].textContent,this.onMessage);
         connection.pubsub.items(names[i].attributes[0].textContent, null, null, 5000);
       }
     }
     let item = msg.getElementsByTagName('item');
     console.log('item====>', item);
     if (item.length > 0) {
-      this.setState({
-        msgList: msg,
-      })
       for (let i = 0; i < item.length; i++) {
+        let id = item[i].attributes[0].textContent
         let messagecontent = item[i].getElementsByTagName('messagecontent');
-        console.log('messagecontent====>', messagecontent[0].textContent);
+        let createtime = item[i].getElementsByTagName('createtime');
+        let nodeid = item[i].getElementsByTagName('nodeid');
+        this.msgListAll.push({messagecontent:messagecontent[0].textContent,time:createtime[0].textContent,nodeid:nodeid[0].textContent, id:id})
+        this.setState({
+          msgList: this.msgListAll,
+        })
       }
     }
     console.log('________________________node____________________',{ nodeid: node.join(','), userid: 'zr' })
-
-    let messageItem = msg.getElementsByTagName('message').getElementsByTagName('item');
-    if(messageItem.length > 0){
-
-    }
 
     //查询主题读取时间点
     if(node.length > 0){
       this.setState({
         nodeList:node,
       })
-      // this.props.dispatch({
-      //   type: 'user/query',
-      //   payload: {
-      //     nodeid: node.join(','),
-      //     userid: 'zr'
-      //   },
-      //   callback: response => {
-      //     console.log('res-------------------',response.data)
-      //     this.setState({
-      //       searchList:response.data,
-      //     })
-      //   },
-      // });
+      this.props.dispatch({
+        type: 'user/query',
+        payload: {
+          nodeid: node.join(','),
+          userid: 'zr'
+        },
+        callback: response => {
+          console.log('res-------------------',response.data)
+          this.setState({
+            searchList:response.data,
+          })
+        },
+      });
     }
     return true;
   };
@@ -103,33 +97,16 @@ export default class SmartAll extends Component {
     console.log('--- msg1 ---', msg);
   };
 
-  //更新主题读取的时间点
-  getTimeSave = () => {
-    this.props.dispatch({
-      type: 'user/dataSave',
-      payload: {
-        nodeid: '',//读取的主题node
-        maxmessageid: '',//读取最后一条的读取时间
-        userid:'zr'
-      },
-      callback: response => {
-        console.log('res-------------------',response.data)
-        this.setState({
-          searchList:response.data,
-        })
-      },
-    });
-  }
-
   render() {
+    console.log('list=============>',this.state.msgList)
     const user = sessionStorage.getItem('user');
     const userItem = JSON.parse(user).user;
     let item = ''
     {userItem.job.map(jobs => {
       if(jobs.code === '200001'){
-        item = <PoliceSmartItem msgList={this.state.msgList} nodeList={this.state.nodeList}/>;
+        item = <PoliceSmartItem msgList={this.state.msgList} nodeList={this.state.nodeList} searchList={this.state.searchList}/>;
       }else if (jobs.code === '200003'||jobs.code === '200002') {
-        item = <SmartItem msgList={this.state.msgList} nodeList={this.state.nodeList}/>;
+        item = <SmartItem msgList={this.state.msgList} nodeList={this.state.nodeList} searchList={this.state.searchList}/>;
       }
     })}
     return (

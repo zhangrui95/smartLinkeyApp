@@ -14,7 +14,10 @@ class SmartLink extends Component {
     const { cookies } = props;
   }
   goLink = path => {
-    ipc.send('visit-page', path);
+    // ipc.send('visit-page', {
+    //   "url": path,
+    //   "browser": "chrome"
+    // });
     // window.open(path);
   };
   render() {
@@ -29,7 +32,7 @@ class SmartLink extends Component {
       } else if (item.resourceCode === 'zhag_btn') {
         listMenu.push({ name: '智慧案管系统', link: '', img: 'images/anjian.png' });
       } else if (item.resourceCode === 'sjcw_btn') {
-        listMenu.push({ name: '涉及财务系统', link: `${configUrl.cwUrl}`+'/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD='+userNew.name+'&type=0', img: 'images/weishoulijingqing.png' });
+        listMenu.push({ name: '涉案财务系统', link: `${configUrl.cwUrl}`+'/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD='+userNew.name+'&type=0', img: 'images/weishoulijingqing.png' });
       } else if (item.resourceCode === 'zhjq_btn') {
         listMenu.push({
           name: '智慧警情系统',

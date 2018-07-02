@@ -1,4 +1,4 @@
-import { query as queryUsers, queryCurrent,getQuery,getDataSave} from '../services/user';
+import { query as queryUsers, queryCurrent,getQuery,getDataSave,getFind} from '../services/user';
 
 export default {
   namespace: 'user',
@@ -6,6 +6,8 @@ export default {
   state: {
     list: [],
     currentUser: {},
+    searchList: [],
+    allNum: 0
   },
 
   effects: {
@@ -29,7 +31,18 @@ export default {
     },
     *dataSave({ payload, callback }, { call, put }) {
       const response = yield call(getDataSave, payload);
+      yield put({
+        type: 'getAllNum',
+        payload: sessionStorage.getItem('allNum'),
+      });
       callback(response)
+    },
+    *find({ payload, callback }, { call, put }) {
+      const response = yield call(getFind, payload);
+      yield put({
+        type: 'findList',
+        payload: response,
+      });
     },
   },
 
@@ -55,5 +68,17 @@ export default {
         },
       };
     },
+    findList(state, action) {
+      return {
+        ...state,
+        searchList: action.payload.data,
+      };
+    },
+    getAllNum(state, action) {
+      return {
+        ...state,
+        allNum: action.payload,
+      };
+    }
   },
 };

@@ -90,7 +90,7 @@ class LoginPage extends Component {
     </Tab>;
     return (
       <div className={styles.main}>
-        <div style={{height:'42px',background:'#00adcb',color:'#fff',padding:'0 20px',lineHeight:'42px',fontSize:'18px'}}>
+        <div className={styles.loginHeader} style={{height:'42px',background:'#00adcb',color:'#fff',padding:'0 20px',lineHeight:'42px',fontSize:'18px'}}>
           <span style={{float:'left'}}>Smartlinkey</span>
           <span style={{float:'right'}}><Icon type="close" className={styles.iconWindows} onClick={this.CloseWindow} /></span>
         </div>
