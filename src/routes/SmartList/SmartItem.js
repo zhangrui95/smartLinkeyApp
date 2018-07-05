@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { List, Avatar,Badge } from 'antd';
+import { List, Avatar,Badge,Spin } from 'antd';
 import styles from './SmartItem.less';
 import SmartDetail from './SmartDetail';
 import { instanceOf } from 'prop-types';
 import { routerRedux } from 'dva/router';
 import { withCookies, Cookies } from 'react-cookie';
-import { getNowFormatDate,getTime } from '../../utils/utils'
+import { getNowFormatDate,getTime,autoheight} from '../../utils/utils'
 @connect(({ user }) => ({
   user,
 }))
@@ -22,13 +22,25 @@ class SmartItem extends Component {
       nodeId: '',
       msgLists:'',
       data:[],
-      num:[]
+      num:[],
+      height: 586
     };
     this.message = []
+    this.listId = []
   }
   componentDidMount(){
     this.setState({
       msgLists: this.props.msgList
+    })
+    console.log('autoheight------------------->',autoheight())
+    // window.onresize = autoheight;
+    window.addEventListener('resize', () => {
+      this.updateSize()
+    });
+  }
+  updateSize() {
+    this.setState({
+      height:autoheight() - 54,
     })
   }
   componentWillReceiveProps(next){
@@ -54,14 +66,16 @@ class SmartItem extends Component {
             callback: response => {},
           });
         }
-        dataList.push(
-          {
-            name: item.name,
-            icon: (item.nodeid === '/BAQ'? 'images/anjian.png':(item.nodeid === '/JQLC'? 'images/weishoulijingqing.png':(item.nodeid === '/SACW'? 'images/wentiwupin.png':'images/user.png'))),
-            maxmessageid: item.maxmessageid,
-            nodeid: item.nodeid
-          },
-        )
+        // if(next.type != 2){
+          dataList.push(
+            {
+              name: item.name,
+              icon: (item.nodeid === '/AJLC'? 'images/anjian.png':(item.nodeid === '/JQLC'? 'images/weishoulijingqing.png':(item.nodeid === '/SACW'? 'images/wentiwupin.png':'images/user.png'))),
+              maxmessageid: item.maxmessageid,
+              nodeid: item.nodeid
+            },
+          )
+        // }
       })
       if(next.searchList.length > 0){
         this.setState({
@@ -85,16 +99,21 @@ class SmartItem extends Component {
     })
   }
   getListClick = (index,item) => {
+    // ipc.send('stop-flashing');
+    if(this.listId.indexOf(item.nodeid) < -1 || this.listId.indexOf(item.nodeid) === -1){
+      this.listId.push(item.nodeid);
+    }
     this.setState({
       index: index,
       title: item.name,
       nodeId: item.nodeid
     });
-    this.getTimeSave(item,index)
+    this.getTimeSave(item);
+    // this.props.getXmpp();
   };
   //更新主题读取的时间点
-  getTimeSave = (item,index) => {
-    this.state.data[index].num = 0
+  getTimeSave = (item) => {
+    // this.state.data[index].num = 0
     this.props.dispatch({
       type: 'user/dataSave',
       payload: {
@@ -103,7 +122,7 @@ class SmartItem extends Component {
         userid:'zr'
       },
       callback: response => {
-        console.log('res-------------------',response.data)
+
       },
     });
   }
@@ -114,26 +133,47 @@ class SmartItem extends Component {
       let res = ''
         this.state.msgLists.map((msgItem)=>{
           let result = JSON.parse(msgItem.messagecontent).result
+          let listType = JSON.parse(msgItem.messagecontent).type
           if(msgItem.nodeid.toLowerCase() === nodeid.toLowerCase()){
-            if(result.ajxx){//办案区
-              res = result.ajxx[parseInt(result.ajxx.length) - 1].ajmc
-            }else if(result.jqxx){
-              res = result.jqxx[parseInt(result.jqxx.length) - 1].ajmc
-            }else if(result.wpxx){
-              res = result.wpxx[parseInt(result.wpxx.length) - 1].ajmc
+            if(listType === 'jqxx'){
+              res = result[parseInt(result.length) - 1].jqmc
+            }else{
+              res = result[parseInt(result.length) - 1].ajmc
             }
           }
         })
       return res
     }
+    let listTime = (nodeid) => {
+      let time = ''
+      this.state.msgLists.map((msgItem)=>{
+        if(msgItem.nodeid.toLowerCase() === nodeid.toLowerCase()){
+          if(msgItem.time){
+            time = msgItem.time.slice(5,10);
+          }else{
+            time = getNowFormatDate().slice(5,10);
+          }
+        }
+      })
+      return time
+    }
     let numAll = 0
     let listNum = (item) => {
-      let num = 0;
-      this.state.msgLists.map((msgItem)=>{
-        if(msgItem.nodeid.toLowerCase() === item.nodeid.toLowerCase()){
-          if(msgItem.id > getTime(item.maxmessageid)){
-            num++
-          }
+      console.log('this.listId====>',this.listId);
+      console.log('getTime(item.maxmessageid)====>',getTime(item.maxmessageid));
+      let num = 1;
+      this.listId.map((itemId) => {
+        if(itemId.toLowerCase() === item.nodeid.toLowerCase()){
+          num = 0;
+        }else{
+          this.state.msgLists.map((msgItem)=>{
+            if(msgItem.nodeid.toLowerCase() === item.nodeid.toLowerCase()){
+              console.log('item===========>',item)
+              if(msgItem.id > getTime(item.maxmessageid)){
+                num++
+              }
+            }
+          })
         }
       })
       numAll+=parseInt(num);
@@ -151,7 +191,7 @@ class SmartItem extends Component {
             <div className={styles.news}>{listWord(item.nodeid)}</div>
           </div>
           <div className={styles.floatLeft}>
-            <span style={{float:'right',fontSize:'13px',marginTop:'18px'}}>{item.maxmessageid ? item.maxmessageid.slice(5,10) : getNowFormatDate().slice(5,10)}</span>
+            <span style={{float:'right',fontSize:'13px',marginTop:'18px'}}>{listTime(item.nodeid)}</span>
             <Badge className={styles.badgePos} count={listNum(item)}/>
           </div>
         </div>
@@ -159,11 +199,12 @@ class SmartItem extends Component {
     })
     return (
       <div className={styles.leftList}>
-        <div className={styles.listScroll}>
+        <div className={styles.listScroll} style={{height:this.state.height + 'px'}}>
+          <Spin size="large" className={this.props.loading ? '' : styles.none}/>
           {list}
         </div>
         <div style={{ float: 'left',width:'calc(100% - 225px)'}}>
-          <SmartDetail newsId={this.state.index} getTitle={this.state.title} nodeId={this.state.nodeId} msgList={this.state.msgLists}/>
+          <SmartDetail newsId={this.state.index} getTitle={this.state.title} nodeId={this.state.nodeId} msgList={this.state.msgLists} onNewMsg={(node,maxNum)=>this.props.onNewMsg(node,maxNum)}/>
         </div>
       </div>
     );

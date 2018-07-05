@@ -14,6 +14,7 @@ export default class GlobalHeader extends PureComponent {
     this.state = {
       searchValue: '',
       delay:0,
+      icon:'images/fang.png'
     };
   }
   emitEmpty = () => {
@@ -48,19 +49,32 @@ export default class GlobalHeader extends PureComponent {
       },1000)
   }
   minWindows = () => {
-    // ipc.send('window-min');
+    ipc.send('window-min');
   };
+  maxWindows = () => {
+    if(this.state.icon === 'images/fang.png'){
+      this.setState({
+        icon:'images/hy.png'
+      })
+      ipc.send('window-max');
+    }else{
+      this.setState({
+        icon:'images/fang.png'
+      })
+      ipc.send('window-normal');
+    }
+  }
   CloseWindow = () => {
-    // ipc.send('put-in-tray');
+    ipc.send('put-in-tray');
   };
   render() {
     console.log('this.props.pathItem------------------->',this.props.pathItem)
     const { searchValue } = this.state;
     const suffix = searchValue ? <Icon type="close-circle" onClick={this.emitEmpty} /> : null;
     return (
-      <div className={styles.header}>
+      <div className={styles.header} id="header">
         <div className={styles.headerLeft}>
-          {(this.props.pathItem === '/smartList/smartAll'||this.props.pathItem === '') ?
+          {(this.props.pathItem !== '/smartList/smartAll?type=1') ?
             <Input
             placeholder="搜索案件名称、案件编号、办案人"
             prefix={<Icon type="search" style={{ color: 'rgba(0,0,0,.25)' }} />}
@@ -73,6 +87,7 @@ export default class GlobalHeader extends PureComponent {
         </div>
         <div className={styles.headerRight}>
           <Icon type="minus" className={styles.iconWindows} onClick={this.minWindows} />
+          <img src={this.state.icon} className={styles.iconWindows} style={{marginTop:'-5px'}} onClick={this.maxWindows}/>
           <Icon type="close" className={styles.iconWindows} onClick={this.CloseWindow} />
         </div>
       </div>

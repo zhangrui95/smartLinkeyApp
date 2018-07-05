@@ -3,6 +3,7 @@
   "version": "2.0.0-beta.1",
   "description": "An out-of-box UI solution for enterprise applications",
   "private": true,
+  "homepage": ".",
   "scripts": {
     "precommit": "npm run lint-staged",
     "start": "set port=7777 && cross-env DISABLE_ESLINT=true roadhog dev",

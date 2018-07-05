@@ -4,17 +4,17 @@ const menuData = [
   {
     name: '消息',
     icon: 'images/message2.png',
-    path: 'smartList/smartAll',
+    path: 'smartList/smartAll?type=0',
   },
   {
     name: '系统',
     icon: 'images/system2.png',
-    path: 'smartList/smartLink',
+    path: 'smartList/smartAll?type=1',
   },
   {
     name: '收藏',
     icon: 'images/guanzhu2.png',
-    path: 'smartList/SmartSave',
+    path: 'smartList/smartAll?type=2',
   },
   {
     name: '账户',

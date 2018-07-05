@@ -184,4 +184,21 @@ export function getTime(strtime) {
   let time = date.getTime();
   return time;
 }
-
+//获取地址
+export function getQueryString(path, name) {
+  var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+  var r = path.substr(1).match(reg);
+  if (r != null) return unescape(r[2]);
+  return null;
+}
+//自适应浏览器高度
+export function autoheight(){
+  var winHeight=0;
+  if (window.innerHeight)
+    winHeight = window.innerHeight;
+  else if ((document.body) && (document.body.clientHeight))
+    winHeight = document.body.clientHeight;
+  if (document.documentElement && document.documentElement.clientHeight)
+    winHeight = document.documentElement.clientHeight;
+    return winHeight;
+}
