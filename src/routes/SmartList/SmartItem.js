@@ -23,8 +23,10 @@ class SmartItem extends Component {
       msgLists:'',
       data:[],
       num:[],
-      height: 586
+      height: 586,
+      numList:[]
     };
+    this.numAll = 0
     this.message = []
     this.listId = []
   }
@@ -47,77 +49,97 @@ class SmartItem extends Component {
     this.setState({
       msgLists: next.msgList
     })
-    if(this.props.msgList !== next.msgList){
+    if(this.props.msgList !== next.msgList || this.props.type !== next.type){
      this.getAllList(next);
     }
   }
   getAllList = (next) => {
     let dataList = [];
+    let numLists = [];
     if(next.searchList){
+      console.log('next.searchList===========>999999999999999999999999999',next.searchList)
       next.searchList.map((item,index)=>{
-        if(!item.maxmessageid){
-          this.props.dispatch({
-            type: 'user/dataSave',
-            payload: {
-              nodeid: item.nodeid,//读取的主题node
-              maxmessageid: getNowFormatDate(),//读取最后一条的读取时间
-              userid:'zr'
-            },
-            callback: response => {},
-          });
+        if(next.type != 2){
+          if(item.nodeid !== '/QYRJQ'){
+            numLists.push(this.listNum(item,next.msgList))
+            this.setState({
+              numList:numLists
+            })
+            dataList.push(
+              {
+                name: item.name,
+                icon: (item.nodeid === '/AJLC'? 'images/anjian.png':(item.nodeid === '/JQLC'? 'images/weishoulijingqing.png':(item.nodeid === '/SACW'? 'images/wentiwupin.png':'images/user.png'))),
+                maxmessageid: item.maxmessageid,
+                nodeid: item.nodeid
+              },
+            )
+          }
+          if(next.searchList.length > 0){
+            if(this.state.nodeId === '' || this.state.nodeId === '/QYRJQ'){
+              this.setState({
+                title: dataList[0].name,
+                nodeId: dataList[0].nodeid,
+              })
+            }
+            dataList[0].num = 0
+          }
+          if(!item.maxmessageid){
+            this.props.dispatch({
+              type: 'user/dataSave',
+              payload: {
+                nodeid: dataList[0].nodeid,//读取的主题node
+                maxmessageid: getNowFormatDate(),//读取最后一条的读取时间
+                userid:'zr'
+              },
+              callback: response => {},
+            });
+          }
+        }else{
+          if(item.nodeid === '/QYRJQ'){
+            dataList.push(
+              {
+                name: item.name,
+                icon: 'images/weishoulijingqing.png',
+                maxmessageid: item.maxmessageid,
+                nodeid: item.nodeid
+              },
+            )
+            this.setState({
+              title: dataList[0].name,
+              nodeId: dataList[0].nodeid,
+              index: 0,
+            })
+          }
         }
-        // if(next.type != 2){
-          dataList.push(
-            {
-              name: item.name,
-              icon: (item.nodeid === '/AJLC'? 'images/anjian.png':(item.nodeid === '/JQLC'? 'images/weishoulijingqing.png':(item.nodeid === '/SACW'? 'images/wentiwupin.png':'images/user.png'))),
-              maxmessageid: item.maxmessageid,
-              nodeid: item.nodeid
-            },
-          )
-        // }
       })
-      if(next.searchList.length > 0){
-        this.setState({
-          title: dataList[0].name,
-          nodeId: dataList[0].nodeid,
-        })
-        dataList[0].num = 0
-        this.props.dispatch({
-          type: 'user/dataSave',
-          payload: {
-            nodeid: dataList[0].nodeid,//读取的主题node
-            maxmessageid: getNowFormatDate(),//读取最后一条的读取时间
-            userid:'zr'
-          },
-          callback: response => {},
-        });
-      }
     }
     this.setState({
       data: dataList,
     })
   }
-  getListClick = (index,item) => {
+  getListClick = (index,item,num) => {
     // ipc.send('stop-flashing');
-    if(this.listId.indexOf(item.nodeid) < -1 || this.listId.indexOf(item.nodeid) === -1){
-      this.listId.push(item.nodeid);
-    }
     this.setState({
       index: index,
       title: item.name,
       nodeId: item.nodeid
     });
-    this.getTimeSave(item);
+    if(num > 0){
+      if(this.listId.indexOf(item.nodeid) < -1 || this.listId.indexOf(item.nodeid) === -1){
+        this.listId.push(item.nodeid);
+      }
+      this.getTimeSave(item.nodeid);
+    }
     // this.props.getXmpp();
+    this.state.numList[index] = 0;
   };
   //更新主题读取的时间点
-  getTimeSave = (item) => {
+  getTimeSave = (node) => {
     // this.state.data[index].num = 0
     this.props.dispatch({
       type: 'user/dataSave',
       payload: {
-        nodeid: item.nodeid,//读取的主题node
+        nodeid: node,//读取的主题node
         maxmessageid: getNowFormatDate(),//读取最后一条的读取时间
         userid:'zr'
       },
@@ -126,7 +148,27 @@ class SmartItem extends Component {
       },
     });
   }
+  listNum = (item,list) => {
+    let num = 0;
+    if(item.maxmessageid){
+      list.map((msgItem)=>{
+        if(msgItem.nodeid.toLowerCase() === item.nodeid.toLowerCase()){
+          if(msgItem.id > getTime(item.maxmessageid)){
+            num++;
+            console.log('闪烁？？？？？？？？？')
+          }
+        }
+      })
+    }else{
+      num = 1;
+    }
+    this.numAll+=parseInt(num);
+    sessionStorage.setItem('allNum', this.numAll);
+    // this.getTimeSave(sessionStorage.getItem('nodeid'));
+    return num
+  }
   render() {
+    console.log('this.numList============>',this.state.numList)
     sessionStorage.setItem('nodeid', this.state.nodeId);
     let list = []
     let listWord = (nodeid) => {
@@ -157,32 +199,9 @@ class SmartItem extends Component {
       })
       return time
     }
-    let numAll = 0
-    let listNum = (item) => {
-      console.log('this.listId====>',this.listId);
-      console.log('getTime(item.maxmessageid)====>',getTime(item.maxmessageid));
-      let num = 1;
-      this.listId.map((itemId) => {
-        if(itemId.toLowerCase() === item.nodeid.toLowerCase()){
-          num = 0;
-        }else{
-          this.state.msgLists.map((msgItem)=>{
-            if(msgItem.nodeid.toLowerCase() === item.nodeid.toLowerCase()){
-              console.log('item===========>',item)
-              if(msgItem.id > getTime(item.maxmessageid)){
-                num++
-              }
-            }
-          })
-        }
-      })
-      numAll+=parseInt(num);
-      sessionStorage.setItem('allNum', numAll)
-      return num
-    }
     this.state.data.map((item,index)=>{
       list.push(
-        <div onClick={() => this.getListClick(index,item)} className={this.state.index === index ? styles.grayList : styles.itemList}>
+        <div onClick={() => this.getListClick(index,item,this.state.numList[index])} className={this.state.index === index ? styles.grayList : styles.itemList}>
           <div className={styles.floatLeft}>
             <img className={styles.imgLeft}  src={item.icon}/>
           </div>
@@ -191,8 +210,8 @@ class SmartItem extends Component {
             <div className={styles.news}>{listWord(item.nodeid)}</div>
           </div>
           <div className={styles.floatLeft}>
-            <span style={{float:'right',fontSize:'13px',marginTop:'18px'}}>{listTime(item.nodeid)}</span>
-            <Badge className={styles.badgePos} count={listNum(item)}/>
+            <span style={{float:'right',fontSize:'13px',marginTop:'18px'}}>{sessionStorage.getItem('nodeid')==='/QYRJQ' ? '' : listTime(item.nodeid)}</span>
+            <Badge className={styles.badgePos} count={sessionStorage.getItem('nodeid')==='/QYRJQ' ? 0 : this.state.numList[index]}/>
           </div>
         </div>
       )
@@ -204,7 +223,7 @@ class SmartItem extends Component {
           {list}
         </div>
         <div style={{ float: 'left',width:'calc(100% - 225px)'}}>
-          <SmartDetail newsId={this.state.index} getTitle={this.state.title} nodeId={this.state.nodeId} msgList={this.state.msgLists} onNewMsg={(node,maxNum)=>this.props.onNewMsg(node,maxNum)}/>
+          <SmartDetail newsId={this.state.index} getTitle={this.state.title} nodeId={this.state.nodeId} msgList={this.state.msgLists} onNewMsg={(nodeList,maxNum)=>this.props.onNewMsg(nodeList,maxNum)}/>
         </div>
       </div>
     );

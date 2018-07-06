@@ -17,10 +17,9 @@ export default class SmartDetail extends Component {
       loading: false,
       load: false,
       height: 535,
-      data:[
-        // {headerName:'案管',xtName:'智慧案管系统',time:'6月19号 19:32',state:'未督办',name:'南岗区盗窃案',police:'王建安，李东升',startTime:'2018-04-29'},
-        // {headerName:'案管',xtName:'智慧案管系统',time:'6月19号 19:32',state:'未督办',name:'南岗区盗窃案',police:'王建安，李东升',startTime:'2018-04-29'},
-      ]
+      data:[],
+      scrollHeight: 0,
+      sHight: 0
     };
     this.maxNum = 0;
   }
@@ -47,26 +46,42 @@ export default class SmartDetail extends Component {
         this.setState({
           load: false
         })
-        document.getElementById('scroll').scrollTop = 1700
-        this.props.onNewMsg(sessionStorage.getItem('nodeid'),5)
+        JSON.parse(sessionStorage.getItem('nodeList')).map((node)=>{
+          if(node === sessionStorage.getItem('nodeid')){
+            this.props.onNewMsg(node, '')
+            this.setState({
+              sHight:document.getElementById('scroll').scrollHeight - parseInt(this.state.scrollHeight)
+            })
+          }else{
+            this.props.onNewMsg(node, 2)
+          }
+        })
+        document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
       },200)
     }
   }
   handleScroll(event) {
+    this.setState({
+      scrollHeight:0,
+    })
     let scrollTop = document.getElementById('scroll').scrollTop;
     this._handleScroll(scrollTop);
   }
   componentWillReceiveProps(next){
     let list = [];
     next.msgList.map((item)=>{
-      if(next.nodeId.toLowerCase() === item.nodeid.toLowerCase()){
+      if(sessionStorage.getItem('nodeid').toLowerCase() === item.nodeid.toLowerCase()){
         list.push(item)
       }
     })
     this.setState({
       data:list
     })
+    document.getElementById('scroll').scrollTop = this.state.sHight
     if(this.props.getTitle !== next.getTitle){
+      this.setState({
+        scrollHeight: document.getElementById('scroll').scrollHeight,
+      })
       document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
       // console.log('document.getElementById(scroll).scrollHeight',document.getElementById('scroll').scrollHeight)
       this.setState({
@@ -81,6 +96,7 @@ export default class SmartDetail extends Component {
         document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
       },200)
     }else if(this.props.user.searchList !== next.user.searchList){
+      document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
       this.setState({
         searchList:next.user.searchList,
         loading:true,
@@ -89,15 +105,17 @@ export default class SmartDetail extends Component {
         this.setState({
           loading:false,
         })
+        document.getElementById('scroll').scrollTop = document.getElementById('scroll').scrollHeight;
+        document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
       },200)
     }
   }
   goWindow = (path) => {
-    // window.open(path)
-    ipc.send('visit-page', {
-      "url": path,
-      "browser": "chrome"
-    });
+    window.open(path)
+    // ipc.send('visit-page', {
+    //   "url": path,
+    //   "browser": "chrome"
+    // });
   }
   createXml = (str) => {
     if(document.all){

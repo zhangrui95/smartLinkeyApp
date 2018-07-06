@@ -21,6 +21,7 @@ export default class SmartAll extends Component {
       searchList:[],
       msgList: [],
       loading: false,
+      num: 2
     };
     this.msgListAll = []
   }
@@ -33,7 +34,6 @@ export default class SmartAll extends Component {
   }
 
   getXmpp = () => {
-    // this.msgListAll = []
     connection = new Strophe.Connection(BOSH_SERVICE);
     connection.connect(
       'zr@pc-20170308pkrs',
@@ -61,43 +61,50 @@ export default class SmartAll extends Component {
       connection.pubsub.getSubscriptions(this.onMessage1, 5000);
     }
   };
-  onNewMsg = (node,maxNum) => {
-    // this.msgListAll = [];
-    connection.pubsub.items(node, null, null, 5000, maxNum);
+  onNewMsg = (nodeList,maxNum) => {
+    this.msgListAll = []
+    this.setState({
+      num: maxNum
+    })
+    console.log('this.state.num*************************',this.state.num)
+    connection.pubsub.items(nodeList, null, null, 5000, this.state.num);
   }
   onMessage = msg => {
     console.log('--- msg ---', msg);
+    console.log('this.state.num==============================================>',this.state.num);
     let node = []
     let names = msg.getElementsByTagName('subscription');
     if (names.length > 0) {
+      console.log('000000',names)
       for (let i = 0; i < names.length; i++) {
         node.push(names[i].attributes[0].textContent)
-        this.onNewMsg(names[i].attributes[0].textContent, 2)
-        // connection.pubsub.items(names[i].attributes[0].textContent, null, null, 5000, 2);
+        sessionStorage.setItem('nodeList', JSON.stringify(node));
+        this.onNewMsg(names[i].attributes[0].textContent,this.state.num)
       }
     }
     let item = msg.getElementsByTagName('item');
     let message = msg.getElementsByTagName('message');
-    console.log('message???======>',message)
-    if(message.length > 0){
-      console.log('新消息======>',message)
-      console.log('这里闪烁执行了!!!!')
-      // ipc.send('start-flashing');
-      message.map((msgItem,i)=>{
-        console.log('msgItem=====>',msgItem)
-        console.log('msgItem.getElementsByTagName(nodeid)=====>',msgItem.getElementsByTagName('nodeid'))
-        if(sessionStorage.getItem('nodeid').toLowerCase() !== msgItem.getElementsByTagName('nodeid').toLowerCase()){
-          console.log('这里闪烁执行了吗？？？？？？？？？？？？？？？？？')
-          // ipc.send('start-flashing');
-        }
-      })
-    }
+    // console.log('message???======>',message)
+    // if(message.length > 0){
+    //   console.log('新消息======>',message)
+    //   console.log('这里闪烁执行了!!!!')
+    //   // ipc.send('start-flashing');
+    //   message.map((msgItem,i)=>{
+    //     console.log('msgItem=====>',msgItem)
+    //     console.log('msgItem.getElementsByTagName(nodeid)=====>',msgItem.getElementsByTagName('nodeid'))
+    //     if(sessionStorage.getItem('nodeid').toLowerCase() !== msgItem.getElementsByTagName('nodeid').toLowerCase()){
+    //       console.log('这里闪烁执行了吗？？？？？？？？？？？？？？？？？')
+    //       // ipc.send('start-flashing');
+    //     }
+    //   })
+    // }
     if (item.length > 0) {
       for (let i = 0; i < item.length; i++) {
         let id = item[i].attributes[0].textContent
         let messagecontent = item[i].getElementsByTagName('messagecontent');
         let createtime = item[i].getElementsByTagName('createtime');
         let nodeid = item[i].getElementsByTagName('nodeid');
+        console.log('this.msgListAll',this.msgListAll)
         this.msgListAll.push({messagecontent:messagecontent[0].textContent,time:createtime[0].textContent,nodeid:nodeid[0].textContent, id:id});
         this.setState({
           msgList: this.msgListAll,
@@ -117,6 +124,7 @@ export default class SmartAll extends Component {
           userid: 'zr'
         },
         callback: response => {
+          console.log('response================>',response)
           this.setState({
             searchList:response.data,
           })
@@ -131,6 +139,7 @@ export default class SmartAll extends Component {
   };
 
   render() {
+    console.log('msgList111111111111111111111111111111111111111111111111111111=========>',this.state.msgList)
     const user = sessionStorage.getItem('user');
     const userItem = JSON.parse(user).user;
     let type = getQueryString(this.props.location.search, 'type');
