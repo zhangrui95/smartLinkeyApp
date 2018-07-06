@@ -87,9 +87,6 @@ export const getRouterData = app => {
     '/smartList/smartLink': {
       component: dynamicWrapper(app, [], () => import('../routes/SmartList/SmartLink')),
     },
-    '/smartList/smartSave': {
-      component: dynamicWrapper(app, [], () => import('../routes/SmartList/SmartSave')),
-    },
     '/dashboard/analysis': {
       component: dynamicWrapper(app, ['chart'], () => import('../routes/Dashboard/Analysis')),
     },

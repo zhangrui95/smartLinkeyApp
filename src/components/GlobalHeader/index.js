@@ -17,6 +17,11 @@ export default class GlobalHeader extends PureComponent {
       icon:'images/fang.png'
     };
   }
+  componentWillReceiveProps(next){
+    if(this.props.user.nodeId!==next.user.nodeId){
+      this.setState({ searchValue: '' });
+    }
+  }
   emitEmpty = () => {
     this.searchValueInput.focus();
     this.setState({ searchValue: '' });
@@ -68,7 +73,6 @@ export default class GlobalHeader extends PureComponent {
     // ipc.send('put-in-tray');
   };
   render() {
-    console.log('this.props.pathItem------------------->',this.props.pathItem)
     const { searchValue } = this.state;
     const suffix = searchValue ? <Icon type="close-circle" onClick={this.emitEmpty} /> : null;
     return (

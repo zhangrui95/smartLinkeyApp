@@ -3,7 +3,7 @@ import { connect } from 'dva';
 import { Card, Icon, Avatar, Tag,Spin } from 'antd';
 const { Meta } = Card;
 import styles from './PoliceSmartDetail.less';
-import { getLocalTime } from '../../utils/utils'
+import { getLocalTime,autoheight } from '../../utils/utils'
 @connect(({ user }) => ({
   user,
 }))
@@ -15,11 +15,43 @@ export default class PoliceSmartDetail extends Component {
       // xmppList:[],
       searchList:null,
       loading: false,
+      load: false,
+      height: 535,
       data:[]
     };
+    this.maxNum = 0;
   }
+  scrollHandler = this.handleScroll.bind(this);
   componentDidMount(){
+    window.addEventListener('resize', () => {
+      this.updateSize()
+    });
     document.getElementById('scroll').scrollTop = document.getElementById('scroll').scrollHeight;
+  }
+  updateSize() {
+    this.setState({
+      height:autoheight() - 104,
+    })
+  }
+  _handleScroll(scrollTop) {
+    if(scrollTop === 0){
+      this.maxNum++;
+      console.log(this.maxNum);
+      this.setState({
+        load: true
+      })
+      setTimeout(()=>{
+        this.setState({
+          load: false
+        })
+        document.getElementById('scroll').scrollTop = 1700
+        this.props.onNewMsg(sessionStorage.getItem('nodeid'),5)
+      },200)
+    }
+  }
+  handleScroll(event) {
+    let scrollTop = document.getElementById('scroll').scrollTop;
+    this._handleScroll(scrollTop);
   }
   componentWillReceiveProps(next){
     let list = [];
@@ -32,7 +64,8 @@ export default class PoliceSmartDetail extends Component {
       data:list
     })
     if(this.props.getTitle !== next.getTitle){
-      document.getElementById('scroll').scrollTop = document.getElementById('scroll').scrollHeight;
+      document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
+      // console.log('document.getElementById(scroll).scrollHeight',document.getElementById('scroll').scrollHeight)
       this.setState({
         searchList:null,
         loading:true,
@@ -41,6 +74,8 @@ export default class PoliceSmartDetail extends Component {
         this.setState({
           loading:false,
         })
+        document.getElementById('scroll').scrollTop = document.getElementById('scroll').scrollHeight;
+        document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
       },200)
     }else if(this.props.user.searchList !== next.user.searchList){
       this.setState({
@@ -52,7 +87,6 @@ export default class PoliceSmartDetail extends Component {
           loading:false,
         })
       },200)
-      document.getElementById('scroll').scrollTop = document.getElementById('scroll').scrollHeight;
     }
   }
   goWindow = (path) => {

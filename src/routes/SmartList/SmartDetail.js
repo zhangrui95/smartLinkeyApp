@@ -38,7 +38,6 @@ export default class SmartDetail extends Component {
   _handleScroll(scrollTop) {
     if(scrollTop === 0){
       this.maxNum++;
-      console.log(this.maxNum);
       this.setState({
         load: true
       })
@@ -83,7 +82,6 @@ export default class SmartDetail extends Component {
         scrollHeight: document.getElementById('scroll').scrollHeight,
       })
       document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
-      // console.log('document.getElementById(scroll).scrollHeight',document.getElementById('scroll').scrollHeight)
       this.setState({
         searchList:null,
         loading:true,
@@ -111,7 +109,7 @@ export default class SmartDetail extends Component {
     }
   }
   goWindow = (path) => {
-    window.open(path)
+    // window.open(path)
     // ipc.send('visit-page', {
     //   "url": path,
     //   "browser": "chrome"
@@ -140,14 +138,17 @@ export default class SmartDetail extends Component {
         this.state.data.map((item,i)=>{
           listType = JSON.parse(item.messagecontent).type;
           result = JSON.parse(item.messagecontent).result;
-          if(listType === 'ajxx'){//办案区
+          if(listType === 'ajxx'){//案管
             result.map((ajItem,index)=>{
               list.push(<div className={styles.boxItem} key={'aj'+i.toString() + index}>
                 <div className={styles.timeStyle}>{item.time}</div>
                 <div>
-                  <div className={styles.headerName}>案管</div>
+                  {sessionStorage.getItem('nodeid')==='/AJLC'? <div className={styles.headerName}>案管</div> :
+                  <div className={styles.headerName}>
+                    <img src="images/user.png" className={styles.headerImgSay}/>
+                  </div>}
                   <div className={styles.cardBox}>
-                    <div className={styles.newsTitle}>智慧案管系统</div>
+                    <div className={styles.newsTitle}>{sessionStorage.getItem('nodeid')==='/AJLC' ? '智慧案管系统' : ajItem.name}</div>
                     <Card
                       title={
                         <div>
@@ -158,8 +159,8 @@ export default class SmartDetail extends Component {
                       style={{ width: 330, padding: '0 16px' }}
                       cover={<img alt="example" src="images/chatu1.png" />}
                       actions={[
-                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(`${configUrl.agUrl}` + '#/loginByToken?token=' + token + '&&dbid='+ajItem.dbid + '&&type="1"')}>
-                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>立即督办</a>
+                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='/AJLC'? `${configUrl.agUrl}` + '#/loginByToken?token=' + token + '&&dbid='+ajItem.dbid + '&&type="1"':`${configUrl.ajlcUrl}`+'/Manager/smartlinkeyLoign?username=' + userNew.idCard + '&&password='+pwd+'&&dbid='+ajItem.dbid+'&&type=1')}>
+                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='/AJLC'? '立即督办':'立即处理'}</a>
                           <a className={styles.goChild}> > </a>
                         </div>,
                       ]}
@@ -183,9 +184,12 @@ export default class SmartDetail extends Component {
               list.push(<div className={styles.boxItem} key={'jq'+i.toString() + index}>
                 <div className={styles.timeStyle}>{item.time}</div>
                 <div>
-                  <div className={styles.headerName}>警情</div>
+                  {sessionStorage.getItem('nodeid')==='/JQLC'? <div className={styles.headerName}>警情</div> :
+                    <div className={styles.headerName}>
+                      <img src="images/user.png" className={styles.headerImgSay}/>
+                    </div>}
                   <div className={styles.cardBox}>
-                    <div className={styles.newsTitle}>智慧警情系统</div>
+                    <div className={styles.newsTitle}>{sessionStorage.getItem('nodeid')==='/JQLC' ? '智慧警情系统' : items.name}</div>
                     <Card
                       title={
                         <div>
@@ -197,8 +201,8 @@ export default class SmartDetail extends Component {
                       cover={<img alt="example" src="images/chatu1.png" />}
                       actions={[
                         //<div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(`${configUrl.jqUrl}` + '/JQCL/userlogin/smartlinkeyLoign?username=' + userNew.idCard + '&&password=' + pwd + '&&type=0')}>
-                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(`${configUrl.agUrl}` + '#/loginByToken?token=' + token + '&&dbid='+items.dbid + '&&type="2"')}>
-                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>立即督办</a>
+                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='/JQLC'? `${configUrl.agUrl}` + '#/loginByToken?token=' + token + '&&dbid='+items.dbid + '&&type="2"':`${configUrl.jqUrl}` + '/JQCL/userlogin/smartlinkeyLoign?username=' + userNew.idCard + '&&password=' + pwd+'&&dbid='+ items.dbid + '&&type=1')}>
+                            <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='/JQLC'? '立即督办':'立即处理'}</a>
                           <a className={styles.goChild}> > </a>
                         </div>,
                       ]}
@@ -222,9 +226,12 @@ export default class SmartDetail extends Component {
               list.push(<div className={styles.boxItem} key={'wp'+i.toString() + index}>
                 <div className={styles.timeStyle}>{item.time}</div>
                 <div>
-                  <div className={styles.headerName}>案务</div>
+                  {sessionStorage.getItem('nodeid')==='/SACW'? <div className={styles.headerName}>案务</div> :
+                    <div className={styles.headerName}>
+                      <img src="images/user.png" className={styles.headerImgSay}/>
+                    </div>}
                   <div className={styles.cardBox}>
-                    <div className={styles.newsTitle}>涉案财务系统</div>
+                    <div className={styles.newsTitle}>{sessionStorage.getItem('nodeid')==='/SACW' ? '涉案财务系统' : wpItem.name}</div>
                     <Card
                       title={
                         <div>
@@ -236,8 +243,8 @@ export default class SmartDetail extends Component {
                       cover={<img alt="example" src="images/chatu1.png" />}
                       actions={[
                        // <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(`${configUrl.cwUrl}`+'/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD='+userNew.name+'&type=1&ajbh='+wpItem.ajbh)}>
-                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(`${configUrl.agUrl}` + '#/loginByToken?token=' + token + '&&dbid='+ wpItem.dbid + '&&type="3"')}>
-                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>立即督办</a>
+                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='/SACW'? `${configUrl.agUrl}` + '#/loginByToken?token=' + token + '&&dbid='+ wpItem.dbid + '&&type="3"':`${configUrl.cwUrl}`+'/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD='+userNew.name+'&type=1&dbid='+wpItem.dbid)}>
+                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='/SACW'? '立即督办':'立即处理'}</a>
                           <a className={styles.goChild}> > </a>
                         </div>,
                       ]}
@@ -258,7 +265,6 @@ export default class SmartDetail extends Component {
               </div>)
             })
           }
-          console.log('data++++++++++++++++++++++++',JSON.parse(this.state.data[0].messagecontent).result);
         })
       }
     } else {
@@ -266,8 +272,6 @@ export default class SmartDetail extends Component {
       let readTime = ''
       if(this.state.searchList.length > 0){
         this.state.searchList.map((item,i)=>{
-          console.log('this.state.searchList --------------=========>',this.state.searchList );
-          console.log('this.state.searchList ',JSON.parse(this.createXml(item.payload).getElementsByTagName('messagecontent')[0].textContent).result);
           result = JSON.parse(this.createXml(item.payload).getElementsByTagName('messagecontent')[0].textContent).result;
           listType = JSON.parse(this.createXml(item.payload).getElementsByTagName('messagecontent')[0].textContent).type;
           readTime = this.createXml(item.payload).getElementsByTagName('createtime')[0].textContent
@@ -276,9 +280,12 @@ export default class SmartDetail extends Component {
               list.push(<div className={styles.boxItem} key={'aj'+i.toString() + index}>
                 <div className={styles.timeStyle}>{readTime}</div>
                 <div>
-                  <div className={styles.headerName}>案管</div>
+                  {sessionStorage.getItem('nodeid')==='/AJLC'? <div className={styles.headerName}>案管</div> :
+                    <div className={styles.headerName}>
+                      <img src="images/user.png" className={styles.headerImgSay}/>
+                    </div>}
                   <div className={styles.cardBox}>
-                    <div className={styles.newsTitle}>智慧案管系统</div>
+                    <div className={styles.newsTitle}>{sessionStorage.getItem('nodeid')==='/AJLC' ? '智慧案管系统' : ajItem.name}</div>
                     <Card
                       title={
                         <div>
@@ -289,8 +296,8 @@ export default class SmartDetail extends Component {
                       style={{ width: 330, padding: '0 16px' }}
                       cover={<img alt="example" src="images/chatu1.png" />}
                       actions={[
-                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(`${configUrl.agUrl}` + '#/loginByToken?token=' + token + '&&dbid='+ajItem.dbid + '&&type="1"')}>
-                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>立即督办</a>
+                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='/AJLC'? `${configUrl.agUrl}` + '#/loginByToken?token=' + token + '&&dbid='+ajItem.dbid + '&&type="1"':`${configUrl.ajlcUrl}`+'/Manager/smartlinkeyLoign?username=' + userNew.idCard + '&&password='+pwd+'&&dbid='+ajItem.dbid+'&&type=1')}>
+                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='/AJLC'? '立即督办':'立即处理'}</a>
                           <a className={styles.goChild}> > </a>
                         </div>,
                       ]}
@@ -310,14 +317,16 @@ export default class SmartDetail extends Component {
               </div>)
             })
           }else if(listType === 'jqxx'){//警情
-            console.log(result.jqxx)
             result.map((items,index)=>{
               list.push(<div className={styles.boxItem} key={'jq'+i.toString() + index}>
                 <div className={styles.timeStyle}>{readTime}</div>
                 <div>
-                  <div className={styles.headerName}>警情</div>
+                  {sessionStorage.getItem('nodeid')==='/JQLC'? <div className={styles.headerName}>警情</div> :
+                    <div className={styles.headerName}>
+                      <img src="images/user.png" className={styles.headerImgSay}/>
+                    </div>}
                   <div className={styles.cardBox}>
-                    <div className={styles.newsTitle}>智慧警情系统</div>
+                    <div className={styles.newsTitle}>{sessionStorage.getItem('nodeid')==='/JQLC' ? '智慧警情系统' : items.name}</div>
                     <Card
                       title={
                         <div>
@@ -328,8 +337,8 @@ export default class SmartDetail extends Component {
                       style={{ width: 330, padding: '0 16px' }}
                       cover={<img alt="example" src="images/chatu1.png" />}
                       actions={[
-                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(`${configUrl.agUrl}` + '#/loginByToken?token=' + token + '&&dbid='+items.dbid + '&&type="2"')}>
-                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>立即督办</a>
+                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='/JQLC'? `${configUrl.agUrl}` + '#/loginByToken?token=' + token + '&&dbid='+items.dbid + '&&type="2"':`${configUrl.jqUrl}` + '/JQCL/userlogin/smartlinkeyLoign?username=' + userNew.idCard + '&&password=' + pwd+'&&dbid='+ items.dbid + '&&type=1')}>
+                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='/JQLC'? '立即督办':'立即处理'}</a>
                           <a className={styles.goChild}> > </a>
                         </div>,
                       ]}
@@ -353,9 +362,12 @@ export default class SmartDetail extends Component {
               list.push(<div className={styles.boxItem} key={'wp'+i.toString() + index}>
                 <div className={styles.timeStyle}>{readTime}</div>
                 <div>
-                  <div className={styles.headerName}>案务</div>
+                  {sessionStorage.getItem('nodeid')==='/SACW'? <div className={styles.headerName}>案务</div> :
+                    <div className={styles.headerName}>
+                      <img src="images/user.png" className={styles.headerImgSay}/>
+                    </div>}
                   <div className={styles.cardBox}>
-                    <div className={styles.newsTitle}>涉案财务系统</div>
+                    <div className={styles.newsTitle}>{sessionStorage.getItem('nodeid')==='/SACW' ? '涉案财务系统' : wpItem.name}</div>
                     <Card
                       title={
                         <div>
@@ -366,8 +378,8 @@ export default class SmartDetail extends Component {
                       style={{ width: 330, padding: '0 16px' }}
                       cover={<img alt="example" src="images/chatu1.png" />}
                       actions={[
-                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(`${configUrl.agUrl}` + '#/loginByToken?token=' + token + '&&dbid='+wpItem.dbid + '&&type="3"')}>
-                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>立即督办</a>
+                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='/SACW'? `${configUrl.agUrl}` + '#/loginByToken?token=' + token + '&&dbid='+ wpItem.dbid + '&&type="3"':`${configUrl.cwUrl}`+'/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD='+userNew.name+'&type=1&dbid='+wpItem.dbid)}>
+                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='/SACW'? '立即督办':'立即处理'}</a>
                           <a className={styles.goChild}> > </a>
                         </div>,
                       ]}

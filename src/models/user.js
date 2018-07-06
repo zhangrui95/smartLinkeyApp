@@ -7,7 +7,8 @@ export default {
     list: [],
     currentUser: {},
     searchList: [],
-    allNum: 0
+    allNum: 0,
+    nodeId:''
   },
 
   effects: {
@@ -36,6 +37,18 @@ export default {
         payload: sessionStorage.getItem('allNum'),
       });
       callback(response)
+    },
+    *allNum({}, { put }) {
+      yield put({
+        type: 'getAllNum',
+        payload: sessionStorage.getItem('allNum'),
+      });
+    },
+    *nodeId({payload}, { put }) {
+      yield put({
+        type: 'getNodeId',
+        payload: payload.node,
+      });
     },
     *find({ payload, callback }, { call, put }) {
       const response = yield call(getFind, payload);
@@ -78,6 +91,12 @@ export default {
       return {
         ...state,
         allNum: action.payload,
+      };
+    },
+    getNodeId(state, action){
+      return {
+        ...state,
+        nodeId: action.payload,
       };
     }
   },

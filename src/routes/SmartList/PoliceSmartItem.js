@@ -6,7 +6,7 @@ import PoliceSmartDetail from './PoliceSmartDetail';
 import { instanceOf } from 'prop-types';
 import { routerRedux } from 'dva/router';
 import { withCookies, Cookies } from 'react-cookie';
-import { getNowFormatDate,getTime } from '../../utils/utils'
+import { getNowFormatDate,getTime,autoheight } from '../../utils/utils'
 @connect(({ user }) => ({
   user,
 }))
@@ -22,7 +22,8 @@ class PoliceSmartItem extends Component {
       nodeId: '',
       msgLists:'',
       data:[],
-      num:[]
+      num:[],
+      height: 586
     };
     this.message = []
     this.listId = []
@@ -31,56 +32,82 @@ class PoliceSmartItem extends Component {
     this.setState({
       msgLists: this.props.msgList
     })
+    window.addEventListener('resize', () => {
+      this.updateSize()
+    });
+  }
+  updateSize() {
+    this.setState({
+      height:autoheight() - 54,
+    })
   }
   componentWillReceiveProps(next){
     console.log('type----------------->',next.type)
     this.setState({
       msgLists: next.msgList
     })
-    if(this.props.msgList !== next.msgList){
+    if(this.props.msgList !== next.msgList || this.props.type !== next.type){
       this.getAllList(next);
     }
   }
   getAllList = (next) => {
     let dataList = [];
+    let numLists = [];
     if(next.searchList){
       next.searchList.map((item,index)=>{
-        if(!item.maxmessageid){
-          this.props.dispatch({
-            type: 'user/dataSave',
-            payload: {
-              nodeid: item.nodeid,//读取的主题node
-              maxmessageid: getNowFormatDate(),//读取最后一条的读取时间
-              userid:'zr'
-            },
-            callback: response => {},
-          });
+        if(next.type != 2){
+          if(item.nodeid !== '/QYRJQ'){
+            numLists.push(this.listNum(item,next.msgList))
+            this.setState({
+              numList:numLists
+            })
+            dataList.push(
+              {
+                name: item.name,
+                icon: 'images/user.png',
+                maxmessageid: item.maxmessageid,
+                nodeid: item.nodeid
+              },
+            )
+          }
+          if(next.searchList.length > 0){
+            if(this.state.nodeId === '' || this.state.nodeId === '/QYRJQ'){
+              this.setState({
+                title: dataList[0].name,
+                nodeId: dataList[0].nodeid,
+              })
+            }
+            dataList[0].num = 0
+          }
+          if(!item.maxmessageid){
+            this.props.dispatch({
+              type: 'user/dataSave',
+              payload: {
+                nodeid: dataList[0].nodeid,//读取的主题node
+                maxmessageid: getNowFormatDate(),//读取最后一条的读取时间
+                userid:'zr'
+              },
+              callback: response => {},
+            });
+          }
+        }else{
+          if(item.nodeid === '/QYRJQ'){
+            dataList.push(
+              {
+                name: item.name,
+                icon: 'images/weishoulijingqing.png',
+                maxmessageid: item.maxmessageid,
+                nodeid: item.nodeid
+              },
+            )
+            this.setState({
+              title: dataList[0].name,
+              nodeId: dataList[0].nodeid,
+              index: 0,
+            })
+          }
         }
-        dataList.push(
-          {
-            name: item.name,
-            icon: 'images/user.png',
-            maxmessageid: item.maxmessageid,
-            nodeid: item.nodeid
-          },
-        )
       })
-      if(next.searchList.length > 0){
-        this.setState({
-          title: dataList[0].name,
-          nodeId: dataList[0].nodeid,
-        })
-        dataList[0].num = 0
-        this.props.dispatch({
-          type: 'user/dataSave',
-          payload: {
-            nodeid: dataList[0].nodeid,//读取的主题node
-            maxmessageid: getNowFormatDate(),//读取最后一条的读取时间
-            userid:'zr'
-          },
-          callback: response => {},
-        });
-      }
     }
     this.setState({
       data: dataList,

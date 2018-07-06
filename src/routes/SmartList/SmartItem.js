@@ -34,8 +34,6 @@ class SmartItem extends Component {
     this.setState({
       msgLists: this.props.msgList
     })
-    console.log('autoheight------------------->',autoheight())
-    // window.onresize = autoheight;
     window.addEventListener('resize', () => {
       this.updateSize()
     });
@@ -49,7 +47,7 @@ class SmartItem extends Component {
     this.setState({
       msgLists: next.msgList
     })
-    if(this.props.msgList !== next.msgList || this.props.type !== next.type){
+    if(this.props.msgList !== next.msgList || this.props.type !== next.type || this.props.searchList !== next.searchList){
      this.getAllList(next);
     }
   }
@@ -57,7 +55,6 @@ class SmartItem extends Component {
     let dataList = [];
     let numLists = [];
     if(next.searchList){
-      console.log('next.searchList===========>999999999999999999999999999',next.searchList)
       next.searchList.map((item,index)=>{
         if(next.type != 2){
           if(item.nodeid !== '/QYRJQ'){
@@ -84,15 +81,17 @@ class SmartItem extends Component {
             dataList[0].num = 0
           }
           if(!item.maxmessageid){
-            this.props.dispatch({
-              type: 'user/dataSave',
-              payload: {
-                nodeid: dataList[0].nodeid,//读取的主题node
-                maxmessageid: getNowFormatDate(),//读取最后一条的读取时间
-                userid:'zr'
-              },
-              callback: response => {},
-            });
+            if(this.listNum(dataList[0],next.msgList) > 0){
+              this.props.dispatch({
+                type: 'user/dataSave',
+                payload: {
+                  nodeid: dataList[0].nodeid,//读取的主题node
+                  maxmessageid: getNowFormatDate(),//读取最后一条的读取时间
+                  userid:'zr'
+                },
+                callback: response => {},
+              });
+            }
           }
         }else{
           if(item.nodeid === '/QYRJQ'){
@@ -116,6 +115,17 @@ class SmartItem extends Component {
     this.setState({
       data: dataList,
     })
+    this.getNumAll();
+  }
+  getNumAll = () => {
+    this.numAll = 0
+    this.state.numList.map((num)=>{
+      this.numAll+=parseInt(num);
+      sessionStorage.setItem('allNum', this.numAll);
+    })
+    this.props.dispatch({
+      type: 'user/allNum',
+    });
   }
   getListClick = (index,item,num) => {
     // ipc.send('stop-flashing');
@@ -132,6 +142,13 @@ class SmartItem extends Component {
     }
     // this.props.getXmpp();
     this.state.numList[index] = 0;
+    this.getNumAll();
+    this.props.dispatch({
+      type: 'user/nodeId',
+      payload: {
+        node:item.nodeid
+      }
+    });
   };
   //更新主题读取的时间点
   getTimeSave = (node) => {
@@ -155,20 +172,16 @@ class SmartItem extends Component {
         if(msgItem.nodeid.toLowerCase() === item.nodeid.toLowerCase()){
           if(msgItem.id > getTime(item.maxmessageid)){
             num++;
-            console.log('闪烁？？？？？？？？？')
           }
         }
       })
     }else{
       num = 1;
     }
-    this.numAll+=parseInt(num);
-    sessionStorage.setItem('allNum', this.numAll);
-    // this.getTimeSave(sessionStorage.getItem('nodeid'));
     return num
   }
   render() {
-    console.log('this.numList============>',this.state.numList)
+    console.log('this.state.numList===========>',this.state.numList)
     sessionStorage.setItem('nodeid', this.state.nodeId);
     let list = []
     let listWord = (nodeid) => {
