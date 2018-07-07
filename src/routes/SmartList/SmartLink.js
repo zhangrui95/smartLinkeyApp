@@ -14,11 +14,11 @@ class SmartLink extends Component {
     const { cookies } = props;
   }
   goLink = path => {
-    // ipc.send('visit-page', {
-    //   "url": path,
-    //   "browser": "chrome"
-    // });
-    window.open(path);
+    ipc.send('visit-page', {
+      "url": path,
+      "browser": "chrome"
+    });
+    // window.open(path);
   };
   render() {
     const user = sessionStorage.getItem('user');

@@ -263,7 +263,7 @@ class SiderMenu extends PureComponent {
         _this.props.dispatch({
           type: 'login/logout',
         });
-        // ipc.send('logout');
+        ipc.send('logout');
       },
       onCancel() {
         console.log('Cancel');
@@ -312,7 +312,7 @@ class SiderMenu extends PureComponent {
               this.props.dispatch({
                 type: 'login/logout',
               });
-              // ipc.send('logout');
+              ipc.send('logout');
             }
           },
         });

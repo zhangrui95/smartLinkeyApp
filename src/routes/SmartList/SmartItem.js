@@ -23,12 +23,12 @@ class SmartItem extends Component {
       msgLists:'',
       data:[],
       num:[],
-      height: 586,
-      numList:[]
+      height: 586
     };
-    this.numAll = 0
-    this.message = []
-    this.listId = []
+    this.numAll = 0;
+    this.message = [];
+    this.listId = [];
+    this.num = 0;
   }
   componentDidMount(){
     this.setState({
@@ -53,23 +53,32 @@ class SmartItem extends Component {
   }
   getAllList = (next) => {
     let dataList = [];
-    let numLists = [];
     if(next.searchList){
       next.searchList.map((item,index)=>{
         if(next.type != 2){
           if(item.nodeid !== '/QYRJQ'){
-            numLists.push(this.listNum(item,next.msgList))
-            this.setState({
-              numList:numLists
-            })
             dataList.push(
               {
                 name: item.name,
                 icon: (item.nodeid === '/AJLC'? 'images/anjian.png':(item.nodeid === '/JQLC'? 'images/weishoulijingqing.png':(item.nodeid === '/SACW'? 'images/wentiwupin.png':'images/user.png'))),
                 maxmessageid: item.maxmessageid,
-                nodeid: item.nodeid
+                nodeid: item.nodeid,
+                num:this.listNum(item,next.msgList)
               },
             )
+          }
+          if(!item.maxmessageid){
+            if(dataList[0].num > 0){
+              this.props.dispatch({
+                type: 'user/dataSave',
+                payload: {
+                  nodeid: dataList[0].nodeid,//读取的主题node
+                  maxmessageid: getNowFormatDate(),//读取最后一条的读取时间
+                  userid:this.props.xmppUser
+                },
+                callback: response => {},
+              });
+            }
           }
           if(next.searchList.length > 0){
             if(this.state.nodeId === '' || this.state.nodeId === '/QYRJQ'){
@@ -80,19 +89,7 @@ class SmartItem extends Component {
             }
             dataList[0].num = 0
           }
-          if(!item.maxmessageid){
-            if(this.listNum(dataList[0],next.msgList) > 0){
-              this.props.dispatch({
-                type: 'user/dataSave',
-                payload: {
-                  nodeid: dataList[0].nodeid,//读取的主题node
-                  maxmessageid: getNowFormatDate(),//读取最后一条的读取时间
-                  userid:'zr'
-                },
-                callback: response => {},
-              });
-            }
-          }
+          this.getNumAll(dataList);
         }else{
           if(item.nodeid === '/QYRJQ'){
             dataList.push(
@@ -115,12 +112,11 @@ class SmartItem extends Component {
     this.setState({
       data: dataList,
     })
-    this.getNumAll();
   }
-  getNumAll = () => {
+  getNumAll = (dataList) => {
     this.numAll = 0
-    this.state.numList.map((num)=>{
-      this.numAll+=parseInt(num);
+    dataList.map((item)=>{
+      this.numAll+=parseInt(item.num);
       sessionStorage.setItem('allNum', this.numAll);
     })
     this.props.dispatch({
@@ -128,7 +124,7 @@ class SmartItem extends Component {
     });
   }
   getListClick = (index,item,num) => {
-    // ipc.send('stop-flashing');
+    ipc.send('stop-flashing');
     this.setState({
       index: index,
       title: item.name,
@@ -141,8 +137,8 @@ class SmartItem extends Component {
       this.getTimeSave(item.nodeid);
     }
     // this.props.getXmpp();
-    this.state.numList[index] = 0;
-    this.getNumAll();
+    this.state.data[index].num = 0;
+    this.getNumAll(this.state.data);
     this.props.dispatch({
       type: 'user/nodeId',
       payload: {
@@ -158,30 +154,29 @@ class SmartItem extends Component {
       payload: {
         nodeid: node,//读取的主题node
         maxmessageid: getNowFormatDate(),//读取最后一条的读取时间
-        userid:'zr'
+        userid:this.props.xmppUser
       },
       callback: response => {
 
       },
     });
   }
-  listNum = (item,list) => {
-    let num = 0;
-    if(item.maxmessageid){
-      list.map((msgItem)=>{
-        if(msgItem.nodeid.toLowerCase() === item.nodeid.toLowerCase()){
-          if(msgItem.id > getTime(item.maxmessageid)){
-            num++;
-          }
-        }
-      })
-    }else{
-      num = 1;
-    }
+ listNum = (item,list) => {
+   let num = 0;
+   if(item.maxmessageid){
+     list.map((msgItem)=>{
+       if(msgItem.nodeid.toLowerCase() === item.nodeid.toLowerCase()){
+         if(msgItem.id > getTime(item.maxmessageid)){
+           num++
+         }
+       }
+     })
+   }else{
+     num = 1;
+   }
     return num
   }
   render() {
-    console.log('this.state.numList===========>',this.state.numList)
     sessionStorage.setItem('nodeid', this.state.nodeId);
     let list = []
     let listWord = (nodeid) => {
@@ -214,7 +209,7 @@ class SmartItem extends Component {
     }
     this.state.data.map((item,index)=>{
       list.push(
-        <div onClick={() => this.getListClick(index,item,this.state.numList[index])} className={this.state.index === index ? styles.grayList : styles.itemList}>
+        <div onClick={() => this.getListClick(index,item,item.num)} className={this.state.index === index ? styles.grayList : styles.itemList}>
           <div className={styles.floatLeft}>
             <img className={styles.imgLeft}  src={item.icon}/>
           </div>
@@ -224,7 +219,7 @@ class SmartItem extends Component {
           </div>
           <div className={styles.floatLeft}>
             <span style={{float:'right',fontSize:'13px',marginTop:'18px'}}>{sessionStorage.getItem('nodeid')==='/QYRJQ' ? '' : listTime(item.nodeid)}</span>
-            <Badge className={styles.badgePos} count={sessionStorage.getItem('nodeid')==='/QYRJQ' ? 0 : this.state.numList[index]}/>
+            <Badge className={styles.badgePos} count={sessionStorage.getItem('nodeid')==='/QYRJQ' ? 0 : item.num}/>
           </div>
         </div>
       )

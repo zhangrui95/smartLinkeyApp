@@ -17,6 +17,7 @@ export default class SmartAll extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      xmppUser:'zr',
       nodeList: '',
       searchList:[],
       msgList: [],
@@ -36,7 +37,7 @@ export default class SmartAll extends Component {
   getXmpp = () => {
     connection = new Strophe.Connection(BOSH_SERVICE);
     connection.connect(
-      'zr@pc-20170308pkrs',
+      this.state.xmppUser + '@pc-20170308pkrs',
       '123456',
       this.onConnect
     );
@@ -106,7 +107,7 @@ export default class SmartAll extends Component {
         type: 'user/query',
         payload: {
           nodeid: node.join(','),
-          userid: 'zr'
+          userid: this.state.xmppUser
         },
         callback: response => {
           this.setState({
@@ -145,7 +146,7 @@ export default class SmartAll extends Component {
               <SmartLink/>
             </div>
             <div className={type==1 ? styles.none : ''}>
-              <SmartItem msgList={this.state.msgList} nodeList={this.state.nodeList} searchList={this.state.searchList} getXmpp={() => this.getXmpp()} loading={this.state.loading} type={type} onNewMsg={(node,maxNum)=>this.onNewMsg(node,maxNum)}/>
+              <SmartItem xmppUser={this.state.xmppUser} msgList={this.state.msgList} nodeList={this.state.nodeList} searchList={this.state.searchList} getXmpp={() => this.getXmpp()} loading={this.state.loading} type={type} onNewMsg={(node,maxNum)=>this.onNewMsg(node,maxNum)}/>
             </div>
           </div>
       // }

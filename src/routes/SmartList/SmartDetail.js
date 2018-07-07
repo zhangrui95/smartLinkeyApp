@@ -21,7 +21,6 @@ export default class SmartDetail extends Component {
       scrollHeight: 0,
       sHight: 0
     };
-    this.maxNum = 0;
   }
   scrollHandler = this.handleScroll.bind(this);
   componentDidMount(){
@@ -37,7 +36,6 @@ export default class SmartDetail extends Component {
   }
   _handleScroll(scrollTop) {
     if(scrollTop === 0){
-      this.maxNum++;
       this.setState({
         load: true
       })
@@ -52,7 +50,7 @@ export default class SmartDetail extends Component {
               sHight:document.getElementById('scroll').scrollHeight - parseInt(this.state.scrollHeight)
             })
           }else{
-            this.props.onNewMsg(node, 2)
+            this.props.onNewMsg(node, 1)
           }
         })
         document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
@@ -76,12 +74,12 @@ export default class SmartDetail extends Component {
     this.setState({
       data:list
     })
-    document.getElementById('scroll').scrollTop = this.state.sHight
+    // document.getElementById('scroll').scrollTop = this.state.sHight
     if(this.props.getTitle !== next.getTitle){
       this.setState({
         scrollHeight: document.getElementById('scroll').scrollHeight,
       })
-      document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
+      // document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
       this.setState({
         searchList:null,
         loading:true,
@@ -91,10 +89,10 @@ export default class SmartDetail extends Component {
           loading:false,
         })
         document.getElementById('scroll').scrollTop = document.getElementById('scroll').scrollHeight;
-        document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
+        // document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
       },200)
     }else if(this.props.user.searchList !== next.user.searchList){
-      document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
+      // document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
       this.setState({
         searchList:next.user.searchList,
         loading:true,
@@ -104,16 +102,16 @@ export default class SmartDetail extends Component {
           loading:false,
         })
         document.getElementById('scroll').scrollTop = document.getElementById('scroll').scrollHeight;
-        document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
+        // document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
       },200)
     }
   }
   goWindow = (path) => {
     // window.open(path)
-    // ipc.send('visit-page', {
-    //   "url": path,
-    //   "browser": "chrome"
-    // });
+    ipc.send('visit-page', {
+      "url": path,
+      "browser": "chrome"
+    });
   }
   createXml = (str) => {
     if(document.all){

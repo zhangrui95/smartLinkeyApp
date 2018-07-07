@@ -69,7 +69,7 @@ class LoginPage extends Component {
           response.data.password = hex_md5(values.password);
           let userJson = JSON.stringify(response.data);
           sessionStorage.setItem('user', userJson);
-          // ipc.send('login-success')
+          ipc.send('login-success')
         },
       });
     }
