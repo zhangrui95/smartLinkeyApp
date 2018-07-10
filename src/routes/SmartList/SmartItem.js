@@ -27,8 +27,8 @@ class SmartItem extends Component {
     };
     this.numAll = 0;
     this.message = [];
-    this.listId = [];
     this.num = 0;
+    this.numList = [];
   }
   componentDidMount(){
     this.setState({
@@ -53,6 +53,7 @@ class SmartItem extends Component {
   }
   getAllList = (next) => {
     let dataList = [];
+    this.numList = [];
     if(next.searchList){
       next.searchList.map((item,index)=>{
         if(next.type != 2){
@@ -62,8 +63,7 @@ class SmartItem extends Component {
                 name: item.name,
                 icon: (item.nodeid === '/AJLC'? 'images/anjian.png':(item.nodeid === '/JQLC'? 'images/weishoulijingqing.png':(item.nodeid === '/SACW'? 'images/wentiwupin.png':'images/user.png'))),
                 maxmessageid: item.maxmessageid,
-                nodeid: item.nodeid,
-                num:this.listNum(item,next.msgList)
+                nodeid: item.nodeid
               },
             )
           }
@@ -89,7 +89,8 @@ class SmartItem extends Component {
             }
             dataList[0].num = 0
           }
-          this.getNumAll(dataList);
+          this.numAll = 0;
+          this.getNumAll();
         }else{
           if(item.nodeid === '/QYRJQ'){
             dataList.push(
@@ -113,32 +114,24 @@ class SmartItem extends Component {
       data: dataList,
     })
   }
-  getNumAll = (dataList) => {
-    this.numAll = 0
-    dataList.map((item)=>{
-      this.numAll+=parseInt(item.num);
-      sessionStorage.setItem('allNum', this.numAll);
-    })
+  getNumAll = () => {
     this.props.dispatch({
       type: 'user/allNum',
     });
   }
   getListClick = (index,item,num) => {
-    ipc.send('stop-flashing');
+    // ipc.send('stop-flashing');
+    // this.numAll = 0;
     this.setState({
       index: index,
       title: item.name,
       nodeId: item.nodeid
     });
     if(num > 0){
-      if(this.listId.indexOf(item.nodeid) < -1 || this.listId.indexOf(item.nodeid) === -1){
-        this.listId.push(item.nodeid);
-      }
       this.getTimeSave(item.nodeid);
+      this.getAllList(this.props);
     }
-    // this.props.getXmpp();
     this.state.data[index].num = 0;
-    this.getNumAll(this.state.data);
     this.props.dispatch({
       type: 'user/nodeId',
       payload: {
@@ -157,24 +150,9 @@ class SmartItem extends Component {
         userid:this.props.xmppUser
       },
       callback: response => {
-
+        this.props.getNodeList();
       },
     });
-  }
- listNum = (item,list) => {
-   let num = 0;
-   if(item.maxmessageid){
-     list.map((msgItem)=>{
-       if(msgItem.nodeid.toLowerCase() === item.nodeid.toLowerCase()){
-         if(msgItem.id > getTime(item.maxmessageid)){
-           num++
-         }
-       }
-     })
-   }else{
-     num = 1;
-   }
-    return num
   }
   render() {
     sessionStorage.setItem('nodeid', this.state.nodeId);
@@ -207,19 +185,38 @@ class SmartItem extends Component {
       })
       return time
     }
+    this.numList = [];
+    this.numAll = 0;
+    let listNum = (item) => {
+      let num = 0;
+      if(item.maxmessageid){
+        this.state.msgLists.map((msgItem)=>{
+          if(msgItem.nodeid.toLowerCase() === item.nodeid.toLowerCase()){
+            if(msgItem.id > getTime(item.maxmessageid)){
+              num++
+            }
+          }
+        })
+      }else{
+        num = 1;
+      }
+      this.numAll+=parseInt(num);
+      sessionStorage.setItem('allNum', this.numAll);
+       return num
+     }
     this.state.data.map((item,index)=>{
       list.push(
-        <div onClick={() => this.getListClick(index,item,item.num)} className={this.state.index === index ? styles.grayList : styles.itemList}>
+        <div onClick={() => this.getListClick(index,item,listNum(item))} className={this.state.index === index ? styles.grayList : styles.itemList}>
           <div className={styles.floatLeft}>
             <img className={styles.imgLeft}  src={item.icon}/>
           </div>
           <div className={styles.floatLeft}>
             <div className={styles.titles}>{item.name}</div>
-            <div className={styles.news}>{listWord(item.nodeid)}</div>
+            <div className={styles.news}>{(item.nodeid==='/AJLC'||item.nodeid==='/JQLC'||item.nodeid==='/SACW')?listWord(item.nodeid):''}</div>
           </div>
           <div className={styles.floatLeft}>
             <span style={{float:'right',fontSize:'13px',marginTop:'18px'}}>{sessionStorage.getItem('nodeid')==='/QYRJQ' ? '' : listTime(item.nodeid)}</span>
-            <Badge className={styles.badgePos} count={sessionStorage.getItem('nodeid')==='/QYRJQ' ? 0 : item.num}/>
+            <Badge className={styles.badgePos} count={sessionStorage.getItem('nodeid')==='/QYRJQ' ? 0 : listNum(item)}/>
           </div>
         </div>
       )
@@ -231,7 +228,7 @@ class SmartItem extends Component {
           {list}
         </div>
         <div style={{ float: 'left',width:'calc(100% - 225px)'}}>
-          <SmartDetail newsId={this.state.index} getTitle={this.state.title} nodeId={this.state.nodeId} msgList={this.state.msgLists} onNewMsg={(nodeList,maxNum)=>this.props.onNewMsg(nodeList,maxNum)}/>
+          <SmartDetail code={this.props.code} newsId={this.state.index} getTitle={this.state.title} nodeId={this.state.nodeId} msgList={this.state.msgLists} onNewMsg={(nodeList,maxNum)=>this.props.onNewMsg(nodeList,maxNum)} searchList={this.props.searchList}/>
         </div>
       </div>
     );

@@ -80,7 +80,7 @@ i.trigger {
   background: #fff;
   box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
   position: relative;
-  //-webkit-app-region: drag;
+  -webkit-app-region: drag;
   //-webkit-user-select: none;
   :global {
     .ant-layout {
@@ -147,12 +147,14 @@ i.trigger {
 }
 .headerLeft {
   float: left;
+  -webkit-app-region: no-drag;
 }
 .headerRight {
   float: right;
   width: 115px;
   height: 54px;
   border-left: 1px solid #e6eae9;
+  -webkit-app-region: no-drag;
 }
 .iconWindows {
   font-size: 16px;

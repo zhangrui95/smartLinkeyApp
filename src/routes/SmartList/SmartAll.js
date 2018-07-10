@@ -70,10 +70,15 @@ export default class SmartAll extends Component {
     connection.pubsub.items(nodeList, null, null, 5000, this.state.num);
   }
   onMessage = msg => {
-    // console.log('--- msg ---', msg);
     let event = msg.getElementsByTagName('event');
     if(event.length > 0){
-      ipc.send('start-flashing');
+      let news = []
+      // ipc.send('start-flashing');
+      // event.map((e)=>{
+      //   e.getElementsByTagName('item').map((key)=>{
+      //     news.push({id:key.attributes[0].textContent,nodeid:key.getElementsByTagName('nodeid')})
+      //   })
+      // })
     }
     let node = []
     let names = msg.getElementsByTagName('subscription');
@@ -97,9 +102,13 @@ export default class SmartAll extends Component {
         })
       }
     }
-
-    //查询主题读取时间点
-    if(node.length > 0){
+    // //查询主题读取时间点
+    this.getNodeList();
+    return true;
+  };
+  getNodeList = () => {
+    let node = JSON.parse(sessionStorage.getItem('nodeList'))
+    if(node && node.length > 0){
       this.setState({
         nodeList:node,
       })
@@ -116,8 +125,7 @@ export default class SmartAll extends Component {
         },
       });
     }
-    return true;
-  };
+  }
 
   // onMessage1 = msg => {
   //   console.log('--- msg1 ---', msg);
@@ -146,7 +154,7 @@ export default class SmartAll extends Component {
               <SmartLink/>
             </div>
             <div className={type==1 ? styles.none : ''}>
-              <SmartItem xmppUser={this.state.xmppUser} msgList={this.state.msgList} nodeList={this.state.nodeList} searchList={this.state.searchList} getXmpp={() => this.getXmpp()} loading={this.state.loading} type={type} onNewMsg={(node,maxNum)=>this.onNewMsg(node,maxNum)}/>
+              <SmartItem code={jobs.code} getNodeList={()=>this.getNodeList()} xmppUser={this.state.xmppUser} msgList={this.state.msgList} nodeList={this.state.nodeList} searchList={this.state.searchList} getXmpp={() => this.getXmpp()} loading={this.state.loading} type={type} onNewMsg={(node,maxNum)=>this.onNewMsg(node,maxNum)}/>
             </div>
           </div>
       // }

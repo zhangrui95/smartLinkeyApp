@@ -38,7 +38,7 @@ export default class SmartDetail extends Component {
     // }
   }
   goWindow(){
-    window.open('/')
+    // window.open('/')
     // ipc.send('visit-page', {
     //   "url": "/",
     //   "browser": "chrome"

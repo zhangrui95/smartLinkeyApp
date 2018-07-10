@@ -91,10 +91,10 @@ export default class PoliceSmartDetail extends Component {
   }
   goWindow = (path) => {
     // window.open(path)
-    ipc.send('visit-page', {
-      "url": path,
-      "browser": "chrome"
-    });
+    // ipc.send('visit-page', {
+    //   "url": path,
+    //   "browser": "chrome"
+    // });
   }
   createXml = (str) => {
     if(document.all){
