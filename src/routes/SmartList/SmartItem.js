@@ -54,6 +54,7 @@ class SmartItem extends Component {
   getAllList = (next) => {
     let dataList = [];
     this.numList = [];
+    this.num = 0;
     if(next.searchList){
       next.searchList.map((item,index)=>{
         if(next.type != 2){
@@ -131,7 +132,7 @@ class SmartItem extends Component {
       this.getTimeSave(item.nodeid);
       this.getAllList(this.props);
     }
-    this.state.data[index].num = 0;
+    // this.state.data[index].num = 0;
     this.props.dispatch({
       type: 'user/nodeId',
       payload: {
@@ -188,21 +189,22 @@ class SmartItem extends Component {
     this.numList = [];
     this.numAll = 0;
     let listNum = (item) => {
-      let num = 0;
+      this.num = 0;
       if(item.maxmessageid){
         this.state.msgLists.map((msgItem)=>{
           if(msgItem.nodeid.toLowerCase() === item.nodeid.toLowerCase()){
+            this.num = 0;
             if(msgItem.id > getTime(item.maxmessageid)){
-              num++
+              this.num++
             }
           }
         })
       }else{
-        num = 1;
+        this.num = 1;
       }
-      this.numAll+=parseInt(num);
+      this.numAll+=parseInt(this.num);
       sessionStorage.setItem('allNum', this.numAll);
-       return num
+       return this.num
      }
     this.state.data.map((item,index)=>{
       list.push(
