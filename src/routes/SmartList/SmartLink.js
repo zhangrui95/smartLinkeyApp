@@ -18,7 +18,7 @@ class SmartLink extends Component {
     //   "url": path,
     //   "browser": "chrome"
     // });
-    // window.open(path);
+    window.open(path);
   };
   render() {
     const user = sessionStorage.getItem('user');
@@ -31,7 +31,7 @@ class SmartLink extends Component {
       if (item.resourceCode === 'baq_btn') {
         listMenu.push({ name: '办案区管理系统', link: `${configUrl.baqUrl}`, img: 'images/bananqu.png' });
       } else if (item.resourceCode === 'zhag_btn') {
-        listMenu.push({ name: '智慧案管系统', link: `${configUrl.agUrl}` + '#/loginByToken?token=' + token + '&&type="0"', img: 'images/anjian.png' });
+        listMenu.push({ name: '智慧案管系统', link: `${configUrl.agUrl}` + '#/loginByToken?token=' + token + '&type="0"', img: 'images/anjian.png' });
       } else if (item.resourceCode === 'sjcw_btn') {
         listMenu.push({ name: '涉案财务系统', link: `${configUrl.cwUrl}`+'/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD='+userNew.name+'&type=0', img: 'images/weishoulijingqing.png' });
       } else if (item.resourceCode === 'zhjq_btn') {
@@ -41,9 +41,9 @@ class SmartLink extends Component {
             `${configUrl.jqUrl}` +
             '/JQCL/userlogin/smartlinkeyLoign?username=' +
             userNew.idCard +
-            '&&password=' +
+            '&password=' +
             pwd +
-            '&&type=0',
+            '&type=0',
           img: 'images/jingqing.png',
         });
       }
