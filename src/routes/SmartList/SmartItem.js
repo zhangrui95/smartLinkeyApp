@@ -67,7 +67,7 @@ class SmartItem extends Component {
               {
                 name: item.name,
                 icon: (item.nodeid === 'smart_wtaj'? 'images/anjian.png':(item.nodeid === 'smart_wtjq'? 'images/weishoulijingqing.png':(item.nodeid === 'smart_wtwp'? 'images/wentiwupin.png':'images/user.png'))),
-                maxmessageid: item.maxmessageid,
+                maxmessageid: item.maxmessageid ? item.maxmessageid : getNowFormatDate(),
                 nodeid: item.nodeid
               },
             )
@@ -78,7 +78,7 @@ class SmartItem extends Component {
               {
                 name: item.name,
                 icon: 'images/weishoulijingqing.png',
-                maxmessageid: item.maxmessageid,
+                maxmessageid: item.maxmessageid ? item.maxmessageid : getNowFormatDate(),
                 nodeid: item.nodeid
               },
             )
@@ -169,7 +169,7 @@ class SmartItem extends Component {
   }
   listNum = (item) => {
     this.num = 0;
-    if(item.maxmessageid){
+    // if(item.maxmessageid){
       this.state.msgLists.map((msgItem)=>{
         if(msgItem.nodeid.toLowerCase() === item.nodeid.toLowerCase()){
           if(msgItem.id > getTime(item.maxmessageid)){
@@ -178,9 +178,9 @@ class SmartItem extends Component {
           }
         }
       })
-    }else{
-      this.num = 1;
-    }
+    // }else{
+    //   this.num = 1;
+    // }
     // this.numAll+=parseInt(this.num);
     // sessionStorage.setItem('allNum', this.numAll);
     return this.num

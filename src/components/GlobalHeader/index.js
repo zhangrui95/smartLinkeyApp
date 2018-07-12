@@ -36,6 +36,7 @@ export default class GlobalHeader extends PureComponent {
   emitEmpty = () => {
     this.searchValueInput.focus();
     this.setState({ searchValue: '' });
+    sessionStorage.setItem('search','');
     this.props.dispatch({
       type: 'user/find',
       payload: {
@@ -54,6 +55,7 @@ export default class GlobalHeader extends PureComponent {
     setTimeout(function(){
       _this.setState({delay:_this.state.delay - 0.5});
         if(_this.state.delay == 0){
+          sessionStorage.setItem('search',val);
           _this.props.dispatch({
             type: 'user/find',
             payload: {
@@ -91,7 +93,7 @@ export default class GlobalHeader extends PureComponent {
         <div className={styles.headerLeft}>
           {(this.props.pathItem !== '/smartList/smartAll?type=1') ?
             <Input
-            placeholder="搜索案件名称、案件编号、办案人"
+            placeholder="请输入需要搜索的内容"
             prefix={<Icon type="search" style={{ color: 'rgba(0,0,0,.25)' }} />}
             suffix={suffix}
             value={searchValue}
