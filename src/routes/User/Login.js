@@ -85,8 +85,8 @@ class LoginPage extends Component {
     const { login, submitting } = this.props;
     const { type } = this.state;
     let PKI = this.state.login_way === '700001' ? '' : <Tab key="PKI" tab="PKI登录">
-      <img style={{ width: '44%',margin:'0 28%' }} src='images/pki.png' alt=''/>
-      <div style={{ color: '#1890FF', fontSize: '14px', marginTop: '16px',textAlign:'center' }}>插入PKI</div>
+      <img style={{ width: '80%',margin:'20px 10% 0' }} src='images/pki.png' alt=''/>
+      <div style={{ color: '#fea200', fontSize: '20px', marginTop: '30px',textAlign:'center' }}>请插入PKI</div>
     </Tab>;
     return (
       <div className={styles.main}>

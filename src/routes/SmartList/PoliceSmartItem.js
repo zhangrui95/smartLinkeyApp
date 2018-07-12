@@ -56,7 +56,7 @@ class PoliceSmartItem extends Component {
     if(next.searchList){
       next.searchList.map((item,index)=>{
         if(next.type != 2){
-          if(item.nodeid !== '/QYRJQ'){
+          if(item.nodeid !== 'smart_syrjq'){
             numLists.push(this.listNum(item,next.msgList))
             this.setState({
               numList:numLists
@@ -71,7 +71,7 @@ class PoliceSmartItem extends Component {
             )
           }
           if(next.searchList.length > 0){
-            if(this.state.nodeId === '' || this.state.nodeId === '/QYRJQ'){
+            if(this.state.nodeId === '' || this.state.nodeId === 'smart_syrjq'){
               this.setState({
                 title: dataList[0].name,
                 nodeId: dataList[0].nodeid,
@@ -91,7 +91,7 @@ class PoliceSmartItem extends Component {
             });
           }
         }else{
-          if(item.nodeid === '/QYRJQ'){
+          if(item.nodeid === 'smart_syrjq'){
             dataList.push(
               {
                 name: item.name,

@@ -23,7 +23,7 @@ class SmartItem extends Component {
       msgLists:'',
       data:[],
       num:[],
-      height: 586
+      height: 575
     };
     this.numAll = 0;
     this.message = [];
@@ -40,60 +40,40 @@ class SmartItem extends Component {
   }
   updateSize() {
     this.setState({
-      height:autoheight() - 54,
+      height:autoheight() - 65,
     })
   }
   componentWillReceiveProps(next){
     this.setState({
       msgLists: next.msgList
     })
+    if(this.props.type !== next.type){
+      this.setState({
+        nodeId:'',
+      })
+    }
     if(this.props.msgList !== next.msgList || this.props.type !== next.type || this.props.searchList !== next.searchList){
      this.getAllList(next);
     }
   }
   getAllList = (next) => {
     let dataList = [];
-    this.numList = [];
     this.num = 0;
-    if(next.searchList){
+    if(next.searchList && next.searchList.length > 0){
       next.searchList.map((item,index)=>{
         if(next.type != 2){
-          if(item.nodeid !== '/QYRJQ'){
+          if(item.nodeid !== 'smart_syrjq'){
             dataList.push(
               {
                 name: item.name,
-                icon: (item.nodeid === '/AJLC'? 'images/anjian.png':(item.nodeid === '/JQLC'? 'images/weishoulijingqing.png':(item.nodeid === '/SACW'? 'images/wentiwupin.png':'images/user.png'))),
+                icon: (item.nodeid === 'smart_wtaj'? 'images/anjian.png':(item.nodeid === 'smart_wtjq'? 'images/weishoulijingqing.png':(item.nodeid === 'smart_wtwp'? 'images/wentiwupin.png':'images/user.png'))),
                 maxmessageid: item.maxmessageid,
                 nodeid: item.nodeid
               },
             )
           }
-          if(!item.maxmessageid){
-            if(dataList[0].num > 0){
-              this.props.dispatch({
-                type: 'user/dataSave',
-                payload: {
-                  nodeid: dataList[0].nodeid,//读取的主题node
-                  maxmessageid: getNowFormatDate(),//读取最后一条的读取时间
-                  userid:this.props.xmppUser
-                },
-                callback: response => {},
-              });
-            }
-          }
-          if(next.searchList.length > 0){
-            if(this.state.nodeId === '' || this.state.nodeId === '/QYRJQ'){
-              this.setState({
-                title: dataList[0].name,
-                nodeId: dataList[0].nodeid,
-              })
-            }
-            dataList[0].num = 0
-          }
-          this.numAll = 0;
-          this.getNumAll();
         }else{
-          if(item.nodeid === '/QYRJQ'){
+          if(item.nodeid === 'smart_syrjq' && this.props.code==='200003'){
             dataList.push(
               {
                 name: item.name,
@@ -111,16 +91,47 @@ class SmartItem extends Component {
         }
       })
     }
+    this.numList = [];
+    dataList.map((data)=>{
+      this.numList.push(this.listNum(data))
+    })
+    if(this.state.nodeId === ''){
+      if(dataList.length > 0){
+        this.setState({
+          index: 0,
+          title: dataList[0].name,
+          nodeId: dataList[0].nodeid
+        });
+      }
+      this.props.dispatch({
+        type: 'user/nodeId',
+        payload: {
+          node:''
+        }
+      });
+    }
+    if(this.props.user.nodeId === ''){
+      this.numList[0] = 0;
+    }else{
+      this.numList[this.state.index] = 0;
+    }
+    this.numAll = 0;
+    this.getNumAll();
     this.setState({
       data: dataList,
     })
   }
   getNumAll = () => {
+    this.numList.map((num)=>{
+      this.numAll+=parseInt(num);
+    })
+    sessionStorage.setItem('allNum', this.numAll);
     this.props.dispatch({
       type: 'user/allNum',
     });
   }
   getListClick = (index,item,num) => {
+    this.numList = [];
     // ipc.send('stop-flashing');
     // this.numAll = 0;
     this.setState({
@@ -129,6 +140,7 @@ class SmartItem extends Component {
       nodeId: item.nodeid
     });
     if(num > 0){
+      this.numList[index] = 0;
       this.getTimeSave(item.nodeid);
       this.getAllList(this.props);
     }
@@ -151,9 +163,27 @@ class SmartItem extends Component {
         userid:this.props.xmppUser
       },
       callback: response => {
-        this.props.getNodeList();
+        // this.props.getNodeList();
       },
     });
+  }
+  listNum = (item) => {
+    this.num = 0;
+    if(item.maxmessageid){
+      this.state.msgLists.map((msgItem)=>{
+        if(msgItem.nodeid.toLowerCase() === item.nodeid.toLowerCase()){
+          if(msgItem.id > getTime(item.maxmessageid)){
+            this.num = msgItem.messagecount
+            // this.num++
+          }
+        }
+      })
+    }else{
+      this.num = 1;
+    }
+    // this.numAll+=parseInt(this.num);
+    // sessionStorage.setItem('allNum', this.numAll);
+    return this.num
   }
   render() {
     sessionStorage.setItem('nodeid', this.state.nodeId);
@@ -186,39 +216,20 @@ class SmartItem extends Component {
       })
       return time
     }
-    this.numList = [];
     this.numAll = 0;
-    let listNum = (item) => {
-      this.num = 0;
-      if(item.maxmessageid){
-        this.state.msgLists.map((msgItem)=>{
-          if(msgItem.nodeid.toLowerCase() === item.nodeid.toLowerCase()){
-            this.num = 0;
-            if(msgItem.id > getTime(item.maxmessageid)){
-              this.num++
-            }
-          }
-        })
-      }else{
-        this.num = 1;
-      }
-      this.numAll+=parseInt(this.num);
-      sessionStorage.setItem('allNum', this.numAll);
-       return this.num
-     }
     this.state.data.map((item,index)=>{
       list.push(
-        <div onClick={() => this.getListClick(index,item,listNum(item))} className={this.state.index === index ? styles.grayList : styles.itemList}>
+        <div onClick={() => this.getListClick(index,item,(this.numList ? this.numList[index] : 0))} className={this.state.nodeId === item.nodeid ? styles.grayList : styles.itemList}>
           <div className={styles.floatLeft}>
             <img className={styles.imgLeft}  src={item.icon}/>
           </div>
           <div className={styles.floatLeft}>
             <div className={styles.titles}>{item.name}</div>
-            <div className={styles.news}>{(item.nodeid==='/AJLC'||item.nodeid==='/JQLC'||item.nodeid==='/SACW')?listWord(item.nodeid):''}</div>
+            <div className={styles.news}>{(item.nodeid==='smart_wtaj'||item.nodeid==='smart_wtjq'||item.nodeid==='smart_wtwp')?listWord(item.nodeid):''}</div>
           </div>
           <div className={styles.floatLeft}>
-            <span style={{float:'right',fontSize:'13px',marginTop:'18px'}}>{sessionStorage.getItem('nodeid')==='/QYRJQ' ? '' : listTime(item.nodeid)}</span>
-            <Badge className={styles.badgePos} count={sessionStorage.getItem('nodeid')==='/QYRJQ' ? 0 : listNum(item)}/>
+            <span style={{float:'right',fontSize:'13px',marginTop:'18px'}}>{sessionStorage.getItem('nodeid')==='smart_syrjq' ? '' : listTime(item.nodeid)}</span>
+            <Badge className={styles.badgePos} count={sessionStorage.getItem('nodeid')==='smart_syrjq' ? 0 : (this.numList ? this.numList[index] : 0)}/>
           </div>
         </div>
       )

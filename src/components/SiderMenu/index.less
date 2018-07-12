@@ -27,7 +27,7 @@
 }
 
 .sider {
-  min-height: 100vh;
+  //min-height: 100vh;
   box-shadow: 2px 0 6px rgba(0, 21, 41, 0.35);
   position: relative;
   z-index: 10;
@@ -47,6 +47,7 @@
 .icon {
   width: 28px;
   margin-right: 10px;
+  cursor: pointer;
 }
 
 :global {
@@ -89,6 +90,9 @@
   .ant-menu-item-selected{
     background: transparent!important;
   }
+  .ant-modal-content{
+    -webkit-app-region: no-drag!important;
+  }
 }
 .szMenu {
   width: 200px;
@@ -99,6 +103,7 @@
   z-index: 999;
   border-radius: 4px;
   box-shadow: 0 0 10px #c0c0c0 !important;
+  -webkit-app-region: no-drag!important;
 }
 .nameMenu {
   font-size: 18px !important;
@@ -115,19 +120,29 @@
   margin: 6px 0 !important;
   color: #343434;
   &:hover {
-    color: #343434;
-    background: none;
-  }
-}
-.changePwd {
-  margin: 6px 0 !important;
-  color: #00adcb;
-  text-decoration: underline;
-  &:hover {
+    background: transparent;
+    margin: 6px 0 !important;
     color: #00adcb;
-    background: none;
+    text-decoration: underline;
+  }
+  &:last-child{
+    &:hover {
+      background: transparent;
+      margin: 6px 0 !important;
+      color: #343434;
+      text-decoration: none;
+    }
   }
 }
+//.changePwd {
+//  margin: 6px 0 !important;
+//  color: #00adcb;
+//  text-decoration: underline;
+//  &:hover {
+//    color: #00adcb;
+//    background: none;
+//  }
+//}
 .showMenu {
   display: block;
 }

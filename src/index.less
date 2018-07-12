@@ -3,6 +3,11 @@ body,
 :global(#root) {
   height: 100%;
   -webkit-app-region: drag!important;
+  box-shadow: 0 0 5px rgba(0, 21, 41, 0.3);
+}
+body{
+  padding: 5px;
+  background: transparent!important;
 }
 
 :global(.ant-layout) {
@@ -16,7 +21,7 @@ canvas {
   -webkit-user-select: none;
   -webkit-user-drag: none;
 //  -webkit-app-region: no-drag;
-  cursor: default;
+//  cursor: default;
 }
 
 body {
@@ -85,6 +90,7 @@ body {
   }
   .ant-layout-content {
     margin: 1px 0 0 0 !important;
+    -webkit-app-region: no-drag!important;
   }
   .ant-avatar {
     width: auto !important;

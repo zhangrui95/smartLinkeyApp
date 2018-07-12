@@ -16,6 +16,17 @@ export default class GlobalHeader extends PureComponent {
       delay:0,
       icon:'images/fang.png'
     };
+    // ipc.on('windows-now', (event, info) => {
+    //   if(info.code == 0){
+    //     this.setState({
+    //       icon:'images/fang.png'
+    //     })
+    //   }else{
+    //     this.setState({
+    //       icon:'images/hy.png'
+    //     })
+    //   }
+    // });
   }
   componentWillReceiveProps(next){
     if(this.props.user.nodeId!==next.user.nodeId){
@@ -54,35 +65,23 @@ export default class GlobalHeader extends PureComponent {
       },1000)
   }
   minWindows = () => {
-    // ipc.send('window-min');
+    ipc.send('window-min');
   };
   maxWindows = () => {
-    // ipc.on('windows-now', (event, info) => {
-    //   console.log(info);
-    //   if(info.code == 0){
-    //     this.setState({
-    //       icon:'images/fang.png'
-    //     })
-    //   }else{
-    //     this.setState({
-    //       icon:'images/hy.png'
-    //     })
-    //   }
-    // });
     if(this.state.icon === 'images/fang.png'){
       this.setState({
         icon:'images/hy.png'
       })
-      // ipc.send('window-max');
+      ipc.send('window-max');
     }else{
       this.setState({
         icon:'images/fang.png'
       })
-      // ipc.send('window-normal');
+      ipc.send('window-normal');
     }
   }
   CloseWindow = () => {
-    // ipc.send('put-in-tray');
+    ipc.send('put-in-tray');
   };
   render() {
     const { searchValue } = this.state;

@@ -16,10 +16,14 @@ export default class SmartDetail extends Component {
       searchList:null,
       loading: false,
       load: false,
-      height: 535,
+      height: 525,
       data:[],
       scrollHeight: 0,
-      sHight: 0
+      sHight: 0,
+      startLength:0,
+      endLength:1,
+      pageCount:5,
+      resultLength:0,
     };
   }
   scrollHandler = this.handleScroll.bind(this);
@@ -31,30 +35,33 @@ export default class SmartDetail extends Component {
   }
   updateSize() {
     this.setState({
-      height:autoheight() - 104,
+      height:autoheight() - 115,
     })
   }
   _handleScroll(scrollTop) {
     if(scrollTop === 0){
-      this.setState({
-        load: true
-      })
-      setTimeout(()=>{
-        this.setState({
-          load: false
-        })
-        JSON.parse(sessionStorage.getItem('nodeList')).map((node)=>{
-          if(node === sessionStorage.getItem('nodeid')){
-            this.props.onNewMsg(node, '')
+      this.state.data.map((item)=>{
+        if(JSON.parse(item.messagecontent).result.length < parseInt(this.state.endLength)*parseInt(this.state.pageCount)){
+          document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
+        }else{
+          this.setState({
+            load: true
+          })
+          setTimeout(()=>{
             this.setState({
-              sHight:document.getElementById('scroll').scrollHeight - parseInt(this.state.scrollHeight)
+              load: false
             })
-          }else{
-            this.props.onNewMsg(node, 1)
-          }
-        })
-        document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
-      },200)
+            this.setState({
+              endLength:parseInt(this.state.endLength) + 1,
+            })
+            let len = parseInt(JSON.parse(item.messagecontent).result.length) - parseInt(this.state.endLength)*parseInt(this.state.pageCount)
+            if(len < 5){
+              document.getElementById('scroll').scrollTop = 2200 - 480*len;
+            }
+            document.getElementById('scroll').scrollTop = 2200;
+          },200)
+        }
+      })
     }
   }
   handleScroll(event) {
@@ -66,20 +73,36 @@ export default class SmartDetail extends Component {
   }
   componentWillReceiveProps(next){
     let list = [];
-    let NewsList = [];
-    //document.getElementById('scroll').scrollTop = this.state.sHight
-    if(this.props.getTitle !== next.getTitle || this.props.nodeId !== next.nodeId){
+    if(next.user.nodeId === ''){
+      next.msgList.map((item)=>{
+        if(sessionStorage.getItem('nodeid').toLowerCase() === item.nodeid.toLowerCase()){
+          list.push(item)
+        }
+      })
+      this.setState({
+        data:list
+      })
+      setTimeout(()=>{
+        this.setState({
+          loading:false,
+        })
+        document.getElementById('scroll').scrollTop = document.getElementById('scroll').scrollHeight;
+        document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
+      },200)
+    }
+    if(this.props.user.nodeId!==next.user.nodeId || this.props.nodeId !== next.nodeId){
       this.setState({
         scrollHeight: document.getElementById('scroll').scrollHeight,
+        endLength:1,
       })
-      //document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
+      document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
       this.setState({
         searchList:null,
         loading:true,
       })
       next.searchList.map((listItem)=>{
         if(sessionStorage.getItem('nodeid')==listItem.nodeid){
-            if(listItem.remark === '问题'){
+            if(listItem.remark === 'smart_wtjq' || listItem.remark === 'smart_wtaj' || listItem.remark === 'smart_wtwp' || listItem.remark === 'smart_syrjq'){
               this.props.onNewMsg(listItem.nodeid, 1);
             }else{
               this.props.onNewMsg(listItem.nodeid, '');
@@ -117,10 +140,10 @@ export default class SmartDetail extends Component {
           loading:false,
         })
         document.getElementById('scroll').scrollTop = document.getElementById('scroll').scrollHeight;
-       // document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
+        document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
       },200)
     }else if(this.props.user.searchList !== next.user.searchList){
-      //document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
+      document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
       this.setState({
         searchList:next.user.searchList,
         loading:true,
@@ -130,16 +153,16 @@ export default class SmartDetail extends Component {
           loading:false,
         })
         document.getElementById('scroll').scrollTop = document.getElementById('scroll').scrollHeight;
-       // document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
+        document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
       },200)
     }
   }
   goWindow = (path) => {
-    window.open(path)
-    // ipc.send('visit-page', {
-    //   "url": path,
-    //   "browser": "chrome"
-    // });
+    // window.open(path)
+    ipc.send('visit-page', {
+      "url": path,
+      "browser": "chrome"
+    });
   }
   createXml = (str) => {
     if(document.all){
@@ -151,6 +174,7 @@ export default class SmartDetail extends Component {
       return new DOMParser().parseFromString(str, "text/xml")
   }
   render() {
+    let pageLength = parseInt(this.state.endLength)*parseInt(this.state.pageCount);
     let result = '';
     let listType = '';
     let list = [];
@@ -165,16 +189,16 @@ export default class SmartDetail extends Component {
           listType = JSON.parse(item.messagecontent).type;
           result = JSON.parse(item.messagecontent).result;
           if(listType === 'ajxx'){//案管
-            result.map((ajItem,index)=>{
+            result.slice(0,pageLength).map((ajItem,index)=>{
               list.push(<div className={styles.boxItem} key={'aj'+i.toString() + index}>
                 <div className={styles.timeStyle}>{item.time}</div>
                 <div>
-                  {sessionStorage.getItem('nodeid')==='/AJLC'? <div className={styles.headerName}>案管</div> :
+                  {sessionStorage.getItem('nodeid')==='smart_wtaj'? <div className={styles.headerName}>案管</div> :
                   <div className={styles.headerName}>
                     <img src="images/user.png" className={styles.headerImgSay}/>
                   </div>}
                   <div className={styles.cardBox}>
-                    <div className={styles.newsTitle}>{sessionStorage.getItem('nodeid')==='/AJLC' ? '智慧案管系统' : ajItem.name}</div>
+                    <div className={styles.newsTitle}>{sessionStorage.getItem('nodeid')==='smart_wtaj' ? '智慧案管系统' : ajItem.name}</div>
                     <Card
                       title={
                         <div>
@@ -185,8 +209,8 @@ export default class SmartDetail extends Component {
                       style={{ width: 330, padding: '0 16px' }}
                       cover={<img alt="example" src="images/chatu1.png" />}
                       actions={[
-                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='/AJLC'|| (sessionStorage.getItem('nodeid')==='/QYRJQ'&&this.props.code==='200003')? `${configUrl.agUrl}` + '#/loginByToken?token=' + token + '&dbid='+ajItem.dbid + '&type="1"':`${configUrl.ajlcUrl}`+'/Manager/smartlinkeyLoign?username=' + userNew.idCard + '&password='+pwd+'&dbid='+ajItem.dbid+'&type=1')}>
-                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='/AJLC' || (sessionStorage.getItem('nodeid')==='/QYRJQ'&&this.props.code==='200003')? '立即督办':'立即处理'}</a>
+                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='smart_wtaj'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? `${configUrl.agUrl}` + '#/loginByToken?token=' + token +'&dbid='+ajItem.dbid +'&type=1':`${configUrl.ajlcUrl}`+'/Manager/smartlinkeyLoign?username=' + userNew.idCard+'&password='+pwd+'&dbid='+ajItem.dbid+'&type=1')}>
+                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='smart_wtaj' || (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? '立即督办':'立即处理'}</a>
                           <a className={styles.goChild}> > </a>
                         </div>,
                       ]}
@@ -206,16 +230,16 @@ export default class SmartDetail extends Component {
               </div>)
             })
           }else if(listType === 'jqxx'){//警情
-            result.map((items,index)=>{
+            result.slice(0,pageLength).map((items,index)=>{
               list.push(<div className={styles.boxItem} key={'jq'+i.toString() + index}>
                 <div className={styles.timeStyle}>{item.time}</div>
                 <div>
-                  {sessionStorage.getItem('nodeid')==='/JQLC'? <div className={styles.headerName}>警情</div> :
+                  {sessionStorage.getItem('nodeid')==='smart_wtjq'? <div className={styles.headerName}>警情</div> :
                     <div className={styles.headerName}>
                       <img src="images/user.png" className={styles.headerImgSay}/>
                     </div>}
                   <div className={styles.cardBox}>
-                    <div className={styles.newsTitle}>{sessionStorage.getItem('nodeid')==='/JQLC' ? '智慧警情系统' : items.name}</div>
+                    <div className={styles.newsTitle}>{sessionStorage.getItem('nodeid')==='smart_wtjq' ? '智慧警情系统' : items.name}</div>
                     <Card
                       title={
                         <div>
@@ -227,8 +251,8 @@ export default class SmartDetail extends Component {
                       cover={<img alt="example" src="images/chatu1.png" />}
                       actions={[
                         //<div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(`${configUrl.jqUrl}` + '/JQCL/userlogin/smartlinkeyLoign?username=' + userNew.idCard + '&&password=' + pwd + '&&type=0')}>
-                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='/JQLC'|| (sessionStorage.getItem('nodeid')==='/QYRJQ'&&this.props.code==='200003')? `${configUrl.agUrl}` + '#/loginByToken?token=' + token + '&dbid='+items.dbid + '&type="2"':`${configUrl.jqUrl}` + '/JQCL/userlogin/smartlinkeyLoign?username=' + userNew.idCard + '&password=' + pwd+'&dbid='+ items.dbid + '&type=1')}>
-                            <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='/JQLC'|| (sessionStorage.getItem('nodeid')==='/QYRJQ'&&this.props.code==='200003')? '立即督办':'立即处理'}</a>
+                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='smart_wtjq'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? `${configUrl.agUrl}` + '#/loginByToken?token='+token+'&dbid='+items.dbid+'&type=2':`${configUrl.jqUrl}` + '/JQCL/userlogin/smartlinkeyLoign?username=' + userNew.idCard +'&password=' + pwd+'&dbid='+ items.dbid+'&type=1')}>
+                            <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='smart_wtjq'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? '立即督办':'立即处理'}</a>
                           <a className={styles.goChild}> > </a>
                         </div>,
                       ]}
@@ -248,16 +272,16 @@ export default class SmartDetail extends Component {
               </div>)
             })
           }else if(listType === 'sacw'){//涉案财务
-            result.map((wpItem,index)=>{
+            result.slice(0,pageLength).map((wpItem,index)=>{
               list.push(<div className={styles.boxItem} key={'wp'+i.toString() + index}>
                 <div className={styles.timeStyle}>{item.time}</div>
                 <div>
-                  {sessionStorage.getItem('nodeid')==='/SACW'? <div className={styles.headerName}>案务</div> :
+                  {sessionStorage.getItem('nodeid')==='smart_wtwp'? <div className={styles.headerName}>案务</div> :
                     <div className={styles.headerName}>
                       <img src="images/user.png" className={styles.headerImgSay}/>
                     </div>}
                   <div className={styles.cardBox}>
-                    <div className={styles.newsTitle}>{sessionStorage.getItem('nodeid')==='/SACW' ? '涉案财务系统' : wpItem.name}</div>
+                    <div className={styles.newsTitle}>{sessionStorage.getItem('nodeid')==='smart_wtwp' ? '涉案财务系统' : wpItem.name}</div>
                     <Card
                       title={
                         <div>
@@ -269,8 +293,8 @@ export default class SmartDetail extends Component {
                       cover={<img alt="example" src="images/chatu1.png" />}
                       actions={[
                        // <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(`${configUrl.cwUrl}`+'/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD='+userNew.name+'&type=1&ajbh='+wpItem.ajbh)}>
-                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='/SACW'|| (sessionStorage.getItem('nodeid')==='/QYRJQ'&&this.props.code==='200003')? `${configUrl.agUrl}` + '#/loginByToken?token=' + token + '&dbid='+ wpItem.dbid + '&type="3"':`${configUrl.cwUrl}`+'/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD='+userNew.name+'&type=1&dbid='+wpItem.dbid)}>
-                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='/SACW'|| (sessionStorage.getItem('nodeid')==='/QYRJQ'&&this.props.code==='200003')? '立即督办':'立即处理'}</a>
+                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='smart_wtwp'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? `${configUrl.agUrl}` + '#/loginByToken?token='+token+'&dbid='+wpItem.dbid+'&type=3':`${configUrl.cwUrl}`+'/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD='+userNew.idCard+'&type=1&dbid='+wpItem.dbid)}>
+                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='smart_wtwp'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? '立即督办':'立即处理'}</a>
                           <a className={styles.goChild}> > </a>
                         </div>,
                       ]}
@@ -302,16 +326,16 @@ export default class SmartDetail extends Component {
           listType = JSON.parse(this.createXml(item.payload).getElementsByTagName('messagecontent')[0].textContent).type;
           readTime = this.createXml(item.payload).getElementsByTagName('createtime')[0].textContent
           if(listType === 'ajxx'){//办案区
-            result.map((ajItem,index)=>{
+            result.slice(0,pageLength).map((ajItem,index)=>{
               list.push(<div className={styles.boxItem} key={'aj'+i.toString() + index}>
                 <div className={styles.timeStyle}>{readTime}</div>
                 <div>
-                  {sessionStorage.getItem('nodeid')==='/AJLC'? <div className={styles.headerName}>案管</div> :
+                  {sessionStorage.getItem('nodeid')==='smart_wtaj'? <div className={styles.headerName}>案管</div> :
                     <div className={styles.headerName}>
                       <img src="images/user.png" className={styles.headerImgSay}/>
                     </div>}
                   <div className={styles.cardBox}>
-                    <div className={styles.newsTitle}>{sessionStorage.getItem('nodeid')==='/AJLC' ? '智慧案管系统' : ajItem.name}</div>
+                    <div className={styles.newsTitle}>{sessionStorage.getItem('nodeid')==='smart_wtaj' ? '智慧案管系统' : ajItem.name}</div>
                     <Card
                       title={
                         <div>
@@ -322,8 +346,8 @@ export default class SmartDetail extends Component {
                       style={{ width: 330, padding: '0 16px' }}
                       cover={<img alt="example" src="images/chatu1.png" />}
                       actions={[
-                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='/AJLC'|| (sessionStorage.getItem('nodeid')==='/QYRJQ'&&this.props.code==='200003')? `${configUrl.agUrl}` + '#/loginByToken?token=' + token + '&dbid='+ajItem.dbid + '&type="1"':`${configUrl.ajlcUrl}`+'/Manager/smartlinkeyLoign?username=' + userNew.idCard + '&password='+pwd+'&dbid='+ajItem.dbid+'&type=1')}>
-                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='/AJLC'|| (sessionStorage.getItem('nodeid')==='/QYRJQ'&&this.props.code==='200003')? '立即督办':'立即处理'}</a>
+                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='smart_wtaj'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? `${configUrl.agUrl}` + '#/loginByToken?token='+token+'&dbid='+ajItem.dbid+'&type=1':`${configUrl.ajlcUrl}`+'/Manager/smartlinkeyLoign?username=' + userNew.idCard + '&password='+pwd+'&dbid='+ajItem.dbid+'&type=1')}>
+                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='smart_wtaj'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? '立即督办':'立即处理'}</a>
                           <a className={styles.goChild}> > </a>
                         </div>,
                       ]}
@@ -343,16 +367,16 @@ export default class SmartDetail extends Component {
               </div>)
             })
           }else if(listType === 'jqxx'){//警情
-            result.map((items,index)=>{
+            result.slice(0,pageLength).map((items,index)=>{
               list.push(<div className={styles.boxItem} key={'jq'+i.toString() + index}>
                 <div className={styles.timeStyle}>{readTime}</div>
                 <div>
-                  {sessionStorage.getItem('nodeid')==='/JQLC'? <div className={styles.headerName}>警情</div> :
+                  {sessionStorage.getItem('nodeid')==='smart_wtjq'? <div className={styles.headerName}>警情</div> :
                     <div className={styles.headerName}>
                       <img src="images/user.png" className={styles.headerImgSay}/>
                     </div>}
                   <div className={styles.cardBox}>
-                    <div className={styles.newsTitle}>{sessionStorage.getItem('nodeid')==='/JQLC' ? '智慧警情系统' : items.name}</div>
+                    <div className={styles.newsTitle}>{sessionStorage.getItem('nodeid')==='smart_wtjq' ? '智慧警情系统' : items.name}</div>
                     <Card
                       title={
                         <div>
@@ -363,8 +387,8 @@ export default class SmartDetail extends Component {
                       style={{ width: 330, padding: '0 16px' }}
                       cover={<img alt="example" src="images/chatu1.png" />}
                       actions={[
-                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='/JQLC'|| (sessionStorage.getItem('nodeid')==='/QYRJQ'&&this.props.code==='200003')? `${configUrl.agUrl}` + '#/loginByToken?token=' + token + '&dbid='+items.dbid + '&type="2"':`${configUrl.jqUrl}` + '/JQCL/userlogin/smartlinkeyLoign?username=' + userNew.idCard + '&password=' + pwd+'&dbid='+ items.dbid + '&type=1')}>
-                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='/JQLC'|| (sessionStorage.getItem('nodeid')==='/QYRJQ'&&this.props.code==='200003')? '立即督办':'立即处理'}</a>
+                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='smart_wtjq'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? `${configUrl.agUrl}` + '#/loginByToken?token=' +token+'&dbid='+items.dbid +'&type=2':`${configUrl.jqUrl}` + '/JQCL/userlogin/smartlinkeyLoign?username=' + userNew.idCard + '&password=' + pwd+'&dbid='+ items.dbid + '&type=1')}>
+                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='smart_wtjq'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? '立即督办':'立即处理'}</a>
                           <a className={styles.goChild}> > </a>
                         </div>,
                       ]}
@@ -384,16 +408,16 @@ export default class SmartDetail extends Component {
               </div>)
             })
           }else if(listType === 'sacw'){//涉案财务
-            result.map((wpItem,index)=>{
+            result.slice(0,pageLength).map((wpItem,index)=>{
               list.push(<div className={styles.boxItem} key={'wp'+i.toString() + index}>
                 <div className={styles.timeStyle}>{readTime}</div>
                 <div>
-                  {sessionStorage.getItem('nodeid')==='/SACW'? <div className={styles.headerName}>案务</div> :
+                  {sessionStorage.getItem('nodeid')==='smart_wtwp'? <div className={styles.headerName}>案务</div> :
                     <div className={styles.headerName}>
                       <img src="images/user.png" className={styles.headerImgSay}/>
                     </div>}
                   <div className={styles.cardBox}>
-                    <div className={styles.newsTitle}>{sessionStorage.getItem('nodeid')==='/SACW' ? '涉案财务系统' : wpItem.name}</div>
+                    <div className={styles.newsTitle}>{sessionStorage.getItem('nodeid')==='smart_wtwp' ? '涉案财务系统' : wpItem.name}</div>
                     <Card
                       title={
                         <div>
@@ -404,8 +428,8 @@ export default class SmartDetail extends Component {
                       style={{ width: 330, padding: '0 16px' }}
                       cover={<img alt="example" src="images/chatu1.png" />}
                       actions={[
-                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='/SACW'|| (sessionStorage.getItem('nodeid')==='/QYRJQ'&&this.props.code==='200003')? `${configUrl.agUrl}` + '#/loginByToken?token=' + token + '&dbid='+ wpItem.dbid + '&type="3"':`${configUrl.cwUrl}`+'/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD='+userNew.name+'&type=1&dbid='+wpItem.dbid)}>
-                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='/SACW'|| (sessionStorage.getItem('nodeid')==='/QYRJQ'&&this.props.code==='200003')? '立即督办':'立即处理'}</a>
+                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='smart_wtwp'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? `${configUrl.agUrl}` + '#/loginByToken?token='+token+'&dbid='+wpItem.dbid+'&type=3':`${configUrl.cwUrl}`+'/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD='+userNew.idCard+'&type=1&dbid='+wpItem.dbid)}>
+                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='smart_wtwp'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? '立即督办':'立即处理'}</a>
                           <a className={styles.goChild}> > </a>
                         </div>,
                       ]}

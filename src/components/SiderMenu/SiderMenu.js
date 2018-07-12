@@ -348,7 +348,7 @@ class SiderMenu extends PureComponent {
       <Menu className={styles.szMenu} selectedKeys={[]}>
         <Menu.Item className={styles.nameMenu}>{sessionStorage.getItem('user') ? JSON.parse(sessionStorage.getItem('user')).user.name : ''}</Menu.Item>
         <Menu.Divider />
-        <Menu.Item className={styles.changePwd} onClick={this.getChangePassWord}>
+        <Menu.Item className={styles.MenuListMargin} onClick={this.getChangePassWord}>
           修改密码
         </Menu.Item>
         <Menu.Item className={styles.MenuListMargin} onClick={this.getSystem}>
@@ -467,7 +467,7 @@ class SiderMenu extends PureComponent {
             maskClosable={false}
             footer={null}
           >
-            <div>当前版本：1.0.0.0</div>
+            <div>当前版本：1.0.0.1</div>
           </Modal>
           {this.getNavMenuItems(this.menus)}
         </Menu>

@@ -16,8 +16,10 @@ let connection = '';
 export default class SmartAll extends Component {
   constructor(props) {
     super(props);
+    const user = sessionStorage.getItem('user');
+    const userNew = JSON.parse(user).user;
     this.state = {
-      xmppUser:'zr',
+      xmppUser: userNew.idCard.toLowerCase(),
       nodeList: '',
       searchList:[],
       msgList: [],
@@ -72,11 +74,11 @@ export default class SmartAll extends Component {
   onMessage = msg => {
     let event = msg.getElementsByTagName('event');
     if(event.length > 0){
-      let news = []
+      // let news = []
       // ipc.send('start-flashing');
       // event.map((e)=>{
       //   e.getElementsByTagName('item').map((key)=>{
-      //     news.push({id:key.attributes[0].textContent,nodeid:key.getElementsByTagName('nodeid')})
+      //     news.push({id:key.attributes[0].textContent,nodeid:key.getElementsByTagName('nodeid'),messagecount:key.messagecount[0].textContent})
       //   })
       // })
     }
@@ -90,13 +92,15 @@ export default class SmartAll extends Component {
       }
     }
     let item = msg.getElementsByTagName('item');
+    // console.log('item------------>',item)
     if (item.length > 0) {
       for (let i = 0; i < item.length; i++) {
         let id = item[i].attributes[0].textContent
         let messagecontent = item[i].getElementsByTagName('messagecontent');
         let createtime = item[i].getElementsByTagName('createtime');
         let nodeid = item[i].getElementsByTagName('nodeid');
-        this.msgListAll.push({messagecontent:messagecontent[0].textContent,time:createtime[0].textContent,nodeid:nodeid[0].textContent, id:id});
+        let messagecount = item[i].getElementsByTagName('messagecount');
+        this.msgListAll.push({messagecontent:messagecontent[0].textContent,time:createtime[0].textContent,nodeid:nodeid[0].textContent, id:id, messagecount:messagecount[0].textContent});
         this.setState({
           msgList: this.msgListAll,
         })
