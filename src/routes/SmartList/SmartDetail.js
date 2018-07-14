@@ -36,7 +36,7 @@ export default class SmartDetail extends Component {
   }
   updateSize() {
     this.setState({
-      height:autoheight() - 115,
+      height:autoheight() < 700 ? autoheight() - 115 : autoheight() - 104,
     })
   }
   _handleScroll(scrollTop) {
@@ -104,14 +104,10 @@ export default class SmartDetail extends Component {
         loading:true,
       })
       next.searchList.map((listItem)=>{
-        if(sessionStorage.getItem('nodeid') === listItem.nodeid){
-            if(listItem.remark === 'smart_wtjq' || listItem.remark === 'smart_wtaj' || listItem.remark === 'smart_wtwp' || listItem.remark === 'smart_syrjq'){
-              this.props.onNewMsg(listItem.nodeid, 5);
-            }else{
-              this.props.onNewMsg(listItem.nodeid, '');
-            }
+        if(listItem.remark === 'smart_wtjq' || listItem.remark === 'smart_wtaj' || listItem.remark === 'smart_wtwp' || listItem.remark === 'smart_syrjq'){
+            this.props.onNewMsg(listItem.nodeid, 1);
         }else{
-          this.props.onNewMsg(listItem.nodeid, 1);
+          this.props.onNewMsg(listItem.nodeid, '');
         }
       })
       next.msgList.map((item)=>{
@@ -175,11 +171,11 @@ export default class SmartDetail extends Component {
     }
   }
   goWindow = (path) => {
-    window.open(path)
-    // ipc.send('visit-page', {
-    //   "url": path,
-    //   "browser": "chrome"
-    // });
+    // window.open(path)
+    ipc.send('visit-page', {
+      "url": path,
+      "browser": "chrome"
+    });
   }
   createXml = (str) => {
     if(document.all){

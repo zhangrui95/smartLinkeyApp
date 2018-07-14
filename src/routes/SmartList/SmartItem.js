@@ -40,7 +40,7 @@ class SmartItem extends Component {
   }
   updateSize() {
     this.setState({
-      height:autoheight() - 65,
+      height:autoheight() < 700 ? autoheight() - 65 : autoheight() - 54,
     })
   }
   componentWillReceiveProps(next){
@@ -100,6 +100,13 @@ class SmartItem extends Component {
       dataList.map((data)=>{
         if(this.state.nodeId === data.nodeid){
           this.numList.push(0);
+          if(this.listNum(data) > 0){
+            if(next.user.nodeId === ''){
+              this.getTimeSaves(data.nodeid,0);
+            }else{
+              this.getTimeSaves(data.nodeid,1);
+            }
+          }
         }else{
           this.numList.push(this.listNum(data));
         }
@@ -120,11 +127,6 @@ class SmartItem extends Component {
         }
       });
     }
-    if(next.user.nodeId === ''){
-      if(next.searchList && next.searchList.length > 0 && next.searchList[0].maxmessageid){
-        this.getTimeSaves(dataList[0].nodeid);
-      }
-    }
     this.numAll = 0;
     this.getNumAll();
     this.setState({
@@ -140,18 +142,13 @@ class SmartItem extends Component {
       type: 'user/allNum',
     });
   }
-  getListClick = (index,item,num) => {
+  getListClick = (index,item) => {
     // ipc.send('stop-flashing');
-    // this.numAll = 0;
     this.setState({
       index: index,
       title: item.name,
       nodeId: item.nodeid
     });
-    if(num > 0){
-      this.getTimeSave(item.nodeid);
-      this.getAllList(this.props);
-    }
     this.props.dispatch({
       type: 'user/nodeId',
       payload: {
@@ -159,8 +156,8 @@ class SmartItem extends Component {
       }
     });
   };
-  //更新主题读取的时间点
-  getTimeSave = (node) => {
+//更新主题读取的时间点
+  getTimeSaves = (node,type) => {
     this.props.dispatch({
       type: 'user/dataSave',
       payload: {
@@ -169,20 +166,10 @@ class SmartItem extends Component {
         userid:this.props.xmppUser
       },
       callback: response => {
-        this.props.getNodeList();
+        if(type === 1){
+          this.props.getNodeList();
+        }
       },
-    });
-  }
-//更新主题读取的时间点
-  getTimeSaves = (node) => {
-    this.props.dispatch({
-      type: 'user/dataSave',
-      payload: {
-        nodeid: node,//读取的主题node
-        maxmessageid: getNowFormatDate(),//读取最后一条的读取时间
-        userid:this.props.xmppUser
-      },
-      callback: response => {},
     });
   }
   listNum = (item) => {
@@ -238,7 +225,7 @@ class SmartItem extends Component {
     this.numAll = 0;
     this.state.data.map((item,index)=>{
       list.push(
-        <div onClick={() => this.getListClick(index,item,this.listNum(item))} className={this.state.nodeId === item.nodeid ? styles.grayList : styles.itemList}>
+        <div onClick={() => this.getListClick(index,item)} className={this.state.nodeId === item.nodeid ? styles.grayList : styles.itemList}>
           <div className={styles.floatLeft}>
             <img className={styles.imgLeft}  src={item.icon}/>
           </div>

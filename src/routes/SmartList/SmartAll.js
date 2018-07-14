@@ -24,7 +24,6 @@ export default class SmartAll extends Component {
       searchList:[],
       msgList: [],
       loading: false,
-      num: 1
     };
     this.msgListAll = []
   }
@@ -66,10 +65,7 @@ export default class SmartAll extends Component {
   };
   onNewMsg = (nodeList,maxNum) => {
     this.msgListAll = []
-    this.setState({
-      num: maxNum
-    })
-    connection.pubsub.items(nodeList, null, null, 5000, this.state.num);
+    connection.pubsub.items(nodeList, null, null, 5000, maxNum);
   }
   onMessage1 = msg1 =>{
     let node = []

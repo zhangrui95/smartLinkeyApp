@@ -25,7 +25,7 @@ class SmartLink extends Component {
   }
   updateSize() {
     this.setState({
-      height:autoheight() - 65,
+      height:autoheight() < 700 ? autoheight() - 65 : autoheight() - 54,
     })
   }
   goLink = path => {
