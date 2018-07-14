@@ -61,7 +61,7 @@ export default class SmartAll extends Component {
       connection.addHandler(this.onMessage, null, null, null, null, null);
       connection.send($pres().tree());
       //获取订阅的主题信息
-      connection.pubsub.getSubscriptions(this.onMessage, 5000);
+      connection.pubsub.getSubscriptions(this.onMessage1, 5000);
     }
   };
   onNewMsg = (nodeList,maxNum) => {
@@ -71,28 +71,46 @@ export default class SmartAll extends Component {
     })
     connection.pubsub.items(nodeList, null, null, 5000, this.state.num);
   }
-  onMessage = msg => {
-    let event = msg.getElementsByTagName('event');
-    if(event.length > 0){
-      // let news = []
-      // ipc.send('start-flashing');
-      // event.map((e)=>{
-      //   e.getElementsByTagName('item').map((key)=>{
-      //     news.push({id:key.attributes[0].textContent,nodeid:key.getElementsByTagName('nodeid'),messagecount:key.messagecount[0].textContent})
-      //   })
-      // })
-    }
+  onMessage1 = msg1 =>{
     let node = []
-    let names = msg.getElementsByTagName('subscription');
+    let names = msg1.getElementsByTagName('subscription');
     if (names.length > 0) {
       for (let i = 0; i < names.length; i++) {
         node.push(names[i].attributes[0].textContent)
         sessionStorage.setItem('nodeList', JSON.stringify(node));
-        this.onNewMsg(names[i].attributes[0].textContent,this.state.num)
+        // this.onNewMsg(names[i].attributes[0].textContent,this.state.num)
       }
     }
+    //查询主题读取时间点
+    if(node.length > 0){
+      this.setState({
+        nodeList:node,
+      })
+      this.props.dispatch({
+        type: 'user/query',
+        payload: {
+          nodeid: node.join(','),
+          userid: this.state.xmppUser
+        },
+        callback: response => {
+          this.setState({
+            searchList:response.data,
+          })
+        },
+      });
+    }
+  }
+  onMessage = msg => {
+    let event = msg.getElementsByTagName('event');
+    if(event.length > 0){
+      console.log('event闪烁--------------------->', event);
+      event.map((e)=>{
+        if(e.getElementsByTagName('item').length > 0){
+          // ipc.send('start-flashing');
+        }
+      })
+    }
     let item = msg.getElementsByTagName('item');
-    // console.log('item------------>',item)
     if (item.length > 0) {
       for (let i = 0; i < item.length; i++) {
         let id = item[i].attributes[0].textContent
@@ -106,8 +124,6 @@ export default class SmartAll extends Component {
         })
       }
     }
-    // //查询主题读取时间点
-    this.getNodeList();
     return true;
   };
   getNodeList = () => {
@@ -130,10 +146,6 @@ export default class SmartAll extends Component {
       });
     }
   }
-
-  // onMessage1 = msg => {
-  //   console.log('--- msg1 ---', msg);
-  // };
 
   render() {
     const user = sessionStorage.getItem('user');

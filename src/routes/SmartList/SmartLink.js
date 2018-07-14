@@ -48,7 +48,7 @@ class SmartLink extends Component {
       } else if (item.resourceCode === 'zhag_btn') {
         listMenu.push({ name: '智慧案管系统', link: `${configUrl.agUrl}`+'#/loginByToken?token='+token+'&type=0', img: 'images/anjian.png' });
       } else if (item.resourceCode === 'sjcw_btn') {
-        listMenu.push({ name: '涉案财务系统', link: `${configUrl.cwUrl}`+'/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD='+userNew.name+'&type=0', img: 'images/weishoulijingqing.png' });
+        listMenu.push({ name: '涉案财务系统', link: `${configUrl.cwUrl}`+'/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD='+userNew.idCard+'&type=0', img: 'images/weishoulijingqing.png' });
       } else if (item.resourceCode === 'zhjq_btn') {
         listMenu.push({
           name: '智慧警情系统',

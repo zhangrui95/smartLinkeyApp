@@ -87,15 +87,25 @@ class SmartItem extends Component {
               nodeId: dataList[0].nodeid,
               index: 0,
             })
+          }else{
+            this.setState({
+              title: '',
+            })
           }
         }
       })
     }
-    this.numList = [];
-    dataList.map((data)=>{
-      this.numList.push(this.listNum(data))
-    })
-    if(this.state.nodeId === ''){
+    if(next.type != 2){
+      this.numList = [];
+      dataList.map((data)=>{
+        if(this.state.nodeId === data.nodeid){
+          this.numList.push(0);
+        }else{
+          this.numList.push(this.listNum(data));
+        }
+      })
+    }
+    if(this.state.nodeId === ''||this.state.nodeId === 'smart_syrjq'){
       if(dataList.length > 0){
         this.setState({
           index: 0,
@@ -110,10 +120,10 @@ class SmartItem extends Component {
         }
       });
     }
-    if(this.props.user.nodeId === ''){
-      this.numList[0] = 0;
-    }else{
-      this.numList[this.state.index] = 0;
+    if(next.user.nodeId === ''){
+      if(next.searchList && next.searchList.length > 0 && next.searchList[0].maxmessageid){
+        this.getTimeSaves(dataList[0].nodeid);
+      }
     }
     this.numAll = 0;
     this.getNumAll();
@@ -131,7 +141,6 @@ class SmartItem extends Component {
     });
   }
   getListClick = (index,item,num) => {
-    this.numList = [];
     // ipc.send('stop-flashing');
     // this.numAll = 0;
     this.setState({
@@ -140,11 +149,9 @@ class SmartItem extends Component {
       nodeId: item.nodeid
     });
     if(num > 0){
-      this.numList[index] = 0;
       this.getTimeSave(item.nodeid);
       this.getAllList(this.props);
     }
-    // this.state.data[index].num = 0;
     this.props.dispatch({
       type: 'user/nodeId',
       payload: {
@@ -154,7 +161,6 @@ class SmartItem extends Component {
   };
   //更新主题读取的时间点
   getTimeSave = (node) => {
-    // this.state.data[index].num = 0
     this.props.dispatch({
       type: 'user/dataSave',
       payload: {
@@ -163,26 +169,39 @@ class SmartItem extends Component {
         userid:this.props.xmppUser
       },
       callback: response => {
-        // this.props.getNodeList();
+        this.props.getNodeList();
       },
+    });
+  }
+//更新主题读取的时间点
+  getTimeSaves = (node) => {
+    this.props.dispatch({
+      type: 'user/dataSave',
+      payload: {
+        nodeid: node,//读取的主题node
+        maxmessageid: getNowFormatDate(),//读取最后一条的读取时间
+        userid:this.props.xmppUser
+      },
+      callback: response => {},
     });
   }
   listNum = (item) => {
     this.num = 0;
-    // if(item.maxmessageid){
       this.state.msgLists.map((msgItem)=>{
-        if(msgItem.nodeid.toLowerCase() === item.nodeid.toLowerCase()){
+      if(msgItem.nodeid.toLowerCase() === item.nodeid.toLowerCase()){
+        if(item.maxmessageid && this.props.code==='200001'){
           if(msgItem.id > getTime(item.maxmessageid)){
-            this.num = msgItem.messagecount
-            // this.num++
+            this.num++;
           }
+        }else if(item.maxmessageid && this.props.code==='200003'){
+          if(msgItem.id > getTime(item.maxmessageid)){
+            this.num = msgItem.messagecount;
+          }
+        }else{
+          this.num = msgItem.messagecount;
         }
-      })
-    // }else{
-    //   this.num = 1;
-    // }
-    // this.numAll+=parseInt(this.num);
-    // sessionStorage.setItem('allNum', this.numAll);
+      }
+    })
     return this.num
   }
   render() {
@@ -219,7 +238,7 @@ class SmartItem extends Component {
     this.numAll = 0;
     this.state.data.map((item,index)=>{
       list.push(
-        <div onClick={() => this.getListClick(index,item,(this.numList ? this.numList[index] : 0))} className={this.state.nodeId === item.nodeid ? styles.grayList : styles.itemList}>
+        <div onClick={() => this.getListClick(index,item,this.listNum(item))} className={this.state.nodeId === item.nodeid ? styles.grayList : styles.itemList}>
           <div className={styles.floatLeft}>
             <img className={styles.imgLeft}  src={item.icon}/>
           </div>
@@ -229,7 +248,7 @@ class SmartItem extends Component {
           </div>
           <div className={styles.floatLeft}>
             <span style={{float:'right',fontSize:'13px',marginTop:'18px'}}>{sessionStorage.getItem('nodeid')==='smart_syrjq' ? '' : listTime(item.nodeid)}</span>
-            <Badge className={styles.badgePos} count={sessionStorage.getItem('nodeid')==='smart_syrjq' ? 0 : (this.numList ? this.numList[index] : 0)}/>
+            <Badge className={styles.badgePos} count={sessionStorage.getItem('nodeid')==='smart_syrjq' ? 0 : this.state.nodeId === item.nodeid ? 0 : this.listNum(item)}/>
           </div>
         </div>
       )

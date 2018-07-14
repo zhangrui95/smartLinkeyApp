@@ -6,6 +6,7 @@ import styles from './index.less';
 import { urlToList } from '../_utils/pathTools';
 import { connect } from 'dva';
 import MD5 from 'md5-es';
+import { Strophe, $pres } from 'strophe.js';
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -263,6 +264,8 @@ class SiderMenu extends PureComponent {
         _this.props.dispatch({
           type: 'login/logout',
         });
+        let connection = new Strophe.Connection('http://pc-20170308pkrs:7070/http-bind/');
+        connection.disconnect();
         // ipc.send('logout');
       },
       onCancel() {
