@@ -77,10 +77,6 @@ class SiderMenu extends PureComponent {
       this.setState({
         openKeys: this.getDefaultCollapsedSubMenus(nextProps),
       });
-    }else if(this.props.user.allNum !== nextProps.user.allNum){
-      this.setState({
-        allNum: nextProps.user.allNum
-      })
     }
   }
   /**
@@ -395,7 +391,6 @@ class SiderMenu extends PureComponent {
           selectedKeys={selectedKeys}
           style={{ padding: '16px 0', width: '100%' }}
         >
-          <Badge count={this.state.allNum} className={styles.badgeStyle} />
           <Modal
             title="修改密码"
             visible={this.state.visible}
@@ -470,7 +465,7 @@ class SiderMenu extends PureComponent {
             maskClosable={false}
             footer={null}
           >
-            <div>当前版本：1.0.0.1</div>
+            <div>当前版本：1.0.2</div>
           </Modal>
           {this.getNavMenuItems(this.menus)}
         </Menu>

@@ -3,6 +3,7 @@ import { connect } from 'dva';
 import SmartItem from './SmartItem';
 import PoliceSmartItem from './PoliceSmartItem';
 import SmartLink from './SmartLink';
+import { Badge } from 'antd';
 import { Strophe, $pres } from 'strophe.js';
 import { getSubscriptions } from 'strophejs-plugin-pubsub';
 import { getQueryString } from '../../utils/utils'
@@ -24,6 +25,7 @@ export default class SmartAll extends Component {
       searchList:[],
       msgList: [],
       loading: false,
+      count: 1,
     };
     this.msgListAll = []
   }
@@ -100,11 +102,7 @@ export default class SmartAll extends Component {
     let event = msg.getElementsByTagName('event');
     if(event.length > 0){
       console.log('event闪烁--------------------->', event);
-      event.map((e)=>{
-        if(e.getElementsByTagName('item').length > 0){
-          // ipc.send('start-flashing');
-        }
-      })
+      // ipc.send('start-flashing');
     }
     let item = msg.getElementsByTagName('item');
     if (item.length > 0) {
@@ -142,7 +140,11 @@ export default class SmartAll extends Component {
       });
     }
   }
-
+  changeCount(count){
+    this.setState({
+      count
+    })
+  }
   render() {
     const user = sessionStorage.getItem('user');
     const userItem = JSON.parse(user).user;
@@ -173,6 +175,7 @@ export default class SmartAll extends Component {
     })}
     return (
       <div>
+        <Badge count={type==0 ? '' : sessionStorage.getItem('allNum')} className={styles.allNum}/>
         {item}
       </div>
     );

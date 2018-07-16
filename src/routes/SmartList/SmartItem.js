@@ -23,12 +23,13 @@ class SmartItem extends Component {
       msgLists:'',
       data:[],
       num:[],
-      height: 575
+      height: 575,
     };
     this.numAll = 0;
     this.message = [];
     this.num = 0;
     this.numList = [];
+    this.lastTime = [];
   }
   componentDidMount(){
     this.setState({
@@ -55,6 +56,14 @@ class SmartItem extends Component {
     if(this.props.msgList !== next.msgList || this.props.type !== next.type || this.props.searchList !== next.searchList){
      this.getAllList(next);
     }
+    if(this.props.searchList !== next.searchList){
+      this.lastTime = [];
+      next.searchList.map((item,index)=>{
+        if(item.nodeid!=='smart_syrjq'){
+          this.lastTime.push({maxmessageid: item.maxmessageid ? item.maxmessageid : getNowFormatDate(),nodeid:item.nodeid});
+        }
+      })
+    }
   }
   getAllList = (next) => {
     let dataList = [];
@@ -68,7 +77,7 @@ class SmartItem extends Component {
                 name: item.name,
                 icon: (item.nodeid === 'smart_wtaj'? 'images/anjian.png':(item.nodeid === 'smart_wtjq'? 'images/weishoulijingqing.png':(item.nodeid === 'smart_wtwp'? 'images/wentiwupin.png':'images/user.png'))),
                 maxmessageid: item.maxmessageid ? item.maxmessageid : getNowFormatDate(),
-                nodeid: item.nodeid
+                nodeid: item.nodeid,
               },
             )
           }
@@ -95,23 +104,6 @@ class SmartItem extends Component {
         }
       })
     }
-    if(next.type != 2){
-      this.numList = [];
-      dataList.map((data)=>{
-        if(this.state.nodeId === data.nodeid){
-          this.numList.push(0);
-          if(this.listNum(data) > 0){
-            if(next.user.nodeId === ''){
-              this.getTimeSaves(data.nodeid,0);
-            }else{
-              this.getTimeSaves(data.nodeid,1);
-            }
-          }
-        }else{
-          this.numList.push(this.listNum(data));
-        }
-      })
-    }
     if(this.state.nodeId === ''||this.state.nodeId === 'smart_syrjq'){
       if(dataList.length > 0){
         this.setState({
@@ -127,23 +119,29 @@ class SmartItem extends Component {
         }
       });
     }
-    this.numAll = 0;
-    this.getNumAll();
     this.setState({
       data: dataList,
     })
-  }
-  getNumAll = () => {
-    this.numList.map((num)=>{
-      this.numAll+=parseInt(num);
-    })
-    sessionStorage.setItem('allNum', this.numAll);
-    this.props.dispatch({
-      type: 'user/allNum',
-    });
+    if(next.type != 2){
+      this.numList = [];
+      this.state.data.map((data,index)=>{
+        if(this.state.nodeId === data.nodeid){
+          this.numList.push(0);
+          this.lastTime[index].maxmessageid  = getNowFormatDate();
+          this.getTimeSaves(data.nodeid);
+        }else{
+          this.numList.push(this.listNum(data,index));
+        }
+      })
+    }
   }
   getListClick = (index,item) => {
     // ipc.send('stop-flashing');
+    this.lastTime.map((time,index)=>{
+      if(time.nodeid === item.nodeid){
+        this.lastTime[index].maxmessageid  = getNowFormatDate();
+      }
+    })
     this.setState({
       index: index,
       title: item.name,
@@ -157,7 +155,7 @@ class SmartItem extends Component {
     });
   };
 //更新主题读取的时间点
-  getTimeSaves = (node,type) => {
+  getTimeSaves = (node) => {
     this.props.dispatch({
       type: 'user/dataSave',
       payload: {
@@ -165,31 +163,36 @@ class SmartItem extends Component {
         maxmessageid: getNowFormatDate(),//读取最后一条的读取时间
         userid:this.props.xmppUser
       },
-      callback: response => {
-        if(type === 1){
-          this.props.getNodeList();
-        }
-      },
+      callback: response => {},
     });
   }
-  listNum = (item) => {
+  listNum = (item,index) => {
     this.num = 0;
       this.state.msgLists.map((msgItem)=>{
       if(msgItem.nodeid.toLowerCase() === item.nodeid.toLowerCase()){
         if(item.maxmessageid && this.props.code==='200001'){
-          if(msgItem.id > getTime(item.maxmessageid)){
+          if(msgItem.id > getTime(this.lastTime[index].maxmessageid)){
             this.num++;
           }
-        }else if(item.maxmessageid && this.props.code==='200003'){
-          if(msgItem.id > getTime(item.maxmessageid)){
+        } else{
+          if(msgItem.id > getTime(this.lastTime[index].maxmessageid)){
             this.num = msgItem.messagecount;
           }
-        }else{
-          this.num = msgItem.messagecount;
         }
       }
     })
     return this.num
+  }
+  getAll = () => {
+    if(this.props.type == 0){
+      this.state.data.map((item,index)=>{
+        if(item.nodeid !== 'smart_syrjq'){
+          this.numAll += parseInt(this.listNum(item,index));
+        }
+      })
+      sessionStorage.setItem('allNum', this.numAll);
+    }
+    return this.numAll;
   }
   render() {
     sessionStorage.setItem('nodeid', this.state.nodeId);
@@ -225,7 +228,7 @@ class SmartItem extends Component {
     this.numAll = 0;
     this.state.data.map((item,index)=>{
       list.push(
-        <div onClick={() => this.getListClick(index,item)} className={this.state.nodeId === item.nodeid ? styles.grayList : styles.itemList}>
+        <div onClick={() => this.getListClick(index,item,this.listNum(item,index))} className={this.state.nodeId === item.nodeid ? styles.grayList : styles.itemList}>
           <div className={styles.floatLeft}>
             <img className={styles.imgLeft}  src={item.icon}/>
           </div>
@@ -235,13 +238,14 @@ class SmartItem extends Component {
           </div>
           <div className={styles.floatLeft}>
             <span style={{float:'right',fontSize:'13px',marginTop:'18px'}}>{sessionStorage.getItem('nodeid')==='smart_syrjq' ? '' : listTime(item.nodeid)}</span>
-            <Badge className={styles.badgePos} count={sessionStorage.getItem('nodeid')==='smart_syrjq' ? 0 : this.state.nodeId === item.nodeid ? 0 : this.listNum(item)}/>
+            <Badge className={styles.badgePos} count={sessionStorage.getItem('nodeid')==='smart_syrjq' ? 0 : this.state.nodeId === item.nodeid ? 0 : this.listNum(item,index)}/>
           </div>
         </div>
       )
     })
     return (
       <div className={styles.leftList}>
+        <Badge count={this.getAll()} className={styles.allNum}/>
         <div className={styles.listScroll} style={{height:this.state.height + 'px'}}>
           <Spin size="large" className={this.props.loading ? '' : styles.none}/>
           {list}
