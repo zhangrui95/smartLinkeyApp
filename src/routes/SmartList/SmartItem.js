@@ -7,6 +7,7 @@ import { instanceOf } from 'prop-types';
 import { routerRedux } from 'dva/router';
 import { withCookies, Cookies } from 'react-cookie';
 import { getNowFormatDate,getTime,autoheight} from '../../utils/utils'
+import SmartLink from './SmartLink';
 @connect(({ user }) => ({
   user,
 }))
@@ -22,6 +23,7 @@ class SmartItem extends Component {
       nodeId: '',
       msgLists:'',
       data:[],
+      numData:[],
       num:[],
       height: 575,
     };
@@ -53,7 +55,7 @@ class SmartItem extends Component {
         nodeId:'',
       })
     }
-    if(this.props.msgList !== next.msgList || this.props.type !== next.type || this.props.searchList !== next.searchList){
+    if(this.props.msgList !== next.msgList || this.props.type !== next.type || this.props.searchList !== next.searchList || this.props.event !== next.event){
      this.getAllList(next);
     }
     if(this.props.searchList !== next.searchList){
@@ -67,9 +69,20 @@ class SmartItem extends Component {
   }
   getAllList = (next) => {
     let dataList = [];
+    let numData = [];
     this.num = 0;
     if(next.searchList && next.searchList.length > 0){
       next.searchList.map((item,index)=>{
+        if(item.nodeid !== 'smart_syrjq'){
+          numData.push(
+            {
+              name: item.name,
+              icon: (item.nodeid === 'smart_wtaj'? 'images/anjian.png':(item.nodeid === 'smart_wtjq'? 'images/weishoulijingqing.png':(item.nodeid === 'smart_wtwp'? 'images/wentiwupin.png':'images/user.png'))),
+              maxmessageid: item.maxmessageid ? item.maxmessageid : getNowFormatDate(),
+              nodeid: item.nodeid,
+            },
+          )
+        }
         if(next.type != 2){
           if(item.nodeid !== 'smart_syrjq'){
             dataList.push(
@@ -121,6 +134,7 @@ class SmartItem extends Component {
     }
     this.setState({
       data: dataList,
+      numData:numData
     })
     if(next.type != 2){
       this.numList = [];
@@ -184,14 +198,14 @@ class SmartItem extends Component {
     return this.num
   }
   getAll = () => {
-    if(this.props.type == 0){
-      this.state.data.map((item,index)=>{
+    this.state.numData.map((item,index)=>{
+      if(this.state.nodeId !== item.nodeid){
         if(item.nodeid !== 'smart_syrjq'){
           this.numAll += parseInt(this.listNum(item,index));
         }
-      })
-      sessionStorage.setItem('allNum', this.numAll);
-    }
+      }
+    })
+    sessionStorage.setItem('allNum', this.numAll);
     return this.numAll;
   }
   render() {
@@ -213,7 +227,7 @@ class SmartItem extends Component {
       return res
     }
     let listTime = (nodeid) => {
-      let time = ''
+      let time = '';
       this.state.msgLists.map((msgItem)=>{
         if(msgItem.nodeid.toLowerCase() === nodeid.toLowerCase()){
           if(msgItem.time){
@@ -244,14 +258,22 @@ class SmartItem extends Component {
       )
     })
     return (
-      <div className={styles.leftList}>
-        <Badge count={this.getAll()} className={styles.allNum}/>
-        <div className={styles.listScroll} style={{height:this.state.height + 'px'}}>
-          <Spin size="large" className={this.props.loading ? '' : styles.none}/>
-          {list}
+      <div>
+        <div className={this.props.type==1 ? styles.none : ''}>
+          <div className={styles.leftList}>
+            <Badge count={this.props.type==1 ? '' : this.getAll()} className={styles.allNum}/>
+            <div className={styles.listScroll} style={{height:this.state.height + 'px'}}>
+              <Spin size="large" className={this.props.loading ? '' : styles.none}/>
+              {list}
+            </div>
+            <div style={{ float: 'left',width:'calc(100% - 225px)'}}>
+              <SmartDetail code={this.props.code} newsId={this.state.index} getTitle={this.state.title} nodeId={this.state.nodeId} msgList={this.state.msgLists} onNewMsg={(nodeList,maxNum)=>this.props.onNewMsg(nodeList,maxNum)} searchList={this.props.searchList}/>
+            </div>
+          </div>
         </div>
-        <div style={{ float: 'left',width:'calc(100% - 225px)'}}>
-          <SmartDetail code={this.props.code} newsId={this.state.index} getTitle={this.state.title} nodeId={this.state.nodeId} msgList={this.state.msgLists} onNewMsg={(nodeList,maxNum)=>this.props.onNewMsg(nodeList,maxNum)} searchList={this.props.searchList}/>
+        <div className={this.props.type==1 ? '' : styles.none}>
+          <Badge count={this.props.type==1 ? this.getAll() : ''} className={styles.allNum}/>
+          <SmartLink/>
         </div>
       </div>
     );

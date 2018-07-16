@@ -25,7 +25,8 @@ export default class SmartAll extends Component {
       searchList:[],
       msgList: [],
       loading: false,
-      count: 1,
+      count: 0,
+      event:[],
     };
     this.msgListAll = []
   }
@@ -101,7 +102,10 @@ export default class SmartAll extends Component {
   onMessage = msg => {
     let event = msg.getElementsByTagName('event');
     if(event.length > 0){
-      console.log('event闪烁--------------------->', event);
+      this.setState({
+        event:event,
+      })
+      console.log('闪烁--------------------->');
       // ipc.send('start-flashing');
     }
     let item = msg.getElementsByTagName('item');
@@ -151,31 +155,10 @@ export default class SmartAll extends Component {
     let type = getQueryString(this.props.location.search, 'type');
     let item = '';
     {userItem.job.map(jobs => {
-      // if(jobs.code === '200001'){
-      //   item =
-      //     <div>
-      //       <div className={type==1 ? '' : styles.none}>
-      //         <SmartLink/>
-      //       </div>
-      //       <div className={type==1 ? styles.none : ''}>
-      //         <PoliceSmartItem msgList={this.state.msgList} nodeList={this.state.nodeList} searchList={this.state.searchList} getXmpp={() => this.getXmpp()} loading={this.state.loading} type={type}/>
-      //       </div>
-      //     </div>
-      // }else if (jobs.code === '200003'||jobs.code === '200002') {
-        item =
-          <div>
-            <div className={type==1 ? '' : styles.none}>
-              <SmartLink/>
-            </div>
-            <div className={type==1 ? styles.none : ''}>
-              <SmartItem code={jobs.code} getNodeList={()=>this.getNodeList()} xmppUser={this.state.xmppUser} msgList={this.state.msgList} nodeList={this.state.nodeList} searchList={this.state.searchList} getXmpp={() => this.getXmpp()} loading={this.state.loading} type={type} onNewMsg={(node,maxNum)=>this.onNewMsg(node,maxNum)}/>
-            </div>
-          </div>
-      // }
+        item = <SmartItem code={jobs.code} getNodeList={()=>this.getNodeList()} xmppUser={this.state.xmppUser} msgList={this.state.msgList} nodeList={this.state.nodeList} searchList={this.state.searchList} getXmpp={() => this.getXmpp()} loading={this.state.loading} type={type} onNewMsg={(node,maxNum)=>this.onNewMsg(node,maxNum)} event={this.state.event}/>
     })}
     return (
       <div>
-        <Badge count={type==0 ? '' : sessionStorage.getItem('allNum')} className={styles.allNum}/>
         {item}
       </div>
     );
