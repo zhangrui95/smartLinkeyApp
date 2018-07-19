@@ -10,9 +10,11 @@ import { getQueryString } from '../../utils/utils'
 import styles from './SmartDetail.less';
 const BOSH_SERVICE = 'http://pc-20170308pkrs:7070/http-bind/';
 let connection = '';
-
-@connect(({ user }) => ({
+const user = sessionStorage.getItem('user');
+const userItem = JSON.parse(user).user;
+@connect(({ user, login }) => ({
   user,
+  login,
 }))
 export default class SmartAll extends Component {
   constructor(props) {
@@ -27,6 +29,8 @@ export default class SmartAll extends Component {
       loading: false,
       count: 0,
       event:[],
+      code: false,
+      firstLogin: this.props.login.loginStatus
     };
     this.msgListAll = []
   }
@@ -36,6 +40,27 @@ export default class SmartAll extends Component {
     this.setState({
       loading: true,
     })
+    userItem.job.map((jobs) => {
+      if(jobs.code === '200001'){
+        this.setState({
+          code: true,
+        })
+      }else if(jobs.code === '200003'){
+        this.setState({
+          code: false,
+        })
+      }
+    })
+  }
+  componentWillReceiveProps(next){
+    if(this.props.login.loginStatus !== next.login.loginStatus){
+      if(!next.login.loginStatus){
+        this.getOut();
+        this.props.dispatch({
+          type: 'login/logout',
+        });
+      }
+    }
   }
 
   getXmpp = () => {
@@ -54,7 +79,9 @@ export default class SmartAll extends Component {
       console.log('登录失败！');
     } else if (status == Strophe.Status.DISCONNECTED) {
       console.log('连接断开！');
-      this.getXmpp();
+      if(this.props.login.loginStatus){
+        this.getXmpp();
+      }
     } else if (status == Strophe.Status.CONNECTED) {
       console.log('连接成功！');
       this.setState({
@@ -72,12 +99,17 @@ export default class SmartAll extends Component {
   }
   onMessage1 = msg1 =>{
     let node = []
+    this.msgListAll = []
     let names = msg1.getElementsByTagName('subscription');
     if (names.length > 0) {
       for (let i = 0; i < names.length; i++) {
         node.push(names[i].attributes[0].textContent)
         sessionStorage.setItem('nodeList', JSON.stringify(node));
-        // this.onNewMsg(names[i].attributes[0].textContent,this.state.num)
+        if(!this.state.code){
+          this.onNewMsg(names[i].attributes[0].textContent,2)
+        }else{
+          this.onNewMsg(names[i].attributes[0].textContent,'')
+        }
       }
     }
     //查询主题读取时间点
@@ -102,11 +134,15 @@ export default class SmartAll extends Component {
   onMessage = msg => {
     let event = msg.getElementsByTagName('event');
     if(event.length > 0){
+      // ipc.send('start-flashing');
       this.setState({
         event:event,
+        firstLogin:false
       })
-      console.log('闪烁--------------------->');
-      // ipc.send('start-flashing');
+      console.log('闪烁--------------------->',event);
+      // connection.addHandler(this.onMessage, null, null, null, null, null);
+      // connection.pubsub.getSubscriptions(this.onMessage1, 5000);
+      this.getNodeList();
     }
     let item = msg.getElementsByTagName('item');
     if (item.length > 0) {
@@ -114,9 +150,10 @@ export default class SmartAll extends Component {
         let id = item[i].attributes[0].textContent
         let messagecontent = item[i].getElementsByTagName('messagecontent');
         let createtime = item[i].getElementsByTagName('createtime');
+        let packagecount = item[i].getElementsByTagName('packagecount');
         let nodeid = item[i].getElementsByTagName('nodeid');
         let messagecount = item[i].getElementsByTagName('messagecount');
-        this.msgListAll.push({messagecontent:messagecontent[0].textContent,time:createtime[0].textContent,nodeid:nodeid[0].textContent, id:id, messagecount:messagecount[0].textContent});
+        this.msgListAll.push({messagecontent:messagecontent[0].textContent,time:createtime[0].textContent,nodeid:nodeid[0].textContent, id:id, messagecount:messagecount[0].textContent, packagecount: packagecount[0].textContent});
         this.setState({
           msgList: this.msgListAll,
         })
@@ -149,13 +186,14 @@ export default class SmartAll extends Component {
       count
     })
   }
+  getOut = () => {
+    connection.disconnect();
+  }
   render() {
-    const user = sessionStorage.getItem('user');
-    const userItem = JSON.parse(user).user;
     let type = getQueryString(this.props.location.search, 'type');
     let item = '';
     {userItem.job.map(jobs => {
-        item = <SmartItem code={jobs.code} getNodeList={()=>this.getNodeList()} xmppUser={this.state.xmppUser} msgList={this.state.msgList} nodeList={this.state.nodeList} searchList={this.state.searchList} getXmpp={() => this.getXmpp()} loading={this.state.loading} type={type} onNewMsg={(node,maxNum)=>this.onNewMsg(node,maxNum)} event={this.state.event}/>
+        item = <SmartItem firstLogin={this.state.firstLogin} code={jobs.code} getNodeList={()=>this.getNodeList()} xmppUser={this.state.xmppUser} msgList={this.state.msgList} nodeList={this.state.nodeList} searchList={this.state.searchList} getXmpp={() => this.getXmpp()} loading={this.state.loading} type={type} onNewMsg={(node,maxNum)=>this.onNewMsg(node,maxNum)} event={this.state.event}/>
     })}
     return (
       <div>

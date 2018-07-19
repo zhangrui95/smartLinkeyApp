@@ -1,7 +1,7 @@
 {
-  "name": "ant-design-pro",
-  "version": "2.0.0-beta.1",
-  "description": "An out-of-box UI solution for enterprise applications",
+  "name": "smartLinkey",
+  "version": "1.0.2",
+  "description": "smartLinkey",
   "private": true,
   "homepage": ".",
   "scripts": {

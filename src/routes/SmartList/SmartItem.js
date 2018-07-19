@@ -6,7 +6,7 @@ import SmartDetail from './SmartDetail';
 import { instanceOf } from 'prop-types';
 import { routerRedux } from 'dva/router';
 import { withCookies, Cookies } from 'react-cookie';
-import { getNowFormatDate,getTime,autoheight} from '../../utils/utils'
+import { getTime,autoheight,getLocalTime} from '../../utils/utils'
 import SmartLink from './SmartLink';
 @connect(({ user }) => ({
   user,
@@ -60,11 +60,13 @@ class SmartItem extends Component {
     }
     if(this.props.searchList !== next.searchList){
       this.lastTime = [];
-      next.searchList.map((item,index)=>{
-        if(item.nodeid!=='smart_syrjq'){
-          this.lastTime.push({maxmessageid: item.maxmessageid ? item.maxmessageid : getNowFormatDate(),nodeid:item.nodeid});
-        }
-      })
+      if(next.searchList && next.searchList.length > 0){
+        next.searchList.map((item,index)=>{
+          if(item.nodeid!=='smart_syrjq'){
+            this.lastTime.push({maxmessageid: item.maxmessageid ? item.maxmessageid : 0,nodeid:item.nodeid});
+          }
+        })
+      }
     }
   }
   getAllList = (next) => {
@@ -78,7 +80,7 @@ class SmartItem extends Component {
             {
               name: item.name,
               icon: (item.nodeid === 'smart_wtaj'? 'images/anjian.png':(item.nodeid === 'smart_wtjq'? 'images/weishoulijingqing.png':(item.nodeid === 'smart_wtwp'? 'images/wentiwupin.png':'images/user.png'))),
-              maxmessageid: item.maxmessageid ? item.maxmessageid : getNowFormatDate(),
+              maxmessageid: item.maxmessageid ? item.maxmessageid : 0,
               nodeid: item.nodeid,
             },
           )
@@ -89,7 +91,7 @@ class SmartItem extends Component {
               {
                 name: item.name,
                 icon: (item.nodeid === 'smart_wtaj'? 'images/anjian.png':(item.nodeid === 'smart_wtjq'? 'images/weishoulijingqing.png':(item.nodeid === 'smart_wtwp'? 'images/wentiwupin.png':'images/user.png'))),
-                maxmessageid: item.maxmessageid ? item.maxmessageid : getNowFormatDate(),
+                maxmessageid: item.maxmessageid ? item.maxmessageid : 0,
                 nodeid: item.nodeid,
               },
             )
@@ -100,7 +102,7 @@ class SmartItem extends Component {
               {
                 name: item.name,
                 icon: 'images/weishoulijingqing.png',
-                maxmessageid: item.maxmessageid ? item.maxmessageid : getNowFormatDate(),
+                maxmessageid: item.maxmessageid ? item.maxmessageid : 0,
                 nodeid: item.nodeid
               },
             )
@@ -141,21 +143,27 @@ class SmartItem extends Component {
       this.state.data.map((data,index)=>{
         if(this.state.nodeId === data.nodeid){
           this.numList.push(0);
-          this.lastTime[index].maxmessageid  = getNowFormatDate();
-          this.getTimeSaves(data.nodeid);
+          next.msgList.map((msgItem)=>{
+            if(data.maxmessageid === 0){
+              this.lastTime[index].maxmessageid = Date.parse(new Date());
+              this.getTimeSaves(data.nodeid,Date.parse(new Date()));
+            }else if(data.maxmessageid !== 0 && msgItem.id > this.lastTime[index].maxmessageid){
+              this.lastTime[index].maxmessageid  = Date.parse(new Date());
+              this.getTimeSaves(data.nodeid, Date.parse(new Date()));
+            }
+          })
         }else{
           this.numList.push(this.listNum(data,index));
         }
       })
     }
   }
-  getListClick = (index,item) => {
+  getListClick = (index,item,num) => {
     // ipc.send('stop-flashing');
-    this.lastTime.map((time,index)=>{
-      if(time.nodeid === item.nodeid){
-        this.lastTime[index].maxmessageid  = getNowFormatDate();
-      }
-    })
+    if(num > 0){
+      this.lastTime[index].maxmessageid  = Date.parse(new Date());
+      this.getTimeSaves(item.nodeid, Date.parse(new Date()));
+    }
     this.setState({
       index: index,
       title: item.name,
@@ -169,27 +177,29 @@ class SmartItem extends Component {
     });
   };
 //更新主题读取的时间点
-  getTimeSaves = (node) => {
+  getTimeSaves = (node,msgId) => {
     this.props.dispatch({
       type: 'user/dataSave',
       payload: {
         nodeid: node,//读取的主题node
-        maxmessageid: getNowFormatDate(),//读取最后一条的读取时间
+        maxmessageid: msgId,//读取最后一条的读取时间
         userid:this.props.xmppUser
       },
       callback: response => {},
     });
   }
   listNum = (item,index) => {
-    this.num = 0;
+      this.num = 0;
       this.state.msgLists.map((msgItem)=>{
       if(msgItem.nodeid.toLowerCase() === item.nodeid.toLowerCase()){
-        if(item.maxmessageid && this.props.code==='200001'){
-          if(msgItem.id > getTime(this.lastTime[index].maxmessageid)){
+        if(item.maxmessageid !== 0 && !this.props.firstLogin){
+          if(msgItem.id > this.lastTime[index].maxmessageid){
             this.num++;
           }
-        } else{
-          if(msgItem.id > getTime(this.lastTime[index].maxmessageid)){
+        } else if(this.lastTime[index].maxmessageid === 0 && !this.props.firstLogin){
+          this.num = 1;
+        } else if(this.props.firstLogin){
+          if(msgItem.id > this.lastTime[index].maxmessageid) {
             this.num = msgItem.messagecount;
           }
         }
@@ -233,7 +243,7 @@ class SmartItem extends Component {
           if(msgItem.time){
             time = msgItem.time.slice(5,10);
           }else{
-            time = getNowFormatDate().slice(5,10);
+            time = getLocalTime(Date.parse(new Date())).slice(5,10);
           }
         }
       })
@@ -242,7 +252,7 @@ class SmartItem extends Component {
     this.numAll = 0;
     this.state.data.map((item,index)=>{
       list.push(
-        <div onClick={() => this.getListClick(index,item,this.listNum(item,index))} className={this.state.nodeId === item.nodeid ? styles.grayList : styles.itemList}>
+        <div key={item.nodeid} onClick={() => this.getListClick(index,item,this.listNum(item,index))} className={this.state.nodeId === item.nodeid ? styles.grayList : styles.itemList}>
           <div className={styles.floatLeft}>
             <img className={styles.imgLeft}  src={item.icon}/>
           </div>
@@ -267,7 +277,7 @@ class SmartItem extends Component {
               {list}
             </div>
             <div style={{ float: 'left',width:'calc(100% - 225px)'}}>
-              <SmartDetail code={this.props.code} newsId={this.state.index} getTitle={this.state.title} nodeId={this.state.nodeId} msgList={this.state.msgLists} onNewMsg={(nodeList,maxNum)=>this.props.onNewMsg(nodeList,maxNum)} searchList={this.props.searchList}/>
+              <SmartDetail event = {this.props.event} code={this.props.code} newsId={this.state.index} getTitle={this.state.title} nodeId={this.state.nodeId} msgList={this.state.msgLists} onNewMsg={(nodeList,maxNum)=>this.props.onNewMsg(nodeList,maxNum)} searchList={this.props.searchList}/>
             </div>
           </div>
         </div>

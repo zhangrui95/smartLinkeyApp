@@ -9,6 +9,7 @@ export default {
 
   state: {
     status: undefined,
+    loginStatus: undefined
   },
 
   effects: {
@@ -18,16 +19,12 @@ export default {
         type: 'changeLoginStatus',
         payload: response,
       });
-      // Login successfully
       if (response.error === null) {
         callback(response);
         yield put(routerRedux.push('/smartList/smartAll?type="0"'));
       } else {
         message.warning('提示：' + response.error.text);
       }
-      // if (response.status === 'ok') {
-      //   yield put(routerRedux.push('/smartList/smartItem'));
-      // }
     },
     *updatePassword({ payload, callback }, { call, put }) {
       const response = yield call(getUpdatePassword, payload);
@@ -82,11 +79,28 @@ export default {
         yield put(routerRedux.push('/user/login'));
       }
     },
+    *getLogout({}, { put }) {
+      yield put({
+        type: 'getLoginState',
+        payload: false,
+      });
+    },
+    *getLogin({}, { put }) {
+      yield put({
+        type: 'getLoginState',
+        payload: true,
+      });
+    },
   },
 
   reducers: {
+    getLoginState(state, action){
+      return {
+        ...state,
+        loginStatus: action.payload,
+      };
+    },
     changeLoginStatus(state, { payload }) {
-      // setAuthority(payload.currentAuthority);
       return {
         ...state,
         status: payload.status,

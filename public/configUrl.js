@@ -9,6 +9,7 @@
 //   ajlcUrl:'http://172.19.12.225:8085'
 // };
 window.configUrl = {
+  Version: '1.0.0.3',
   sysName: 'Smartlinkey',
   testUrl: 'http://172.19.12.249:8100',
   GMUrl: 'http://172.19.12.240:7800',//高明

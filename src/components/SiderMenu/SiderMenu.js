@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Layout, Menu, Icon, Dropdown, Badge, Modal, Form, Input, Select, message,Tooltip } from 'antd';
+import { Layout, Menu, Icon, Dropdown, Badge, Modal, Form, Input, Select, message,Tooltip,Checkbox } from 'antd';
 import pathToRegexp from 'path-to-regexp';
 import { Link } from 'dva/router';
 import styles from './index.less';
@@ -13,6 +13,7 @@ const { SubMenu } = Menu;
 const FormItem = Form.Item;
 const Option = Select.Option;
 const confirm = Modal.confirm;
+const CheckboxGroup = Checkbox.Group;
 
 // Allow menu.js config icon as string or ReactNode
 //   icon: 'setting',
@@ -68,7 +69,7 @@ class SiderMenu extends PureComponent {
       visible: false,
       xtszvisible: false,
       aboutvisible: false,
-      loginWay:'',
+      loginWay:[],
       allNum:0
     };
   }
@@ -228,8 +229,16 @@ class SiderMenu extends PureComponent {
       type: 'login/getLoginSetting',
       payload: {},
       callback: response => {
+        let Ways = [];
+        if(response.result.login_way === '700001'){
+          Ways = ['700001']
+        }else if(response.result.login_way === '700002'){
+          Ways = ['700002']
+        }else{
+          Ways = ['700001', '700002']
+        }
         this.setState({
-          loginWay: response.result.login_way,
+          loginWay: Ways,
         })
       },
     });
@@ -256,12 +265,11 @@ class SiderMenu extends PureComponent {
       okText: '确定',
       cancelText: '取消',
       onOk() {
-        sessionStorage.clear();
         _this.props.dispatch({
-          type: 'login/logout',
+          type: 'login/getLogout',
         });
         let connection = new Strophe.Connection('http://pc-20170308pkrs:7070/http-bind/');
-        connection.disconnect();
+        connection.disconnect('');
         // ipc.send('logout');
       },
       onCancel() {
@@ -271,10 +279,22 @@ class SiderMenu extends PureComponent {
   };
   handleOks = () => {
     this.props.form.validateFields((err, values) => {
+      console.log(values)
+        let way = '700003';
+        if(values.login_way.length < 2){
+          values.login_way.map((ways)=>{
+            if(ways==='700001'){
+              way = '700001';
+            }else if(ways==='700002'){
+              way = '700002';
+            }
+          })
+        }
+        console.log(way)
         this.props.dispatch({
           type: 'login/updateLoginSetting',
           payload: {
-            login_way:values.login_way,
+            login_way:way,
             priority:'800001'
           },
           callback: response => {
@@ -319,6 +339,8 @@ class SiderMenu extends PureComponent {
     });
   };
   render() {
+    const plainOptions = [{ label: '账号密码登录', value: '700001' },
+    { label: 'PKI登录', value: '700002' }]
     const formItemLayout = {
       labelCol: {
         xs: { span: 6 },
@@ -449,11 +471,7 @@ class SiderMenu extends PureComponent {
                   ],
                   initialValue:this.state.loginWay
                 })(
-                  <Select>
-                    <Option value="700003">两者均可</Option>
-                    <Option value="700001">账号密码登录</Option>
-                    <Option value="700002">PKI登录</Option>
-                  </Select>
+                  <CheckboxGroup options={plainOptions} />
                 )}
               </FormItem>
             </Form>
@@ -465,7 +483,7 @@ class SiderMenu extends PureComponent {
             maskClosable={false}
             footer={null}
           >
-            <div>当前版本：1.0.2</div>
+            <div>当前版本：{configUrl.Version}</div>
           </Modal>
           {this.getNavMenuItems(this.menus)}
         </Menu>
