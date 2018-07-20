@@ -95,6 +95,11 @@ class SmartItem extends Component {
                 nodeid: item.nodeid,
               },
             )
+            this.setState({
+              title: dataList[0].name,
+              nodeId: dataList[0].nodeid,
+              index: 0,
+            })
           }
         }else{
           if(item.nodeid === 'smart_syrjq' && this.props.code==='200003'){
@@ -252,7 +257,7 @@ class SmartItem extends Component {
     this.numAll = 0;
     this.state.data.map((item,index)=>{
       list.push(
-        <div key={item.nodeid} onClick={() => this.getListClick(index,item,this.listNum(item,index))} className={this.state.nodeId === item.nodeid ? styles.grayList : styles.itemList}>
+        <div key={item.nodeid} onClick={() => this.getListClick(index,item,this.listNum(item,index))} className={(this.state.nodeId === item.nodeid || this.state.index === item.index) ? styles.grayList : styles.itemList}>
           <div className={styles.floatLeft}>
             <img className={styles.imgLeft}  src={item.icon}/>
           </div>
