@@ -26,6 +26,8 @@ class SmartItem extends Component {
       numData:[],
       num:[],
       height: 575,
+      serList:[],
+      searTrue:false
     };
     this.numAll = 0;
     this.message = [];
@@ -67,6 +69,23 @@ class SmartItem extends Component {
           }
         })
       }
+    }
+    if(this.props.user.searchList !== next.user.searchList&&this.props.code==='200001'){
+      let search = [];
+      next.searchList.map((e)=>{
+        if(e.name.indexOf(sessionStorage.getItem('search')) > -1){
+          search.push({
+            name: e.name,
+            icon: (e.nodeid === 'smart_wtaj'? 'images/anjian.png':(e.nodeid === 'smart_wtjq'? 'images/weishoulijingqing.png':(e.nodeid === 'smart_wtwp'? 'images/wentiwupin.png':'images/user.png'))),
+            maxmessageid: e.maxmessageid ? e.maxmessageid : 0,
+            nodeid: e.nodeid,
+          })
+        }
+      })
+      this.setState({
+        serList: search,
+        searTrue: true
+      })
     }
   }
   getAllList = (next) => {
@@ -210,6 +229,9 @@ class SmartItem extends Component {
         }
       }
     })
+    // if(this.num > 0){
+    //     console.log(item.nodeid)
+    // }
     return this.num
   }
   getAll = () => {
@@ -272,6 +294,23 @@ class SmartItem extends Component {
         </div>
       )
     })
+    if(this.state.serList.length > 0){
+      list = []
+      this.state.serList.map((item,index)=>{
+        list.push( <div key={item.nodeid+index} onClick={() => this.getListClick(index,item,this.listNum(item,index))} className={(this.state.nodeId === item.nodeid || this.state.index === item.index) ? styles.grayList : styles.itemList}>
+          <div className={styles.floatLeft}>
+            <img className={styles.imgLeft}  src={item.icon}/>
+          </div>
+          <div className={styles.floatLeft}>
+            <div className={styles.titles}>{item.name}</div>
+            <div className={styles.news}>{(item.nodeid==='smart_wtaj'||item.nodeid==='smart_wtjq'||item.nodeid==='smart_wtwp')?listWord(item.nodeid):''}</div>
+          </div>
+          <div className={styles.floatLeft}>
+            <span style={{float:'right',fontSize:'13px',marginTop:'18px'}}>{sessionStorage.getItem('nodeid')==='smart_syrjq' ? '' : listTime(item.nodeid)}</span>
+          </div>
+        </div>)
+      })
+    }
     return (
       <div>
         <div className={this.props.type==1 ? styles.none : ''}>
@@ -279,7 +318,9 @@ class SmartItem extends Component {
             <Badge count={this.props.type==1 ? '' : this.getAll()} className={styles.allNum}/>
             <div className={styles.listScroll} style={{height:this.state.height + 'px'}}>
               <Spin size="large" className={this.props.loading ? '' : styles.none}/>
-              {list}
+              {
+                sessionStorage.getItem('search')!== '' && this.state.serList.length === 0 && this.state.searTrue ? <div style={{width:'100%',textAlign:'center',padding:'10px'}}>暂无数据</div> : list
+              }
             </div>
             <div style={{ float: 'left',width:'calc(100% - 225px)'}}>
               <SmartDetail event = {this.props.event} code={this.props.code} newsId={this.state.index} getTitle={this.state.title} nodeId={this.state.nodeId} msgList={this.state.msgLists} onNewMsg={(nodeList,maxNum)=>this.props.onNewMsg(nodeList,maxNum)} searchList={this.props.searchList}/>

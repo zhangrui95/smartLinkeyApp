@@ -100,3 +100,26 @@
   top:83px;
   left: 36px;
 }
+.listScrollNone{
+  position: relative;
+  width: 225px;
+  height: 586px;
+  borderRight: 1px solid #e4e4e4;
+  background: #fff;
+  float: left;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  -webkit-app-region: no-drag!important;
+  &::-webkit-scrollbar {
+    width: 3px;
+    height: 50px;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 50px;
+    background: rgba(0, 0, 0, 0.2);
+  }
+  &::-webkit-scrollbar-track {
+    background: #f0f2f5;
+  }
+  display: none;
+}

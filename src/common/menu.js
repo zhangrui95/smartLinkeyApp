@@ -12,7 +12,7 @@ const menuData = [
     path: 'smartList/smartAll?type=1',
   },
   {
-    name: '收藏',
+    name: '关注',
     icon: 'images/guanzhu2.png',
     path: 'smartList/smartAll?type=2',
   },

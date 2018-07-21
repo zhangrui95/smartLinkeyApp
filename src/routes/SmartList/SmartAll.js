@@ -140,8 +140,7 @@ export default class SmartAll extends Component {
         firstLogin:false
       })
       console.log('闪烁--------------------->',event);
-      // connection.addHandler(this.onMessage, null, null, null, null, null);
-      // connection.pubsub.getSubscriptions(this.onMessage1, 5000);
+      connection.pubsub.getSubscriptions(this.onMessage1, 5000);
       this.getNodeList();
     }
     let item = msg.getElementsByTagName('item');

@@ -14,7 +14,8 @@ export default class GlobalHeader extends PureComponent {
     this.state = {
       searchValue: '',
       delay:0,
-      icon:'images/fang.png'
+      icon:'images/fang.png',
+      codes: false,
     };
     // ipc.on('windows-now', (event, info) => {
     //   if(info.code == 0){
@@ -30,7 +31,22 @@ export default class GlobalHeader extends PureComponent {
   }
   componentWillReceiveProps(next){
     if(this.props.user.nodeId!==next.user.nodeId){
-      this.setState({ searchValue: '' });
+      const user = sessionStorage.getItem('user');
+      const userItem = JSON.parse(user).user;
+      userItem.job.map((jobs) => {
+        if(jobs.code === '200001'){
+          this.setState({
+            codes: true,
+          })
+        }else if(jobs.code === '200003'){
+          this.setState({
+            codes: false,
+          })
+        }
+      })
+      if(!this.state.codes){
+        this.setState({ searchValue: '' });
+      }
     }
   }
   emitEmpty = () => {

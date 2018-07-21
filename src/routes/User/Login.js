@@ -35,6 +35,7 @@ class LoginPage extends Component {
   //   autoLogin: true,
   // };
   componentDidMount(){
+    sessionStorage.clear();
     this.props.dispatch({
       type: 'login/getLoginSetting',
       payload: {},
