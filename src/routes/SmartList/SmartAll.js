@@ -94,8 +94,8 @@ export default class SmartAll extends Component {
     }
   };
   onNewMsg = (nodeList,maxNum) => {
-    this.msgListAll = []
     connection.pubsub.items(nodeList, null, null, 5000, maxNum);
+    this.msgListAll = []
   }
   onMessage1 = msg1 =>{
     let node = []

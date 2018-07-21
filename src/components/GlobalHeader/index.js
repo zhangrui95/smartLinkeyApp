@@ -48,6 +48,10 @@ export default class GlobalHeader extends PureComponent {
         this.setState({ searchValue: '' });
       }
     }
+    if(this.props.user.type !== next.user.type){
+      this.setState({ searchValue: '' });
+      sessionStorage.setItem('search','');
+    }
   }
   emitEmpty = () => {
     this.searchValueInput.focus();

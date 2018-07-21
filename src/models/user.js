@@ -8,7 +8,8 @@ export default {
     currentUser: {},
     searchList: [],
     allNum: 0,
-    nodeId:''
+    nodeId:'',
+    type: 0
   },
 
   effects: {
@@ -48,6 +49,12 @@ export default {
       yield put({
         type: 'getNodeId',
         payload: payload.node,
+      });
+    },
+    *type({payload}, { put }) {
+      yield put({
+        type: 'getType',
+        payload: payload.type,
       });
     },
     *find({ payload, callback }, { call, put }) {
@@ -97,6 +104,12 @@ export default {
       return {
         ...state,
         nodeId: action.payload,
+      };
+    },
+    getType(state, action){
+      return {
+        ...state,
+        type: action.payload,
       };
     }
   },

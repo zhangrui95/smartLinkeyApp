@@ -21,7 +21,7 @@ export default {
       });
       if (response.error === null) {
         callback(response);
-        yield put(routerRedux.push('/smartList/smartAll?type="0"'));
+        yield put(routerRedux.push('/smartList/smartAll?type=0'));
       } else {
         message.warning('提示：' + response.error.text);
       }

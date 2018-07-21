@@ -138,7 +138,7 @@ export default class SmartDetail extends Component {
           })
           document.getElementById('scroll').scrollTop = document.getElementById('scroll').scrollHeight;
           document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
-        },200)
+        },300)
       }else if(this.props.user.searchList !== next.user.searchList&&this.props.code==='200003'){
         if(next.user.searchList.length > 0){
           document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
@@ -166,7 +166,7 @@ export default class SmartDetail extends Component {
             })
             document.getElementById('scroll').scrollTop = document.getElementById('scroll').scrollHeight;
             document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
-          },200)
+          },300)
         }else{
           this.setState({
             empty: true,
