@@ -8,7 +8,7 @@ import { Strophe, $pres } from 'strophe.js';
 import { getSubscriptions } from 'strophejs-plugin-pubsub';
 import { getQueryString } from '../../utils/utils'
 import styles from './SmartDetail.less';
-const BOSH_SERVICE = 'http://pc-20170308pkrs:7070/http-bind/';
+const BOSH_SERVICE = 'http://'+`${configUrl.fwName}`+':7070/http-bind/';
 let connection = '';
 const user = sessionStorage.getItem('user');
 const userItem = JSON.parse(user).user;
@@ -66,7 +66,7 @@ export default class SmartAll extends Component {
   getXmpp = () => {
     connection = new Strophe.Connection(BOSH_SERVICE);
     connection.connect(
-      this.state.xmppUser + '@pc-20170308pkrs',
+      this.state.xmppUser + '@' + `${configUrl.fwName}`,
       '123456',
       this.onConnect
     );
@@ -106,7 +106,7 @@ export default class SmartAll extends Component {
         node.push(names[i].attributes[0].textContent)
         sessionStorage.setItem('nodeList', JSON.stringify(node));
         if(!this.state.code){
-          this.onNewMsg(names[i].attributes[0].textContent,2)
+          this.onNewMsg(names[i].attributes[0].textContent,10)
         }else{
           this.onNewMsg(names[i].attributes[0].textContent,'')
         }
@@ -140,8 +140,10 @@ export default class SmartAll extends Component {
         firstLogin:false
       })
       console.log('闪烁--------------------->',event);
-      connection.pubsub.getSubscriptions(this.onMessage1, 5000);
-      this.getNodeList();
+      if(this.state.code){
+        connection.pubsub.getSubscriptions(this.onMessage1, 5000);
+        this.getNodeList();
+      }
     }
     let item = msg.getElementsByTagName('item');
     if (item.length > 0) {

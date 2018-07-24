@@ -64,7 +64,7 @@ class SmartItem extends Component {
       });
     }
     if(this.props.msgList !== next.msgList || this.props.type !== next.type || this.props.searchList !== next.searchList || this.props.event !== next.event){
-     this.getAllList(next);
+        this.getAllList(next);
     }
     if(this.props.searchList !== next.searchList){
       this.lastTime = [];
@@ -78,16 +78,18 @@ class SmartItem extends Component {
     }
     if(this.props.user.searchList !== next.user.searchList&&this.props.code==='200001'){
       let search = [];
-      next.searchList.map((e)=>{
-        if(e.name.indexOf(sessionStorage.getItem('search')) > -1){
-          search.push({
-            name: e.name,
-            icon: (e.nodeid === 'smart_wtaj'? 'images/anjian.png':(e.nodeid === 'smart_wtjq'? 'images/weishoulijingqing.png':(e.nodeid === 'smart_wtwp'? 'images/wentiwupin.png':'images/user.png'))),
-            maxmessageid: e.maxmessageid ? e.maxmessageid : 0,
-            nodeid: e.nodeid,
-          })
-        }
-      })
+      if(next.searchList && next.searchList.length > 0){
+        next.searchList.map((e)=>{
+          if(e.name.indexOf(sessionStorage.getItem('search')) > -1){
+            search.push({
+              name: e.name,
+              icon: (e.nodeid === 'smart_wtaj'? 'images/anjian.png':(e.nodeid === 'smart_wtjq'? 'images/weishoulijingqing.png':(e.nodeid === 'smart_wtwp'? 'images/wentiwupin.png':'images/user.png'))),
+              maxmessageid: e.maxmessageid ? e.maxmessageid : 0,
+              nodeid: e.nodeid,
+            })
+          }
+        })
+      }
       this.setState({
         serList: search,
         searTrue: true
@@ -98,17 +100,19 @@ class SmartItem extends Component {
         })
       }
     }
-    if(next.firstLogin){
-      next.searchList.map((item,index)=>{
-        next.msgList.map((e)=>{
-          if(e.nodeid.toLowerCase() === sessionStorage.getItem('nodeid')){
-            if(e.id > this.lastTime[0].maxmessageid){
-              this.lastTime[0].maxmessageid = Date.parse(new Date());
-              this.getTimeSaves(e.nodeid,Date.parse(new Date()));
+    if(next.firstLogin || this.props.type !== next.type){
+      if(next.searchList && next.searchList.length > 0){
+        next.searchList.map((item,index)=>{
+          next.msgList.map((e)=>{
+            if(e.nodeid.toLowerCase() === sessionStorage.getItem('nodeid')){
+              if(e.id > this.lastTime[0].maxmessageid){
+                this.lastTime[0].maxmessageid = Date.parse(new Date());
+                this.getTimeSaves(e.nodeid,Date.parse(new Date()));
+              }
             }
-          }
+          })
         })
-      })
+      }
     }
   }
   getAllList = (next) => {
@@ -127,7 +131,7 @@ class SmartItem extends Component {
             },
           )
         }
-        if(next.type != 2){
+        if(next.type == 0){
           if(item.nodeid !== 'smart_syrjq'){
             dataList.push(
               {
@@ -138,7 +142,6 @@ class SmartItem extends Component {
               },
             )
             if(this.props.code === '200001' && this.props.event !== next.event){
-              console.log('执行？？？？')
               if(sessionStorage.getItem('nodeid')){
                 dataList.map((e,index)=>{
                   if(e.nodeid === sessionStorage.getItem('nodeid')){
@@ -159,7 +162,7 @@ class SmartItem extends Component {
               })
             }
           }
-        }else{
+        }else if(next.type == 2){
           if(item.nodeid === 'smart_syrjq' && this.props.code==='200003'){
             dataList.push(
               {
@@ -212,11 +215,11 @@ class SmartItem extends Component {
       })
     }
   }
-  getListClick = (index,item,num) => {
+  getListClick = (index,item,num,maxTime) => {
     // ipc.send('stop-flashing');
     if(num > 0){
-      this.lastTime[index].maxmessageid  = Date.parse(new Date());
-      this.getTimeSaves(item.nodeid, Date.parse(new Date()));
+      this.lastTime[index].maxmessageid  = maxTime;
+      this.getTimeSaves(item.nodeid, maxTime);
     }
     this.setState({
       index: index,
@@ -254,7 +257,8 @@ class SmartItem extends Component {
           this.num = 1;
         } else if(this.props.firstLogin){
           if(msgItem.id > this.lastTime[index].maxmessageid) {
-            this.num = msgItem.messagecount;
+            this.num++;
+            // this.num = msgItem.messagecount;
           }
         }
       }
@@ -303,9 +307,18 @@ class SmartItem extends Component {
       })
       return time
     }
+    let maxTime = (nodeid) => {
+      let max = 0;
+      this.state.msgLists.map((msgItem)=>{
+        if(msgItem.nodeid.toLowerCase() === nodeid.toLowerCase()){
+          max = msgItem.id;
+        }
+      });
+      return max;
+    }
     this.numAll = 0;
     this.state.data.map((item,index)=>{
-      let itemList =  <div key={item.nodeid} onClick={() => this.getListClick(index,item,this.listNum(item,index))} className={(this.state.nodeId === item.nodeid || this.state.index === item.index) ? styles.grayList : styles.itemList}>
+      let itemList =  <div key={item.nodeid} onClick={() => this.getListClick(index,item,this.listNum(item,index),maxTime(item.nodeid))} className={(this.state.nodeId === item.nodeid || this.state.index === item.index) ? styles.grayList : styles.itemList}>
         <div className={styles.floatLeft}>
           <img className={styles.imgLeft}  src={item.icon}/>
         </div>
@@ -353,11 +366,11 @@ class SmartItem extends Component {
             <div className={styles.listScroll} style={{height:this.state.height + 'px'}}>
               <Spin size="large" className={this.props.loading ? '' : styles.none}/>
               {
-                sessionStorage.getItem('search')!== '' && this.state.serList.length === 0 && this.state.searTrue && this.props.type == 0 ? <div style={{width:'100%',textAlign:'center',padding:'10px'}}>暂无数据</div> : (this.state.serList.length > 0 && this.state.searTrue && sessionStorage.getItem('search')!== ''? searchsList : list)
+                sessionStorage.getItem('search')!== '' && this.state.serList.length === 0 && this.state.searTrue && this.props.type == 0 ? <div style={{width:'100%',textAlign:'center',padding:'10px'}}>暂无数据</div> : (this.state.serList.length > 0 && this.state.searTrue && sessionStorage.getItem('search')!== '' ? searchsList : list)
               }
             </div>
             <div style={{ float: 'left',width:'calc(100% - 225px)'}}>
-              <SmartDetail event = {this.props.event} code={this.props.code} newsId={this.state.index} getTitle={this.state.title} nodeId={this.state.nodeId} msgList={this.state.msgLists} onNewMsg={(nodeList,maxNum)=>this.props.onNewMsg(nodeList,maxNum)} searchList={this.props.searchList}/>
+              <SmartDetail len={this.props.len} type={this.props.type} event = {this.props.event} code={this.props.code} newsId={this.state.index} getTitle={this.state.title} nodeId={this.state.nodeId} msgList={this.state.msgLists} onNewMsg={(nodeList,maxNum)=>this.props.onNewMsg(nodeList,maxNum)} searchList={this.props.searchList}/>
             </div>
           </div>
         </div>

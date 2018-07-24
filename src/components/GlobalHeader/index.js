@@ -67,7 +67,7 @@ export default class GlobalHeader extends PureComponent {
   }
   onChangesearchValue = (e) => {
     let testVal =  /^[A-Za-z0-9\u4e00-\u9fa5]+$/;
-    if(testVal.test(e.target.value)){
+    if(testVal.test(e.target.value) || e.target.value === ''){
       this.setState({
         searchValue: e.target.value,
         delay:this.state.delay + 0.5

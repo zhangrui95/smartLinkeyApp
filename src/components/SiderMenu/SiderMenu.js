@@ -268,7 +268,7 @@ class SiderMenu extends PureComponent {
         _this.props.dispatch({
           type: 'login/getLogout',
         });
-        let connection = new Strophe.Connection('http://pc-20170308pkrs:7070/http-bind/');
+        let connection = new Strophe.Connection('http://'+`${configUrl.fwName}`+':7070/http-bind/');
         connection.disconnect('');
         // ipc.send('logout');
       },
@@ -279,7 +279,6 @@ class SiderMenu extends PureComponent {
   };
   handleOks = () => {
     this.props.form.validateFields((err, values) => {
-      console.log(values)
         let way = '700003';
         if(values.login_way.length < 2){
           values.login_way.map((ways)=>{
@@ -290,7 +289,6 @@ class SiderMenu extends PureComponent {
             }
           })
         }
-        console.log(way)
         this.props.dispatch({
           type: 'login/updateLoginSetting',
           payload: {
@@ -307,9 +305,11 @@ class SiderMenu extends PureComponent {
   }
   handleOk = () => {
     this.props.form.validateFields((err, values) => {
-      console.log(err, values);
       if (values.newsPwd !== values.newPwd) {
         message.warn('提示：两次密码输入一致');
+        return;
+      }else if(values.newsPwd === values.oldPwd){
+        message.warn('提示：新旧密码重复，请重新修改');
         return;
       } else {
         this.props.dispatch({
@@ -327,9 +327,8 @@ class SiderMenu extends PureComponent {
                 visible: false,
               });
               message.success('提示：密码修改成功，请重新登陆!');
-              sessionStorage.clear();
               this.props.dispatch({
-                type: 'login/logout',
+                type: 'login/getLogout',
               });
               // ipc.send('logout');
             }

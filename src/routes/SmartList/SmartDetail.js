@@ -36,7 +36,9 @@ export default class SmartDetail extends Component {
     window.addEventListener('resize', () => {
       this.updateSize()
     });
-    document.getElementById('scroll').scrollTop = document.getElementById('scroll').scrollHeight;
+    setTimeout(()=>{
+      document.getElementById('scroll').scrollTop = document.getElementById('scroll').scrollHeight;
+    },200)
   }
   updateSize() {
     this.setState({
@@ -65,11 +67,11 @@ export default class SmartDetail extends Component {
               packagecount = items.packagecount
             }
           })
-          if(5*this.state.endLength + 2 > packagecount){
-            document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
-          }
+          // if(5*this.state.endLength + 2 > packagecount){
+          //   document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
+          // }
           this.props.searchList.map((listItem)=>{
-            this.props.onNewMsg(listItem.nodeid, listItem.nodeid === this.props.nodeId ? 5*this.state.endLength : 2);
+            this.props.onNewMsg(listItem.nodeid, listItem.nodeid === this.props.nodeId ? 10*this.state.endLength : 10);
           })
           setTimeout(()=>{
             this.setState({
@@ -89,7 +91,6 @@ export default class SmartDetail extends Component {
     this._handleScroll(scrollTop);
   }
   componentWillReceiveProps(next){
-    // console.log(this.props.msgList)
     if(next.login.loginStatus){
       document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
       let list = [];
@@ -106,9 +107,9 @@ export default class SmartDetail extends Component {
           this.setState({
             loading:false,
           })
-          if(this.state.noSearch){
-            document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
-          }
+          // if(this.state.noSearch){
+            // document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
+          // }
         },400)
       // }
       if(this.props.user.nodeId!==next.user.nodeId || this.props.nodeId !== next.nodeId || this.props.event !== next.event){
@@ -173,6 +174,11 @@ export default class SmartDetail extends Component {
           })
         }
       }
+      if(this.props.type!==next.type){
+        this.setState({
+          lookMore: false
+        })
+      }
     }
   }
   goWindow = (path) => {
@@ -228,7 +234,7 @@ export default class SmartDetail extends Component {
                       cover={<img alt="example" src="images/chatu1.png" />}
                       actions={[
                         <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='smart_wtaj'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? `${configUrl.agUrl}` + '#/loginByToken?token=' + token +'&wtid='+ajItem.wtid +'&type=1':`${configUrl.ajlcUrl}`+'/Manager/smartlinkeyLoign?username=' + userNew.idCard+'&password='+pwd+'&dbid='+ajItem.dbid+'&type=1')}>
-                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='smart_wtaj' || (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? (ajItem.status==='未督办'||ajItem.status==='已反馈'?'立即督办':'查看详情'):(ajItem.status==='发起督办' ? '立即处理':'查看详情')}</a>
+                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='smart_wtaj' || (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? (ajItem.status==='未督办'||ajItem.status==='已反馈'?'立即督办':'查看详情'):(ajItem.status==='发起督办' || ajItem.status==='整改中' ? '立即处理':'查看详情')}</a>
                           <a className={styles.goChild}> > </a>
                         </div>,
                       ]}
@@ -270,7 +276,7 @@ export default class SmartDetail extends Component {
                       actions={[
                         //<div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(`${configUrl.jqUrl}` + '/JQCL/userlogin/smartlinkeyLoign?username=' + userNew.idCard + '&&password=' + pwd + '&&type=0')}>
                         <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='smart_wtjq'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? `${configUrl.agUrl}` + '#/loginByToken?token='+token+'&wtid='+items.wtid+'&type=2':`${configUrl.jqUrl}` + '/JQCL/userlogin/smartlinkeyLoign?username=' + userNew.idCard +'&password=' + pwd+'&dbid='+ items.dbid+'&type=1')}>
-                            <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='smart_wtjq'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? (items.status==='未督办'||items.status==='已反馈'?'立即督办':'查看详情'):(items.status==='发起督办' ? '立即处理':'查看详情')}</a>
+                            <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='smart_wtjq'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? (items.status==='未督办'||items.status==='已反馈'?'立即督办':'查看详情'):(items.status==='发起督办' || items.status==='整改中'? '立即处理':'查看详情')}</a>
                           <a className={styles.goChild}> > </a>
                         </div>,
                       ]}
@@ -312,7 +318,7 @@ export default class SmartDetail extends Component {
                       actions={[
                        // <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(`${configUrl.cwUrl}`+'/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD='+userNew.name+'&type=1&ajbh='+wpItem.ajbh)}>
                         <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='smart_wtwp'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? `${configUrl.agUrl}` + '#/loginByToken?token='+token+'&wtid='+wpItem.wtid+'&type=3':`${configUrl.cwUrl}`+'/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD='+userNew.idCard+'&type=1&dbid='+wpItem.dbid)}>
-                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='smart_wtwp'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? (wpItem.status==='未督办'||wpItem.status==='已反馈'?'立即督办':'查看详情'):(wpItem.status==='发起督办' ? '立即处理':'查看详情')}</a>
+                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='smart_wtwp'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? (wpItem.status==='未督办'||wpItem.status==='已反馈'?'立即督办':'查看详情'):(wpItem.status==='发起督办' || wpItem.status==='整改中' ? '立即处理':'查看详情')}</a>
                           <a className={styles.goChild}> > </a>
                         </div>,
                       ]}
@@ -366,7 +372,7 @@ export default class SmartDetail extends Component {
                       cover={<img alt="example" src="images/chatu1.png" />}
                       actions={[
                         <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='smart_wtaj'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? `${configUrl.agUrl}` + '#/loginByToken?token='+token+'&wtid='+searchItem.wtid+'&type=1':`${configUrl.ajlcUrl}`+'/Manager/smartlinkeyLoign?username=' + userNew.idCard + '&password='+pwd+'&dbid='+searchItem.dbid+'&type=1')}>
-                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='smart_wtaj'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? (searchItem.status==='未督办'||searchItem.status==='已反馈'?'立即督办':'查看详情'):(searchItem.status==='发起督办' ? '立即处理':'查看详情')}</a>
+                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='smart_wtaj'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? (searchItem.status==='未督办'||searchItem.status==='已反馈'?'立即督办':'查看详情'):(searchItem.status==='发起督办' || searchItem.status==='整改中' ? '立即处理':'查看详情')}</a>
                           <a className={styles.goChild}> > </a>
                         </div>,
                       ]}
@@ -405,7 +411,7 @@ export default class SmartDetail extends Component {
                       cover={<img alt="example" src="images/chatu1.png" />}
                       actions={[
                         <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='smart_wtjq'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? `${configUrl.agUrl}` + '#/loginByToken?token=' +token+'&wtid='+searchItem.wtid +'&type=2':`${configUrl.jqUrl}` + '/JQCL/userlogin/smartlinkeyLoign?username=' + userNew.idCard + '&password=' + pwd+'&dbid='+ searchItem.dbid + '&type=1')}>
-                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='smart_wtjq'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? (searchItem.status==='未督办'||searchItem.status==='已反馈'?'立即督办':'查看详情'):(searchItem.status==='发起督办' ? '立即处理':'查看详情')}</a>
+                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='smart_wtjq'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? (searchItem.status==='未督办'||searchItem.status==='已反馈'?'立即督办':'查看详情'):(searchItem.status==='发起督办' || searchItem.status==='整改中' ? '立即处理':'查看详情')}</a>
                           <a className={styles.goChild}> > </a>
                         </div>,
                       ]}
@@ -444,7 +450,7 @@ export default class SmartDetail extends Component {
                       cover={<img alt="example" src="images/chatu1.png" />}
                       actions={[
                         <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='smart_wtwp'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? `${configUrl.agUrl}` + '#/loginByToken?token='+token+'&wtid='+searchItem.wtid+'&type=3':`${configUrl.cwUrl}`+'/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD='+userNew.idCard+'&type=1&dbid='+searchItem.dbid)}>
-                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='smart_wtwp'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? (searchItem.status==='未督办'||searchItem.status==='已反馈'?'立即督办':'查看详情'):(searchItem.status==='发起督办' ? '立即处理':'查看详情')}</a>
+                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='smart_wtwp'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? (searchItem.status==='未督办'||searchItem.status==='已反馈'?'立即督办':'查看详情'):(searchItem.status==='发起督办' || searchItem.status==='整改中' ? '立即处理':'查看详情')}</a>
                           <a className={styles.goChild}> > </a>
                         </div>,
                       ]}
