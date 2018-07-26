@@ -30,12 +30,10 @@ class LoginPage extends Component {
       login_way: '700003'
     };
   }
-  // state = {
-  //   type: 'account',
-  //   autoLogin: true,
-  // };
-  componentDidMount(){
+  componentWillMount(){
     sessionStorage.clear();
+  }
+  componentDidMount(){
     this.props.dispatch({
       type: 'login/getLoginSetting',
       payload: {},

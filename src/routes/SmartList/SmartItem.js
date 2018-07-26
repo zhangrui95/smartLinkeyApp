@@ -53,18 +53,43 @@ class SmartItem extends Component {
       msgLists: next.msgList
     })
     if(this.props.type !== next.type){
-      this.setState({
-        nodeId:'',
-      })
       this.props.dispatch({
         type: 'user/type',
         payload: {
           type: next.type
         }
       });
+      if(this.props.code === '200001'){
+        this.setState({
+          nodeId: '',
+        })
+      }
     }
     if(this.props.msgList !== next.msgList || this.props.type !== next.type || this.props.searchList !== next.searchList || this.props.event !== next.event){
         this.getAllList(next);
+      if(this.props.code==='200001'){
+        next.msgList.map((e)=>{
+          this.lastTime.map((time,index)=>{
+            if(e.nodeid === time.nodeid && e.nodeid === sessionStorage.getItem('nodeid')){
+              if(e.id > this.lastTime[this.lastTime.length - index - 1].maxmessageid || e.id === this.lastTime[this.lastTime.length - index - 1].maxmessageid){
+                this.lastTime[this.lastTime.length - 1].maxmessageid = Date.parse(new Date());
+                this.getTimeSaves(e.nodeid, e.id);
+              }
+            }
+          })
+        })
+      }else{
+        next.msgList.map((e)=>{
+          this.lastTime.map((time,index)=>{
+            if(e.nodeid === time.nodeid && e.nodeid === sessionStorage.getItem('nodeid')){
+              if(e.id > this.lastTime[index].maxmessageid || e.id === this.lastTime[index].maxmessageid){
+                this.lastTime[index].maxmessageid = Date.parse(new Date());
+                this.getTimeSaves(e.nodeid, e.id);
+              }
+            }
+          })
+        })
+      }
     }
     if(this.props.searchList !== next.searchList){
       this.lastTime = [];
@@ -100,20 +125,6 @@ class SmartItem extends Component {
         })
       }
     }
-    if(next.firstLogin || this.props.type !== next.type){
-      if(next.searchList && next.searchList.length > 0){
-        next.searchList.map((item,index)=>{
-          next.msgList.map((e)=>{
-            if(e.nodeid.toLowerCase() === sessionStorage.getItem('nodeid')){
-              if(e.id > this.lastTime[0].maxmessageid){
-                this.lastTime[0].maxmessageid = Date.parse(new Date());
-                this.getTimeSaves(e.nodeid,Date.parse(new Date()));
-              }
-            }
-          })
-        })
-      }
-    }
   }
   getAllList = (next) => {
     let dataList = [];
@@ -142,9 +153,9 @@ class SmartItem extends Component {
               },
             )
             if(this.props.code === '200001' && this.props.event !== next.event){
-              if(sessionStorage.getItem('nodeid')){
+              if(sessionStorage.getItem('nodeidType')){
                 dataList.map((e,index)=>{
-                  if(e.nodeid === sessionStorage.getItem('nodeid')){
+                  if(e.nodeid === sessionStorage.getItem('nodeidType')){
                     this.setState({
                       title: e.name,
                       nodeId: e.nodeid,
@@ -154,11 +165,31 @@ class SmartItem extends Component {
                 })
               }
             }
-            if(!sessionStorage.getItem('nodeid')){
-              this.setState({
-                title: dataList[0].name,
-                nodeId: dataList[0].nodeid,
-                index: 0,
+            if(!sessionStorage.getItem('nodeidType')){
+              if(this.props.code === '200001'){
+                this.setState({
+                  title: dataList[dataList.length - 1].name,
+                  nodeId: dataList[dataList.length - 1].nodeid,
+                  index: dataList.length - 1,
+                })
+              }else{
+                if(next.type == 2){
+                  this.setState({
+                    title: dataList[0].name,
+                    nodeId: dataList[0].nodeid,
+                    index: 0,
+                  })
+                }
+              }
+            }else{
+              dataList.map((e,index)=>{
+                if(e.nodeid === sessionStorage.getItem('nodeidType')){
+                  this.setState({
+                    title: e.name,
+                    nodeId: e.nodeid,
+                    index: index,
+                  })
+                }
               })
             }
           }
@@ -186,7 +217,7 @@ class SmartItem extends Component {
       })
     }
     if((this.state.nodeId === ''||this.state.nodeId === 'smart_syrjq') && this.props.code === '200003'){
-      if(dataList.length > 0){
+      if(dataList.length > 0 && !sessionStorage.getItem('nodeid')){
         this.setState({
           index: 0,
           title: dataList[0].name,
@@ -251,14 +282,21 @@ class SmartItem extends Component {
       if(msgItem.nodeid.toLowerCase() === item.nodeid.toLowerCase()){
         if(item.maxmessageid !== 0 && !this.props.firstLogin){
           if(msgItem.id > this.lastTime[index].maxmessageid){
-            this.num++;
+            if(item.nodeid==='smart_wtjq' && msgItem.messagecount > 1){
+              this.num = msgItem.messagecount;
+            }else{
+              this.num++;
+            }
           }
-        } else if(this.lastTime[index].maxmessageid === 0 && !this.props.firstLogin){
+        } else if(this.lastTime[index].maxmessageid === 0 && !this.props.firstLogin && this.props.code === '200001'){
           this.num = 1;
-        } else if(this.props.firstLogin){
+        } else {
           if(msgItem.id > this.lastTime[index].maxmessageid) {
-            this.num++;
-            // this.num = msgItem.messagecount;
+            if(item.nodeid==='smart_wtjq' && msgItem.messagecount > 1){
+              this.num = msgItem.messagecount;
+            }else{
+              this.num++;
+            }
           }
         }
       }
@@ -276,8 +314,19 @@ class SmartItem extends Component {
     sessionStorage.setItem('allNum', this.numAll);
     return this.numAll;
   }
+
+  compareDown = (propertyName) => { // 降序排序
+    return function (object1, object2) { // 属性值为数字
+      var value1 = object1[propertyName];
+      var value2 = object2[propertyName];
+      return value2 - value1;
+    }
+  }
   render() {
     sessionStorage.setItem('nodeid', this.state.nodeId);
+    if(this.props.type == 0){
+      sessionStorage.setItem('nodeidType', this.state.nodeId);
+    }
     let list = []
     let listWord = (nodeid) => {
       let res = ''
@@ -317,6 +366,12 @@ class SmartItem extends Component {
       return max;
     }
     this.numAll = 0;
+    // let datas = []
+    // if(this.props.code === '200001'){
+    //   datas = this.state.data.sort(this.compareDown("maxmessageid"));
+    // }else{
+    //   datas = this.state.data;
+    // }
     this.state.data.map((item,index)=>{
       let itemList =  <div key={item.nodeid} onClick={() => this.getListClick(index,item,this.listNum(item,index),maxTime(item.nodeid))} className={(this.state.nodeId === item.nodeid || this.state.index === item.index) ? styles.grayList : styles.itemList}>
         <div className={styles.floatLeft}>
@@ -332,11 +387,11 @@ class SmartItem extends Component {
         </div>
       </div>
       if(this.props.code === '200001'){
-        if(this.listNum(item,index) > 0){
+        // if(this.listNum(item,index) > 0){
           list.unshift(itemList);
-        }else{
-          list.push(itemList);
-        }
+        // }else{
+        //   list.push(itemList);
+        // }
       }else{
         list.push(itemList);
       }

@@ -57,28 +57,46 @@ export default class SmartDetail extends Component {
           lookMore: false
         })
         if(this.props.code==='200003'){
-          this.setState({
-            load: true,
-            endLength:parseInt(this.state.endLength) + 1,
-          })
-          let packagecount = 0;
-          this.props.msgList.map((items)=>{
-            if(items.packagecount > 1){
-              packagecount = items.packagecount
-            }
-          })
-          // if(5*this.state.endLength + 2 > packagecount){
-          //   document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
-          // }
-          this.props.searchList.map((listItem)=>{
-            this.props.onNewMsg(listItem.nodeid, listItem.nodeid === this.props.nodeId ? 10*this.state.endLength : 10);
-          })
-          setTimeout(()=>{
+          if(sessionStorage.getItem('nodeid') === 'smart_wtjq'){
             this.setState({
-              load: false,
+              load: true,
+              endLength:parseInt(this.state.endLength) + 1,
             })
-            document.getElementById('scroll').scrollTop = 2200;
-          },this.state.endLength < 3 ? 500 : this.state.endLength*80)
+            this.props.searchList.map((listItem)=>{
+              this.props.onNewMsg(listItem.nodeid, listItem.nodeid === 'smart_wtjq' ? 2*this.state.endLength : '');
+            })
+            setTimeout(()=>{
+              this.setState({
+                load: false,
+              })
+              document.getElementById('scroll').scrollTop = 2200;
+            },this.state.endLength < 3 ? 500 : this.state.endLength*80)
+          }else{
+            if(this.state.data.length < parseInt(this.state.endLength)*parseInt(this.state.pageCount)){
+              document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
+            }else{
+              this.setState({
+                load: true
+              })
+              setTimeout(()=>{
+                this.setState({
+                  load: false
+                })
+                this.setState({
+                  endLength:parseInt(this.state.endLength) + 1,
+                })
+                document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
+                let len = parseInt(this.state.data.length) - (parseInt(this.state.endLength) - 1)*parseInt(this.state.pageCount)
+                if(len < 5){
+                  document.getElementById('scroll').scrollTop = 480*len;
+                }else{
+                  document.getElementById('scroll').scrollTop = 2200;
+                  document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
+                }
+                // document.getElementById('scroll').scrollTop = 480*(parseInt(this.state.data.length) - 5);
+              },200)
+            }
+          }
         }
       }
     }
@@ -92,7 +110,7 @@ export default class SmartDetail extends Component {
   }
   componentWillReceiveProps(next){
     if(next.login.loginStatus){
-      document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
+      // document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
       let list = [];
       // if(next.user.nodeId === ''){
         next.msgList.map((item)=>{
@@ -182,11 +200,11 @@ export default class SmartDetail extends Component {
     }
   }
   goWindow = (path) => {
-    // window.open(path)
-    ipc.send('visit-page', {
-      "url": path,
-      "browser": "chrome"
-    });
+    window.open(path)
+    // ipc.send('visit-page', {
+    //   "url": path,
+    //   "browser": "chrome"
+    // });
   }
   createXml = (str) => {
     if(document.all){
@@ -209,11 +227,11 @@ export default class SmartDetail extends Component {
     if(this.state.searchList === null){
       list = [];
       if(this.state.data.length > 0){
-        this.state.data.map((item,i)=>{
+        this.state.data.slice(parseInt(this.state.data.length) - pageLength > 0 ? parseInt(this.state.data.length) - pageLength : 0,parseInt(this.state.data.length)).map((item,i)=>{
           listType = JSON.parse(item.messagecontent).type;
           result = JSON.parse(item.messagecontent).result;
           if(listType === 'ajxx'){//案管
-            result.slice(parseInt(result.length) - pageLength > 0 ? parseInt(result.length) - pageLength : 0,parseInt(result.length)).map((ajItem,index)=>{
+            result.map((ajItem,index)=>{
               list.push(<div className={styles.boxItem} key={'aj'+i.toString() + index}>
                 <div className={styles.timeStyle}>{item.time}</div>
                 <div>
@@ -254,7 +272,7 @@ export default class SmartDetail extends Component {
               </div>)
             })
           }else if(listType === 'jqxx'){//警情
-            result.slice(parseInt(result.length) - pageLength > 0 ? parseInt(result.length) - pageLength : 0,parseInt(result.length)).map((items,index)=>{
+            result.map((items,index)=>{
               list.push(<div className={styles.boxItem} key={'jq'+i.toString() + index}>
                 <div className={styles.timeStyle}>{item.time}</div>
                 <div>
@@ -296,7 +314,7 @@ export default class SmartDetail extends Component {
               </div>)
             })
           }else if(listType === 'sacw'){//涉案财务
-            result.slice(parseInt(result.length) - pageLength > 0 ? parseInt(result.length) - pageLength : 0,parseInt(result.length)).map((wpItem,index)=>{
+            result.map((wpItem,index)=>{
               list.push(<div className={styles.boxItem} key={'wp'+i.toString() + index}>
                 <div className={styles.timeStyle}>{item.time}</div>
                 <div>
@@ -351,7 +369,7 @@ export default class SmartDetail extends Component {
           searchItem = item.result;
           listType = item.type;
           readTime = item.time;
-          if(item.type === 'ajxx'){//办案区
+          if(item.type === 'ajxx'){//案管
               list.push(<div className={styles.boxItem} key={'aj'+i.toString()}>
                 <div className={styles.timeStyle}>{readTime}</div>
                 <div>
@@ -371,7 +389,7 @@ export default class SmartDetail extends Component {
                       style={{ width: 330, padding: '0 16px' }}
                       cover={<img alt="example" src="images/chatu1.png" />}
                       actions={[
-                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='smart_wtaj'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? `${configUrl.agUrl}` + '#/loginByToken?token='+token+'&wtid='+searchItem.wtid+'&type=1':`${configUrl.ajlcUrl}`+'/Manager/smartlinkeyLoign?username=' + userNew.idCard + '&password='+pwd+'&dbid='+searchItem.dbid+'&type=1')}>
+                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='smart_wtaj'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? `${configUrl.agUrl}` + '#/loginByToken?token='+token+'&wtid='+this.state.searchList[i].result.wtid+'&type=1':`${configUrl.ajlcUrl}`+'/Manager/smartlinkeyLoign?username=' + userNew.idCard + '&password='+pwd+'&dbid='+searchItem.dbid+'&type=1')}>
                           <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='smart_wtaj'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? (searchItem.status==='未督办'||searchItem.status==='已反馈'?'立即督办':'查看详情'):(searchItem.status==='发起督办' || searchItem.status==='整改中' ? '立即处理':'查看详情')}</a>
                           <a className={styles.goChild}> > </a>
                         </div>,
@@ -410,7 +428,7 @@ export default class SmartDetail extends Component {
                       style={{ width: 330, padding: '0 16px' }}
                       cover={<img alt="example" src="images/chatu1.png" />}
                       actions={[
-                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='smart_wtjq'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? `${configUrl.agUrl}` + '#/loginByToken?token=' +token+'&wtid='+searchItem.wtid +'&type=2':`${configUrl.jqUrl}` + '/JQCL/userlogin/smartlinkeyLoign?username=' + userNew.idCard + '&password=' + pwd+'&dbid='+ searchItem.dbid + '&type=1')}>
+                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='smart_wtjq'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? `${configUrl.agUrl}` + '#/loginByToken?token=' +token+'&wtid='+this.state.searchList[i].result.wtid +'&type=2':`${configUrl.jqUrl}` + '/JQCL/userlogin/smartlinkeyLoign?username=' + userNew.idCard + '&password=' + pwd+'&dbid='+ searchItem.dbid + '&type=1')}>
                           <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='smart_wtjq'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? (searchItem.status==='未督办'||searchItem.status==='已反馈'?'立即督办':'查看详情'):(searchItem.status==='发起督办' || searchItem.status==='整改中' ? '立即处理':'查看详情')}</a>
                           <a className={styles.goChild}> > </a>
                         </div>,
@@ -449,7 +467,7 @@ export default class SmartDetail extends Component {
                       style={{ width: 330, padding: '0 16px' }}
                       cover={<img alt="example" src="images/chatu1.png" />}
                       actions={[
-                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='smart_wtwp'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? `${configUrl.agUrl}` + '#/loginByToken?token='+token+'&wtid='+searchItem.wtid+'&type=3':`${configUrl.cwUrl}`+'/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD='+userNew.idCard+'&type=1&dbid='+searchItem.dbid)}>
+                        <div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(sessionStorage.getItem('nodeid')==='smart_wtwp'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? `${configUrl.agUrl}` + '#/loginByToken?token='+token+'&wtid='+this.state.searchList[i].result.wtid+'&type=3':`${configUrl.cwUrl}`+'/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD='+userNew.idCard+'&type=1&dbid='+searchItem.dbid)}>
                           <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>{sessionStorage.getItem('nodeid')==='smart_wtwp'|| (sessionStorage.getItem('nodeid')==='smart_syrjq'&&this.props.code==='200003')? (searchItem.status==='未督办'||searchItem.status==='已反馈'?'立即督办':'查看详情'):(searchItem.status==='发起督办' || searchItem.status==='整改中' ? '立即处理':'查看详情')}</a>
                           <a className={styles.goChild}> > </a>
                         </div>,

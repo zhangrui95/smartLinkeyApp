@@ -10,8 +10,6 @@ import { getQueryString } from '../../utils/utils'
 import styles from './SmartDetail.less';
 const BOSH_SERVICE = 'http://'+`${configUrl.fwName}`+':7070/http-bind/';
 let connection = '';
-const user = sessionStorage.getItem('user');
-const userItem = JSON.parse(user).user;
 @connect(({ user, login }) => ({
   user,
   login,
@@ -24,6 +22,7 @@ export default class SmartAll extends Component {
     this.state = {
       xmppUser: userNew.idCard.toLowerCase(),
       nodeList: '',
+      userItem:userNew,
       searchList:[],
       msgList: [],
       loading: false,
@@ -40,7 +39,7 @@ export default class SmartAll extends Component {
     this.setState({
       loading: true,
     })
-    userItem.job.map((jobs) => {
+    this.state.userItem.job.map((jobs) => {
       if(jobs.code === '200001'){
         this.setState({
           code: true,
@@ -106,7 +105,7 @@ export default class SmartAll extends Component {
         node.push(names[i].attributes[0].textContent)
         sessionStorage.setItem('nodeList', JSON.stringify(node));
         if(!this.state.code){
-          this.onNewMsg(names[i].attributes[0].textContent,10)
+          this.onNewMsg(names[i].attributes[0].textContent,names[i].attributes[0].textContent === 'smart_wtjq' ? 2 : '')
         }else{
           this.onNewMsg(names[i].attributes[0].textContent,'')
         }
@@ -154,7 +153,7 @@ export default class SmartAll extends Component {
         let packagecount = item[i].getElementsByTagName('packagecount');
         let nodeid = item[i].getElementsByTagName('nodeid');
         let messagecount = item[i].getElementsByTagName('messagecount');
-        this.msgListAll.push({messagecontent:messagecontent[0].textContent,time:createtime[0].textContent,nodeid:nodeid[0].textContent, id:id, messagecount:messagecount[0].textContent, packagecount: packagecount[0].textContent});
+        this.msgListAll.push({messagecontent:messagecontent[0].textContent,time:createtime[0].textContent,nodeid:nodeid[0].textContent, id:id, messagecount:messagecount[0].textContent > 1 ? messagecount[0].textContent : 0, packagecount: packagecount[0].textContent});
         this.setState({
           msgList: this.msgListAll,
         })
@@ -193,7 +192,7 @@ export default class SmartAll extends Component {
   render() {
     let type = getQueryString(this.props.location.search, 'type');
     let item = '';
-    {userItem.job.map(jobs => {
+    {this.state.userItem.job.map(jobs => {
         item = <SmartItem firstLogin={this.state.firstLogin} code={jobs.code} getNodeList={()=>this.getNodeList()} xmppUser={this.state.xmppUser} msgList={this.state.msgList} nodeList={this.state.nodeList} searchList={this.state.searchList} getXmpp={() => this.getXmpp()} loading={this.state.loading} type={type} onNewMsg={(node,maxNum)=>this.onNewMsg(node,maxNum)} event={this.state.event}/>
     })}
     return (
