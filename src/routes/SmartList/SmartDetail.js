@@ -113,6 +113,15 @@ export default class SmartDetail extends Component {
       // document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
       let list = [];
       // if(next.user.nodeId === ''){
+      // console.log('next.msgList===========>',next.msgList)
+        for(var i = 0; i < next.msgList.length-1; i++){
+          for(var j = i+1; j < next.msgList.length; j++){
+            if(next.msgList[i].messagecontent == next.msgList[j].messagecontent){
+              next.msgList.splice(j,1);
+              j--;
+            }
+          }
+        }
         next.msgList.map((item)=>{
           if(sessionStorage.getItem('nodeid').toLowerCase() === item.nodeid.toLowerCase()){
             list.push(item)
@@ -497,7 +506,7 @@ export default class SmartDetail extends Component {
         <div className={styles.rightScroll} style={{height:this.state.height + 'px'}} id='scroll'>
           <Spin  className={this.state.load&&this.props.code==='200003' ? '' : styles.none} style={{margin:'10px 0 0 50%',left:'-10px',position:'absolute'}}/>
           <Spin size="large" className={this.state.loading ? '' : styles.none}/>
-          <div className={this.state.lookMore&&this.props.code==='200003' ? '' : styles.none} style={{width:'100%',textAlign:'center',height:'40px',lineHeight:'50px',fontSize:'12px',color:'#1bb7d2'}}>查看更多消息</div>
+          <div className={this.state.lookMore&&this.props.code==='200003'&&!this.state.loading ? '' : styles.none} style={{width:'100%',textAlign:'center',height:'40px',lineHeight:'50px',fontSize:'12px',color:'#1bb7d2'}}>查看更多消息</div>
           <div className={this.state.loading ? styles.none : ''}>{this.state.empty ? <div style={{width:'100%',textAlign:'center',height:'50px',lineHeight:'50px'}}>暂无数据</div> : list}</div>
         </div>
       </div>

@@ -12,7 +12,7 @@
 //   fwName:'pc-20170308pkrs'
 // };
 window.configUrl = {
-  Version: '1.0.0.7',//版本号
+  Version: '1.0.0.8',//版本号
   sysName: 'Smartlinkey',//项目名称
   testUrl: 'http://172.19.12.249:8100',//安全中心登陆接口
   GMUrl: 'http://172.19.12.249:8500',//XMPP接口

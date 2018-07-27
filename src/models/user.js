@@ -9,7 +9,8 @@ export default {
     searchList: [],
     allNum: 0,
     nodeId:'',
-    type: 0
+    type: 0,
+    newEvent: true,
   },
 
   effects: {
@@ -55,6 +56,12 @@ export default {
       yield put({
         type: 'getType',
         payload: payload.type,
+      });
+    },
+    *newsEvent({payload}, { put }) {
+      yield put({
+        type: 'getEvent',
+        payload: payload.newEvent,
       });
     },
     *find({ payload, callback }, { call, put }) {
@@ -110,6 +117,12 @@ export default {
       return {
         ...state,
         type: action.payload,
+      };
+    },
+    getEvent(state, action){
+      return {
+        ...state,
+        newEvent: action.payload,
       };
     }
   },

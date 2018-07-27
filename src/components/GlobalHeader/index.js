@@ -48,7 +48,7 @@ export default class GlobalHeader extends PureComponent {
         this.setState({ searchValue: '' });
       }
     }
-    if(this.props.user.type !== next.user.type){
+    if(this.props.user.type !== next.user.type || this.props.user.newEvent !== next.user.newEvent){
       this.setState({ searchValue: '' });
       sessionStorage.setItem('search','');
     }
@@ -66,7 +66,7 @@ export default class GlobalHeader extends PureComponent {
     });
   }
   onChangesearchValue = (e) => {
-    let testVal =  /^[A-Za-z0-9\u4e00-\u9fa5-]+$/;
+    let testVal =  /^[-,，.:：;"“、]|[A-Za-z0-9\u4e00-\u9fa5]|[-,，.:：;"“、]+$/;
     if(testVal.test(e.target.value) || e.target.value === ''){
       this.setState({
         searchValue: e.target.value,

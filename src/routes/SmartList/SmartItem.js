@@ -8,8 +8,8 @@ import { routerRedux } from 'dva/router';
 import { withCookies, Cookies } from 'react-cookie';
 import { getTime,autoheight,getLocalTime} from '../../utils/utils'
 import SmartLink from './SmartLink';
-@connect(({ user }) => ({
-  user,
+@connect(({ user,login }) => ({
+  user,login,
 }))
 class SmartItem extends Component {
   static propTypes = {
@@ -27,7 +27,8 @@ class SmartItem extends Component {
       num:[],
       height: 575,
       serList:[],
-      searTrue:false
+      searTrue:false,
+      firstLogin: this.props.firstLogin
     };
     this.numAll = 0;
     this.message = [];
@@ -52,6 +53,11 @@ class SmartItem extends Component {
     this.setState({
       msgLists: next.msgList
     })
+    if(this.props.event !== next.event || this.props.type !== next.type){
+      this.setState({
+        firstLogin: false
+      })
+    }
     if(this.props.type !== next.type){
       this.props.dispatch({
         type: 'user/type',
@@ -66,30 +72,7 @@ class SmartItem extends Component {
       }
     }
     if(this.props.msgList !== next.msgList || this.props.type !== next.type || this.props.searchList !== next.searchList || this.props.event !== next.event){
-        this.getAllList(next);
-      if(this.props.code==='200001'){
-        next.msgList.map((e)=>{
-          this.lastTime.map((time,index)=>{
-            if(e.nodeid === time.nodeid && e.nodeid === sessionStorage.getItem('nodeid')){
-              if(e.id > this.lastTime[this.lastTime.length - index - 1].maxmessageid || e.id === this.lastTime[this.lastTime.length - index - 1].maxmessageid){
-                this.lastTime[this.lastTime.length - 1].maxmessageid = Date.parse(new Date());
-                this.getTimeSaves(e.nodeid, e.id);
-              }
-            }
-          })
-        })
-      }else{
-        next.msgList.map((e)=>{
-          this.lastTime.map((time,index)=>{
-            if(e.nodeid === time.nodeid && e.nodeid === sessionStorage.getItem('nodeid')){
-              if(e.id > this.lastTime[index].maxmessageid || e.id === this.lastTime[index].maxmessageid){
-                this.lastTime[index].maxmessageid = Date.parse(new Date());
-                this.getTimeSaves(e.nodeid, e.id);
-              }
-            }
-          })
-        })
-      }
+      this.getAllList(next);
     }
     if(this.props.searchList !== next.searchList){
       this.lastTime = [];
@@ -123,6 +106,59 @@ class SmartItem extends Component {
         this.setState({
           searTrue: false
         })
+      }
+    }
+    if(this.props.msgList !== next.msgList || this.props.searchList !== next.searchList || this.props.event !== next.event || this.props.type !== next.type){
+      if(this.props.code==='200001'){
+        if(sessionStorage.getItem('nodeidType')){
+          if(sessionStorage.getItem('nodeidType') === next.searchList[next.searchList.length - 1].nodeid && this.state.firstLogin){
+            if(this.lastTime.length > 0 && this.lastTime){
+              this.lastTime[this.lastTime.length - 1].maxmessageid = Date.parse(new Date());
+              this.getTimeSaves(sessionStorage.getItem('nodeidType'), Date.parse(new Date()));
+            }
+          }else{
+            next.msgList.map((e)=>{
+              this.lastTime.map((time,index)=>{
+                if((e.nodeid === time.nodeid && e.nodeid === sessionStorage.getItem('nodeidType'))){
+                  if(e.id > this.lastTime[this.lastTime.length - index - 1].maxmessageid || e.id === this.lastTime[this.lastTime.length - index - 1].maxmessageid){
+                    this.lastTime[this.lastTime.length - index - 1].maxmessageid = Date.parse(new Date());
+                    this.getTimeSaves(e.nodeid, Date.parse(new Date()));
+                  }
+                }
+              })
+            })
+          }
+        }else{
+          if(this.lastTime.length > 0 && this.lastTime){
+            this.lastTime[this.lastTime.length - 1].maxmessageid = Date.parse(new Date());
+            this.getTimeSaves(next.searchList[next.searchList.length - 1].nodeid, Date.parse(new Date()));
+          }
+        }
+      } else{
+        if(sessionStorage.getItem('nodeidType')){
+          if(sessionStorage.getItem('nodeidType') === next.searchList[0].nodeid && this.state.firstLogin){
+            if(this.lastTime.length > 0 && this.lastTime){
+              this.lastTime[0].maxmessageid = Date.parse(new Date());
+              this.getTimeSaves(sessionStorage.getItem('nodeidType'), Date.parse(new Date()));
+            }
+          }else{
+            next.msgList.map((e)=>{
+              this.lastTime.map((time,index)=>{
+                if(e.nodeid === time.nodeid && e.nodeid === sessionStorage.getItem('nodeidType')){
+                  if(e.id > this.lastTime[index].maxmessageid || e.id === this.lastTime[index].maxmessageid){
+                    this.lastTime[index].maxmessageid = Date.parse(new Date());
+                    this.getTimeSaves(e.nodeid, Date.parse(new Date()));
+                  }
+                }
+              })
+            })
+          }
+        }else{
+          if(this.lastTime.length > 0 && this.lastTime){
+            this.lastTime[0].maxmessageid = Date.parse(new Date());
+            this.getTimeSaves(next.searchList[0].nodeid, Date.parse(new Date()));
+          }
+        }
       }
     }
   }
@@ -247,7 +283,6 @@ class SmartItem extends Component {
     }
   }
   getListClick = (index,item,num,maxTime) => {
-    // ipc.send('stop-flashing');
     if(num > 0){
       this.lastTime[index].maxmessageid  = maxTime;
       this.getTimeSaves(item.nodeid, maxTime);
@@ -255,7 +290,8 @@ class SmartItem extends Component {
     this.setState({
       index: index,
       title: item.name,
-      nodeId: item.nodeid
+      nodeId: item.nodeid,
+      firstLogin: false
     });
     this.props.dispatch({
       type: 'user/nodeId',
@@ -282,7 +318,7 @@ class SmartItem extends Component {
       if(msgItem.nodeid.toLowerCase() === item.nodeid.toLowerCase()){
         if(item.maxmessageid !== 0 && !this.props.firstLogin){
           if(msgItem.id > this.lastTime[index].maxmessageid){
-            if(item.nodeid==='smart_wtjq' && msgItem.messagecount > 1){
+            if(msgItem.messagecount > 1){
               this.num = msgItem.messagecount;
             }else{
               this.num++;
@@ -292,7 +328,7 @@ class SmartItem extends Component {
           this.num = 1;
         } else {
           if(msgItem.id > this.lastTime[index].maxmessageid) {
-            if(item.nodeid==='smart_wtjq' && msgItem.messagecount > 1){
+            if(msgItem.messagecount > 1){
               this.num = msgItem.messagecount;
             }else{
               this.num++;

@@ -29,6 +29,7 @@ export default class SmartAll extends Component {
       count: 0,
       event:[],
       code: false,
+      eventNew: true,
       firstLogin: this.props.login.loginStatus
     };
     this.msgListAll = []
@@ -107,6 +108,7 @@ export default class SmartAll extends Component {
         if(!this.state.code){
           this.onNewMsg(names[i].attributes[0].textContent,names[i].attributes[0].textContent === 'smart_wtjq' ? 2 : '')
         }else{
+          this.msgListAll = []
           this.onNewMsg(names[i].attributes[0].textContent,'')
         }
       }
@@ -136,10 +138,18 @@ export default class SmartAll extends Component {
       // ipc.send('start-flashing');
       this.setState({
         event:event,
-        firstLogin:false
+        firstLogin:false,
+        eventNew: !this.state.eventNew,
       })
       console.log('闪烁--------------------->',event);
+      this.props.dispatch({
+        type: 'user/newsEvent',
+        payload: {
+          newEvent: this.state.eventNew,
+        },
+      });
       if(this.state.code){
+        this.msgListAll = []
         connection.pubsub.getSubscriptions(this.onMessage1, 5000);
         this.getNodeList();
       }
