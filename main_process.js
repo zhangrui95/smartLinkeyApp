@@ -6,6 +6,8 @@ const { ipcMain } = require('electron');
 const opn = require('opn');
 const Menu = electron.Menu;
 const Tray = electron.Tray;
+const ws = require('windows-shortcuts');
+const iconExtractor = require('icon-extractor');
 
 const path = require('path');
 const url = require('url');
@@ -262,6 +264,36 @@ ipcMain.on('balloon-msg', (event, msg) => {
   });
 });
 
+/**
+ * 工具集（添加图标）
+ * tool_path: exe or lnk
+ */
+iconExtractor.emitter.on('icon', function(data) {
+  // console.log('Here is my context: ' + data.Context);
+  // console.log('Here is the path it was for: ' + data.Path);
+  console.log('Here is the base64 image: ' + data.Base64ImageData);
+  mainWindow.webContents.send('tool-icon', data.Base64ImageData);
+});
+
+ipcMain.on('get-tool-icon', (event, tool_path) => {
+  // function get_lnk_icon() {
+  // tool_path = "C:/Users/Public/Desktop/Google Chrome.lnk"
+  let tmp_list = tool_path.split('.');
+  let ext = tmp_list[tmp_list.length - 1];
+
+  if (ext === 'lnk') {
+    ws.query(tool_path, function(err, info) {
+      console.log('----------------');
+      console.log(err);
+      console.log(info.icon);
+      iconExtractor.getIcon('SomeContextLikeAName', info.icon);
+    });
+  } else {
+    iconExtractor.getIcon('SomeContextLikeAName', tool_path);
+  }
+  // }
+});
+
 // 保证只有一个实例在运行
 const isSecondInstance = app.makeSingleInstance((commandLine, workingDirectory) => {
   if (mainWindow) {
@@ -276,42 +308,6 @@ if (isSecondInstance) {
 
 // (function () {
 //   setTimeout(() => {
-//     mainWindow.hide();
-//   }, 3000);
-//   setTimeout(() => {
-//     mainWindow.show();
-//   }, 6000);
-// })();
-
-// (function() {
-//   console.log("change the windows icon");
-//   setTimeout(() => {
-//     mainWindow.setOverlayIcon(
-//       __dirname + "/search.png",
-//       "Test");
-//     // if (mainWindow.isMinimized()) {
-//     //   console.log("Minimized");
-//     //   mainWindow.flashFrame(true)
-//     // }
-//     if (mainWindow.isVisible()) {
-//       console.log("isVisible");
-//       mainWindow.flashFrame(true)
-//     }
-//   }, 3000)
-// })();
-
-// (function () {
-//   setInterval(() => {
-//     if (mainWindow.isVisible()) {
-//       if (mainWindow.isMinimized()) {
-//         console.log("isMinimized, flashFrame~");
-//         mainWindow.flashFrame(true);
-//       } else {
-//         console.log("isVisible, no flashing~");
-//         return;
-//       }
-//     } else {
-//       console.log("!!!!!!!!!!!!!!!!!!");
-//     }
+//     get_lnk_icon()
 //   }, 3000);
 // })();
