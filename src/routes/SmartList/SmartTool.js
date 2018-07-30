@@ -65,8 +65,8 @@ export default class SmartTool extends Component {
   showOpenDialogHandler = () => {
     var options = {
       defaultPath: 'D:\\',
-      title: '选择文件夹',
-      properties: ['openDirectory'],
+      filters: [{ name: 'Execute', extensions: ['exe'] }],
+      properties: ['openFile'],
     };
 
     dialog.showOpenDialog(options, fileNames => {
