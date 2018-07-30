@@ -76,7 +76,9 @@ export const getRouterData = app => {
       component: dynamicWrapper(app, ['login'], () => import('../routes/User/Login')),
     },
     '/smartList/smartAll': {
-      component: dynamicWrapper(app, [], () => import('../routes/SmartList/SmartAll')),
+      component: dynamicWrapper(app, ['user', 'login', 'question'], () =>
+        import('../routes/SmartList/SmartAll')
+      ),
     },
     '/smartList/smartItem': {
       component: dynamicWrapper(app, [], () => import('../routes/SmartList/SmartItem')),

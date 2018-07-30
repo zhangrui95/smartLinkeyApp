@@ -9,7 +9,6 @@ import styles from './Login.less';
 import { withCookies, Cookies } from 'react-cookie';
 import { hex_md5 } from '../../md5';
 import { ipcRenderer } from 'electron';
-
 const { Tab, UserName, Password, Mobile, Captcha, Submit } = Login;
 
 @connect(({ login, loading }) => ({

@@ -14,6 +14,9 @@
   color: rgba(102, 102, 102, 0.6);
 }
 :global {
+  .ant-collapse-borderless {
+    background: transparent !important;
+  }
   .ant-card-actions > li {
     margin: 6px 0 5px;
     a {
@@ -64,7 +67,7 @@
   height: 535px;
   overflow-y: scroll;
   position: relative;
-  -webkit-app-region: no-drag!important;
+  -webkit-app-region: no-drag !important;
   &::-webkit-scrollbar {
     /*滚动条整体样式*/
     width: 8px; /*高宽分别对应横竖滚动条的尺寸*/
@@ -105,25 +108,26 @@
   margin-right: 0;
   cursor: default;
 }
-.none{
+.none {
   display: none;
 }
-:global{
-  .ant-spin-lg .ant-spin-dot{
+:global {
+  .ant-spin-lg .ant-spin-dot {
     position: absolute;
     left: -16px;
     top: 250px;
     margin-left: 50%;
   }
 }
-.overText{
+.overText {
   float: left;
   width: 70%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  padding-left: 24px;
 }
-.sawp{
+.sawp {
   float: left;
   width: 100%;
   font-size: 14px;
@@ -133,28 +137,57 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.sawpLeft{
+.sawpLeft {
   float: left;
   width: 100%;
   font-size: 14px;
   line-height: 24px;
   color: #666;
 }
-.nameStyle{
+.nameStyle {
   font-size: 14px;
   line-height: 24px;
   color: #666;
 }
-.headerImgSay{
+.headerImgSay {
   width: 100%;
   height: 100%;
   border-radius: 100px;
   display: block;
   background: #fff;
 }
-.allNum{
+.allNum {
   position: absolute;
   z-index: 999;
-  top:83px;
+  top: 90px;
   left: 36px;
+}
+.rightBox {
+  padding: 16px;
+}
+.panalHeaderClick {
+  :global {
+    .ant-collapse-header {
+      color: #1bb7d2 !important;
+      font-size: 16px !important;
+    }
+  }
+}
+.panalHeader {
+  :global {
+    .ant-collapse-header {
+      color: #333 !important;
+      font-size: 16px !important;
+    }
+  }
+}
+.colorText {
+  color: #555;
+  line-height: 24px;
+}
+.saveIcon {
+  position: absolute;
+  top: 18px;
+  cursor: pointer;
+  -webkit-app-region: no-drag !important;
 }

@@ -17,6 +17,16 @@ const menuData = [
     path: 'smartList/smartAll?type=2',
   },
   {
+    name: '工具集',
+    icon: 'images/gongju2.png',
+    path: 'smartList/smartAll?type=3',
+  },
+  {
+    name: '帮助中心',
+    icon: 'images/bangzhu2.png',
+    path: 'smartList/smartAll?type=4',
+  },
+  {
     name: '账户',
     icon: 'user',
     path: 'user',

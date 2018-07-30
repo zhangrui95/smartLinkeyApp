@@ -3,12 +3,13 @@ import { connect } from 'dva';
 import SmartItem from './SmartItem';
 import PoliceSmartItem from './PoliceSmartItem';
 import SmartLink from './SmartLink';
-import { Badge } from 'antd';
+import { Badge, message } from 'antd';
 import { Strophe, $pres } from 'strophe.js';
 import { getSubscriptions } from 'strophejs-plugin-pubsub';
-import { getQueryString } from '../../utils/utils'
+import { getQueryString } from '../../utils/utils';
 import styles from './SmartDetail.less';
-const BOSH_SERVICE = 'http://'+`${configUrl.fwName}`+':7070/http-bind/';
+const BOSH_SERVICE = 'http://' + `${configUrl.fwName}` + ':7070/http-bind/';
+import { ipcRenderer } from 'electron';
 let connection = '';
 @connect(({ user, login }) => ({
   user,
@@ -22,39 +23,39 @@ export default class SmartAll extends Component {
     this.state = {
       xmppUser: userNew.idCard.toLowerCase(),
       nodeList: '',
-      userItem:userNew,
-      searchList:[],
+      userItem: userNew,
+      searchList: [],
       msgList: [],
       loading: false,
       count: 0,
-      event:[],
+      event: [],
       code: false,
       eventNew: true,
-      firstLogin: this.props.login.loginStatus
+      firstLogin: this.props.login.loginStatus,
     };
-    this.msgListAll = []
+    this.msgListAll = [];
   }
 
   componentDidMount() {
     this.getXmpp();
     this.setState({
       loading: true,
-    })
-    this.state.userItem.job.map((jobs) => {
-      if(jobs.code === '200001'){
+    });
+    this.state.userItem.job.map(jobs => {
+      if (jobs.code === '200001') {
         this.setState({
           code: true,
-        })
-      }else if(jobs.code === '200003'){
+        });
+      } else if (jobs.code === '200003') {
         this.setState({
           code: false,
-        })
+        });
       }
-    })
+    });
   }
-  componentWillReceiveProps(next){
-    if(this.props.login.loginStatus !== next.login.loginStatus){
-      if(!next.login.loginStatus){
+  componentWillReceiveProps(next) {
+    if (this.props.login.loginStatus !== next.login.loginStatus) {
+      if (!next.login.loginStatus) {
         this.getOut();
         this.props.dispatch({
           type: 'login/logout',
@@ -66,11 +67,11 @@ export default class SmartAll extends Component {
   getXmpp = () => {
     connection = new Strophe.Connection(BOSH_SERVICE);
     connection.connect(
-      this.state.xmppUser + '@' + `${configUrl.fwName}`,
+      this.state.xmppUser + '@' + `${configUrl.fwName}` + `${configUrl.pcName}`,
       '123456',
       this.onConnect
     );
-  }
+  };
   onConnect = status => {
     if (status == Strophe.Status.CONNFAIL) {
       console.log('连接失败！');
@@ -79,77 +80,83 @@ export default class SmartAll extends Component {
       console.log('登录失败！');
     } else if (status == Strophe.Status.DISCONNECTED) {
       console.log('连接断开！');
-      if(this.props.login.loginStatus){
-        this.getXmpp();
-      }
+      // if(this.props.login.loginStatus){
+      //   this.props.dispatch({
+      //     type: 'login/logout',
+      //   });
+      //   message.warning('提示：同一账号，在其他端登录，请重新登录');
+      // }
     } else if (status == Strophe.Status.CONNECTED) {
       console.log('连接成功！');
       this.setState({
-        loading: false
-      })
+        loading: false,
+      });
       connection.addHandler(this.onMessage, null, null, null, null, null);
       connection.send($pres().tree());
       //获取订阅的主题信息
       connection.pubsub.getSubscriptions(this.onMessage1, 5000);
     }
   };
-  onNewMsg = (nodeList,maxNum) => {
+  onNewMsg = (nodeList, maxNum) => {
     connection.pubsub.items(nodeList, null, null, 5000, maxNum);
-    this.msgListAll = []
-  }
-  onMessage1 = msg1 =>{
-    let node = []
-    this.msgListAll = []
+    this.msgListAll = [];
+  };
+  onMessage1 = msg1 => {
+    let node = [];
+    this.msgListAll = [];
     let names = msg1.getElementsByTagName('subscription');
     if (names.length > 0) {
       for (let i = 0; i < names.length; i++) {
-        node.push(names[i].attributes[0].textContent)
+        node.push(names[i].attributes[0].textContent);
         sessionStorage.setItem('nodeList', JSON.stringify(node));
-        if(!this.state.code){
-          this.onNewMsg(names[i].attributes[0].textContent,names[i].attributes[0].textContent === 'smart_wtjq' ? 2 : '')
-        }else{
-          this.msgListAll = []
-          this.onNewMsg(names[i].attributes[0].textContent,'')
+        if (!this.state.code) {
+          this.onNewMsg(
+            names[i].attributes[0].textContent,
+            names[i].attributes[0].textContent === 'smart_wtjq' ? 2 : ''
+          );
+        } else {
+          this.msgListAll = [];
+          this.onNewMsg(names[i].attributes[0].textContent, '');
         }
       }
     }
     //查询主题读取时间点
-    if(node.length > 0){
+    if (node.length > 0) {
       this.setState({
-        nodeList:node,
-      })
+        nodeList: node,
+      });
       this.props.dispatch({
         type: 'user/query',
         payload: {
           nodeid: node.join(','),
-          userid: this.state.xmppUser
+          userid: this.state.xmppUser,
         },
         callback: response => {
           this.setState({
-            searchList:response.data,
-          })
+            searchList: response.data,
+          });
         },
       });
     }
-  }
+  };
   onMessage = msg => {
     let event = msg.getElementsByTagName('event');
-    if(event.length > 0){
-      // ipc.send('start-flashing');
+    if (event.length > 0) {
+      ipcRenderer.send('start-flashing');
       this.setState({
-        event:event,
-        firstLogin:false,
+        event: event,
+        firstLogin: false,
         eventNew: !this.state.eventNew,
-      })
-      console.log('闪烁--------------------->',event);
+      });
+      console.log('闪烁--------------------->', event);
       this.props.dispatch({
         type: 'user/newsEvent',
         payload: {
           newEvent: this.state.eventNew,
         },
       });
-      if(this.state.code){
-        this.msgListAll = []
+      if (this.state.code) {
+        this.msgListAll = [];
         connection.pubsub.getSubscriptions(this.onMessage1, 5000);
         this.getNodeList();
       }
@@ -157,58 +164,78 @@ export default class SmartAll extends Component {
     let item = msg.getElementsByTagName('item');
     if (item.length > 0) {
       for (let i = 0; i < item.length; i++) {
-        let id = item[i].attributes[0].textContent
+        let id = item[i].attributes[0].textContent;
         let messagecontent = item[i].getElementsByTagName('messagecontent');
         let createtime = item[i].getElementsByTagName('createtime');
         let packagecount = item[i].getElementsByTagName('packagecount');
         let nodeid = item[i].getElementsByTagName('nodeid');
         let messagecount = item[i].getElementsByTagName('messagecount');
-        this.msgListAll.push({messagecontent:messagecontent[0].textContent,time:createtime[0].textContent,nodeid:nodeid[0].textContent, id:id, messagecount:messagecount[0].textContent > 1 ? messagecount[0].textContent : 0, packagecount: packagecount[0].textContent});
+        this.msgListAll.push({
+          messagecontent: messagecontent[0].textContent,
+          time: createtime[0].textContent,
+          nodeid: nodeid[0].textContent,
+          id: id,
+          messagecount: messagecount[0].textContent > 1 ? messagecount[0].textContent : 0,
+          packagecount: packagecount[0].textContent,
+        });
         this.setState({
           msgList: this.msgListAll,
-        })
+        });
       }
     }
     return true;
   };
   getNodeList = () => {
-    let node = JSON.parse(sessionStorage.getItem('nodeList'))
-    if(node && node.length > 0){
+    let node = JSON.parse(sessionStorage.getItem('nodeList'));
+    if (node && node.length > 0) {
       this.setState({
-        nodeList:node,
-      })
+        nodeList: node,
+      });
       this.props.dispatch({
         type: 'user/query',
         payload: {
           nodeid: node.join(','),
-          userid: this.state.xmppUser
+          userid: this.state.xmppUser,
         },
         callback: response => {
           this.setState({
-            searchList:response.data,
-          })
+            searchList: response.data,
+          });
         },
       });
     }
-  }
-  changeCount(count){
+  };
+  changeCount(count) {
     this.setState({
-      count
-    })
+      count,
+    });
   }
   getOut = () => {
     connection.disconnect();
-  }
+  };
   render() {
     let type = getQueryString(this.props.location.search, 'type');
     let item = '';
-    {this.state.userItem.job.map(jobs => {
-        item = <SmartItem firstLogin={this.state.firstLogin} code={jobs.code} getNodeList={()=>this.getNodeList()} xmppUser={this.state.xmppUser} msgList={this.state.msgList} nodeList={this.state.nodeList} searchList={this.state.searchList} getXmpp={() => this.getXmpp()} loading={this.state.loading} type={type} onNewMsg={(node,maxNum)=>this.onNewMsg(node,maxNum)} event={this.state.event}/>
-    })}
-    return (
-      <div>
-        {item}
-      </div>
-    );
+    {
+      this.state.userItem.job.map(jobs => {
+        item = (
+          <SmartItem
+            firstLogin={this.state.firstLogin}
+            code={jobs.code}
+            getNodeList={() => this.getNodeList()}
+            xmppUser={this.state.xmppUser}
+            msgList={this.state.msgList}
+            nodeList={this.state.nodeList}
+            searchList={this.state.searchList}
+            getXmpp={() => this.getXmpp()}
+            loading={this.state.loading}
+            type={type}
+            onNewMsg={(node, maxNum) => this.onNewMsg(node, maxNum)}
+            event={this.state.event}
+          />
+        );
+      });
+    }
+    return <div>{item}</div>;
   }
 }

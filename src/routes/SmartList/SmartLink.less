@@ -1,11 +1,16 @@
 .colStyle {
   background: #fff;
   border-radius: 4px;
-  margin: 20px 0;
+  margin: 20px 0 0;
   height: 66px;
   cursor: pointer;
   box-shadow: 0 2px 6px #dedede;
   -webkit-app-region: no-drag !important;
+  position: relative;
+  &:after,
+  &:before {
+    -webkit-user-drag: auto !important;
+  }
   img {
     float: left;
   }
@@ -15,4 +20,55 @@
     line-height: 66px;
     color: #343434;
   }
+}
+.delBtn {
+  background: #ff9100 !important;
+  margin: 20px 0 0 0 !important;
+  -webkit-app-region: no-drag !important;
+}
+.addStyle {
+  border-radius: 4px;
+  margin: 20px 0 0;
+  background: transparent;
+  border: 1px solid #1bb7d2;
+  color: #1bb7d2;
+  line-height: 66px;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px #dedede;
+  -webkit-app-region: no-drag !important;
+  font-size: 18px;
+  height: 66px;
+  position: relative;
+  &:hover {
+    background: #1bb7d2;
+    color: #fff;
+  }
+}
+.add {
+  font-size: 30px;
+  float: left;
+  line-height: 60px;
+}
+.name {
+  float: left;
+}
+.addBox {
+  position: absolute;
+  margin-left: 50%;
+  left: -28px;
+}
+.del {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+}
+.none {
+  display: none;
+}
+.ExeName {
+  width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

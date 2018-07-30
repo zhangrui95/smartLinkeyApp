@@ -100,3 +100,9 @@ export async function getLoginSetting(params) {
 export async function queryNotices() {
   return request('/api/notices');
 }
+export async function getQuestionList(params) {
+  return request(`${configUrl.ywzxUrl}/queryQuestionList`, {
+    method: 'POST',
+    body: params,
+  });
+}

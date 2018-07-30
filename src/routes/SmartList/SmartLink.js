@@ -4,7 +4,8 @@ import { Row, Col } from 'antd';
 import styles from './SmartLink.less';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
-import { autoheight } from '../../utils/utils'
+import { autoheight } from '../../utils/utils';
+import { ipcRenderer } from 'electron';
 
 class SmartLink extends Component {
   static propTypes = {
@@ -15,23 +16,23 @@ class SmartLink extends Component {
     const { cookies } = props;
     this.state = {
       height: 575,
-    }
+    };
   }
-  componentDidMount(){
+  componentDidMount() {
     window.addEventListener('resize', () => {
-      this.updateSize()
+      this.updateSize();
     });
     document.getElementById('scroll').scrollTop = document.getElementById('scroll').scrollHeight;
   }
   updateSize() {
     this.setState({
-      height:autoheight() < 700 ? autoheight() - 65 : autoheight() - 54,
-    })
+      height: autoheight() < 700 ? autoheight() - 65 : autoheight() - 54,
+    });
   }
   goLink = path => {
-    ipc.send('visit-page', {
-      "url": path,
-      "browser": "chrome"
+    ipcRenderer.send('visit-page', {
+      url: path,
+      browser: 'chrome',
     });
     // window.open(path);
   };
@@ -44,11 +45,27 @@ class SmartLink extends Component {
     let listMenu = [];
     menu.map(item => {
       if (item.resourceCode === 'baq_btn') {
-        listMenu.push({ name: '办案区管理系统', link: `${configUrl.baqUrl}`, img: 'images/bananqu.png' });
+        listMenu.push({
+          name: '办案区管理系统',
+          link: `${configUrl.baqUrl}`,
+          img: 'images/bananqu.png',
+        });
       } else if (item.resourceCode === 'zhag_btn') {
-        listMenu.push({ name: '智慧案管系统', link: `${configUrl.agUrl}`+'#/loginByToken?token='+token+'&type=0', img: 'images/anjian.png' });
+        listMenu.push({
+          name: '智慧案管系统',
+          link: `${configUrl.agUrl}` + '#/loginByToken?token=' + token + '&type=0',
+          img: 'images/anjian.png',
+        });
       } else if (item.resourceCode === 'sjcw_btn') {
-        listMenu.push({ name: '涉案财务系统', link: `${configUrl.cwUrl}`+'/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD='+userNew.idCard+'&type=0', img: 'images/weishoulijingqing.png' });
+        listMenu.push({
+          name: '涉案财务系统',
+          link:
+            `${configUrl.cwUrl}` +
+            '/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD=' +
+            userNew.idCard +
+            '&type=0',
+          img: 'images/weishoulijingqing.png',
+        });
       } else if (item.resourceCode === 'zhjq_btn') {
         listMenu.push({
           name: '智慧警情系统',
@@ -64,7 +81,7 @@ class SmartLink extends Component {
       }
     });
     return (
-      <div style={{ padding: '0 24px',height:this.state.height + 'px'}}>
+      <div style={{ padding: '0 24px', height: this.state.height + 'px' }}>
         <div className="gutter-example">
           <Row gutter={20}>
             {listMenu.map(items => {

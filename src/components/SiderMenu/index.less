@@ -82,16 +82,19 @@
     padding-left: 20px !important;
     margin-bottom: 20px !important;
   }
-  .ant-badge-count{
+  .ant-badge-count {
     min-width: 18px;
     height: 18px;
     line-height: 18px;
   }
-  .ant-menu-item-selected{
-    background: transparent!important;
+  .ant-menu-item-selected {
+    background: transparent !important;
   }
-  .ant-modal-content{
-    -webkit-app-region: no-drag!important;
+  .ant-modal-content {
+    -webkit-app-region: no-drag !important;
+  }
+  .ant-menu-item-active {
+    background: #d2f1f6 !important;
   }
 }
 .szMenu {
@@ -103,7 +106,7 @@
   z-index: 999;
   border-radius: 4px;
   box-shadow: 0 0 10px #c0c0c0 !important;
-  -webkit-app-region: no-drag!important;
+  -webkit-app-region: no-drag !important;
 }
 .nameMenu {
   font-size: 18px !important;
@@ -119,13 +122,14 @@
 .MenuListMargin {
   margin: 6px 0 !important;
   color: #343434;
+  position: relative;
   &:hover {
     background: transparent;
     margin: 6px 0 !important;
     color: #00adcb;
     text-decoration: underline;
   }
-  &:last-child{
+  &:last-child {
     &:hover {
       background: transparent;
       margin: 6px 0 !important;
@@ -149,9 +153,78 @@
 .hideMenu {
   display: none;
 }
-.badgeStyle{
+.badgeStyle {
   position: absolute;
   left: 35px;
   top: 84px;
+  z-index: 99;
+}
+.itemStyle {
+  height: 50px !important;
+  line-height: 48px !important;
+  margin-bottom: 10px !important;
+  margin-top: 10px !important;
+}
+.itemClick {
+  background: #d2f1f6;
+  height: 50px !important;
+  line-height: 48px !important;
+  margin-bottom: 10px !important;
+  margin-top: 10px !important;
+}
+.logoVersion {
+  text-align: center;
+  position: relative;
+  top: 0px;
+  left: -99px;
+  margin-left: 50%;
+}
+.btnVersion {
+  text-align: center;
+  position: relative;
+  top: 0px;
+  left: -43px;
+  margin: 20px 0 20px 50% !important;
+}
+.bbgx {
+  height: 200px;
+  overflow-y: scroll;
+  font-size: 12px;
+  color: #666;
+  &::-webkit-scrollbar {
+    /*滚动条整体样式*/
+    width: 8px; /*高宽分别对应横竖滚动条的尺寸*/
+  }
+  &::-webkit-scrollbar-thumb {
+    /*滚动条里面小方块*/
+    border-radius: 50px;
+    //-webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+    background: rgba(0, 0, 0, 0.2);
+  }
+  &::-webkit-scrollbar-track {
+    /*滚动条里面轨道*/
+    background: transparent;
+  }
+}
+.PickerBtn {
+  width: 115px;
+  float: right;
+  margin: 16px 0 0;
+  :global {
+    .ant-btn {
+      height: 24px !important;
+      padding: 0 8px !important;
+      margin-left: 8px !important;
+    }
+  }
+}
+.newsV {
+  width: 10px;
+  height: 10px;
+  background: #f00;
+  border-radius: 10px;
+  position: absolute;
+  right: 12px;
+  top: 15px;
   z-index: 99;
 }
