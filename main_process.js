@@ -269,11 +269,19 @@ ipcMain.on('balloon-msg', (event, msg) => {
  */
 function get_tool_icon(tool_path) {
   // let json_string = JSON.stringify({context: 'SomeContextLikeAName', path: 'C:/Users/Public/Desktop/Google Chrome.lnk'}) + "\n";
-  let json_string = JSON.stringify({context: 'SomeContextLikeAName', path: tool_path}) + "\n";
+  let json_string = JSON.stringify({ context: 'SomeContextLikeAName', path: tool_path }) + '\n';
   iconProcess.stdin.write(json_string);
 }
 ipcMain.on('get-tool-icon', (event, tool_path) => {
-  get_tool_icon(tool_path)
+  get_tool_icon(tool_path);
+});
+
+/**
+ * 启动工具集的程序
+ */
+ipcMain.on('open-link', (event, link_path) => {
+  // link_path = "C:/Users/Public/Desktop/Google Chrome.lnk"
+  opn(link_path);
 });
 
 // 保证只有一个实例在运行
