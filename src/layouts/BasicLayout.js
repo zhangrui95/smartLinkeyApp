@@ -189,9 +189,9 @@ class BasicLayout extends React.PureComponent {
       });
     }
   };
-  menuRight = (e) => {
-    e.preventDefault();
-  }
+  menuRight = e => {
+    // e.preventDefault();
+  };
   render() {
     const {
       currentUser,
@@ -274,7 +274,11 @@ class BasicLayout extends React.PureComponent {
     return (
       <DocumentTitle title={this.getPageTitle()}>
         <ContainerQuery query={query}>
-          {params => <div className={classNames(params)} onContextMenu={(e) => this.menuRight(e)}>{layout}</div>}
+          {params => (
+            <div className={classNames(params)} onContextMenu={e => this.menuRight(e)}>
+              {layout}
+            </div>
+          )}
         </ContainerQuery>
       </DocumentTitle>
     );

@@ -94,6 +94,7 @@ export default class SmartAll extends Component {
         this.props.dispatch({
           type: 'login/logout',
         });
+        ipcRenderer.send('logout');
         message.warning('提示：同一账号，在其他端登录，请重新登录');
       }
     } else if (status == Strophe.Status.CONNECTED) {
@@ -223,16 +224,22 @@ export default class SmartAll extends Component {
   getOut = () => {
     connection.disconnect();
   };
-  getRight = e => {
-    console.log(e.clientX);
-    console.log(e.clientY);
-    this.setState({
-      left: e.clientX,
-      top: e.clientY,
-      rightBox: true,
-    });
-    this.getCopyWord();
-  };
+  // getRight = e => {
+  //   console.log(e.clientX);
+  //   console.log(e.clientY);
+  //   this.setState({
+  //     left: e.clientX,
+  //     top: e.clientY,
+  //   });
+  //   this.getCopyWord();
+  //   let word = window.getSelection ? window.getSelection() : document.selection.createRange().text;
+  //   // if(word.length > 0){
+  //     this.setState({
+  //       rightBox: true,
+  //     })
+  //     // alert(word);
+  //   // }
+  // };
   hideRight = () => {
     this.setState({
       rightBox: false,
@@ -270,7 +277,9 @@ export default class SmartAll extends Component {
       });
     }
     return (
-      <div onContextMenu={this.getRight} onClick={this.hideRight}>
+      <div
+      // onContextMenu={this.getRight} onClick={this.hideRight}
+      >
         {item}
         <div
           className={this.state.rightBox ? styles.rightList : styles.none}

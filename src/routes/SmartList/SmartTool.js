@@ -93,7 +93,6 @@ export default class SmartTool extends Component {
           this.state.message.push({ name: name, path: fileNames[0] });
           ipcRenderer.send('get-tool-icon', fileNames[0]);
           ipcRenderer.on('tool-icon', (event, base64Img) => {
-            console.log('base64Img===========>', base64Img);
             this.state.message[this.state.message.length - 1].icon = base64Img;
             this.setState({
               message: this.state.message,
