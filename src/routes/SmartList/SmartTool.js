@@ -121,6 +121,11 @@ export default class SmartTool extends Component {
         _this.setState({
           message: _this.state.message,
         });
+        if (_this.state.message.length === 0) {
+          _this.setState({
+            delete: false,
+          });
+        }
       },
       onCancel() {
         console.log('Cancel');
@@ -129,6 +134,7 @@ export default class SmartTool extends Component {
   };
   dbExe = path => {
     console.log('双击', path);
+    ipcRenderer.send('open-link', path);
     // let activeObj = new ActiveXObject("wscript.shell");
     // activeObj.run(path);
   };
@@ -141,16 +147,14 @@ export default class SmartTool extends Component {
     let msgList = [];
     this.state.message.map((e, index) => {
       msgList.push(
-        <Col
-          className="gutter-row"
-          span={6}
-          key={index}
-          onDragStart={() => this.dragStart(e)}
-          onDrag={() => this.dragging(e)}
-          draggable="true"
-          onDoubleClick={() => this.dbExe(e.path)}
-        >
-          <div className={styles.colStyle}>
+        <Col className="gutter-row" span={6} key={index}>
+          <div
+            className={styles.colStyle}
+            onDragStart={() => this.dragStart(e)}
+            onDrag={() => this.dragging(e)}
+            draggable="true"
+            onDoubleClick={() => this.dbExe(e.path)}
+          >
             <img src={'data:image/png;base64,' + e.icon} style={{ margin: '17px 14px' }} />
             <span className={styles.ExeName}>{e.name.slice(0, -4)}</span>
             <img
