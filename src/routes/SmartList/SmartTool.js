@@ -16,6 +16,7 @@ export default class SmartTool extends Component {
       height: 575,
       delete: false,
       message: [],
+      img: '',
       dragName: '',
     };
   }
@@ -49,12 +50,15 @@ export default class SmartTool extends Component {
   };
   handleDrop = e => {
     e.preventDefault();
-    console.log('文==========>', e.dataTransfer);
     for (let f of e.dataTransfer.files) {
-      console.log('文件名==========>', f);
+      let icon = '';
       this.state.message.push({ name: f.name, path: f.path });
-      this.setState({
-        message: this.state.message,
+      ipcRenderer.send('get-tool-icon', f.path);
+      ipcRenderer.on('tool-icon', (event, base64Img) => {
+        this.state.message[this.state.message.length - 1].icon = base64Img;
+        this.setState({
+          message: this.state.message,
+        });
       });
     }
     return false;
@@ -65,28 +69,32 @@ export default class SmartTool extends Component {
   showOpenDialogHandler = () => {
     var options = {
       defaultPath: 'D:\\',
-      title: '选择文件夹',
-      properties: ['openDirectory'],
+      filters: [{ name: 'Execute', extensions: ['exe'] }],
+      properties: ['openFile'],
     };
 
     dialog.showOpenDialog(options, fileNames => {
       // fileNames is an array that contains all the selected
       if (fileNames === undefined) {
-        console.log('No file selected');
         return;
       } else {
-        console.log('fileNames[0]=========>', fileNames[0]);
         fileNames.map(f => {
-          this.state.message.push({ name: fileNames[0], path: fileNames[0] });
-        });
-        this.setState({
-          message: this.state.message,
+          let name = fileNames[0];
+          let index = name.lastIndexOf('\\');
+          name = name.substring(index + 1, name.length);
+          this.state.message.push({ name: name, path: fileNames[0] });
+          ipcRenderer.send('get-tool-icon', fileNames[0]);
+          ipcRenderer.on('tool-icon', (event, base64Img) => {
+            this.state.message[this.state.message.length - 1].icon = base64Img;
+            this.setState({
+              message: this.state.message,
+            });
+          });
         });
       }
     });
   };
   dragStart = e => {
-    console.log('eStart----------->', e);
     this.setState({
       dragName: e.name,
     });
@@ -119,6 +127,11 @@ export default class SmartTool extends Component {
       },
     });
   };
+  dbExe = path => {
+    console.log('双击', path);
+    // let activeObj = new ActiveXObject("wscript.shell");
+    // activeObj.run(path);
+  };
   render() {
     const user = sessionStorage.getItem('user');
     const menu = JSON.parse(user).menu;
@@ -135,9 +148,10 @@ export default class SmartTool extends Component {
           onDragStart={() => this.dragStart(e)}
           onDrag={() => this.dragging(e)}
           draggable="true"
+          onDoubleClick={() => this.dbExe(e.path)}
         >
           <div className={styles.colStyle}>
-            <img src="images/bananqu.png" style={{ margin: '12px 14px' }} />
+            <img src={'data:image/png;base64,' + e.icon} style={{ margin: '17px 14px' }} />
             <span className={styles.ExeName}>{e.name.slice(0, -4)}</span>
             <img
               onClick={index => this.del(e.name)}

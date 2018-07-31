@@ -80,12 +80,12 @@ export default class SmartAll extends Component {
       console.log('登录失败！');
     } else if (status == Strophe.Status.DISCONNECTED) {
       console.log('连接断开！');
-      // if(this.props.login.loginStatus){
-      //   this.props.dispatch({
-      //     type: 'login/logout',
-      //   });
-      //   message.warning('提示：同一账号，在其他端登录，请重新登录');
-      // }
+      if (this.props.login.loginStatus) {
+        this.props.dispatch({
+          type: 'login/logout',
+        });
+        message.warning('提示：同一账号，在其他端登录，请重新登录');
+      }
     } else if (status == Strophe.Status.CONNECTED) {
       console.log('连接成功！');
       this.setState({
@@ -213,6 +213,14 @@ export default class SmartAll extends Component {
   getOut = () => {
     connection.disconnect();
   };
+  getRight = () => {
+    this.getWord();
+  };
+  getWord = () => {
+    let word = window.getSelection ? window.getSelection() : document.selection.createRange().text;
+    alert(word);
+    document.execCommand('Copy');
+  };
   render() {
     let type = getQueryString(this.props.location.search, 'type');
     let item = '';
@@ -236,6 +244,6 @@ export default class SmartAll extends Component {
         );
       });
     }
-    return <div>{item}</div>;
+    return <div onContextMenu={this.getRight}>{item}</div>;
   }
 }
