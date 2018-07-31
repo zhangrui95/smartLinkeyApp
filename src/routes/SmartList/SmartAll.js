@@ -3,7 +3,8 @@ import { connect } from 'dva';
 import SmartItem from './SmartItem';
 import PoliceSmartItem from './PoliceSmartItem';
 import SmartLink from './SmartLink';
-import { Badge, message } from 'antd';
+import { Badge, message, Modal } from 'antd';
+const confirm = Modal.confirm;
 import { Strophe, $pres } from 'strophe.js';
 import { getSubscriptions } from 'strophejs-plugin-pubsub';
 import { getQueryString } from '../../utils/utils';
@@ -91,11 +92,24 @@ export default class SmartAll extends Component {
     } else if (status == Strophe.Status.DISCONNECTED) {
       console.log('连接断开！');
       if (this.props.login.loginStatus) {
-        this.props.dispatch({
-          type: 'login/logout',
+        let _this = this;
+        confirm({
+          title: '用户已在房间：**（IP地址）登录，是否进行替换登录？',
+          okText: '登录',
+          cancelText: '取消',
+          onOk() {
+            _this.props.dispatch({
+              type: 'login/logout',
+            });
+            ipcRenderer.send('logout');
+          },
+          onCancel() {
+            _this.props.dispatch({
+              type: 'login/logout',
+            });
+            ipcRenderer.send('logout');
+          },
         });
-        ipcRenderer.send('logout');
-        message.warning('提示：同一账号，在其他端登录，请重新登录');
       }
     } else if (status == Strophe.Status.CONNECTED) {
       console.log('连接成功！');

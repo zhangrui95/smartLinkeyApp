@@ -12,12 +12,15 @@ const dialog = electron.remote.dialog;
 export default class SmartTool extends Component {
   constructor(props) {
     super(props);
+    const user = sessionStorage.getItem('user');
+    const userNew = JSON.parse(user).user;
     this.state = {
       height: 575,
       delete: false,
-      message: props.msgExe,
+      message: [],
       img: '',
       dragName: '',
+      userName: userNew.name,
     };
   }
   componentDidMount() {
@@ -28,8 +31,14 @@ export default class SmartTool extends Component {
   }
   componentWillReceiveProps(next) {
     if (this.props.msgExe !== next.msgExe) {
+      let msg = [];
+      next.msgExe.map((e, i) => {
+        if (e.userName === this.state.userName) {
+          msg.push(e);
+        }
+      });
       this.setState({
-        message: next.msgExe,
+        message: msg,
       });
     }
   }
@@ -59,14 +68,16 @@ export default class SmartTool extends Component {
     e.preventDefault();
     for (let f of e.dataTransfer.files) {
       let icon = '';
-      this.state.message.push({ name: f.name, path: f.path });
+      this.state.message.push({ name: f.name, path: f.path, userName: this.state.userName });
+      this.props.msgExe.push({ name: f.name, path: f.path, userName: this.state.userName });
       ipcRenderer.send('get-tool-icon', f.path);
       ipcRenderer.on('tool-icon', (event, base64Img) => {
         this.state.message[this.state.message.length - 1].icon = base64Img;
+        this.props.msgExe[this.props.msgExe.length - 1].icon = base64Img;
         this.setState({
           message: this.state.message,
         });
-        ipcRenderer.send('save-tools-info', this.state.message);
+        ipcRenderer.send('save-tools-info', this.props.msgExe);
       });
     }
     return false;
@@ -90,14 +101,20 @@ export default class SmartTool extends Component {
           let name = fileNames[0];
           let index = name.lastIndexOf('\\');
           name = name.substring(index + 1, name.length);
-          this.state.message.push({ name: name, path: fileNames[0] });
+          this.state.message.push({
+            name: name,
+            path: fileNames[0],
+            userName: this.state.userName,
+          });
+          this.props.msgExe.push({ name: name, path: fileNames[0], userName: this.state.userName });
           ipcRenderer.send('get-tool-icon', fileNames[0]);
           ipcRenderer.on('tool-icon', (event, base64Img) => {
             this.state.message[this.state.message.length - 1].icon = base64Img;
+            this.props.msgExe[this.props.msgExe.length - 1].icon = base64Img;
             this.setState({
               message: this.state.message,
             });
-            ipcRenderer.send('save-tools-info', this.state.message);
+            ipcRenderer.send('save-tools-info', this.props.msgExe);
           });
         });
       }
@@ -127,10 +144,15 @@ export default class SmartTool extends Component {
             _this.state.message.splice(i, 1);
           }
         });
+        _this.props.msgExe.map((item, index) => {
+          if (item.name === name && item.userName === _this.state.userName) {
+            _this.props.msgExe.splice(index, 1);
+          }
+        });
         _this.setState({
           message: _this.state.message,
         });
-        ipcRenderer.send('save-tools-info', _this.state.message);
+        ipcRenderer.send('save-tools-info', _this.props.msgExe);
         if (_this.state.message.length === 0) {
           _this.setState({
             delete: false,
