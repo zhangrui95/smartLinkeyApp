@@ -6,17 +6,16 @@ const { ipcMain } = require('electron');
 const opn = require('opn');
 const Menu = electron.Menu;
 const Tray = electron.Tray;
-const ws = require('windows-shortcuts');
-const iconExtractor = require('icon-extractor');
 
 const path = require('path');
 const url = require('url');
 
 const log = require('./src/for-electron/crates/logging').log;
+const iconProcess = require('./src/for-electron/crates/geticon').iconProcess;
 const config = require('./src/for-electron/config.js');
 require('./src/for-electron/crates/launch');
 
-require('electron-reload')(__dirname);
+// require('electron-reload')(__dirname);
 
 const icon_path = path.join(__dirname, 'src/for-electron/source/logo.ico');
 const icon_none_path = path.join(__dirname, 'src/for-electron/source/none.ico');
@@ -268,30 +267,13 @@ ipcMain.on('balloon-msg', (event, msg) => {
  * 工具集（添加图标）
  * tool_path: exe or lnk
  */
-iconExtractor.emitter.on('icon', function(data) {
-  // console.log('Here is my context: ' + data.Context);
-  // console.log('Here is the path it was for: ' + data.Path);
-  console.log('Here is the base64 image: ' + data.Base64ImageData);
-  mainWindow.webContents.send('tool-icon', data.Base64ImageData);
-});
-
+function get_tool_icon(tool_path) {
+  // let json_string = JSON.stringify({context: 'SomeContextLikeAName', path: 'C:/Users/Public/Desktop/Google Chrome.lnk'}) + "\n";
+  let json_string = JSON.stringify({context: 'SomeContextLikeAName', path: tool_path}) + "\n";
+  iconProcess.stdin.write(json_string);
+}
 ipcMain.on('get-tool-icon', (event, tool_path) => {
-  // function get_lnk_icon() {
-  // tool_path = "C:/Users/Public/Desktop/Google Chrome.lnk"
-  let tmp_list = tool_path.split('.');
-  let ext = tmp_list[tmp_list.length - 1];
-
-  if (ext === 'lnk') {
-    ws.query(tool_path, function(err, info) {
-      console.log('----------------');
-      console.log(err);
-      console.log(info.icon);
-      iconExtractor.getIcon('SomeContextLikeAName', info.icon);
-    });
-  } else {
-    iconExtractor.getIcon('SomeContextLikeAName', tool_path);
-  }
-  // }
+  get_tool_icon(tool_path)
 });
 
 // 保证只有一个实例在运行
@@ -308,6 +290,6 @@ if (isSecondInstance) {
 
 // (function () {
 //   setTimeout(() => {
-//     get_lnk_icon()
+//     get_tool_icon()
 //   }, 3000);
 // })();
