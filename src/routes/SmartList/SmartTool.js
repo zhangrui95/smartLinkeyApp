@@ -15,7 +15,7 @@ export default class SmartTool extends Component {
     this.state = {
       height: 575,
       delete: false,
-      message: [],
+      message: props.msgExe,
       img: '',
       dragName: '',
     };
@@ -25,6 +25,13 @@ export default class SmartTool extends Component {
       this.updateSize();
     });
     document.getElementById('scroll').scrollTop = document.getElementById('scroll').scrollHeight;
+  }
+  componentWillReceiveProps(next) {
+    if (this.props.msgExe !== next.msgExe) {
+      this.setState({
+        message: next.msgExe,
+      });
+    }
   }
   updateSize() {
     this.setState({
@@ -59,6 +66,7 @@ export default class SmartTool extends Component {
         this.setState({
           message: this.state.message,
         });
+        ipcRenderer.send('save-tools-info', this.state.message);
       });
     }
     return false;
@@ -85,10 +93,12 @@ export default class SmartTool extends Component {
           this.state.message.push({ name: name, path: fileNames[0] });
           ipcRenderer.send('get-tool-icon', fileNames[0]);
           ipcRenderer.on('tool-icon', (event, base64Img) => {
+            console.log('base64Img===========>', base64Img);
             this.state.message[this.state.message.length - 1].icon = base64Img;
             this.setState({
               message: this.state.message,
             });
+            ipcRenderer.send('save-tools-info', this.state.message);
           });
         });
       }
@@ -121,6 +131,7 @@ export default class SmartTool extends Component {
         _this.setState({
           message: _this.state.message,
         });
+        ipcRenderer.send('save-tools-info', _this.state.message);
         if (_this.state.message.length === 0) {
           _this.setState({
             delete: false,

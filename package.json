@@ -71,6 +71,7 @@
     "less": "2.7.2",
     "lodash": "^4.17.10",
     "lodash-decorators": "^5.0.0",
+    "lowdb": "^1.0.0",
     "md5-es": "^1.8.2",
     "moment": "^2.19.1",
     "node-xmpp": "^1.1.0",

@@ -31,7 +31,11 @@ export default class SmartAll extends Component {
       event: [],
       code: false,
       eventNew: true,
+      left: 0,
+      top: 0,
+      rightBox: false,
       firstLogin: this.props.login.loginStatus,
+      msgExe: [],
     };
     this.msgListAll = [];
   }
@@ -51,6 +55,12 @@ export default class SmartAll extends Component {
           code: false,
         });
       }
+    });
+    ipcRenderer.on('tools-info', (e, msgExe) => {
+      console.log('msg===============>', msgExe);
+      this.setState({
+        msgExe: msgExe,
+      });
     });
   }
   componentWillReceiveProps(next) {
@@ -213,13 +223,27 @@ export default class SmartAll extends Component {
   getOut = () => {
     connection.disconnect();
   };
-  getRight = () => {
-    this.getWord();
+  getRight = e => {
+    console.log(e.clientX);
+    console.log(e.clientY);
+    this.setState({
+      left: e.clientX,
+      top: e.clientY,
+      rightBox: true,
+    });
+    this.getCopyWord();
   };
-  getWord = () => {
+  hideRight = () => {
+    this.setState({
+      rightBox: false,
+    });
+  };
+  getCopyWord = () => {
+    document.execCommand('Copy');
+  };
+  SearchWord = () => {
     let word = window.getSelection ? window.getSelection() : document.selection.createRange().text;
     alert(word);
-    document.execCommand('Copy');
   };
   render() {
     let type = getQueryString(this.props.location.search, 'type');
@@ -240,10 +264,22 @@ export default class SmartAll extends Component {
             type={type}
             onNewMsg={(node, maxNum) => this.onNewMsg(node, maxNum)}
             event={this.state.event}
+            msgExe={this.state.msgExe}
           />
         );
       });
     }
-    return <div onContextMenu={this.getRight}>{item}</div>;
+    return (
+      <div onContextMenu={this.getRight} onClick={this.hideRight}>
+        {item}
+        <div
+          className={this.state.rightBox ? styles.rightList : styles.none}
+          style={{ left: this.state.left + 'px', top: this.state.top + 'px' }}
+        >
+          <div>复制</div>
+          <div onClick={() => this.SearchWord()}>查询</div>
+        </div>
+      </div>
+    );
   }
 }

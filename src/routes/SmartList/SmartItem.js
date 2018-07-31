@@ -610,7 +610,7 @@ class SmartItem extends Component {
         </div>
         <div className={this.props.type == 3 ? '' : styles.none}>
           <Badge count={this.props.type == 3 ? this.getAll() : ''} className={styles.allNum} />
-          <SmartTool />
+          <SmartTool msgExe={this.props.msgExe} />
         </div>
         <div className={this.props.type == 4 ? '' : styles.none}>
           <Badge count={this.props.type == 4 ? this.getAll() : ''} className={styles.allNum} />
