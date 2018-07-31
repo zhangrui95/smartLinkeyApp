@@ -6,6 +6,10 @@ const { ipcMain } = require('electron');
 const opn = require('opn');
 const Menu = electron.Menu;
 const Tray = electron.Tray;
+const low = require('lowdb');
+const FileSync = require('lowdb/adapters/FileSync');
+const adapter = new FileSync('db.json');
+const db = low(adapter);
 
 const path = require('path');
 const url = require('url');
@@ -125,6 +129,16 @@ app.on('ready', () => {
   createWindow();
 });
 
+function doSomeThingAfterLoginSuccess() {
+  // 发送工具集数据
+  let tools = db.get('tools').value();
+  if (tools === undefined) {
+    console.log('There is no tools info');
+  } else {
+    mainWindow.webContents.send('tools-info', tools);
+  }
+}
+
 /**
  * 登录成功
  */
@@ -135,6 +149,8 @@ ipcMain.on('login-success', () => {
 
   mainWindow.webContents.send('windows-now', { code: 0, desc: 'become normal size' });
   mainWindow.center();
+
+  doSomeThingAfterLoginSuccess();
 });
 
 /**
@@ -282,6 +298,13 @@ ipcMain.on('get-tool-icon', (event, tool_path) => {
 ipcMain.on('open-link', (event, link_path) => {
   // link_path = "C:/Users/Public/Desktop/Google Chrome.lnk"
   opn(link_path);
+});
+
+/**
+ * 存储/更新 工具集的工具信息
+ */
+ipcMain.on('save-tools-info', (event, info) => {
+  db.set('tools', info).write();
 });
 
 // 保证只有一个实例在运行
