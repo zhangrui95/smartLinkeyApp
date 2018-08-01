@@ -23,3 +23,5 @@ package-lock.json
 jsconfig.json
 logs
 elect_builder_output
+db.json
+*.log

@@ -31,9 +31,9 @@
     "directories": {
       "output": "./elect_builder_output"
     },
-    "asar": true,
+    "asar": false,
     "asarUnpack": [
-      "config.js"
+      "dist"
     ],
     "win": {
       "target": [
@@ -48,8 +48,12 @@
       "allowToChangeInstallationDirectory": true
     },
     "extraFiles": [
+      "downloads",
       "IconExtractor.exe",
-      "Newtonsoft.Json.dll"
+      "Newtonsoft.Json.dll",
+      "uplaunch.bat",
+      "uplaunch.vbs",
+      "fpatch.exe"
     ]
   },
   "dependencies": {
@@ -64,7 +68,6 @@
     "bufferutil": "^3.0.5",
     "bunyan": "^1.8.12",
     "classnames": "^2.2.5",
-    "converse.js": "^3.3.4",
     "dva": "^2.2.3",
     "dva-loading": "^2.0.3",
     "enquire-js": "^0.2.1",
@@ -89,6 +92,8 @@
     "react-dom": "^16.2.0",
     "react-fittext": "^1.0.0",
     "react-native-xmpp": "^1.0.3",
+    "request": "^2.87.0",
+    "request-progress": "^3.0.0",
     "rollbar": "^2.3.4",
     "strophe.js": "^1.2.15",
     "strophejs-plugin-pubsub": "0.0.2",
@@ -102,6 +107,7 @@
     "cross-env": "^5.1.1",
     "cross-port-killer": "^1.0.1",
     "electron": "2.0.2",
+    "electron-builder": "^20.26.1",
     "electron-reload": "^1.2.5",
     "enzyme": "^3.1.0",
     "eslint": "^4.14.0",

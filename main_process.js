@@ -10,16 +10,22 @@ const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 const adapter = new FileSync('db.json');
 const db = low(adapter);
+const request = require('request');
 
 const path = require('path');
 const url = require('url');
+const fs = require('fs');
 
 const log = require('./src/for-electron/crates/logging').log;
 const iconProcess = require('./src/for-electron/crates/geticon').iconProcess;
+const download_package = require('./src/for-electron/crates/down').download_package;
+const uplaunch = require('./src/for-electron/crates/uplaunch').uplaunch;
+// const upversion = require('./src/for-electron/crates/upversion').upversion;
 const config = require('./src/for-electron/config.js');
+
 require('./src/for-electron/crates/launch');
 
-// require('electron-reload')(__dirname);
+// require('electron-reload')(path.join(__dirname, 'dist'));
 
 const icon_path = path.join(__dirname, 'src/for-electron/source/logo.ico');
 const icon_none_path = path.join(__dirname, 'src/for-electron/source/none.ico');
@@ -27,6 +33,7 @@ const icon_none_path = path.join(__dirname, 'src/for-electron/source/none.ico');
 let mainWindow;
 let appTray = null;
 let willQuitApp = false;
+let package_url = '';
 
 /**
  * 创建托盘图标及功能
@@ -135,8 +142,30 @@ function doSomeThingAfterLoginSuccess() {
   if (tools === undefined) {
     console.log('There is no tools info');
   } else {
+    console.log(tools);
     mainWindow.webContents.send('tools-info', tools);
   }
+
+  // 发送版本更新数据
+  var options = {
+    url: 'http://172.19.12.206:8000/info.json',
+    headers: {
+      'User-Agent': 'request',
+    },
+  };
+
+  function callback(error, response, body) {
+    if (!error && response.statusCode == 200) {
+      var info = JSON.parse(body);
+      log.info(body);
+      console.log(info.package);
+      package_url = info.package;
+
+      mainWindow.webContents.send('update-info', info);
+    }
+  }
+
+  request(options, callback);
 }
 
 /**
@@ -307,6 +336,58 @@ ipcMain.on('save-tools-info', (event, info) => {
   db.set('tools', info).write();
 });
 
+/**
+ * 更新（下载包）
+ */
+function prepare_tmp_dir() {
+  let tdir = config.upgrade_tmp_dir;
+  if (!fs.existsSync(tdir)) {
+    fs.mkdirSync(tdir);
+  }
+  return tdir;
+}
+function update(event, updatetime) {
+  let package_saved_dir = prepare_tmp_dir();
+
+  if (updatetime === 'now') {
+    console.log('=-=-=-=-=-=-=-=-=-=-');
+    console.log(package_url);
+    download_package(event, package_saved_dir, package_url);
+  }
+}
+ipcMain.on('update', (event, updatetime) => {
+  update(event, updatetime);
+});
+
+/**
+ * 更新（替换与重启）
+ */
+// __dirname 表示 main.js 所在的路径，此处根据开发及打包后的路径不同
+// 始终获取当前程序的执行路径，用于人脸比对传递绝对路径的图片
+var exe_path;
+try {
+  fs.accessSync('node_modules', fs.constants.F_OK);
+  console.log('launch on development');
+  var exe_path = __dirname;
+} catch (err) {
+  console.error('launch on build');
+  var exe_path = path.join(__dirname, '../..');
+}
+exe_path = exe_path.replace(/\\/g, '/'); // 把\\的路径调整为/
+
+function update_relaunch() {
+  // upversion(latest_version);
+  uplaunch(exe_path);
+  console.log('~~~~~~~~~~~~~~~~~~');
+  console.log(exe_path);
+  setTimeout(() => {
+    app.exit();
+  }, 500);
+}
+ipcMain.on('update-relaunch', () => {
+  update_relaunch();
+});
+
 // 保证只有一个实例在运行
 const isSecondInstance = app.makeSingleInstance((commandLine, workingDirectory) => {
   if (mainWindow) {
@@ -319,8 +400,32 @@ if (isSecondInstance) {
   app.quit();
 }
 
+// 检查更新包
 // (function () {
 //   setTimeout(() => {
-//     get_tool_icon()
+//     doSomeThingAfterLoginSuccess()
+//   }, 1000);
+// })();
+
+// 下载更新包
+// (function () {
+//   setTimeout(() => {
+//     console.log("=-=-=-=-=-=-=-=-=-=-");
+//     console.log(package_url);
+//     update(null, 'now')
+//   }, 5000);
+// })();
+
+// 替换文件并重启
+// (function () {
+//   setTimeout(() => {
+//     update_relaunch();
 //   }, 3000);
 // })();
+
+(function() {
+  setTimeout(() => {
+    // db.set('tools', [1, 2, 3]).write();
+  }, 3000);
+})();
+//1231231321

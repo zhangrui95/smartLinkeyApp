@@ -19,6 +19,7 @@ var config = {
   login_page_height: 367,
   main_page_width: 960,
   main_page_height: 640,
+  upgrade_tmp_dir: 'dowloads',
 };
 
 module.exports = config;
