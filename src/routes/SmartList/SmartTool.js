@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Button, Modal } from 'antd';
+import { Row, Col, Button, Modal, Icon } from 'antd';
 import styles from './SmartLink.less';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
@@ -21,6 +21,7 @@ export default class SmartTool extends Component {
       img: '',
       dragName: '',
       userName: userNew.name,
+      delshow: false,
     };
   }
   componentDidMount() {
@@ -123,6 +124,12 @@ export default class SmartTool extends Component {
   dragStart = e => {
     this.setState({
       dragName: e.name,
+      delshow: true,
+    });
+  };
+  dragEnd = e => {
+    this.setState({
+      delshow: false,
     });
   };
   dragging = e => {
@@ -183,6 +190,7 @@ export default class SmartTool extends Component {
           <div
             className={styles.colStyle}
             onDragStart={() => this.dragStart(e)}
+            onDragEnd={() => this.dragEnd(e)}
             onDrag={() => this.dragging(e)}
             draggable="true"
             onDoubleClick={() => this.dbExe(e.path)}
@@ -208,7 +216,6 @@ export default class SmartTool extends Component {
       >
         <div className="gutter-example">
           <Button
-            onDrop={() => this.allowDrop(event)}
             className={this.state.message.length > 0 ? styles.delBtn : styles.none}
             type="primary"
             onClick={this.delTool}
@@ -226,6 +233,15 @@ export default class SmartTool extends Component {
               </div>
             </Col>
           </Row>
+        </div>
+        <div
+          className={this.state.delshow ? styles.dragDel : styles.none}
+          onDrop={() => this.allowDrop(event)}
+        >
+          <div className={styles.dragDelBox}>
+            <img src="images/delete.png" />
+            <span>拖拽到此处删除</span>
+          </div>
         </div>
       </div>
     );

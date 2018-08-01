@@ -15,6 +15,7 @@ import {
   Checkbox,
   Button,
   DatePicker,
+  Progress,
 } from 'antd';
 import pathToRegexp from 'path-to-regexp';
 import { Link } from 'dva/router';
@@ -24,6 +25,7 @@ import { connect } from 'dva';
 import MD5 from 'md5-es';
 import { Strophe, $pres } from 'strophe.js';
 import { ipcRenderer } from 'electron';
+import { WaterWave } from 'components/Charts';
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -91,6 +93,11 @@ class SiderMenu extends PureComponent {
       loginWay: [],
       allNum: 0,
       showTime: false,
+      newsLoading: false,
+      percent: 0,
+      proLoadFixed: false,
+      updataModal: false,
+      update: false,
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -99,6 +106,14 @@ class SiderMenu extends PureComponent {
         openKeys: this.getDefaultCollapsedSubMenus(nextProps),
       });
     }
+    ipcRenderer.on('update-info', (event, update) => {
+      console.log('update', update);
+      if (update.from === `${configUrl.Version}` && update.to !== `${configUrl.Version}`) {
+        this.setState({
+          update: true,
+        });
+      }
+    });
   }
   /**
    * Convert pathname to openKeys
@@ -281,7 +296,7 @@ class SiderMenu extends PureComponent {
       xtszvisible: false,
       aboutvisible: false,
       jcvisible: false,
-      showTime: false,
+      // showTime: false,
     });
   };
   showConfirm = () => {
@@ -371,22 +386,65 @@ class SiderMenu extends PureComponent {
       jcvisible: true,
     });
   };
-  onTimeChange = (value, dateString) => {
-    console.log('Selected Time: ', value);
-    console.log('Formatted Selected Time: ', dateString);
-  };
-  onTimeOk = value => {
-    console.log('onOk: ', value);
-  };
+  // onTimeChange = (value, dateString) => {
+  //   console.log('Selected Time: ', value);
+  //   console.log('Formatted Selected Time: ', dateString);
+  // };
+  // onTimeOk = value => {
+  //   console.log('onOk: ', value);
+  // };
   getShowTime = () => {
+    // this.setState({
+    //   showTime: !this.state.showTime,
+    // });
+  };
+  // hideTime = () => {
+  //   this.setState({
+  //     showTime: false,
+  //   });
+  // };
+  getGX = () => {
+    ipcRenderer.send('update', 'now');
+    ipcRenderer.on('progress', (event, percent) => {
+      console.log('percent', percent);
+      this.setState({
+        percent: parseInt(percent.percent * 100),
+      });
+      if (percent.percent === 1) {
+        this.setState({
+          updataModal: true,
+          newsLoading: false,
+          proLoadFixed: false,
+        });
+      }
+    });
     this.setState({
-      showTime: !this.state.showTime,
+      newsLoading: true,
+      jcvisible: false,
     });
   };
-  hideTime = () => {
+  modalProShow = update => {
+    if (update) {
+      this.setState({
+        updataModal: true,
+        proLoadFixed: false,
+      });
+    } else {
+      this.setState({
+        newsLoading: true,
+        proLoadFixed: false,
+      });
+    }
+  };
+  gitProMin = () => {
     this.setState({
-      showTime: false,
+      newsLoading: false,
+      updataModal: false,
+      proLoadFixed: true,
     });
+  };
+  getUpdate = () => {
+    ipcRenderer.send('update-relaunch');
   };
   render() {
     const plainOptions = [
@@ -433,12 +491,22 @@ class SiderMenu extends PureComponent {
         </Menu.Item>
         <Menu.Item className={styles.MenuListMargin} onClick={this.aboutSmart}>
           关于Smartlinkey
-          <div className={styles.newsV} style={{ top: '8px', left: '112px' }} />
+          <div
+            className={this.state.update ? styles.newsV : styles.none}
+            style={{ top: '8px', left: '112px' }}
+          />
         </Menu.Item>
         <Menu.Divider />
         <Menu.Item className={styles.MenuListMargin} onClick={this.showConfirm}>
           退出登录
         </Menu.Item>
+      </Menu>
+    );
+    const menuLists = (
+      <Menu>
+        <Menu.Item key="1">1小时后</Menu.Item>
+        <Menu.Item key="2">2小时后</Menu.Item>
+        <Menu.Item key="3">下次重启</Menu.Item>
       </Menu>
     );
     return (
@@ -451,7 +519,7 @@ class SiderMenu extends PureComponent {
         width={70}
         className={styles.sider}
       >
-        <div className={styles.newsV} />
+        <div className={this.state.update ? styles.newsV : styles.none} />
         <Dropdown overlay={menu} trigger={['click']}>
           <div
             className={styles.logo}
@@ -540,7 +608,11 @@ class SiderMenu extends PureComponent {
             footer={null}
           >
             <img className={styles.logoVersion} src="images/logo.png" />
-            <Button className={styles.btnVersion} onClick={this.bbjc} type="primary">
+            <Button
+              className={this.state.update ? styles.btnVersion : styles.none}
+              onClick={this.bbjc}
+              type="primary"
+            >
               版本检测
             </Button>
             <div style={{ textAlign: 'center', marginBottom: '20px' }}>
@@ -553,41 +625,18 @@ class SiderMenu extends PureComponent {
             onCancel={this.handleCancel}
             maskClosable={false}
             footer={
-              <div style={{ height: this.state.showTime ? '145px' : '' }}>
-                <Popover
-                  placement="bottom"
-                  visible={this.state.showTime}
-                  title={null}
-                  content={
-                    <div style={{ height: '70px' }}>
-                      <div>
-                        <label>更新时间：</label>
-                        <DatePicker
-                          showTime
-                          format="YYYY-MM-DD HH:mm:ss"
-                          placeholder=""
-                          onChange={this.onTimeChange}
-                          onOk={this.onTimeOk}
-                        />
-                      </div>
-                      <div className={styles.PickerBtn}>
-                        <Button onClick={this.hideTime}>取消</Button>
-                        <Button style={{ marginLeft: '16px!important' }} type="primary">
-                          确定
-                        </Button>
-                      </div>
-                    </div>
-                  }
-                  trigger="click"
-                >
-                  <Button
-                    style={{ border: '1px solid #19b5d0', color: '#19b5d0' }}
-                    onClick={this.getShowTime}
-                  >
-                    定时更新
+              <div>
+                <Popover content={<DatePicker />} />
+                <Dropdown overlay={menuLists}>
+                  <Button style={{ border: '1px solid #19b5d0', color: '#19b5d0' }}>
+                    定时更新 <Icon type="down" />
                   </Button>
-                </Popover>
-                <Button style={{ marginLeft: '16px!important' }} type="primary">
+                </Dropdown>
+                <Button
+                  style={{ marginLeft: '16px!important' }}
+                  onClick={() => this.getGX()}
+                  type="primary"
+                >
                   立即更新
                 </Button>
               </div>
@@ -600,6 +649,95 @@ class SiderMenu extends PureComponent {
           </Modal>
           {this.getNavMenuItems(this.menus)}
         </Menu>
+        <Modal
+          visible={this.state.newsLoading}
+          maskClosable={false}
+          footer={null}
+          header={null}
+          closable={false}
+        >
+          <div className={styles.loadingModal}>
+            <div className={styles.proClose}>
+              <Icon
+                className={styles.iconPro}
+                onClick={() => this.gitProMin()}
+                style={{ background: '#ffba30' }}
+                type="minus"
+              />
+              <Icon
+                className={styles.iconPro}
+                onClick={() => this.gitProMin()}
+                style={{ background: '#ff3030' }}
+                type="close"
+              />
+            </div>
+            <img className={styles.logoVersionLeft} src="images/logo.png" />
+            <span className={styles.Versiontil}>正在升级</span>
+            <div style={{ width: 430, marginLeft: '30px' }}>
+              <Progress percent={this.state.percent} status="active" />
+            </div>
+            <div className={styles.boxload}>正在下载升级包</div>
+          </div>
+        </Modal>
+        <Modal
+          visible={this.state.updataModal}
+          maskClosable={false}
+          footer={null}
+          header={null}
+          closable={false}
+        >
+          <div className={styles.loadingModal}>
+            <div className={styles.proClose}>
+              <Icon
+                className={styles.iconPro}
+                onClick={() => this.gitProMin()}
+                style={{ background: '#ffba30' }}
+                type="minus"
+              />
+              <Icon
+                className={styles.iconPro}
+                onClick={() => this.gitProMin()}
+                style={{ background: '#ff3030' }}
+                type="close"
+              />
+            </div>
+            <img className={styles.logoVersionLeft} src="images/logo.png" />
+            <span className={styles.Versiontil} style={{ marginBottom: '20px' }}>
+              正在升级
+            </span>
+            <div
+              style={{ width: '100%', marginTop: '70px', textAlign: 'center', fontSize: '16px' }}
+            >
+              更新包已下载完毕
+            </div>
+            <div>
+              <Button
+                type="primary"
+                style={{
+                  borderRadius: '100px',
+                  position: 'absolute',
+                  left: 'calc(50% - 50px)',
+                  bottom: '30px',
+                  width: '74px',
+                }}
+                onClick={() => this.getUpdate()}
+              >
+                更新
+              </Button>
+            </div>
+          </div>
+        </Modal>
+        <div
+          className={this.state.proLoadFixed ? styles.water : styles.waterNone}
+          onClick={() => this.modalProShow(this.state.percent === 100)}
+        >
+          <Progress
+            type="circle"
+            percent={this.state.percent}
+            width={60}
+            format={percent => (this.state.percent === 100 ? '更新' : percent + '%')}
+          />
+        </div>
       </Sider>
     );
   }

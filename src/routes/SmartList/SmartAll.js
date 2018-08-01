@@ -25,6 +25,7 @@ export default class SmartAll extends Component {
       xmppUser: userNew.idCard.toLowerCase(),
       nodeList: '',
       userItem: userNew,
+      user: user,
       searchList: [],
       msgList: [],
       loading: false,
@@ -37,6 +38,7 @@ export default class SmartAll extends Component {
       rightBox: false,
       firstLogin: this.props.login.loginStatus,
       msgExe: [],
+      word: '',
     };
     this.msgListAll = [];
   }
@@ -58,7 +60,6 @@ export default class SmartAll extends Component {
       }
     });
     ipcRenderer.on('tools-info', (e, msgExe) => {
-      console.log('msg===============>', msgExe);
       this.setState({
         msgExe: msgExe,
       });
@@ -101,7 +102,18 @@ export default class SmartAll extends Component {
             _this.props.dispatch({
               type: 'login/logout',
             });
-            ipcRenderer.send('logout');
+            _this.props.dispatch({
+              type: 'login/login',
+              payload: {
+                username: _this.state.userItem.pcard,
+                password: JSON.parse(_this.state.user).password,
+                sid: 'Smartlinkey_sys',
+              },
+              callback: response => {},
+            });
+            _this.props.dispatch({
+              type: 'login/getLogin',
+            });
           },
           onCancel() {
             _this.props.dispatch({
@@ -238,22 +250,24 @@ export default class SmartAll extends Component {
   getOut = () => {
     connection.disconnect();
   };
-  // getRight = e => {
-  //   console.log(e.clientX);
-  //   console.log(e.clientY);
-  //   this.setState({
-  //     left: e.clientX,
-  //     top: e.clientY,
-  //   });
-  //   this.getCopyWord();
-  //   let word = window.getSelection ? window.getSelection() : document.selection.createRange().text;
-  //   // if(word.length > 0){
-  //     this.setState({
-  //       rightBox: true,
-  //     })
-  //     // alert(word);
-  //   // }
-  // };
+  getRight = e => {
+    console.log(e.clientX);
+    console.log(e.clientY);
+    this.setState({
+      left: e.clientX,
+      top: e.clientY,
+    });
+    this.getCopyWord();
+    let word = window.getSelection ? window.getSelection() : document.selection.createRange().text;
+    // if(word.length > 0){
+    this.setState({
+      // rightBox: true,
+      word: word,
+    });
+    // alert(word);
+    // console.log(JSON.stringify(word));
+    // }
+  };
   hideRight = () => {
     this.setState({
       rightBox: false,
@@ -263,10 +277,10 @@ export default class SmartAll extends Component {
     document.execCommand('Copy');
   };
   SearchWord = () => {
-    let word = window.getSelection ? window.getSelection() : document.selection.createRange().text;
-    alert(word);
+    alert(this.state.word);
   };
   render() {
+    console.log('this.state.word', this.state.word);
     let type = getQueryString(this.props.location.search, 'type');
     let item = '';
     {
@@ -291,9 +305,7 @@ export default class SmartAll extends Component {
       });
     }
     return (
-      <div
-      // onContextMenu={this.getRight} onClick={this.hideRight}
-      >
+      <div onContextMenu={this.getRight} onClick={this.hideRight}>
         {item}
         <div
           className={this.state.rightBox ? styles.rightList : styles.none}
