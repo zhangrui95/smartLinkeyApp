@@ -25,3 +25,4 @@ logs
 elect_builder_output
 db.json
 *.log
+downloads
