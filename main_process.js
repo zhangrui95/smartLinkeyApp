@@ -30,7 +30,7 @@ require('./src/for-electron/crates/launch');
 
 const icon_path = path.join(__dirname, 'src/for-electron/source/logo.ico');
 const icon_none_path = path.join(__dirname, 'src/for-electron/source/none.ico');
-
+const upgrade_tmp_dir = 'downloads';
 let mainWindow;
 let appTray = null;
 let willQuitApp = false;
@@ -157,7 +157,7 @@ function doSomeThingAfterLoginSuccess() {
 
   // 发送版本更新数据
   var options = {
-    url: 'http://172.19.12.206:8000/info.json',
+    url: config.update_url,
     headers: {
       'User-Agent': 'request',
     },
@@ -353,7 +353,7 @@ function _get_file_md5(file) {
  * 更新（下载包）
  */
 function prepare_tmp_dir() {
-  let tdir = config.upgrade_tmp_dir;
+  let tdir = upgrade_tmp_dir;
   if (!fs.existsSync(tdir)) {
     fs.mkdirSync(tdir);
   }

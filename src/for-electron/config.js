@@ -19,7 +19,8 @@ var config = {
   login_page_height: 367,
   main_page_width: 960,
   main_page_height: 640,
-  upgrade_tmp_dir: 'downloads',
+
+  update_url: 'http://172.19.12.206:8000/info.json',
 };
 
 module.exports = config;
