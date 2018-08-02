@@ -39,6 +39,7 @@ export default class SmartAll extends Component {
       firstLogin: this.props.login.loginStatus,
       msgExe: [],
       word: '',
+      loginState: true
     };
     this.msgListAll = [];
   }
@@ -64,13 +65,31 @@ export default class SmartAll extends Component {
         msgExe: msgExe,
       });
     });
+    ipcRenderer.on('update-info', (event, update) => {
+      if (update.from === `${configUrl.Version}` && update.to !== `${configUrl.Version}`) {
+        // this.setState({
+        //   update: true,
+        // });
+        this.props.dispatch({
+          type: 'login/update',
+          payload: {update:true},
+        });
+      }
+    });
   }
   componentWillReceiveProps(next) {
     if (this.props.login.loginStatus !== next.login.loginStatus) {
       if (!next.login.loginStatus) {
+        this.setState({
+          loginState:false
+        })
         this.getOut();
         this.props.dispatch({
           type: 'login/logout',
+        });
+        this.props.dispatch({
+          type: 'login/update',
+          payload: {update:false},
         });
       }
     }
@@ -92,37 +111,39 @@ export default class SmartAll extends Component {
       console.log('登录失败！');
     } else if (status == Strophe.Status.DISCONNECTED) {
       console.log('连接断开！');
-      if (this.props.login.loginStatus) {
-        let _this = this;
-        confirm({
-          title: '用户已在房间：**（IP地址）登录，是否进行替换登录？',
-          okText: '登录',
-          cancelText: '取消',
-          onOk() {
-            _this.props.dispatch({
-              type: 'login/logout',
-            });
-            _this.props.dispatch({
-              type: 'login/login',
-              payload: {
-                username: _this.state.userItem.pcard,
-                password: JSON.parse(_this.state.user).password,
-                sid: 'Smartlinkey_sys',
-              },
-              callback: response => {},
-            });
-            _this.props.dispatch({
-              type: 'login/getLogin',
-            });
-          },
-          onCancel() {
-            _this.props.dispatch({
-              type: 'login/logout',
-            });
-            ipcRenderer.send('logout');
-          },
-        });
-      }
+      setTimeout(()=>{
+        if (this.state.loginState) {
+          let _this = this;
+          confirm({
+            title: '用户已在房间：**（IP地址）登录，是否进行替换登录？',
+            okText: '登录',
+            cancelText: '取消',
+            onOk() {
+              _this.props.dispatch({
+                type: 'login/logout',
+              });
+              _this.props.dispatch({
+                type: 'login/login',
+                payload: {
+                  username: _this.state.userItem.pcard,
+                  password: JSON.parse(_this.state.user).password,
+                  sid: 'Smartlinkey_sys',
+                },
+                callback: response => {},
+              });
+              _this.props.dispatch({
+                type: 'login/getLogin',
+              });
+            },
+            onCancel() {
+              _this.props.dispatch({
+                type: 'login/logout',
+              });
+              ipcRenderer.send('logout');
+            },
+          });
+        }
+      },200)
     } else if (status == Strophe.Status.CONNECTED) {
       console.log('连接成功！');
       this.setState({
@@ -251,8 +272,6 @@ export default class SmartAll extends Component {
     connection.disconnect();
   };
   getRight = e => {
-    console.log(e.clientX);
-    console.log(e.clientY);
     this.setState({
       left: e.clientX,
       top: e.clientY,
@@ -280,7 +299,6 @@ export default class SmartAll extends Component {
     alert(this.state.word);
   };
   render() {
-    console.log('this.state.word', this.state.word);
     let type = getQueryString(this.props.location.search, 'type');
     let item = '';
     {

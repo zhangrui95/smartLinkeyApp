@@ -97,7 +97,7 @@ class SiderMenu extends PureComponent {
       percent: 0,
       proLoadFixed: false,
       updataModal: false,
-      update: false,
+      updateV: null,
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -106,14 +106,11 @@ class SiderMenu extends PureComponent {
         openKeys: this.getDefaultCollapsedSubMenus(nextProps),
       });
     }
-    ipcRenderer.on('update-info', (event, update) => {
-      console.log('update', update);
-      if (update.from === `${configUrl.Version}` && update.to !== `${configUrl.Version}`) {
-        this.setState({
-          update: true,
-        });
-      }
-    });
+    if(this.props.login.updateV !== nextProps.login.updateV){
+      this.setState({
+        updateV:nextProps.login.updateV,
+      })
+    }
   }
   /**
    * Convert pathname to openKeys
@@ -492,7 +489,7 @@ class SiderMenu extends PureComponent {
         <Menu.Item className={styles.MenuListMargin} onClick={this.aboutSmart}>
           关于Smartlinkey
           <div
-            className={this.state.update ? styles.newsV : styles.none}
+            className={this.state.updateV ? styles.newsV : styles.none}
             style={{ top: '8px', left: '112px' }}
           />
         </Menu.Item>
@@ -519,7 +516,7 @@ class SiderMenu extends PureComponent {
         width={70}
         className={styles.sider}
       >
-        <div className={this.state.update ? styles.newsV : styles.none} />
+        <div className={this.state.updateV ? styles.newsV : styles.none} />
         <Dropdown overlay={menu} trigger={['click']}>
           <div
             className={styles.logo}
@@ -609,7 +606,7 @@ class SiderMenu extends PureComponent {
           >
             <img className={styles.logoVersion} src="images/logo.png" />
             <Button
-              className={this.state.update ? styles.btnVersion : styles.none}
+              className={this.state.updateV ? styles.btnVersion : styles.none}
               onClick={this.bbjc}
               type="primary"
             >

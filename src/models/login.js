@@ -9,7 +9,8 @@ export default {
 
   state: {
     status: undefined,
-    loginStatus: undefined
+    loginStatus: undefined,
+    updateV:false
   },
 
   effects: {
@@ -91,6 +92,12 @@ export default {
         payload: true,
       });
     },
+    *update({payload}, { put }) {
+      yield put({
+        type: 'getUpdate',
+        payload: payload,
+      });
+    },
   },
 
   reducers: {
@@ -105,6 +112,12 @@ export default {
         ...state,
         status: payload.status,
         type: payload.type,
+      };
+    },
+    getUpdate(state, { payload }) {
+      return {
+        ...state,
+        updateV: payload.update ,
       };
     },
   },
