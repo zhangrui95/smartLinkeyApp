@@ -33,7 +33,6 @@ const icon_none_path = path.join(__dirname, 'src/for-electron/source/none.ico');
 let mainWindow;
 let appTray = null;
 let willQuitApp = false;
-let package_url = '';
 
 /**
  * 创建托盘图标及功能
@@ -131,9 +130,16 @@ function createWindow() {
 
 // 应用程序准备完成
 app.on('ready', () => {
-  log.info('app start');
-  createTray();
-  createWindow();
+  let need_uplaunch = db.get('need_uplaunch').value();
+  if (need_uplaunch) {
+    log.info('app start after uplaunch');
+    db.set('need_uplaunch', false).write();
+    update_relaunch();
+  } else {
+    log.info('app start standalone');
+    createTray();
+    createWindow();
+  }
 });
 
 function doSomeThingAfterLoginSuccess() {
@@ -142,7 +148,8 @@ function doSomeThingAfterLoginSuccess() {
   if (tools === undefined) {
     console.log('There is no tools info');
   } else {
-    console.log(tools);
+    // console.log(tools);
+    console.log('tools-info send~');
     mainWindow.webContents.send('tools-info', tools);
   }
 
@@ -158,10 +165,10 @@ function doSomeThingAfterLoginSuccess() {
     if (!error && response.statusCode == 200) {
       var info = JSON.parse(body);
       log.info(body);
-      console.log(info.package);
-      package_url = info.package;
+      console.log(body);
 
       mainWindow.webContents.send('update-info', info);
+      console.log('update-info send~');
     }
   }
 
@@ -346,17 +353,15 @@ function prepare_tmp_dir() {
   }
   return tdir;
 }
-function update(event, updatetime) {
+function down_or_has_cache(event, info) {
   let package_saved_dir = prepare_tmp_dir();
-
-  if (updatetime === 'now') {
-    console.log('=-=-=-=-=-=-=-=-=-=-');
-    console.log(package_url);
-    download_package(event, package_saved_dir, package_url);
-  }
+  let package_url = info.package;
+  console.log('=-=-=-=-=-=-=-=-=-=-');
+  console.log(package_url);
+  download_package(event, package_saved_dir, package_url);
 }
-ipcMain.on('update', (event, updatetime) => {
-  update(event, updatetime);
+ipcMain.on('download-package', (event, info) => {
+  down_or_has_cache(event, info);
 });
 
 /**
@@ -384,8 +389,12 @@ function update_relaunch() {
     app.exit();
   }, 500);
 }
-ipcMain.on('update-relaunch', () => {
-  update_relaunch();
+ipcMain.on('update-relaunch', (event, updatetime) => {
+  if (updatetime === 'now') {
+    update_relaunch();
+  } else if (updatetime === 'next-launch') {
+    db.set('need_uplaunch', true).write();
+  }
 });
 
 // 保证只有一个实例在运行
@@ -425,7 +434,7 @@ if (isSecondInstance) {
 
 (function() {
   setTimeout(() => {
-    // db.set('tools', [1, 2, 3]).write();
+    // db.set('need_uplaunch', true).write();
   }, 3000);
 })();
 //1231231321
