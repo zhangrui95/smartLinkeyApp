@@ -113,7 +113,6 @@ class SiderMenu extends PureComponent {
       });
     }
     if (this.props.login.updateItem !== nextProps.login.updateItem) {
-      console.log(nextProps.login.updateItem);
       this.setState({
         updateItem: nextProps.login.updateItem,
       });
@@ -422,13 +421,21 @@ class SiderMenu extends PureComponent {
       countDown(time);
       setTimeout(() => {
         ipcRenderer.send('update-relaunch', 'now');
+        ipcRenderer.on('package-damaged', () => {
+          this.setState({
+            jcvisible: false,
+            updataModal: false,
+            newsLoading: false,
+            proLoadFixed: false,
+          });
+          message.warn('文件包已损坏，更新失败');
+        });
       }, time);
     }
   };
   getGX = () => {
     ipcRenderer.send('download-package', this.state.updateItem);
     ipcRenderer.on('progress', (event, percent) => {
-      console.log('percent', percent);
       this.setState({
         percent: parseInt(percent.percent * 100),
       });
@@ -685,8 +692,11 @@ class SiderMenu extends PureComponent {
             }
           >
             <div className={this.state.updateV ? styles.bbgx : styles.none}>
-              <div>更新内容：</div>
-              <div>{this.props.login.desc}</div>
+              <div>更新说明：</div>
+              <div>
+                {this.props.login.updateItem ? this.props.login.updateItem['to'] : ''}{' '}
+                {this.props.login.desc}
+              </div>
             </div>
             <div className={this.state.updateV ? styles.none : ''}>
               当前版本：{configUrl.Version}，已为最新版本
