@@ -336,7 +336,12 @@ ipcMain.on('get-tool-icon', (event, tool_path) => {
  */
 ipcMain.on('open-link', (event, link_path) => {
   // link_path = "C:/Users/Public/Desktop/Google Chrome.lnk"
-  opn(link_path);
+
+  if (!fs.existsSync(link_path)) {
+    event.sender.send('link-not-found');
+  } else {
+    opn(link_path);
+  }
 });
 
 /**
