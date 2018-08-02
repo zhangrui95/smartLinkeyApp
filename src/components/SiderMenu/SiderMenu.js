@@ -412,12 +412,14 @@ class SiderMenu extends PureComponent {
         jcvisible: false,
       });
       message.success('提示：操作成功');
+      ipcRenderer.send('download-package', this.state.updateItem);
       ipcRenderer.send('update-relaunch', 'next-launch');
     } else {
       this.setState({
         jcvisible: false,
       });
       message.success('提示：操作成功');
+      ipcRenderer.send('download-package', this.state.updateItem);
       countDown(time);
       setTimeout(() => {
         ipcRenderer.send('update-relaunch', 'now');

@@ -29,6 +29,7 @@ export default class SmartDetail extends Component {
       empty: false,
       noSearch: true,
       lookMore: false,
+      saveList: [],
       // oldList:[],
     };
   }
@@ -254,6 +255,24 @@ export default class SmartDetail extends Component {
       return xmlDom;
     } else return new DOMParser().parseFromString(str, 'text/xml');
   };
+  //关注
+  getSave = (nodeId, id) => {
+    this.state.saveList.push({ nodeid: nodeId, id: id });
+    if (this.state.saveList.length > 0) {
+      for (var i = 0; i < this.state.saveList.length - 1; i++) {
+        for (var j = i + 1; j < this.state.saveList.length; j++) {
+          if (this.state.saveList[i].id == this.state.saveList[j].id) {
+            this.state.saveList.splice(j, 1);
+            j--;
+          }
+        }
+      }
+    }
+    this.setState({
+      saveList: this.state.saveList,
+    });
+    console.log('nodeId,id======>', nodeId, id, this.state.saveList);
+  };
   render() {
     let pageLength = parseInt(this.state.endLength) * parseInt(this.state.pageCount);
     let result = '';
@@ -300,7 +319,11 @@ export default class SmartDetail extends Component {
                           title={
                             <div>
                               <Tooltip placement="top" title="关注">
-                                <img className={styles.saveIcon} src="images/qxguanzhu.png" />
+                                <img
+                                  className={styles.saveIcon}
+                                  onClick={() => this.getSave('smart_wtaj', ajItem.dbid)}
+                                  src="images/qxguanzhu.png"
+                                />
                               </Tooltip>
                               <span className={styles.overText} title={ajItem.ajmc}>
                                 {ajItem.ajmc}
@@ -388,9 +411,23 @@ export default class SmartDetail extends Component {
                         <Card
                           title={
                             <div>
-                              <Tooltip placement="top" title="关注">
-                                <img className={styles.saveIcon} src="images/qxguanzhu.png" />
-                              </Tooltip>
+                              {sessionStorage.getItem('nodeid') === 'smart_syrjq' ? (
+                                <Tooltip placement="top" title="取消关注">
+                                  <img
+                                    className={styles.saveIcon}
+                                    src="images/tjguanzhu.png"
+                                    onClick={() => this.getSave('smart_wtjq', items.dbid)}
+                                  />
+                                </Tooltip>
+                              ) : (
+                                <Tooltip placement="top" title="关注">
+                                  <img
+                                    className={styles.saveIcon}
+                                    src="images/qxguanzhu.png"
+                                    onClick={() => this.getSave('smart_wtjq', items.dbid)}
+                                  />
+                                </Tooltip>
+                              )}
                               <span className={styles.overText} title={items.jqmc}>
                                 {items.jqmc}
                               </span>
@@ -479,7 +516,11 @@ export default class SmartDetail extends Component {
                           title={
                             <div>
                               <Tooltip placement="top" title="关注">
-                                <img className={styles.saveIcon} src="images/qxguanzhu.png" />
+                                <img
+                                  className={styles.saveIcon}
+                                  src="images/qxguanzhu.png"
+                                  onClick={() => this.getSave('smart_wtwp', wpItem.dbid)}
+                                />
                               </Tooltip>
                               <span className={styles.overText} title={wpItem.ajmc}>
                                 {wpItem.ajmc}
@@ -579,7 +620,11 @@ export default class SmartDetail extends Component {
                       title={
                         <div>
                           <Tooltip placement="top" title="关注">
-                            <img className={styles.saveIcon} src="images/qxguanzhu.png" />
+                            <img
+                              className={styles.saveIcon}
+                              src="images/qxguanzhu.png"
+                              onClick={() => this.getSave('smart_wtaj', searchItem.dbid)}
+                            />
                           </Tooltip>
                           <span className={styles.overText} title={searchItem.ajmc}>
                             {searchItem.ajmc}
@@ -666,7 +711,11 @@ export default class SmartDetail extends Component {
                       title={
                         <div>
                           <Tooltip placement="top" title="关注">
-                            <img className={styles.saveIcon} src="images/qxguanzhu.png" />
+                            <img
+                              className={styles.saveIcon}
+                              src="images/qxguanzhu.png"
+                              onClick={() => this.getSave('smart_wtjq', searchItem.dbid)}
+                            />
                           </Tooltip>
                           <span className={styles.overText} title={searchItem.jqmc}>
                             {searchItem.jqmc}
@@ -753,7 +802,11 @@ export default class SmartDetail extends Component {
                       title={
                         <div>
                           <Tooltip placement="top" title="关注">
-                            <img className={styles.saveIcon} src="images/qxguanzhu.png" />
+                            <img
+                              className={styles.saveIcon}
+                              src="images/qxguanzhu.png"
+                              onClick={() => this.getSave('smart_wtwp', searchItem.dbid)}
+                            />
                           </Tooltip>
                           <span className={styles.overText} title={searchItem.ajmc}>
                             {searchItem.ajmc}

@@ -572,7 +572,14 @@ class SmartItem extends Component {
           }
         >
           <div className={styles.leftList}>
-            <Badge count={this.props.type == 1 ? '' : this.getAll()} className={styles.allNum} />
+            <Badge
+              count={
+                this.props.type == 1 || this.props.type == 3 || this.props.type == 4
+                  ? ''
+                  : this.getAll()
+              }
+              className={styles.allNum}
+            />
             <div className={styles.listScroll} style={{ height: this.state.height + 'px' }}>
               <Spin size="large" className={this.props.loading ? '' : styles.none} />
               {sessionStorage.getItem('search') !== '' &&

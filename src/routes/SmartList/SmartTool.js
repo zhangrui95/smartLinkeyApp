@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Button, Modal, Icon } from 'antd';
+import { Row, Col, Button, Modal, Icon, message } from 'antd';
 import styles from './SmartLink.less';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
@@ -190,6 +190,23 @@ export default class SmartTool extends Component {
   dbExe = path => {
     console.log('双击', path);
     ipcRenderer.send('open-link', path);
+    ipcRenderer.on('link-not-found', () => {
+      message.warn('查找工具安装位置异常，请重新添加工具到工具集中!');
+      this.state.message.map((e, i) => {
+        if (e.path === path) {
+          this.state.message.splice(i, 1);
+        }
+      });
+      this.props.msgExe.map((item, index) => {
+        if (item.path === path && item.userName === this.state.userName) {
+          this.props.msgExe.splice(index, 1);
+        }
+      });
+      this.setState({
+        message: this.state.message,
+      });
+      ipcRenderer.send('save-tools-info', this.props.msgExe);
+    });
     // let activeObj = new ActiveXObject("wscript.shell");
     // activeObj.run(path);
   };

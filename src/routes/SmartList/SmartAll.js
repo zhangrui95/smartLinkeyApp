@@ -66,7 +66,7 @@ export default class SmartAll extends Component {
       });
     });
     ipcRenderer.on('update-info', (event, updateList) => {
-      console.log('update---------->', updateList);
+      // console.log('update---------->', updateList);
       updateList.map((update, i) => {
         if (update.from === `${configUrl.Version}` && update.to !== `${configUrl.Version}`) {
           // this.setState({
