@@ -1,5 +1,10 @@
 import { routerRedux } from 'dva/router';
-import { fakeAccountLogin, getUpdatePassword, getUpdateLoginSetting, getLoginSetting} from '../services/api';
+import {
+  fakeAccountLogin,
+  getUpdatePassword,
+  getUpdateLoginSetting,
+  getLoginSetting,
+} from '../services/api';
 import { setAuthority } from '../utils/authority';
 import { reloadAuthorized } from '../utils/Authorized';
 import { message } from 'antd';
@@ -10,7 +15,8 @@ export default {
   state: {
     status: undefined,
     loginStatus: undefined,
-    updateV:false
+    updateV: false,
+    desc: null,
   },
 
   effects: {
@@ -92,7 +98,7 @@ export default {
         payload: true,
       });
     },
-    *update({payload}, { put }) {
+    *update({ payload }, { put }) {
       yield put({
         type: 'getUpdate',
         payload: payload,
@@ -101,7 +107,7 @@ export default {
   },
 
   reducers: {
-    getLoginState(state, action){
+    getLoginState(state, action) {
       return {
         ...state,
         loginStatus: action.payload,
@@ -117,7 +123,8 @@ export default {
     getUpdate(state, { payload }) {
       return {
         ...state,
-        updateV: payload.update ,
+        updateV: payload.update,
+        desc: payload.desc,
       };
     },
   },

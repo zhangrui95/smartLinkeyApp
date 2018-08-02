@@ -106,10 +106,10 @@ class SiderMenu extends PureComponent {
         openKeys: this.getDefaultCollapsedSubMenus(nextProps),
       });
     }
-    if(this.props.login.updateV !== nextProps.login.updateV){
+    if (this.props.login.updateV !== nextProps.login.updateV) {
       this.setState({
-        updateV:nextProps.login.updateV,
-      })
+        updateV: nextProps.login.updateV,
+      });
     }
   }
   /**
@@ -605,11 +605,7 @@ class SiderMenu extends PureComponent {
             footer={null}
           >
             <img className={styles.logoVersion} src="images/logo.png" />
-            <Button
-              className={this.state.updateV ? styles.btnVersion : styles.none}
-              onClick={this.bbjc}
-              type="primary"
-            >
+            <Button className={styles.btnVersion} onClick={this.bbjc} type="primary">
               版本检测
             </Button>
             <div style={{ textAlign: 'center', marginBottom: '20px' }}>
@@ -622,26 +618,31 @@ class SiderMenu extends PureComponent {
             onCancel={this.handleCancel}
             maskClosable={false}
             footer={
-              <div>
-                <Popover content={<DatePicker />} />
-                <Dropdown overlay={menuLists}>
-                  <Button style={{ border: '1px solid #19b5d0', color: '#19b5d0' }}>
-                    定时更新 <Icon type="down" />
+              this.state.updateV ? (
+                <div>
+                  <Popover content={<DatePicker />} />
+                  <Dropdown overlay={menuLists}>
+                    <Button style={{ border: '1px solid #19b5d0', color: '#19b5d0' }}>
+                      定时更新 <Icon type="down" />
+                    </Button>
+                  </Dropdown>
+                  <Button
+                    style={{ marginLeft: '16px!important' }}
+                    onClick={() => this.getGX()}
+                    type="primary"
+                  >
+                    立即更新
                   </Button>
-                </Dropdown>
-                <Button
-                  style={{ marginLeft: '16px!important' }}
-                  onClick={() => this.getGX()}
-                  type="primary"
-                >
-                  立即更新
-                </Button>
-              </div>
+                </div>
+              ) : null
             }
           >
-            <div className={styles.bbgx}>
+            <div className={this.state.updateV ? styles.bbgx : styles.none}>
               <div>更新内容：</div>
-              <div>1.版本号1.0.0.8，更新日期2018-07-27</div>
+              <div>{this.props.login.desc}</div>
+            </div>
+            <div className={this.state.updateV ? styles.none : ''}>
+              当前版本：{configUrl.Version}，已为最新版本
             </div>
           </Modal>
           {this.getNavMenuItems(this.menus)}

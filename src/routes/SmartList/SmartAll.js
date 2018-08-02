@@ -39,7 +39,7 @@ export default class SmartAll extends Component {
       firstLogin: this.props.login.loginStatus,
       msgExe: [],
       word: '',
-      loginState: true
+      loginState: true,
     };
     this.msgListAll = [];
   }
@@ -66,13 +66,14 @@ export default class SmartAll extends Component {
       });
     });
     ipcRenderer.on('update-info', (event, update) => {
+      // console.log('update---------->',update)
       if (update.from === `${configUrl.Version}` && update.to !== `${configUrl.Version}`) {
         // this.setState({
         //   update: true,
         // });
         this.props.dispatch({
           type: 'login/update',
-          payload: {update:true},
+          payload: { update: true, desc: update.desc },
         });
       }
     });
@@ -81,15 +82,15 @@ export default class SmartAll extends Component {
     if (this.props.login.loginStatus !== next.login.loginStatus) {
       if (!next.login.loginStatus) {
         this.setState({
-          loginState:false
-        })
+          loginState: false,
+        });
         this.getOut();
         this.props.dispatch({
           type: 'login/logout',
         });
         this.props.dispatch({
           type: 'login/update',
-          payload: {update:false},
+          payload: { update: false, desc: '' },
         });
       }
     }
@@ -111,7 +112,7 @@ export default class SmartAll extends Component {
       console.log('登录失败！');
     } else if (status == Strophe.Status.DISCONNECTED) {
       console.log('连接断开！');
-      setTimeout(()=>{
+      setTimeout(() => {
         if (this.state.loginState) {
           let _this = this;
           confirm({
@@ -143,7 +144,7 @@ export default class SmartAll extends Component {
             },
           });
         }
-      },200)
+      }, 200);
     } else if (status == Strophe.Status.CONNECTED) {
       console.log('连接成功！');
       this.setState({
