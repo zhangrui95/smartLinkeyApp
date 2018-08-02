@@ -20,7 +20,7 @@ import {
 import pathToRegexp from 'path-to-regexp';
 import { Link } from 'dva/router';
 import styles from './index.less';
-import { urlToList } from '../_utils/pathTools';
+import { urlToList, countDown } from '../_utils/pathTools';
 import { connect } from 'dva';
 import MD5 from 'md5-es';
 import { Strophe, $pres } from 'strophe.js';
@@ -419,6 +419,7 @@ class SiderMenu extends PureComponent {
         jcvisible: false,
       });
       message.success('提示：操作成功');
+      countDown(time);
       setTimeout(() => {
         ipcRenderer.send('update-relaunch', 'now');
       }, time);
@@ -432,7 +433,6 @@ class SiderMenu extends PureComponent {
         percent: parseInt(percent.percent * 100),
       });
       if (percent.percent === 1) {
-        ipcRenderer.send('update-relaunch', 'now');
         this.setState({
           updataModal: true,
           newsLoading: false,
@@ -473,7 +473,16 @@ class SiderMenu extends PureComponent {
     });
   };
   getUpdate = () => {
-    ipcRenderer.send('update-relaunch');
+    ipcRenderer.send('update-relaunch', 'now');
+    ipcRenderer.on('package-damaged', () => {
+      this.setState({
+        jcvisible: false,
+        updataModal: false,
+        newsLoading: false,
+        proLoadFixed: false,
+      });
+      message.warn('文件包已损坏，更新失败');
+    });
   };
   render() {
     const plainOptions = [
