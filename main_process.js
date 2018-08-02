@@ -35,7 +35,6 @@ const upgrade_tmp_dir = 'downloads';
 let mainWindow;
 let appTray = null;
 let willQuitApp = false;
-let package_info = null;
 
 /**
  * 创建托盘图标及功能
@@ -392,7 +391,8 @@ function down_or_has_cache(event, info) {
 }
 
 ipcMain.on('download-package', (event, info) => {
-  package_info = info;
+  console.log('download-package event');
+  db.set('package_info', info).write();
   down_or_has_cache(event, info);
 });
 
@@ -413,12 +413,15 @@ try {
 exe_path = exe_path.replace(/\\/g, '/'); // 把\\的路径调整为/
 
 function update_relaunch() {
+  let update_flag = true;
+
   // 校验安装包是否存在
   if (!fs.existsSync('downloads/package.zip')) {
-    return;
+    update_flag = false;
   }
 
   // 校验文件是否下载完整
+  let package_info = db.get('package_info').value();
   const remote_md5 = package_info.md5;
   const hash = _get_file_md5('downloads/package.zip');
   log.info(`check file md5 is: ${hash}`);
@@ -427,16 +430,22 @@ function update_relaunch() {
   if (remote_md5 != hash) {
     log.info('Error: package.zip damaged!');
     mainWindow.webContents.send('package-damaged');
-    return;
+    update_flag = false;
   }
 
-  // upversion(latest_version);
-  uplaunch(exe_path);
-  console.log('~~~~~~~~~~~~~~~~~~');
-  console.log(exe_path);
-  setTimeout(() => {
-    app.exit();
-  }, 500);
+  if (update_flag) {
+    // upversion(latest_version);
+    uplaunch(exe_path);
+    console.log('~~~~~~~~~~~~~~~~~~');
+    console.log(exe_path);
+    setTimeout(() => {
+      app.exit();
+    }, 500);
+  } else {
+    log.info('package lost, start with standalone');
+    createTray();
+    createWindow();
+  }
 }
 
 function start_update_relaunch(updatetime) {
