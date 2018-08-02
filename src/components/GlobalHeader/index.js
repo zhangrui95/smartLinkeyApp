@@ -62,6 +62,12 @@ export default class GlobalHeader extends PureComponent {
     this.setState({ searchValue: '' });
     sessionStorage.setItem('search', '');
     this.props.dispatch({
+      type: 'user/findTool',
+      payload: {
+        value: '',
+      },
+    });
+    this.props.dispatch({
       type: 'user/find',
       payload: {
         nodeid: sessionStorage.getItem('nodeid'),
@@ -90,6 +96,12 @@ export default class GlobalHeader extends PureComponent {
             },
           });
         }
+        _this.props.dispatch({
+          type: 'user/findTool',
+          payload: {
+            value: val,
+          },
+        });
       }, 800);
     } else {
       this.setState({
@@ -122,8 +134,8 @@ export default class GlobalHeader extends PureComponent {
     return (
       <div className={styles.header} id="header">
         <div className={styles.headerLeft}>
-          {this.props.pathItem === '/smartList/smartAll?type=0' ||
-          this.props.pathItem === '/smartList/smartAll?type=2' ? (
+          {this.props.pathItem !== '/smartList/smartAll?type=1' &&
+          this.props.pathItem !== '/smartList/smartAll?type=4' ? (
             <Input
               placeholder="请输入需要搜索的内容"
               prefix={<Icon type="search" style={{ color: 'rgba(0,0,0,.25)' }} />}

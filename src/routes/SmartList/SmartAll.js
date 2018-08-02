@@ -39,7 +39,7 @@ export default class SmartAll extends Component {
       firstLogin: this.props.login.loginStatus,
       msgExe: [],
       word: '',
-      loginState: true,
+      loginState: this.props.login.loginStatus,
     };
     this.msgListAll = [];
   }
@@ -65,17 +65,19 @@ export default class SmartAll extends Component {
         msgExe: msgExe,
       });
     });
-    ipcRenderer.on('update-info', (event, update) => {
-      // console.log('update---------->',update)
-      if (update.from === `${configUrl.Version}` && update.to !== `${configUrl.Version}`) {
-        // this.setState({
-        //   update: true,
-        // });
-        this.props.dispatch({
-          type: 'login/update',
-          payload: { update: true, desc: update.desc },
-        });
-      }
+    ipcRenderer.on('update-info', (event, updateList) => {
+      console.log('update---------->', updateList);
+      updateList.map((update, i) => {
+        if (update.from === `${configUrl.Version}` && update.to !== `${configUrl.Version}`) {
+          // this.setState({
+          //   update: true,
+          // });
+          this.props.dispatch({
+            type: 'login/update',
+            payload: { update: true, desc: update.desc, updateItem: update },
+          });
+        }
+      });
     });
   }
   componentWillReceiveProps(next) {
@@ -90,7 +92,7 @@ export default class SmartAll extends Component {
         });
         this.props.dispatch({
           type: 'login/update',
-          payload: { update: false, desc: '' },
+          payload: { update: false, desc: '', updateItem: '' },
         });
       }
     }
@@ -115,28 +117,11 @@ export default class SmartAll extends Component {
       setTimeout(() => {
         if (this.state.loginState) {
           let _this = this;
-          confirm({
-            title: '用户已在房间：**（IP地址）登录，是否进行替换登录？',
-            okText: '登录',
-            cancelText: '取消',
+          Modal.warning({
+            title: '用户已在IP登录，您将被强制下线！',
+            content: null,
+            okText: '确定',
             onOk() {
-              _this.props.dispatch({
-                type: 'login/logout',
-              });
-              _this.props.dispatch({
-                type: 'login/login',
-                payload: {
-                  username: _this.state.userItem.pcard,
-                  password: JSON.parse(_this.state.user).password,
-                  sid: 'Smartlinkey_sys',
-                },
-                callback: response => {},
-              });
-              _this.props.dispatch({
-                type: 'login/getLogin',
-              });
-            },
-            onCancel() {
               _this.props.dispatch({
                 type: 'login/logout',
               });

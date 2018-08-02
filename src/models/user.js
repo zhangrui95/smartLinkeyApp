@@ -1,4 +1,10 @@
-import { query as queryUsers, queryCurrent,getQuery,getDataSave,getFind} from '../services/user';
+import {
+  query as queryUsers,
+  queryCurrent,
+  getQuery,
+  getDataSave,
+  getFind,
+} from '../services/user';
 
 export default {
   namespace: 'user',
@@ -8,9 +14,10 @@ export default {
     currentUser: {},
     searchList: [],
     allNum: 0,
-    nodeId:'',
+    nodeId: '',
     type: 0,
     newEvent: true,
+    value: '',
   },
 
   effects: {
@@ -30,7 +37,7 @@ export default {
     },
     *query({ payload, callback }, { call, put }) {
       const response = yield call(getQuery, payload);
-      callback(response)
+      callback(response);
     },
     *dataSave({ payload, callback }, { call, put }) {
       const response = yield call(getDataSave, payload);
@@ -38,7 +45,7 @@ export default {
         type: 'getAllNum',
         payload: sessionStorage.getItem('allNum'),
       });
-      callback(response)
+      callback(response);
     },
     *allNum({}, { put }) {
       yield put({
@@ -46,19 +53,19 @@ export default {
         payload: sessionStorage.getItem('allNum'),
       });
     },
-    *nodeId({payload}, { put }) {
+    *nodeId({ payload }, { put }) {
       yield put({
         type: 'getNodeId',
         payload: payload.node,
       });
     },
-    *type({payload}, { put }) {
+    *type({ payload }, { put }) {
       yield put({
         type: 'getType',
         payload: payload.type,
       });
     },
-    *newsEvent({payload}, { put }) {
+    *newsEvent({ payload }, { put }) {
       yield put({
         type: 'getEvent',
         payload: payload.newEvent,
@@ -69,6 +76,12 @@ export default {
       yield put({
         type: 'findList',
         payload: response,
+      });
+    },
+    *findTool({ payload }, { put }) {
+      yield put({
+        type: 'getFindTool',
+        payload: payload,
       });
     },
   },
@@ -107,23 +120,29 @@ export default {
         allNum: action.payload,
       };
     },
-    getNodeId(state, action){
+    getNodeId(state, action) {
       return {
         ...state,
         nodeId: action.payload,
       };
     },
-    getType(state, action){
+    getType(state, action) {
       return {
         ...state,
         type: action.payload,
       };
     },
-    getEvent(state, action){
+    getEvent(state, action) {
       return {
         ...state,
         newEvent: action.payload,
       };
-    }
+    },
+    getFindTool(state, { payload }) {
+      return {
+        ...state,
+        value: payload.value,
+      };
+    },
   },
 };

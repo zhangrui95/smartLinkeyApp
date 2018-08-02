@@ -98,6 +98,7 @@ class SiderMenu extends PureComponent {
       proLoadFixed: false,
       updataModal: false,
       updateV: this.props.login.updateV,
+      updateItem: this.props.login.updateItem,
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -109,6 +110,12 @@ class SiderMenu extends PureComponent {
     if (this.props.login.updateV !== nextProps.login.updateV) {
       this.setState({
         updateV: nextProps.login.updateV,
+      });
+    }
+    if (this.props.login.updateItem !== nextProps.login.updateItem) {
+      console.log(nextProps.login.updateItem);
+      this.setState({
+        updateItem: nextProps.login.updateItem,
       });
     }
   }
@@ -400,14 +407,32 @@ class SiderMenu extends PureComponent {
   //     showTime: false,
   //   });
   // };
+  timeUpdate = time => {
+    if (time === '') {
+      this.setState({
+        jcvisible: false,
+      });
+      message.success('提示：操作成功');
+      ipcRenderer.send('update-relaunch', 'next-launch');
+    } else {
+      this.setState({
+        jcvisible: false,
+      });
+      message.success('提示：操作成功');
+      setTimeout(() => {
+        ipcRenderer.send('update-relaunch', 'now');
+      }, time);
+    }
+  };
   getGX = () => {
-    ipcRenderer.send('update', 'now');
+    ipcRenderer.send('download-package', this.state.updateItem);
     ipcRenderer.on('progress', (event, percent) => {
       console.log('percent', percent);
       this.setState({
         percent: parseInt(percent.percent * 100),
       });
       if (percent.percent === 1) {
+        ipcRenderer.send('update-relaunch', 'now');
         this.setState({
           updataModal: true,
           newsLoading: false,
@@ -508,9 +533,15 @@ class SiderMenu extends PureComponent {
     );
     const menuLists = (
       <Menu>
-        <Menu.Item key="1">1小时后</Menu.Item>
-        <Menu.Item key="2">2小时后</Menu.Item>
-        <Menu.Item key="3">下次重启</Menu.Item>
+        <Menu.Item key="1" onClick={() => this.timeUpdate(3600 * 2000)}>
+          两小时之后更新
+        </Menu.Item>
+        <Menu.Item key="2" onClick={() => this.timeUpdate(3600 * 4000)}>
+          四小时之后更新
+        </Menu.Item>
+        <Menu.Item key="3" onClick={() => this.timeUpdate('')}>
+          下次启动时更新
+        </Menu.Item>
       </Menu>
     );
     return (

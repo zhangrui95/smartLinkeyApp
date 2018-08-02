@@ -8,7 +8,10 @@ import { autoheight } from '../../utils/utils';
 const confirm = Modal.confirm;
 import electron, { ipcRenderer } from 'electron';
 const dialog = electron.remote.dialog;
-
+@connect(({ user, login }) => ({
+  user,
+  login,
+}))
 export default class SmartTool extends Component {
   constructor(props) {
     super(props);
@@ -18,6 +21,7 @@ export default class SmartTool extends Component {
       height: 575,
       delete: false,
       message: [],
+      messageSearch: [],
       img: '',
       dragName: '',
       userName: userNew.name,
@@ -31,6 +35,18 @@ export default class SmartTool extends Component {
     document.getElementById('scroll').scrollTop = document.getElementById('scroll').scrollHeight;
   }
   componentWillReceiveProps(next) {
+    if (this.props.user.value !== next.user.value) {
+      console.log(next.user.value);
+      let m = [];
+      this.state.message.map((e, i) => {
+        if (e.name.indexOf(next.user.value) > -1) {
+          m.push(e);
+        }
+      });
+      this.setState({
+        messageSearch: m,
+      });
+    }
     if (this.props.msgExe !== next.msgExe) {
       let msg = [];
       next.msgExe.map((e, i) => {
@@ -184,28 +200,55 @@ export default class SmartTool extends Component {
     const pwd = JSON.parse(user).password;
     const token = JSON.parse(user).token;
     let msgList = [];
-    this.state.message.map((e, index) => {
-      msgList.push(
-        <Col className="gutter-row" span={6} key={index}>
-          <div
-            className={styles.colStyle}
-            onDragStart={() => this.dragStart(e)}
-            onDragEnd={() => this.dragEnd(e)}
-            onDrag={() => this.dragging(e)}
-            draggable="true"
-            onDoubleClick={() => this.dbExe(e.path)}
-          >
-            <img src={'data:image/png;base64,' + e.icon} style={{ margin: '17px 14px' }} />
-            <span className={styles.ExeName}>{e.name.slice(0, -4)}</span>
-            <img
-              onClick={index => this.del(e.name)}
-              className={this.state.delete ? styles.del : styles.none}
-              src="images/del.png"
-            />
-          </div>
-        </Col>
-      );
-    });
+    if (this.state.messageSearch.length === 0 && this.props.user.value.length === 0) {
+      msgList = [];
+      this.state.message.map((e, index) => {
+        msgList.push(
+          <Col className="gutter-row" span={6} key={index}>
+            <div
+              className={styles.colStyle}
+              onDragStart={() => this.dragStart(e)}
+              onDragEnd={() => this.dragEnd(e)}
+              onDrag={() => this.dragging(e)}
+              draggable="true"
+              onDoubleClick={() => this.dbExe(e.path)}
+            >
+              <img src={'data:image/png;base64,' + e.icon} style={{ margin: '17px 14px' }} />
+              <span className={styles.ExeName}>{e.name.slice(0, -4)}</span>
+              <img
+                onClick={index => this.del(e.name)}
+                className={this.state.delete ? styles.del : styles.none}
+                src="images/del.png"
+              />
+            </div>
+          </Col>
+        );
+      });
+    } else {
+      msgList = [];
+      this.state.messageSearch.map((e, index) => {
+        msgList.push(
+          <Col className="gutter-row" span={6} key={index}>
+            <div
+              className={styles.colStyle}
+              onDragStart={() => this.dragStart(e)}
+              onDragEnd={() => this.dragEnd(e)}
+              onDrag={() => this.dragging(e)}
+              draggable="true"
+              onDoubleClick={() => this.dbExe(e.path)}
+            >
+              <img src={'data:image/png;base64,' + e.icon} style={{ margin: '17px 14px' }} />
+              <span className={styles.ExeName}>{e.name.slice(0, -4)}</span>
+              <img
+                onClick={index => this.del(e.name)}
+                className={this.state.delete ? styles.del : styles.none}
+                src="images/del.png"
+              />
+            </div>
+          </Col>
+        );
+      });
+    }
     return (
       <div
         style={{ padding: '0 24px', height: this.state.height + 'px' }}

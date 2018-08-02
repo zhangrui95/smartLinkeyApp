@@ -17,6 +17,7 @@ export default {
     loginStatus: undefined,
     updateV: false,
     desc: null,
+    updateItem: null,
   },
 
   effects: {
@@ -125,6 +126,7 @@ export default {
         ...state,
         updateV: payload.update,
         desc: payload.desc,
+        updateItem: payload.updateItem,
       };
     },
   },
