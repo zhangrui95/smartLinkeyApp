@@ -31,6 +31,7 @@ require('./src/for-electron/crates/launch');
 const icon_path = path.join(__dirname, 'src/for-electron/source/logo.ico');
 const icon_none_path = path.join(__dirname, 'src/for-electron/source/none.ico');
 const upgrade_tmp_dir = 'downloads';
+
 let mainWindow;
 let appTray = null;
 let willQuitApp = false;
@@ -407,15 +408,6 @@ try {
 exe_path = exe_path.replace(/\\/g, '/'); // 把\\的路径调整为/
 
 function update_relaunch() {
-  // upversion(latest_version);
-  uplaunch(exe_path);
-  console.log('~~~~~~~~~~~~~~~~~~');
-  console.log(exe_path);
-  setTimeout(() => {
-    app.exit();
-  }, 500);
-}
-function start_update_relaunch(updatetime) {
   // 校验安装包是否存在
   if (!fs.existsSync('downloads/package.zip')) {
     return;
@@ -433,6 +425,16 @@ function start_update_relaunch(updatetime) {
     return;
   }
 
+  // upversion(latest_version);
+  uplaunch(exe_path);
+  console.log('~~~~~~~~~~~~~~~~~~');
+  console.log(exe_path);
+  setTimeout(() => {
+    app.exit();
+  }, 500);
+}
+
+function start_update_relaunch(updatetime) {
   if (updatetime === 'now') {
     update_relaunch();
   } else if (updatetime === 'next-launch') {
@@ -441,7 +443,9 @@ function start_update_relaunch(updatetime) {
 }
 
 ipcMain.on('update-relaunch', (event, updatetime) => {
-  start_update_relaunch(updatetime);
+  setTimeout(() => {
+    start_update_relaunch(updatetime);
+  }, 500);
 });
 
 // 保证只有一个实例在运行
