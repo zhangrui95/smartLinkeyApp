@@ -11,6 +11,7 @@ const FileSync = require('lowdb/adapters/FileSync');
 const adapter = new FileSync('db.json');
 const db = low(adapter);
 const request = require('request');
+const md5File = require('md5-file');
 
 const path = require('path');
 const url = require('url');
@@ -33,6 +34,7 @@ const icon_none_path = path.join(__dirname, 'src/for-electron/source/none.ico');
 let mainWindow;
 let appTray = null;
 let willQuitApp = false;
+let package_info = null;
 
 /**
  * 创建托盘图标及功能
@@ -343,6 +345,10 @@ ipcMain.on('save-tools-info', (event, info) => {
   db.set('tools', info).write();
 });
 
+function _get_file_md5(file) {
+  return md5File.sync(file);
+}
+
 /**
  * 更新（下载包）
  */
@@ -356,11 +362,31 @@ function prepare_tmp_dir() {
 function down_or_has_cache(event, info) {
   let package_saved_dir = prepare_tmp_dir();
   let package_url = info.package;
-  console.log('=-=-=-=-=-=-=-=-=-=-');
-  console.log(package_url);
-  download_package(event, package_saved_dir, package_url);
+  let remote_md5 = info.md5;
+
+  log.info('--- down_or_has_cache ---');
+  log.info(package_url);
+
+  if (fs.existsSync('downloads/package.zip')) {
+    const hash = _get_file_md5('downloads/package.zip');
+    log.info(`The MD5 sum of package.zip is: ${hash}`);
+    log.info(`Remote MD5 is: ${remote_md5}`);
+
+    if (remote_md5 == hash) {
+      log.info('package already download (will use cache)');
+      mainWindow.webContents.send('progress', { percent: 1 });
+    } else {
+      log.info('there is a damaged file, start downloads package');
+      download_package(event, package_saved_dir, package_url);
+    }
+  } else {
+    log.info('start downloads package');
+    download_package(event, package_saved_dir, package_url);
+  }
 }
+
 ipcMain.on('download-package', (event, info) => {
+  package_info = info;
   down_or_has_cache(event, info);
 });
 
@@ -389,12 +415,33 @@ function update_relaunch() {
     app.exit();
   }, 500);
 }
-ipcMain.on('update-relaunch', (event, updatetime) => {
+function start_update_relaunch(updatetime) {
+  // 校验安装包是否存在
+  if (!fs.existsSync('downloads/package.zip')) {
+    return;
+  }
+
+  // 校验文件是否下载完整
+  const remote_md5 = package_info.md5;
+  const hash = _get_file_md5('downloads/package.zip');
+  log.info(`check file md5 is: ${hash}`);
+  log.info(`Remote MD5 is: ${remote_md5}`);
+
+  if (remote_md5 != hash) {
+    log.info('Error: package.zip damaged!');
+    mainWindow.webContents.send('package-damaged');
+    return;
+  }
+
   if (updatetime === 'now') {
     update_relaunch();
   } else if (updatetime === 'next-launch') {
     db.set('need_uplaunch', true).write();
   }
+}
+
+ipcMain.on('update-relaunch', (event, updatetime) => {
+  start_update_relaunch(updatetime);
 });
 
 // 保证只有一个实例在运行
@@ -434,6 +481,9 @@ if (isSecondInstance) {
 
 (function() {
   setTimeout(() => {
+    // db.set('need_uplaunch', true).write();
+    // down_or_has_cache(null, {"desc":"性能优化","from":"1.0.0.8","md5":"ad0b75ea3a64ea66d7de29e1b5188914","package":"http://172.19.12.206:8000/package.zip","package_size":84279008,"ready":true,"to":"1.1.0.0"})
+    // update_relaunch()
     // db.set('need_uplaunch', true).write();
   }, 3000);
 })();
