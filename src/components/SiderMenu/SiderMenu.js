@@ -97,7 +97,7 @@ class SiderMenu extends PureComponent {
       percent: 0,
       proLoadFixed: false,
       updataModal: false,
-      updateV: null,
+      updateV: this.props.login.updateV,
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -440,6 +440,13 @@ class SiderMenu extends PureComponent {
       proLoadFixed: true,
     });
   };
+  gitProClose = () => {
+    this.setState({
+      newsLoading: false,
+      updataModal: false,
+      proLoadFixed: false,
+    });
+  };
   getUpdate = () => {
     ipcRenderer.send('update-relaunch');
   };
@@ -664,7 +671,7 @@ class SiderMenu extends PureComponent {
               />
               <Icon
                 className={styles.iconPro}
-                onClick={() => this.gitProMin()}
+                onClick={() => this.gitProClose()}
                 style={{ background: '#ff3030' }}
                 type="close"
               />
@@ -694,7 +701,7 @@ class SiderMenu extends PureComponent {
               />
               <Icon
                 className={styles.iconPro}
-                onClick={() => this.gitProMin()}
+                onClick={() => this.gitProClose()}
                 style={{ background: '#ff3030' }}
                 type="close"
               />
