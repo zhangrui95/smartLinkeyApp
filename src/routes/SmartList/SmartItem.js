@@ -34,8 +34,10 @@ class SmartItem extends Component {
       firstLogin: this.props.firstLogin,
     };
     this.numAll = 0;
+    this.numSaveAll = 0;
     this.message = [];
     this.num = 0;
+    this.saveNum = 0;
     this.numList = [];
     this.lastTime = [];
   }
@@ -109,7 +111,9 @@ class SmartItem extends Component {
                     ? 'images/weishoulijingqing.png'
                     : e.nodeid === 'smart_wtwp'
                       ? 'images/wentiwupin.png'
-                      : 'images/user.png',
+                      : e.nodeid === 'smart_wtcs'
+                        ? 'images/changsuo.png'
+                        : 'images/user.png',
               maxmessageid: e.maxmessageid ? e.maxmessageid : 0,
               nodeid: e.nodeid,
             });
@@ -219,7 +223,7 @@ class SmartItem extends Component {
     this.num = 0;
     if (next.searchList && next.searchList.length > 0) {
       next.searchList.map((item, index) => {
-        if (item.nodeid !== 'smart_syrjq') {
+        if (item.nodeid !== 'smart_syrjq' && item.remark !== '关注') {
           numData.push({
             name: item.name,
             icon:
@@ -229,13 +233,15 @@ class SmartItem extends Component {
                   ? 'images/weishoulijingqing.png'
                   : item.nodeid === 'smart_wtwp'
                     ? 'images/wentiwupin.png'
-                    : 'images/user.png',
+                    : item.nodeid === 'smart_wtcs'
+                      ? 'images/changsuo.png'
+                      : 'images/user.png',
             maxmessageid: item.maxmessageid ? item.maxmessageid : 0,
             nodeid: item.nodeid,
           });
         }
         if (next.type == 0) {
-          if (item.nodeid !== 'smart_syrjq') {
+          if (item.nodeid !== 'smart_syrjq' && item.remark !== '关注') {
             dataList.push({
               name: item.name,
               icon:
@@ -245,9 +251,12 @@ class SmartItem extends Component {
                     ? 'images/weishoulijingqing.png'
                     : item.nodeid === 'smart_wtwp'
                       ? 'images/wentiwupin.png'
-                      : 'images/user.png',
+                      : item.nodeid === 'smart_wtcs'
+                        ? 'images/changsuo.png'
+                        : 'images/user.png',
               maxmessageid: item.maxmessageid ? item.maxmessageid : 0,
               nodeid: item.nodeid,
+              remark: item.remark,
             });
             if (this.props.code === '200001' && this.props.event !== next.event) {
               if (sessionStorage.getItem('nodeidType')) {
@@ -291,12 +300,25 @@ class SmartItem extends Component {
             }
           }
         } else if (next.type == 2) {
-          if (item.nodeid === 'smart_syrjq' && this.props.code === '200003') {
+          if (
+            (item.nodeid === 'smart_syrjq' || item.remark === '关注') &&
+            this.props.code === '200003'
+          ) {
             dataList.push({
               name: item.name,
-              icon: 'images/weishoulijingqing.png',
+              icon:
+                item.nodeid === 'smart_ajgz'
+                  ? 'images/anjian.png'
+                  : item.nodeid === 'smart_syrjq'
+                    ? 'images/weishoulijingqing.png'
+                    : item.nodeid === 'smart_wpgz'
+                      ? 'images/wentiwupin.png'
+                      : item.nodeid === 'smart_csgz'
+                        ? 'images/changsuo.png'
+                        : 'images/user.png',
               maxmessageid: item.maxmessageid ? item.maxmessageid : 0,
               nodeid: item.nodeid,
+              remark: item.remark,
             });
             this.setState({
               title: dataList[0].name,
@@ -374,6 +396,37 @@ class SmartItem extends Component {
       callback: response => {},
     });
   };
+  saveListNum = (item, index) => {
+    this.saveNum = 0;
+    this.state.msgLists.map(msgItem => {
+      if (msgItem.nodeid.toLowerCase() === item.nodeid.toLowerCase()) {
+        if (item.maxmessageid !== 0 && !this.props.firstLogin) {
+          if (msgItem.id > this.lastTime[index].maxmessageid) {
+            if (msgItem.messagecount > 1) {
+              this.saveNum = msgItem.messagecount;
+            } else {
+              this.saveNum++;
+            }
+          }
+        } else if (
+          this.lastTime[index].maxmessageid === 0 &&
+          !this.props.firstLogin &&
+          this.props.code === '200001'
+        ) {
+          this.saveNum = 1;
+        } else {
+          if (msgItem.id > this.lastTime[index].maxmessageid) {
+            if (msgItem.messagecount > 1) {
+              this.saveNum = msgItem.messagecount;
+            } else {
+              this.saveNum++;
+            }
+          }
+        }
+      }
+    });
+    return this.saveNum;
+  };
   listNum = (item, index) => {
     this.num = 0;
     this.state.msgLists.map(msgItem => {
@@ -404,6 +457,17 @@ class SmartItem extends Component {
       }
     });
     return this.num;
+  };
+  getSaveAll = () => {
+    this.state.numData.map((item, index) => {
+      if (this.state.nodeId !== item.nodeid) {
+        if (item.nodeid === 'smart_syrjq' || item.remark === '关注') {
+          this.numSaveAll += parseInt(this.saveListNum(item, index));
+        }
+      }
+    });
+    sessionStorage.setItem('numSaveAll', this.numSaveAll);
+    return this.numSaveAll;
   };
   getAll = () => {
     this.state.numData.map((item, index) => {
@@ -494,25 +558,19 @@ class SmartItem extends Component {
           </div>
           <div className={styles.floatLeft}>
             <div className={styles.titles}>{item.name}</div>
-            <div className={styles.news}>
-              {item.nodeid === 'smart_wtaj' ||
-              item.nodeid === 'smart_wtjq' ||
-              item.nodeid === 'smart_wtwp'
-                ? listWord(item.nodeid)
-                : ''}
-            </div>
+            <div className={styles.news}>{listWord(item.nodeid)}</div>
           </div>
           <div className={styles.floatLeft}>
             <span style={{ float: 'right', fontSize: '13px', marginTop: '18px' }}>
-              {sessionStorage.getItem('nodeid') === 'smart_syrjq' ? '' : listTime(item.nodeid)}
+              {listTime(item.nodeid)}
             </span>
             <Badge
               className={styles.badgePos}
               count={
-                sessionStorage.getItem('nodeid') === 'smart_syrjq'
+                this.state.nodeId === item.nodeid
                   ? 0
-                  : this.state.nodeId === item.nodeid
-                    ? 0
+                  : item.nodeid === 'smart_syrjq' || item.remark === '关注'
+                    ? this.saveListNum(item, index)
                     : this.listNum(item, index)
               }
             />
@@ -547,17 +605,11 @@ class SmartItem extends Component {
             </div>
             <div className={styles.floatLeft}>
               <div className={styles.titles}>{item.name}</div>
-              <div className={styles.news}>
-                {item.nodeid === 'smart_wtaj' ||
-                item.nodeid === 'smart_wtjq' ||
-                item.nodeid === 'smart_wtwp'
-                  ? listWord(item.nodeid)
-                  : ''}
-              </div>
+              <div className={styles.news}>{listWord(item.nodeid)}</div>
             </div>
             <div className={styles.floatLeft}>
               <span style={{ float: 'right', fontSize: '13px', marginTop: '18px' }}>
-                {sessionStorage.getItem('nodeid') === 'smart_syrjq' ? '' : listTime(item.nodeid)}
+                {listTime(item.nodeid)}
               </span>
             </div>
           </div>
@@ -579,6 +631,14 @@ class SmartItem extends Component {
                   : this.getAll()
               }
               className={styles.allNum}
+            />
+            <Badge
+              count={
+                this.props.type == 1 || this.props.type == 3 || this.props.type == 4
+                  ? ''
+                  : this.getSaveAll()
+              }
+              className={styles.allSaveNum}
             />
             <div className={styles.listScroll} style={{ height: this.state.height + 'px' }}>
               <Spin size="large" className={this.props.loading ? '' : styles.none} />
@@ -613,14 +673,26 @@ class SmartItem extends Component {
         </div>
         <div className={this.props.type == 1 ? '' : styles.none}>
           <Badge count={this.props.type == 1 ? this.getAll() : ''} className={styles.allNum} />
+          <Badge
+            count={this.props.type == 1 ? this.getSaveAll() : ''}
+            className={styles.allSaveNum}
+          />
           <SmartLink />
         </div>
         <div className={this.props.type == 3 ? '' : styles.none}>
           <Badge count={this.props.type == 3 ? this.getAll() : ''} className={styles.allNum} />
+          <Badge
+            count={this.props.type == 3 ? this.getSaveAll() : ''}
+            className={styles.allSaveNum}
+          />
           <SmartTool msgExe={this.props.msgExe} />
         </div>
         <div className={this.props.type == 4 ? '' : styles.none}>
           <Badge count={this.props.type == 4 ? this.getAll() : ''} className={styles.allNum} />
+          <Badge
+            count={this.props.type == 4 ? this.getSaveAll() : ''}
+            className={styles.allSaveNum}
+          />
           <SmartQuestion />
         </div>
       </div>
