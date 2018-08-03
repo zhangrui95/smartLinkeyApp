@@ -67,6 +67,7 @@ function createTray() {
       label: '退出',
       click: function trayClick() {
         willQuitApp = true;
+        iconProcess.kill('SIGINT');
         appTray.destroy();
         mainWindow.close();
         app.quit();
@@ -151,17 +152,39 @@ function createWindow() {
 
 // 应用程序准备完成
 app.on('ready', () => {
-  let need_uplaunch = db.get('need_uplaunch').value();
-  if (need_uplaunch) {
-    log.info('app start after uplaunch');
-    db.set('need_uplaunch', false).write();
-    update_relaunch();
-  } else {
-    log.info('app start standalone');
-    createTray();
-    createWindow();
-  }
+  // let need_uplaunch = db.get('need_uplaunch').value();
+  // if (need_uplaunch) {
+  //   log.info('app start after uplaunch');
+  //   db.set('need_uplaunch', false).write();
+  //   update_relaunch();
+  // } else {
+  log.info('app start standalone');
+  createTray();
+  createWindow();
+  // }
 });
+
+function package_is_ok() {
+  // 校验安装包是否存在
+  if (!fs.existsSync('downloads/package.zip')) {
+    return false;
+  }
+
+  // 校验文件是否下载完整
+  let package_info = db.get('package_info').value();
+  const remote_md5 = package_info.md5;
+  const hash = _get_file_md5('downloads/package.zip');
+  log.info(`check file md5 is: ${hash}`);
+  log.info(`Remote MD5 is: ${remote_md5}`);
+
+  if (remote_md5 == hash) {
+    log.info('package is already in the cache');
+  } else {
+    log.info('Error: package.zip damaged!');
+    return false;
+  }
+  return true;
+}
 
 function doSomeThingAfterLoginSuccess() {
   // 发送工具集数据
@@ -192,8 +215,20 @@ function doSomeThingAfterLoginSuccess() {
       console.log('update-info send~');
     }
   }
-
   request(options, callback);
+
+  // 启动后需要不需要更新
+  need_uplaunch = db.get('need_uplaunch').value();
+  if (need_uplaunch) {
+    log.info('app start after uplaunch');
+    db.set('need_uplaunch', false).write();
+    if (package_is_ok()) {
+      console.log('send event: alert-update-notice');
+      mainWindow.webContents.send('alert-update-notice');
+    } else {
+      log.info('package error (qjw12j)');
+    }
+  }
 }
 
 /**
@@ -252,6 +287,7 @@ ipcMain.on('window-normal', () => {
  * 退出程序
  */
 ipcMain.on('window-close', () => {
+  iconProcess.kill('SIGINT');
   willQuitApp = true;
   mainWindow.close();
   app.quit();
@@ -386,23 +422,12 @@ function prepare_tmp_dir() {
 function down_or_has_cache(event, info) {
   let package_saved_dir = prepare_tmp_dir();
   let package_url = info.package;
-  let remote_md5 = info.md5;
 
   log.info('--- down_or_has_cache ---');
   log.info(package_url);
 
-  if (fs.existsSync('downloads/package.zip')) {
-    const hash = _get_file_md5('downloads/package.zip');
-    log.info(`The MD5 sum of package.zip is: ${hash}`);
-    log.info(`Remote MD5 is: ${remote_md5}`);
-
-    if (remote_md5 == hash) {
-      log.info('package already download (will use cache)');
-      mainWindow.webContents.send('progress', { percent: 1 });
-    } else {
-      log.info('there is a damaged file, start downloads package');
-      download_package(event, package_saved_dir, package_url);
-    }
+  if (package_is_ok()) {
+    mainWindow.webContents.send('progress', { percent: 1 });
   } else {
     log.info('start downloads package');
     download_package(event, package_saved_dir, package_url);
@@ -419,44 +444,22 @@ ipcMain.on('download-package', (event, info) => {
  * 更新（替换与重启）
  */
 function update_relaunch() {
-  let update_flag = true;
-
-  // 校验安装包是否存在
-  if (!fs.existsSync('downloads/package.zip')) {
-    update_flag = false;
-  }
-
-  // 校验文件是否下载完整
-  let package_info = db.get('package_info').value();
-  const remote_md5 = package_info.md5;
-  const hash = _get_file_md5('downloads/package.zip');
-  log.info(`check file md5 is: ${hash}`);
-  log.info(`Remote MD5 is: ${remote_md5}`);
-
-  if (remote_md5 != hash) {
-    log.info('Error: package.zip damaged!');
-    mainWindow.webContents.send('package-damaged');
-    update_flag = false;
-  }
-
-  if (update_flag) {
-    // upversion(latest_version);
-    uplaunch(exe_path);
-    console.log('~~~~~~~~~~~~~~~~~~');
-    console.log(exe_path);
-    setTimeout(() => {
-      app.exit();
-    }, 500);
-  } else {
-    log.info('package lost, start with standalone');
-    createTray();
-    createWindow();
-  }
+  // upversion(latest_version);
+  uplaunch(exe_path);
+  console.log('~~~~~~~~~~~~~~~~~~');
+  console.log(exe_path);
+  setTimeout(() => {
+    app.exit();
+  }, 500);
 }
 
 function start_update_relaunch(updatetime) {
   if (updatetime === 'now') {
-    update_relaunch();
+    if (package_is_ok()) {
+      update_relaunch();
+    } else {
+      mainWindow.webContents.send('package-damaged');
+    }
   } else if (updatetime === 'next-launch') {
     db.set('need_uplaunch', true).write();
   }
