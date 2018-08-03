@@ -667,7 +667,7 @@ class SiderMenu extends PureComponent {
               版本检测
             </Button>
             <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-              当前版本：{configUrl.Version}
+              当前版本：{sessionStorage.getItem('version')}
             </div>
           </Modal>
           <Modal
@@ -703,7 +703,7 @@ class SiderMenu extends PureComponent {
               </div>
             </div>
             <div className={this.state.updateV ? styles.none : ''}>
-              当前版本：{configUrl.Version}，已为最新版本
+              当前版本：{sessionStorage.getItem('version')}，已为最新版本
             </div>
           </Modal>
           {this.getNavMenuItems(this.menus)}

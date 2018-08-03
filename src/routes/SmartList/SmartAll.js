@@ -40,6 +40,7 @@ export default class SmartAll extends Component {
       msgExe: [],
       word: '',
       loginState: this.props.login.loginStatus,
+      version: '',
     };
     this.msgListAll = [];
     this.lintenUpdate();
@@ -61,6 +62,12 @@ export default class SmartAll extends Component {
         });
       }
     });
+    ipcRenderer.on('current-version', (event, version) => {
+      sessionStorage.setItem('version', version);
+      this.setState({
+        version: version,
+      });
+    });
     ipcRenderer.on('tools-info', (e, msgExe) => {
       this.setState({
         msgExe: msgExe,
@@ -69,7 +76,7 @@ export default class SmartAll extends Component {
     ipcRenderer.on('update-info', (event, updateList) => {
       // console.log('update---------->', updateList);
       updateList.map((update, i) => {
-        if (update.from === `${configUrl.Version}` && update.to !== `${configUrl.Version}`) {
+        if (update.from === this.state.version && update.to !== this.state.version) {
           // this.setState({
           //   update: true,
           // });
