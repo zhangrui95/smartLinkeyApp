@@ -482,7 +482,7 @@ function start_update_relaunch(updatetime) {
       mainWindow.webContents.send('package-damaged');
     }
   } else if (updatetime === 'next-launch') {
-    db.setdb.set('need_uplaunch', true).write();
+    db.set('need_uplaunch', true).write();
   }
 }
 
