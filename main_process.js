@@ -18,7 +18,7 @@ const url = require('url');
 const fs = require('fs');
 
 const log = require('./src/for-electron/crates/logging').log;
-const iconProcess = require('./src/for-electron/crates/geticon').iconProcess;
+const startIconProcess = require('./src/for-electron/crates/geticon').startIconProcess;
 const download_package = require('./src/for-electron/crates/down').download_package;
 const uplaunch = require('./src/for-electron/crates/uplaunch').uplaunch;
 // const upversion = require('./src/for-electron/crates/upversion').upversion;
@@ -35,6 +35,22 @@ const upgrade_tmp_dir = 'downloads';
 let mainWindow;
 let appTray = null;
 let willQuitApp = false;
+
+// __dirname 表示 main.js 所在的路径，此处根据开发及打包后的路径不同
+// 始终获取当前程序的执行路径，用于人脸比对传递绝对路径的图片
+var exe_path;
+try {
+  fs.accessSync('node_modules', fs.constants.F_OK);
+  console.log('launch on development');
+  var exe_path = __dirname;
+} catch (err) {
+  console.error('launch on build');
+  var exe_path = path.join(__dirname, '../..');
+}
+exe_path = exe_path.replace(/\\/g, '/'); // 把\\的路径调整为/
+
+// 初始化发送获取工具图标的程序
+const iconProcess = startIconProcess(exe_path);
 
 /**
  * 创建托盘图标及功能
@@ -399,19 +415,6 @@ ipcMain.on('download-package', (event, info) => {
 /**
  * 更新（替换与重启）
  */
-// __dirname 表示 main.js 所在的路径，此处根据开发及打包后的路径不同
-// 始终获取当前程序的执行路径，用于人脸比对传递绝对路径的图片
-var exe_path;
-try {
-  fs.accessSync('node_modules', fs.constants.F_OK);
-  console.log('launch on development');
-  var exe_path = __dirname;
-} catch (err) {
-  console.error('launch on build');
-  var exe_path = path.join(__dirname, '../..');
-}
-exe_path = exe_path.replace(/\\/g, '/'); // 把\\的路径调整为/
-
 function update_relaunch() {
   let update_flag = true;
 
