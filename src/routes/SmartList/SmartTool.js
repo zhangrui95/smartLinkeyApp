@@ -198,21 +198,37 @@ export default class SmartTool extends Component {
     });
   };
   alertWarn = () => {
-    message.warn('查找工具安装位置异常，请重新添加工具到工具集中!');
-    this.state.message.map((e, i) => {
-      if (e.path === this.state.path) {
-        this.state.message.splice(i, 1);
-      }
+    // message.warn('查找工具安装位置异常，请重新添加工具到工具集中!');
+    let _this = this;
+    let index = this.state.path.lastIndexOf('\\');
+    let p = this.state.path.substring(index + 1, this.state.path.length);
+    confirm({
+      title:
+        '该快捷方式所指向的项目“' +
+        p +
+        '”已经更改或被移动，因此快捷方式无法正常运行。是否删除快捷方式？',
+      okText: '是',
+      cancelText: '否',
+      onOk() {
+        _this.state.message.map((e, i) => {
+          if (e.path === _this.state.path) {
+            _this.state.message.splice(i, 1);
+          }
+        });
+        _this.props.msgExe.map((item, index) => {
+          if (item.path === _this.state.path && item.userName === _this.state.userName) {
+            _this.props.msgExe.splice(index, 1);
+          }
+        });
+        _this.setState({
+          message: _this.state.message,
+        });
+        ipcRenderer.send('save-tools-info', _this.props.msgExe);
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
     });
-    this.props.msgExe.map((item, index) => {
-      if (item.path === this.state.path && item.userName === this.state.userName) {
-        this.props.msgExe.splice(index, 1);
-      }
-    });
-    this.setState({
-      message: this.state.message,
-    });
-    ipcRenderer.send('save-tools-info', this.props.msgExe);
   };
   listenDbExe = () => {
     ipcRenderer.on('link-not-found', this.alertWarn);
@@ -307,7 +323,6 @@ export default class SmartTool extends Component {
         >
           <div className={styles.dragDelBox}>
             <img src="images/delete.png" />
-            <span>拖拽到此处删除</span>
           </div>
         </div>
       </div>

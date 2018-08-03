@@ -42,6 +42,7 @@ export default class SmartAll extends Component {
       loginState: this.props.login.loginStatus,
     };
     this.msgListAll = [];
+    this.lintenUpdate();
   }
 
   componentDidMount() {
@@ -97,7 +98,21 @@ export default class SmartAll extends Component {
       }
     }
   }
-
+  lintenUpdate = () => {
+    ipcRenderer.on('alert-update-notice', () => {
+      confirm({
+        title: '安装包已经下载完成，是否进行更新？',
+        okText: '确定',
+        cancelText: '取消',
+        onOk() {
+          ipcRenderer.send('update-relaunch', 'now');
+        },
+        onCancel() {
+          console.log('Cancel');
+        },
+      });
+    });
+  };
   getXmpp = () => {
     connection = new Strophe.Connection(BOSH_SERVICE);
     connection.connect(
