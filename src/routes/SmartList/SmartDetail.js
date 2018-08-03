@@ -255,6 +255,18 @@ export default class SmartDetail extends Component {
       return xmlDom;
     } else return new DOMParser().parseFromString(str, 'text/xml');
   };
+  //取消关注
+  getCancelSave = (nodeId, id) => {
+    this.state.saveList.map((e, i) => {
+      if (e.id === id) {
+        this.state.saveList.splice(i, 1);
+      }
+    });
+    this.setState({
+      saveList: this.state.saveList,
+    });
+    console.log('取消关注======>', nodeId, id, this.state.saveList);
+  };
   //关注
   getSave = (nodeId, id) => {
     this.state.saveList.push({ nodeid: nodeId, id: id });
@@ -295,9 +307,15 @@ export default class SmartDetail extends Component {
           .map((item, i) => {
             listType = JSON.parse(item.messagecontent).type;
             result = JSON.parse(item.messagecontent).result;
+            let k = -1;
             if (listType === 'ajxx') {
               //案管
               result.map((ajItem, index) => {
+                this.state.saveList.map((e, i) => {
+                  if (e.id === ajItem.dbid) {
+                    k = 1;
+                  }
+                });
                 list.push(
                   <div className={styles.boxItem} key={'aj' + i.toString() + index}>
                     <div className={styles.timeStyle}>{item.time}</div>
@@ -318,13 +336,23 @@ export default class SmartDetail extends Component {
                         <Card
                           title={
                             <div>
-                              <Tooltip placement="top" title="关注">
-                                <img
-                                  className={styles.saveIcon}
-                                  onClick={() => this.getSave('smart_wtaj', ajItem.dbid)}
-                                  src="images/qxguanzhu.png"
-                                />
-                              </Tooltip>
+                              {k > 0 ? (
+                                <Tooltip placement="top" title="取消关注">
+                                  <img
+                                    className={styles.saveIcon}
+                                    src="images/tjguanzhu.png"
+                                    onClick={() => this.getCancelSave('smart_wtaj', ajItem.dbid)}
+                                  />
+                                </Tooltip>
+                              ) : (
+                                <Tooltip placement="top" title="关注">
+                                  <img
+                                    className={styles.saveIcon}
+                                    src="images/qxguanzhu.png"
+                                    onClick={() => this.getSave('smart_wtaj', ajItem.dbid)}
+                                  />
+                                </Tooltip>
+                              )}
                               <span className={styles.overText} title={ajItem.ajmc}>
                                 {ajItem.ajmc}
                               </span>
@@ -411,24 +439,11 @@ export default class SmartDetail extends Component {
                         <Card
                           title={
                             <div>
-                              {sessionStorage.getItem('nodeid') === 'smart_syrjq' ? (
-                                <Tooltip placement="top" title="取消关注">
-                                  <img
-                                    className={styles.saveIcon}
-                                    src="images/tjguanzhu.png"
-                                    onClick={() => this.getSave('smart_wtjq', items.dbid)}
-                                  />
-                                </Tooltip>
-                              ) : (
-                                <Tooltip placement="top" title="关注">
-                                  <img
-                                    className={styles.saveIcon}
-                                    src="images/qxguanzhu.png"
-                                    onClick={() => this.getSave('smart_wtjq', items.dbid)}
-                                  />
-                                </Tooltip>
-                              )}
-                              <span className={styles.overText} title={items.jqmc}>
+                              <span
+                                className={styles.overText}
+                                style={{ paddingLeft: '0' }}
+                                title={items.jqmc}
+                              >
                                 {items.jqmc}
                               </span>
                               <Tag className={styles.tagStyle}>{items.status}</Tag>
@@ -493,8 +508,14 @@ export default class SmartDetail extends Component {
                 );
               });
             } else if (listType === 'sacw') {
+              let k = -1;
               //涉案财务
               result.map((wpItem, index) => {
+                this.state.saveList.map((e, i) => {
+                  if (e.id === wpItem.dbid) {
+                    k = 1;
+                  }
+                });
                 list.push(
                   <div className={styles.boxItem} key={'wp' + i.toString() + index}>
                     <div className={styles.timeStyle}>{item.time}</div>
@@ -515,13 +536,23 @@ export default class SmartDetail extends Component {
                         <Card
                           title={
                             <div>
-                              <Tooltip placement="top" title="关注">
-                                <img
-                                  className={styles.saveIcon}
-                                  src="images/qxguanzhu.png"
-                                  onClick={() => this.getSave('smart_wtwp', wpItem.dbid)}
-                                />
-                              </Tooltip>
+                              {k > 0 ? (
+                                <Tooltip placement="top" title="取消关注">
+                                  <img
+                                    className={styles.saveIcon}
+                                    src="images/tjguanzhu.png"
+                                    onClick={() => this.getCancelSave('smart_wtwp', wpItem.dbid)}
+                                  />
+                                </Tooltip>
+                              ) : (
+                                <Tooltip placement="top" title="关注">
+                                  <img
+                                    className={styles.saveIcon}
+                                    src="images/qxguanzhu.png"
+                                    onClick={() => this.getSave('smart_wtwp', wpItem.dbid)}
+                                  />
+                                </Tooltip>
+                              )}
                               <span className={styles.overText} title={wpItem.ajmc}>
                                 {wpItem.ajmc}
                               </span>
@@ -599,6 +630,12 @@ export default class SmartDetail extends Component {
           readTime = item.time;
           if (item.type === 'ajxx') {
             //案管
+            let k = -1;
+            this.state.saveList.map((e, i) => {
+              if (e.id === searchItem.dbid) {
+                k = 1;
+              }
+            });
             list.push(
               <div className={styles.boxItem} key={'aj' + i.toString()}>
                 <div className={styles.timeStyle}>{readTime}</div>
@@ -619,13 +656,30 @@ export default class SmartDetail extends Component {
                     <Card
                       title={
                         <div>
-                          <Tooltip placement="top" title="关注">
-                            <img
-                              className={styles.saveIcon}
-                              src="images/qxguanzhu.png"
-                              onClick={() => this.getSave('smart_wtaj', searchItem.dbid)}
-                            />
-                          </Tooltip>
+                          {k > 0 ? (
+                            <Tooltip placement="top" title="取消关注">
+                              <img
+                                className={styles.saveIcon}
+                                src="images/tjguanzhu.png"
+                                onClick={() =>
+                                  this.getCancelSave(
+                                    'smart_wtaj',
+                                    this.state.searchList[i].result.dbid
+                                  )
+                                }
+                              />
+                            </Tooltip>
+                          ) : (
+                            <Tooltip placement="top" title="关注">
+                              <img
+                                className={styles.saveIcon}
+                                src="images/qxguanzhu.png"
+                                onClick={() =>
+                                  this.getSave('smart_wtaj', this.state.searchList[i].result.dbid)
+                                }
+                              />
+                            </Tooltip>
+                          )}
                           <span className={styles.overText} title={searchItem.ajmc}>
                             {searchItem.ajmc}
                           </span>
@@ -710,14 +764,11 @@ export default class SmartDetail extends Component {
                     <Card
                       title={
                         <div>
-                          <Tooltip placement="top" title="关注">
-                            <img
-                              className={styles.saveIcon}
-                              src="images/qxguanzhu.png"
-                              onClick={() => this.getSave('smart_wtjq', searchItem.dbid)}
-                            />
-                          </Tooltip>
-                          <span className={styles.overText} title={searchItem.jqmc}>
+                          <span
+                            className={styles.overText}
+                            style={{ paddingLeft: '0' }}
+                            title={searchItem.jqmc}
+                          >
                             {searchItem.jqmc}
                           </span>
                           <Tag className={styles.tagStyle}>{searchItem.status}</Tag>
@@ -781,6 +832,12 @@ export default class SmartDetail extends Component {
             );
           } else if (listType === 'sacw') {
             //涉案财务
+            let k = -1;
+            this.state.saveList.map((e, i) => {
+              if (e.id === searchItem.dbid) {
+                k = 1;
+              }
+            });
             list.push(
               <div className={styles.boxItem} key={'wp' + i.toString()}>
                 <div className={styles.timeStyle}>{readTime}</div>
@@ -801,13 +858,30 @@ export default class SmartDetail extends Component {
                     <Card
                       title={
                         <div>
-                          <Tooltip placement="top" title="关注">
-                            <img
-                              className={styles.saveIcon}
-                              src="images/qxguanzhu.png"
-                              onClick={() => this.getSave('smart_wtwp', searchItem.dbid)}
-                            />
-                          </Tooltip>
+                          {k > 0 ? (
+                            <Tooltip placement="top" title="取消关注">
+                              <img
+                                className={styles.saveIcon}
+                                src="images/tjguanzhu.png"
+                                onClick={() =>
+                                  this.getCancelSave(
+                                    'smart_wtwp',
+                                    this.state.searchList[i].result.dbid
+                                  )
+                                }
+                              />
+                            </Tooltip>
+                          ) : (
+                            <Tooltip placement="top" title="关注">
+                              <img
+                                className={styles.saveIcon}
+                                src="images/qxguanzhu.png"
+                                onClick={() =>
+                                  this.getSave('smart_wtwp', this.state.searchList[i].result.dbid)
+                                }
+                              />
+                            </Tooltip>
+                          )}
                           <span className={styles.overText} title={searchItem.ajmc}>
                             {searchItem.ajmc}
                           </span>
