@@ -8,8 +8,7 @@ const Menu = electron.Menu;
 const Tray = electron.Tray;
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
-const adapter = new FileSync('db.json');
-const db = low(adapter);
+
 const request = require('request');
 const md5File = require('md5-file');
 
@@ -51,6 +50,10 @@ exe_path = exe_path.replace(/\\/g, '/'); // 把\\的路径调整为/
 
 // 初始化发送获取工具图标的程序
 const iconProcess = startIconProcess(exe_path);
+
+// 定义数据库位置
+const adapter = new FileSync(exe_path + '/db.json');
+const db = low(adapter);
 
 /**
  * 创建托盘图标及功能
