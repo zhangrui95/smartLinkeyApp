@@ -436,19 +436,21 @@ class SiderMenu extends PureComponent {
     }
   };
   getGX = () => {
-    ipcRenderer.send('download-package', this.state.updateItem);
-    ipcRenderer.on('progress', (event, percent) => {
-      this.setState({
-        percent: parseInt(percent.percent * 100),
-      });
-      if (percent.percent === 1) {
+    if (this.state.percent === 0 || this.state.percent === 100) {
+      ipcRenderer.send('download-package', this.state.updateItem);
+      ipcRenderer.on('progress', (event, percent) => {
         this.setState({
-          updataModal: true,
-          newsLoading: false,
-          proLoadFixed: false,
+          percent: parseInt(percent.percent * 100),
         });
-      }
-    });
+        if (percent.percent === 1) {
+          this.setState({
+            updataModal: true,
+            newsLoading: false,
+            proLoadFixed: false,
+          });
+        }
+      });
+    }
     this.setState({
       newsLoading: true,
       jcvisible: false,
@@ -552,10 +554,10 @@ class SiderMenu extends PureComponent {
     const menuLists = (
       <Menu>
         <Menu.Item key="1" onClick={() => this.timeUpdate(3600 * 2000)}>
-          两小时之后更新
+          2小时之后更新
         </Menu.Item>
         <Menu.Item key="2" onClick={() => this.timeUpdate(3600 * 4000)}>
-          四小时之后更新
+          4小时之后更新
         </Menu.Item>
         <Menu.Item key="3" onClick={() => this.timeUpdate('')}>
           下次启动时更新
