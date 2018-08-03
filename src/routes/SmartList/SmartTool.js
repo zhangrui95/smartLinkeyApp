@@ -26,7 +26,9 @@ export default class SmartTool extends Component {
       dragName: '',
       userName: userNew.name,
       delshow: false,
+      path: '',
     };
+    this.listenDbExe();
   }
   componentDidMount() {
     window.addEventListener('resize', () => {
@@ -36,7 +38,6 @@ export default class SmartTool extends Component {
   }
   componentWillReceiveProps(next) {
     if (this.props.user.value !== next.user.value) {
-      console.log(next.user.value);
       let m = [];
       this.state.message.map((e, i) => {
         if (e.name.indexOf(next.user.value) > -1) {
@@ -58,6 +59,9 @@ export default class SmartTool extends Component {
         message: msg,
       });
     }
+  }
+  componentWillUnmount() {
+    ipcRenderer.removeListener('link-not-found', this.alertWarn);
   }
   updateSize() {
     this.setState({
@@ -188,27 +192,30 @@ export default class SmartTool extends Component {
     });
   };
   dbExe = path => {
-    console.log('双击', path);
     ipcRenderer.send('open-link', path);
-    ipcRenderer.on('link-not-found', () => {
-      message.warn('查找工具安装位置异常，请重新添加工具到工具集中!');
-      this.state.message.map((e, i) => {
-        if (e.path === path) {
-          this.state.message.splice(i, 1);
-        }
-      });
-      this.props.msgExe.map((item, index) => {
-        if (item.path === path && item.userName === this.state.userName) {
-          this.props.msgExe.splice(index, 1);
-        }
-      });
-      this.setState({
-        message: this.state.message,
-      });
-      ipcRenderer.send('save-tools-info', this.props.msgExe);
+    this.setState({
+      path: path,
     });
-    // let activeObj = new ActiveXObject("wscript.shell");
-    // activeObj.run(path);
+  };
+  alertWarn = () => {
+    message.warn('查找工具安装位置异常，请重新添加工具到工具集中!');
+    this.state.message.map((e, i) => {
+      if (e.path === this.state.path) {
+        this.state.message.splice(i, 1);
+      }
+    });
+    this.props.msgExe.map((item, index) => {
+      if (item.path === this.state.path && item.userName === this.state.userName) {
+        this.props.msgExe.splice(index, 1);
+      }
+    });
+    this.setState({
+      message: this.state.message,
+    });
+    ipcRenderer.send('save-tools-info', this.props.msgExe);
+  };
+  listenDbExe = () => {
+    ipcRenderer.on('link-not-found', this.alertWarn);
   };
   render() {
     const user = sessionStorage.getItem('user');
