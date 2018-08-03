@@ -229,6 +229,20 @@ function doSomeThingAfterLoginSuccess() {
       log.info('package error (qjw12j)');
     }
   }
+
+  // 获取版本号发送给前端
+  // 当db.json中存在版本号，则从db.json中获取
+  // 否则从config.js文件获取
+  let current_version = db.get('current_version').value();
+  if (current_version === undefined) {
+    current_version = config.current_version;
+    db.set('current_version', current_version).write();
+  }
+  mainWindow.webContents.send('current-version', current_version);
+
+  console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+  console.log(current_version);
+  console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
 }
 
 /**
@@ -444,10 +458,17 @@ ipcMain.on('download-package', (event, info) => {
  * 更新（替换与重启）
  */
 function update_relaunch() {
+  // 更新控制面板内的版本号
   // upversion(latest_version);
+
+  // 执行更新
   uplaunch(exe_path);
-  console.log('~~~~~~~~~~~~~~~~~~');
-  console.log(exe_path);
+
+  // 更新JSON数据文件内的版本号
+  const package_info = db.get('package_info').value();
+  const new_version = package_info.to;
+  db.set('current_version', new_version).write();
+
   setTimeout(() => {
     app.exit();
   }, 500);
@@ -461,7 +482,7 @@ function start_update_relaunch(updatetime) {
       mainWindow.webContents.send('package-damaged');
     }
   } else if (updatetime === 'next-launch') {
-    db.set('need_uplaunch', true).write();
+    db.setdb.set('need_uplaunch', true).write();
   }
 }
 
