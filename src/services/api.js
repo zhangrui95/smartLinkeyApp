@@ -106,3 +106,15 @@ export async function getQuestionList(params) {
     body: params,
   });
 }
+export async function getSaveList(params) {
+  return request('https://www.easy-mock.com/mock/5b2de5fd3bd2c939a1040679/Collection', {
+    method: 'POST',
+    body: params,
+  });
+}
+export async function getCancelCollection(params) {
+  return request('https://www.easy-mock.com/mock/5b2de5fd3bd2c939a1040679/CancelCollection', {
+    method: 'POST',
+    body: params,
+  });
+}

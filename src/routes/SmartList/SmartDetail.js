@@ -5,9 +5,10 @@ const { Meta } = Card;
 import styles from './SmartDetail.less';
 import { getLocalTime, autoheight } from '../../utils/utils';
 import { ipcRenderer } from 'electron';
-@connect(({ user, login }) => ({
+@connect(({ user, login, save }) => ({
   user,
   login,
+  save,
 }))
 export default class SmartDetail extends Component {
   constructor(props) {
@@ -265,6 +266,16 @@ export default class SmartDetail extends Component {
     this.setState({
       saveList: this.state.saveList,
     });
+    this.props.dispatch({
+      type: 'save/getCancelSave',
+      payload: {
+        nodeid: nodeId,
+        jid: this.props.xmppUser,
+      },
+      callback: response => {
+        console.log(response);
+      },
+    });
     console.log('取消关注======>', nodeId, id, this.state.saveList);
   };
   //关注
@@ -282,6 +293,18 @@ export default class SmartDetail extends Component {
     }
     this.setState({
       saveList: this.state.saveList,
+    });
+    this.props.dispatch({
+      type: 'save/getSave',
+      payload: {
+        nodeid: nodeId,
+        jid: this.props.xmppUser,
+        nodename: '',
+        remark: '关注',
+      },
+      callback: response => {
+        console.log(response);
+      },
     });
     console.log('nodeId,id======>', nodeId, id, this.state.saveList);
   };

@@ -320,11 +320,20 @@ class SmartItem extends Component {
               nodeid: item.nodeid,
               remark: item.remark,
             });
-            this.setState({
-              title: dataList[0].name,
-              nodeId: dataList[0].nodeid,
-              index: 0,
+            dataList.map((e, index) => {
+              if (e.nodeid === sessionStorage.getItem('nodeidSave')) {
+                this.setState({
+                  title: e.name,
+                  nodeId: e.nodeid,
+                  index: index,
+                });
+              }
             });
+            // this.setState({
+            //   title: dataList[0].name,
+            //   nodeId: dataList[0].nodeid,
+            //   index: 0,
+            // });
           } else {
             this.setState({
               title: '',
@@ -494,6 +503,8 @@ class SmartItem extends Component {
     sessionStorage.setItem('nodeid', this.state.nodeId);
     if (this.props.type == 0) {
       sessionStorage.setItem('nodeidType', this.state.nodeId);
+    } else if (this.props.type == 2) {
+      sessionStorage.setItem('nodeidSave', this.state.nodeId);
     }
     let list = [];
     let listWord = nodeid => {
@@ -667,6 +678,7 @@ class SmartItem extends Component {
                 msgList={this.state.msgLists}
                 onNewMsg={(nodeList, maxNum) => this.props.onNewMsg(nodeList, maxNum)}
                 searchList={this.props.searchList}
+                xmppUser={this.props.xmppUser}
               />
             </div>
           </div>
