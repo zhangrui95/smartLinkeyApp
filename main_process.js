@@ -21,6 +21,7 @@ const startIconProcess = require('./src/for-electron/crates/geticon').startIconP
 const download_package = require('./src/for-electron/crates/down').download_package;
 const uplaunch = require('./src/for-electron/crates/uplaunch').uplaunch;
 // const upversion = require('./src/for-electron/crates/upversion').upversion;
+const opn_it = require('./src/for-electron/crates/opn-open');
 const config = require('./src/for-electron/config.js');
 
 require('./src/for-electron/crates/launch');
@@ -370,9 +371,9 @@ function stop_flashing() {
  */
 ipcMain.on('visit-page', (event, msg) => {
   if (msg.browser) {
-    opn(msg.url, { app: msg.browser });
+    opn_it(msg.url, { app: msg.browser });
   } else {
-    opn(msg.url);
+    opn_it(msg.url);
   }
 });
 
@@ -404,11 +405,15 @@ ipcMain.on('get-tool-icon', (event, tool_path) => {
  */
 ipcMain.on('open-link', (event, link_path) => {
   // link_path = "C:/Users/Public/Desktop/Google Chrome.lnk"
-
+  console.log(link_path);
   if (!fs.existsSync(link_path)) {
     event.sender.send('link-not-found');
   } else {
-    opn(link_path);
+    // link_path = 'C:/Users/Administrator/Desktop/MD5 & SHA Checksum Utility.exe'
+    console.log(link_path);
+    opn_it(link_path);
+    // opn包有个BUG会把桌面exe中带有的&替换为^&，此处把opn中的代码摘出来使用。
+    // opn(link_path);
   }
 });
 
