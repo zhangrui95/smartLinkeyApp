@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'dva';
-import { Card, Icon, Avatar, Tag, Spin, Tooltip } from 'antd';
+import { Card, Icon, Avatar, Tag, Spin, Tooltip, message } from 'antd';
 const { Meta } = Card;
 import styles from './SmartDetail.less';
 import { getLocalTime, autoheight } from '../../utils/utils';
@@ -39,9 +39,12 @@ export default class SmartDetail extends Component {
     window.addEventListener('resize', () => {
       this.updateSize();
     });
+    this.setState({
+      loading: true,
+    });
     setTimeout(() => {
       document.getElementById('scroll').scrollTop = document.getElementById('scroll').scrollHeight;
-    }, 200);
+    }, 500);
   }
   updateSize() {
     this.setState({
@@ -105,7 +108,7 @@ export default class SmartDetail extends Component {
                   document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
                 }
                 // document.getElementById('scroll').scrollTop = 480*(parseInt(this.state.data.length) - 5);
-              }, 200);
+              }, 500);
             }
           }
         }
@@ -121,10 +124,22 @@ export default class SmartDetail extends Component {
   }
   componentWillReceiveProps(next) {
     if (next.login.loginStatus) {
-      // document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
+      if (this.props.user.allList !== next.user.allList) {
+        console.log('zx');
+        this.setState({
+          loading: true,
+        });
+        setTimeout(() => {
+          this.setState({
+            loading: false,
+            lookMore: false,
+          });
+          document.getElementById('scroll').scrollTop = document.getElementById(
+            'scroll'
+          ).scrollHeight;
+        }, 500);
+      }
       let list = [];
-      // if(next.user.nodeId === ''){
-      // console.log('next.msgList===========>',next.msgList)
       for (var i = 0; i < next.msgList.length - 1; i++) {
         for (var j = i + 1; j < next.msgList.length; j++) {
           if (next.msgList[i].messagecontent == next.msgList[j].messagecontent) {
@@ -141,15 +156,6 @@ export default class SmartDetail extends Component {
       this.setState({
         data: list,
       });
-      setTimeout(() => {
-        this.setState({
-          loading: false,
-        });
-        // if(this.state.noSearch){
-        // document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
-        // }
-      }, 400);
-      // }
       if (
         this.props.user.nodeId !== next.user.nodeId ||
         this.props.nodeId !== next.nodeId ||
@@ -167,11 +173,28 @@ export default class SmartDetail extends Component {
           searchList: null,
           loading: true,
         });
-        next.msgList.map(item => {
-          if (sessionStorage.getItem('nodeid').toLowerCase() === item.nodeid.toLowerCase()) {
-            list.push(item);
-          }
-        });
+        if (sessionStorage.getItem('nodeid') === 'smart_gzdaj') {
+          console.log(next.gzList['gzdaj'].id);
+          next.gzList['gzdaj'].map((e, i) => {
+            console.log('e-------->', e);
+            next.msgList.map(item => {
+              if (e.id === item.nodeid) {
+                list.push(item);
+              }
+            });
+          });
+        }
+        if (
+          sessionStorage.getItem('nodeid') !== 'smart_gzdaj' ||
+          sessionStorage.getItem('nodeid') !== 'smart_gzdwp' ||
+          sessionStorage.getItem('nodeid') !== 'smart_gzdcs'
+        ) {
+          next.msgList.map(item => {
+            if (sessionStorage.getItem('nodeid').toLowerCase() === item.nodeid.toLowerCase()) {
+              list.push(item);
+            }
+          });
+        }
         this.setState({
           data: list,
         });
@@ -183,7 +206,7 @@ export default class SmartDetail extends Component {
             'scroll'
           ).scrollHeight;
           document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
-        }, 300);
+        }, 500);
       } else if (
         this.props.user.searchList !== next.user.searchList &&
         this.props.code === '200003'
@@ -228,12 +251,19 @@ export default class SmartDetail extends Component {
               'scroll'
             ).scrollHeight;
             document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
-          }, 300);
+          }, 500);
         } else {
           this.setState({
             empty: true,
           });
         }
+      }
+      if (next.user.searchList.length === 0) {
+        setTimeout(() => {
+          this.setState({
+            loading: false,
+          });
+        }, 500);
       }
       if (this.props.type !== next.type) {
         this.setState({
@@ -269,18 +299,22 @@ export default class SmartDetail extends Component {
     this.props.dispatch({
       type: 'save/getCancelSave',
       payload: {
-        nodeid: nodeId,
+        nodeid: id,
         jid: this.props.xmppUser,
       },
       callback: response => {
-        console.log(response);
+        if (response.data) {
+          console.log(response);
+          message.success('提示:取消关注成功!');
+          this.props.cancelSave(id);
+        }
       },
     });
     console.log('取消关注======>', nodeId, id, this.state.saveList);
   };
   //关注
-  getSave = (nodeId, id) => {
-    this.state.saveList.push({ nodeid: nodeId, id: id });
+  getSave = (nodeId, id, name, remark) => {
+    this.state.saveList.push({ id: id, maxmessageid: '', name: name });
     if (this.state.saveList.length > 0) {
       for (var i = 0; i < this.state.saveList.length - 1; i++) {
         for (var j = i + 1; j < this.state.saveList.length; j++) {
@@ -297,13 +331,17 @@ export default class SmartDetail extends Component {
     this.props.dispatch({
       type: 'save/getSave',
       payload: {
-        nodeid: nodeId,
+        nodeid: id,
         jid: this.props.xmppUser,
-        nodename: '',
-        remark: '关注',
+        nodename: name,
+        remark: remark,
       },
       callback: response => {
-        console.log(response);
+        if (response.data) {
+          console.log(response);
+          message.success('提示:关注成功!');
+          this.props.getSubscription();
+        }
       },
     });
     console.log('nodeId,id======>', nodeId, id, this.state.saveList);
@@ -339,6 +377,11 @@ export default class SmartDetail extends Component {
                     k = 1;
                   }
                 });
+                this.props.gzList.gzdaj.map((e, i) => {
+                  if (e.id === ajItem.dbid) {
+                    k = 1;
+                  }
+                });
                 list.push(
                   <div className={styles.boxItem} key={'aj' + i.toString() + index}>
                     <div className={styles.timeStyle}>{item.time}</div>
@@ -368,15 +411,29 @@ export default class SmartDetail extends Component {
                                   />
                                 </Tooltip>
                               ) : (
-                                <Tooltip placement="top" title="关注">
+                                <Tooltip
+                                  placement="top"
+                                  title="关注"
+                                  className={this.props.code === '200001' ? styles.none : ''}
+                                >
                                   <img
                                     className={styles.saveIcon}
                                     src="images/qxguanzhu.png"
-                                    onClick={() => this.getSave('smart_wtaj', ajItem.dbid)}
+                                    onClick={() =>
+                                      this.getSave('smart_wtaj', ajItem.dbid, ajItem.ajmc, 'gzdaj')
+                                    }
                                   />
                                 </Tooltip>
                               )}
-                              <span className={styles.overText} title={ajItem.ajmc}>
+                              <span
+                                className={styles.overText}
+                                title={ajItem.ajmc}
+                                style={
+                                  this.props.code === '200001'
+                                    ? { paddingLeft: '0' }
+                                    : { paddingLeft: '24px' }
+                                }
+                              >
                                 {ajItem.ajmc}
                               </span>
                               <Tag className={styles.tagStyle}>{ajItem.status}</Tag>
@@ -539,6 +596,11 @@ export default class SmartDetail extends Component {
                     k = 1;
                   }
                 });
+                this.props.gzList.gzdwp.map((e, i) => {
+                  if (e.id === wpItem.dbid) {
+                    k = 1;
+                  }
+                });
                 list.push(
                   <div className={styles.boxItem} key={'wp' + i.toString() + index}>
                     <div className={styles.timeStyle}>{item.time}</div>
@@ -568,15 +630,29 @@ export default class SmartDetail extends Component {
                                   />
                                 </Tooltip>
                               ) : (
-                                <Tooltip placement="top" title="关注">
+                                <Tooltip
+                                  placement="top"
+                                  title="关注"
+                                  className={this.props.code === '200001' ? styles.none : ''}
+                                >
                                   <img
                                     className={styles.saveIcon}
                                     src="images/qxguanzhu.png"
-                                    onClick={() => this.getSave('smart_wtwp', wpItem.dbid)}
+                                    onClick={() =>
+                                      this.getSave('smart_wtwp', wpItem.dbid, wpItem.ajmc, 'gzdwp')
+                                    }
                                   />
                                 </Tooltip>
                               )}
-                              <span className={styles.overText} title={wpItem.ajmc}>
+                              <span
+                                className={styles.overText}
+                                title={wpItem.ajmc}
+                                style={
+                                  this.props.code === '200001'
+                                    ? { paddingLeft: '0' }
+                                    : { paddingLeft: '24px' }
+                                }
+                              >
                                 {wpItem.ajmc}
                               </span>
                               <Tag className={styles.tagStyle}>{wpItem.status}</Tag>
@@ -659,6 +735,11 @@ export default class SmartDetail extends Component {
                 k = 1;
               }
             });
+            this.props.gzList.gzdaj.map((e, i) => {
+              if (e.id === searchItem.dbid) {
+                k = 1;
+              }
+            });
             list.push(
               <div className={styles.boxItem} key={'aj' + i.toString()}>
                 <div className={styles.timeStyle}>{readTime}</div>
@@ -693,17 +774,34 @@ export default class SmartDetail extends Component {
                               />
                             </Tooltip>
                           ) : (
-                            <Tooltip placement="top" title="关注">
+                            <Tooltip
+                              placement="top"
+                              title="关注"
+                              className={this.props.code === '200001' ? styles.none : ''}
+                            >
                               <img
                                 className={styles.saveIcon}
                                 src="images/qxguanzhu.png"
                                 onClick={() =>
-                                  this.getSave('smart_wtaj', this.state.searchList[i].result.dbid)
+                                  this.getSave(
+                                    'smart_wtaj',
+                                    this.state.searchList[i].result.dbid,
+                                    searchItem.ajmc,
+                                    'gzdaj'
+                                  )
                                 }
                               />
                             </Tooltip>
                           )}
-                          <span className={styles.overText} title={searchItem.ajmc}>
+                          <span
+                            className={styles.overText}
+                            title={searchItem.ajmc}
+                            style={
+                              this.props.code === '200001'
+                                ? { paddingLeft: '0' }
+                                : { paddingLeft: '24px' }
+                            }
+                          >
                             {searchItem.ajmc}
                           </span>
                           <Tag className={styles.tagStyle}>{searchItem.status}</Tag>
@@ -861,6 +959,11 @@ export default class SmartDetail extends Component {
                 k = 1;
               }
             });
+            this.props.gzList.gzdwp.map((e, i) => {
+              if (e.id === searchItem.dbid) {
+                k = 1;
+              }
+            });
             list.push(
               <div className={styles.boxItem} key={'wp' + i.toString()}>
                 <div className={styles.timeStyle}>{readTime}</div>
@@ -895,17 +998,34 @@ export default class SmartDetail extends Component {
                               />
                             </Tooltip>
                           ) : (
-                            <Tooltip placement="top" title="关注">
+                            <Tooltip
+                              placement="top"
+                              title="关注"
+                              className={this.props.code === '200001' ? styles.none : ''}
+                            >
                               <img
                                 className={styles.saveIcon}
                                 src="images/qxguanzhu.png"
                                 onClick={() =>
-                                  this.getSave('smart_wtwp', this.state.searchList[i].result.dbid)
+                                  this.getSave(
+                                    'smart_wtwp',
+                                    this.state.searchList[i].result.dbid,
+                                    searchItem.ajmc,
+                                    'gzdwp'
+                                  )
                                 }
                               />
                             </Tooltip>
                           )}
-                          <span className={styles.overText} title={searchItem.ajmc}>
+                          <span
+                            className={styles.overText}
+                            title={searchItem.ajmc}
+                            style={
+                              this.props.code === '200001'
+                                ? { paddingLeft: '0' }
+                                : { paddingLeft: '24px' }
+                            }
+                          >
                             {searchItem.ajmc}
                           </span>
                           <Tag className={styles.tagStyle}>{searchItem.status}</Tag>

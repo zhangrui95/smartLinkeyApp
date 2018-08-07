@@ -18,6 +18,8 @@ export default {
     type: 0,
     newEvent: true,
     value: '',
+    allList: [],
+    msgList: [],
   },
 
   effects: {
@@ -37,6 +39,10 @@ export default {
     },
     *query({ payload, callback }, { call, put }) {
       const response = yield call(getQuery, payload);
+      yield put({
+        type: 'getAllList',
+        payload: response,
+      });
       callback(response);
     },
     *dataSave({ payload, callback }, { call, put }) {
@@ -81,6 +87,12 @@ export default {
     *findTool({ payload }, { put }) {
       yield put({
         type: 'getFindTool',
+        payload: payload,
+      });
+    },
+    *getMsgList({ payload }, { put }) {
+      yield put({
+        type: 'getAllMsg',
         payload: payload,
       });
     },
@@ -142,6 +154,18 @@ export default {
       return {
         ...state,
         value: payload.value,
+      };
+    },
+    getAllList(state, { payload }) {
+      return {
+        ...state,
+        allList: payload.data,
+      };
+    },
+    getMsgList(state, { payload }) {
+      return {
+        ...state,
+        msgList: payload,
       };
     },
   },

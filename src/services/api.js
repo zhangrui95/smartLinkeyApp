@@ -107,13 +107,13 @@ export async function getQuestionList(params) {
   });
 }
 export async function getSaveList(params) {
-  return request('https://www.easy-mock.com/mock/5b2de5fd3bd2c939a1040679/Collection', {
+  return request('http://172.19.12.240:7800/datahandle/createpubsubnode', {
     method: 'POST',
     body: params,
   });
 }
 export async function getCancelCollection(params) {
-  return request('https://www.easy-mock.com/mock/5b2de5fd3bd2c939a1040679/CancelCollection', {
+  return request('http://172.19.12.240:7800/datahandle/unSubscribe', {
     method: 'POST',
     body: params,
   });

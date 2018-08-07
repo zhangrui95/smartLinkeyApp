@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Button, Modal, Icon, message } from 'antd';
+import { Row, Col, Button, Modal, Icon, message, Tooltip } from 'antd';
 import styles from './SmartLink.less';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
@@ -254,7 +254,9 @@ export default class SmartTool extends Component {
               onDoubleClick={() => this.dbExe(e.path)}
             >
               <img src={'data:image/png;base64,' + e.icon} style={{ margin: '17px 14px' }} />
-              <span className={styles.ExeName}>{e.name.slice(0, -4)}</span>
+              <span className={styles.ExeName} title={e.name.slice(0, -4)}>
+                {e.name.slice(0, -4)}
+              </span>
               <img
                 onClick={index => this.del(e.name)}
                 className={this.state.delete ? styles.del : styles.none}
@@ -278,7 +280,9 @@ export default class SmartTool extends Component {
               onDoubleClick={() => this.dbExe(e.path)}
             >
               <img src={'data:image/png;base64,' + e.icon} style={{ margin: '17px 14px' }} />
-              <span className={styles.ExeName}>{e.name.slice(0, -4)}</span>
+              <span className={styles.ExeName} title={e.name.slice(0, -4)}>
+                {e.name.slice(0, -4)}
+              </span>
               <img
                 onClick={index => this.del(e.name)}
                 className={this.state.delete ? styles.del : styles.none}

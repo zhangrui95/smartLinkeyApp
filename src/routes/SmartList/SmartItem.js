@@ -32,6 +32,8 @@ class SmartItem extends Component {
       serList: [],
       searTrue: false,
       firstLogin: this.props.firstLogin,
+      gzList: { gzdwp: [], gzdaj: [], gzdcs: [] },
+      delId: [],
     };
     this.numAll = 0;
     this.numSaveAll = 0;
@@ -64,6 +66,7 @@ class SmartItem extends Component {
       });
     }
     if (this.props.type !== next.type) {
+      this.props.getSubscription();
       this.props.dispatch({
         type: 'user/type',
         payload: {
@@ -223,7 +226,12 @@ class SmartItem extends Component {
     this.num = 0;
     if (next.searchList && next.searchList.length > 0) {
       next.searchList.map((item, index) => {
-        if (item.nodeid !== 'smart_syrjq' && item.remark !== '关注') {
+        if (
+          item.nodeid === 'smart_wtaj' ||
+          item.nodeid === 'smart_wtwp' ||
+          item.nodeid === 'smart_wtjq' ||
+          item.nodeid === 'smart_wtcs'
+        ) {
           numData.push({
             name: item.name,
             icon:
@@ -241,7 +249,30 @@ class SmartItem extends Component {
           });
         }
         if (next.type == 0) {
-          if (item.nodeid !== 'smart_syrjq' && item.remark !== '关注') {
+          if (item.remark === 'gzdwp' || item.remark === 'gzdaj' || item.remark === 'gzdcs') {
+            this.state.gzList[item.remark].push({
+              id: item.nodeid,
+              maxmessageid: item.maxmessageid ? item.maxmessageid : 0,
+              name: item.name,
+            });
+            for (var i = 0; i < this.state.gzList[item.remark].length - 1; i++) {
+              for (var j = i + 1; j < this.state.gzList[item.remark].length; j++) {
+                if (this.state.gzList[item.remark][i].id == this.state.gzList[item.remark][j].id) {
+                  this.state.gzList[item.remark].splice(j, 1);
+                  j--;
+                }
+              }
+            }
+            this.setState({
+              gzList: this.state.gzList,
+            });
+          }
+          if (
+            item.remark !== 'gzdwp' &&
+            item.remark !== 'gzdaj' &&
+            item.remark !== 'gzdcs' &&
+            item.nodeid !== 'smart_syrjq'
+          ) {
             dataList.push({
               name: item.name,
               icon:
@@ -301,46 +332,80 @@ class SmartItem extends Component {
           }
         } else if (next.type == 2) {
           if (
-            (item.nodeid === 'smart_syrjq' || item.remark === '关注') &&
+            (item.nodeid === 'smart_syrjq' ||
+              item.remark === 'gzdwp' ||
+              item.remark === 'gzdaj' ||
+              item.remark === 'gzdcs') &&
             this.props.code === '200003'
           ) {
-            dataList.push({
-              name: item.name,
-              icon:
-                item.nodeid === 'smart_ajgz'
-                  ? 'images/anjian.png'
-                  : item.nodeid === 'smart_syrjq'
-                    ? 'images/weishoulijingqing.png'
-                    : item.nodeid === 'smart_wpgz'
-                      ? 'images/wentiwupin.png'
-                      : item.nodeid === 'smart_csgz'
-                        ? 'images/changsuo.png'
-                        : 'images/user.png',
-              maxmessageid: item.maxmessageid ? item.maxmessageid : 0,
-              nodeid: item.nodeid,
-              remark: item.remark,
-            });
-            dataList.map((e, index) => {
-              if (e.nodeid === sessionStorage.getItem('nodeidSave')) {
-                this.setState({
-                  title: e.name,
-                  nodeId: e.nodeid,
-                  index: index,
-                });
-              }
-            });
-            // this.setState({
-            //   title: dataList[0].name,
-            //   nodeId: dataList[0].nodeid,
-            //   index: 0,
-            // });
-          } else {
+            if (item.nodeid === 'smart_syrjq') {
+              dataList.push({
+                name: item.name,
+                icon: 'images/weishoulijingqing.png',
+                maxmessageid: item.maxmessageid ? item.maxmessageid : 0,
+                nodeid: item.nodeid,
+                remark: item.remark,
+              });
+            }
+            if (dataList.length > 1) {
+              dataList.map((e, index) => {
+                if (e.nodeid === sessionStorage.getItem('nodeidSave')) {
+                  this.setState({
+                    title: e.name,
+                    nodeId: e.nodeid,
+                    index: index,
+                  });
+                }
+              });
+            } else {
+              this.setState({
+                title: dataList[0].name,
+                nodeId: dataList[0].nodeid,
+                index: 0,
+              });
+            }
+          } else if (this.props.code === '200001') {
             this.setState({
               title: '',
             });
           }
         }
       });
+    }
+    if (next.type == 2 && next.code === '200003') {
+      if (this.state.gzList.gzdaj.length > 0) {
+        dataList.push({
+          name: '关注的案件',
+          icon: 'images/anjian.png',
+          maxmessageid: this.state.gzList.gzdaj[this.state.gzList.gzdaj.length - 1].maxmessageid
+            ? this.state.gzList.gzdaj[this.state.gzList.gzdaj.length - 1].maxmessageid
+            : 0,
+          nodeid: 'smart_gzdaj',
+          remark: '关注的案件',
+        });
+      }
+      if (this.state.gzList.gzdwp.length > 0) {
+        dataList.push({
+          name: '关注的物品',
+          icon: 'images/wentiwupin.png',
+          maxmessageid: this.state.gzList.gzdwp[this.state.gzList.gzdwp.length - 1].maxmessageid
+            ? this.state.gzList.gzdwp[this.state.gzList.gzdwp.length - 1].maxmessageid
+            : 0,
+          nodeid: 'smart_gzdwp',
+          remark: '关注的物品',
+        });
+      }
+      if (this.state.gzList.gzdcs.length > 0) {
+        dataList.push({
+          name: '关注的场所',
+          icon: 'images/changsuo.png',
+          maxmessageid: this.state.gzList.gzdcs[this.state.gzList.gzdcs.length - 1].maxmessageid
+            ? this.state.gzList.gzdcs[this.state.gzList.gzdcs.length - 1].maxmessageid
+            : 0,
+          nodeid: 'smart_gzdcs',
+          remark: '关注的场所',
+        });
+      }
     }
     if (
       (this.state.nodeId === '' || this.state.nodeId === 'smart_syrjq') &&
@@ -468,20 +533,25 @@ class SmartItem extends Component {
     return this.num;
   };
   getSaveAll = () => {
-    this.state.numData.map((item, index) => {
-      if (this.state.nodeId !== item.nodeid) {
-        if (item.nodeid === 'smart_syrjq' || item.remark === '关注') {
-          this.numSaveAll += parseInt(this.saveListNum(item, index));
-        }
-      }
-    });
-    sessionStorage.setItem('numSaveAll', this.numSaveAll);
+    // this.state.numData.map((item, index) => {
+    //   if (this.state.nodeId !== item.nodeid) {
+    //     if (item.nodeid === 'smart_syrjq' || item.nodeid === 'smart_gzdwp' || item.nodeid === 'smart_gzdaj'|| item.nodeid === 'smart_gzdcs') {
+    //       this.numSaveAll += parseInt(this.saveListNum(item, index));
+    //     }
+    //   }
+    // });
+    // sessionStorage.setItem('numSaveAll', this.numSaveAll);
     return this.numSaveAll;
   };
   getAll = () => {
     this.state.numData.map((item, index) => {
       if (this.state.nodeId !== item.nodeid) {
-        if (item.nodeid !== 'smart_syrjq') {
+        if (
+          item.nodeid === 'smart_wtwp' ||
+          item.nodeid === 'smart_wtaj' ||
+          item.nodeid === 'smart_wtjq' ||
+          item.nodeid === 'smart_wtcs'
+        ) {
           this.numAll += parseInt(this.listNum(item, index));
         }
       }
@@ -489,7 +559,23 @@ class SmartItem extends Component {
     sessionStorage.setItem('allNum', this.numAll);
     return this.numAll;
   };
-
+  cancelSave = id => {
+    this.state.gzList.gzdaj.map((event, idx) => {
+      if (event.id === id) {
+        this.state.gzList.gzdaj.splice(idx, 1);
+      }
+    });
+    this.state.gzList.gzdwp.map((event, idx) => {
+      if (event.id === id) {
+        this.state.gzList.gzdwp.splice(idx, 1);
+      }
+    });
+    this.state.delId.push(id);
+    this.setState({
+      gzList: this.state.gzList,
+      delId: this.state.delId,
+    });
+  };
   compareDown = propertyName => {
     // 降序排序
     return function(object1, object2) {
@@ -523,6 +609,9 @@ class SmartItem extends Component {
       return res;
     };
     let listTime = nodeid => {
+      // item.nodeid === 'smart_gzdwp' ? this.state.gzList.gzdwp[this.state.gzList.gzdwp.length - 1].name
+      //   : item.nodeid === 'smart_gzdaj' ? this.state.gzList.gzdaj[this.state.gzList.gzdaj.length - 1].name
+      //   : item.nodeid === 'smart_gzdcs' ? this.state.gzList.gzdcs[this.state.gzList.gzdcs.length - 1].name
       let time = '';
       this.state.msgLists.map(msgItem => {
         if (msgItem.nodeid.toLowerCase() === nodeid.toLowerCase()) {
@@ -569,7 +658,9 @@ class SmartItem extends Component {
           </div>
           <div className={styles.floatLeft}>
             <div className={styles.titles}>{item.name}</div>
-            <div className={styles.news}>{listWord(item.nodeid)}</div>
+            <div className={styles.news}>
+              {this.props.code === '200001' ? '' : listWord(item.nodeid)}
+            </div>
           </div>
           <div className={styles.floatLeft}>
             <span style={{ float: 'right', fontSize: '13px', marginTop: '18px' }}>
@@ -580,7 +671,10 @@ class SmartItem extends Component {
               count={
                 this.state.nodeId === item.nodeid
                   ? 0
-                  : item.nodeid === 'smart_syrjq' || item.remark === '关注'
+                  : item.nodeid === 'smart_syrjq' ||
+                    item.nodeid === 'smart_gzdwp' ||
+                    item.nodeid === 'smart_gzdaj' ||
+                    item.nodeid === 'smart_gzdcs'
                     ? this.saveListNum(item, index)
                     : this.listNum(item, index)
               }
@@ -679,6 +773,9 @@ class SmartItem extends Component {
                 onNewMsg={(nodeList, maxNum) => this.props.onNewMsg(nodeList, maxNum)}
                 searchList={this.props.searchList}
                 xmppUser={this.props.xmppUser}
+                getSubscription={this.props.getSubscription}
+                gzList={this.state.gzList}
+                cancelSave={idx => this.cancelSave(idx)}
               />
             </div>
           </div>

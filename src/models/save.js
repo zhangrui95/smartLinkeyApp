@@ -9,7 +9,7 @@ export default {
   effects: {
     *getSave({ payload, callback }, { call, put }) {
       const response = yield call(getSaveList, payload);
-      if (response.error === null) {
+      if (response.data) {
         callback(response);
       } else {
         // message.warning('提示：' + response.reason.text);
@@ -17,7 +17,7 @@ export default {
     },
     *getCancelSave({ payload, callback }, { call, put }) {
       const response = yield call(getCancelCollection, payload);
-      if (response.error === null) {
+      if (response.data) {
         callback(response);
       } else {
         // message.warning('提示：' + response.reason.text);

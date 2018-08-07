@@ -160,8 +160,12 @@ export default class SmartAll extends Component {
       connection.addHandler(this.onMessage, null, null, null, null, null);
       connection.send($pres().tree());
       //获取订阅的主题信息
-      connection.pubsub.getSubscriptions(this.onMessage1, 5000);
+      // connection.pubsub.getSubscriptions(this.onMessage1, 5000);
+      this.getSubscription();
     }
+  };
+  getSubscription = () => {
+    connection.pubsub.getSubscriptions(this.onMessage1, 5000);
   };
   onNewMsg = (nodeList, maxNum) => {
     connection.pubsub.items(nodeList, null, null, 5000, maxNum);
@@ -201,6 +205,7 @@ export default class SmartAll extends Component {
           this.setState({
             searchList: response.data,
           });
+          console.log('执行？？？？？？？？？？？？？？？？？？？？？');
         },
       });
     }
@@ -247,6 +252,10 @@ export default class SmartAll extends Component {
         this.setState({
           msgList: this.msgListAll,
         });
+        this.props.dispatch({
+          type: 'user/getMsgList',
+          payload: this.msgListAll,
+        });
       }
     }
     return true;
@@ -286,14 +295,13 @@ export default class SmartAll extends Component {
     });
     this.getCopyWord();
     let word = window.getSelection ? window.getSelection() : document.selection.createRange().text;
-    // if(word.length > 0){
-    this.setState({
-      // rightBox: true,
-      word: word,
-    });
-    // alert(word);
-    // console.log(JSON.stringify(word));
-    // }
+    if (word.toString().length > 0) {
+      this.setState({
+        rightBox: true,
+        word: word.toString(),
+      });
+      console.log('word----------->', word.toString());
+    }
   };
   hideRight = () => {
     this.setState({
@@ -301,6 +309,8 @@ export default class SmartAll extends Component {
     });
   };
   getCopyWord = () => {
+    // let word = window.getSelection ? window.getSelection() : document.selection.createRange().text;
+    // console.log('word----------->',word.toString());
     document.execCommand('Copy');
   };
   SearchWord = () => {
@@ -315,7 +325,7 @@ export default class SmartAll extends Component {
           <SmartItem
             firstLogin={this.state.firstLogin}
             code={jobs.code}
-            getNodeList={() => this.getNodeList()}
+            getSubscription={() => this.getSubscription()}
             xmppUser={this.state.xmppUser}
             msgList={this.state.msgList}
             nodeList={this.state.nodeList}
@@ -337,7 +347,7 @@ export default class SmartAll extends Component {
           className={this.state.rightBox ? styles.rightList : styles.none}
           style={{ left: this.state.left + 'px', top: this.state.top + 'px' }}
         >
-          <div>复制</div>
+          <div onClick={this.getCopyWord}>复制</div>
           <div onClick={() => this.SearchWord()}>查询</div>
         </div>
       </div>
