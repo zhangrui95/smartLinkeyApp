@@ -3,7 +3,6 @@ const electron = require('electron');
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 const { ipcMain } = require('electron');
-const opn = require('opn');
 const Menu = electron.Menu;
 const Tray = electron.Tray;
 const low = require('lowdb');
@@ -20,7 +19,7 @@ const log = require('./src/for-electron/crates/logging').log;
 const startIconProcess = require('./src/for-electron/crates/geticon').startIconProcess;
 const download_package = require('./src/for-electron/crates/down').download_package;
 const uplaunch = require('./src/for-electron/crates/uplaunch').uplaunch;
-// const upversion = require('./src/for-electron/crates/upversion').upversion;
+const upversion = require('./src/for-electron/crates/upversion').upversion;
 const opn_it = require('./src/for-electron/crates/opn-open');
 const config = require('./src/for-electron/config.js');
 
@@ -459,13 +458,17 @@ ipcMain.on('download-package', (event, info) => {
   down_or_has_cache(event, info);
 });
 
+function update_version(new_version) {
+  l = new_version.split('.');
+  l.pop();
+  let cuver = l.join('.');
+  upversion(exe_path, cuver);
+}
+
 /**
  * 更新（替换与重启）
  */
 function update_relaunch() {
-  // 更新控制面板内的版本号
-  // upversion(latest_version);
-
   // 执行更新
   uplaunch(exe_path);
 
@@ -474,8 +477,15 @@ function update_relaunch() {
   const new_version = package_info.to;
   db.set('current_version', new_version).write();
 
+  // 更新控制面板内的版本号
+  update_version(new_version);
+
   setTimeout(() => {
-    app.exit();
+    // app.exit();
+    iconProcess.kill('SIGINT');
+    willQuitApp = true;
+    mainWindow.close();
+    app.quit();
   }, 500);
 }
 
@@ -534,10 +544,11 @@ if (isSecondInstance) {
 
 (function() {
   setTimeout(() => {
-    // db.set('need_uplaunch', true).write();
-    // down_or_has_cache(null, {"desc":"性能优化","from":"1.0.0.8","md5":"ad0b75ea3a64ea66d7de29e1b5188914","package":"http://172.19.12.206:8000/package.zip","package_size":84279008,"ready":true,"to":"1.1.0.0"})
-    // update_relaunch()
-    // db.set('need_uplaunch', true).write();
+    // const current_version = db.get('current_version').value();
+    // l = current_version.split(".");
+    // l.pop();
+    // let cuver = l.join(".");
+    // upversion(exe_path, cuver);
   }, 3000);
 })();
 //1231231321
