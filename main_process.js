@@ -22,9 +22,9 @@ const download_package = require('./src/for-electron/crates/down').download_pack
 const uplaunch = require('./src/for-electron/crates/uplaunch').uplaunch;
 const upversion = require('./src/for-electron/crates/upversion').upversion;
 const opn_it = require('./src/for-electron/crates/opn-open');
-const config = require('./src/for-electron/config.js');
+const auto_launch = require('./src/for-electron/crates/launch').auto_launch;
 
-require('./src/for-electron/crates/launch');
+const config = require('./src/for-electron/config.js');
 
 // require('electron-reload')(path.join(__dirname, 'dist'));
 
@@ -51,6 +51,9 @@ exe_path = exe_path.replace(/\\/g, '/'); // 把\\的路径调整为/
 
 // 初始化发送获取工具图标的程序
 const iconProcess = startIconProcess(exe_path);
+
+// 设置开机自启动
+auto_launch(exe_path);
 
 // 定义数据库位置
 const adapter = new FileSync(exe_path + '/db.json');
@@ -550,10 +553,9 @@ if (isSecondInstance) {
     // l.pop();
     // let cuver = l.join(".");
     // upversion(exe_path, cuver);
-
-    let urlzzz =
-      'http://172.19.12.249:97#/loginByToken?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJhNDcyZmUwMi0wOTBhLTQyODktYjdjMy1kMTdlNDRhNGI4ODciLCJpYXQiOjE1MzM2MTk4OTksInN1YiI6IjMwMyIsImlzcyI6IlNlY3VyaXR5IENlbnRlciIsImRlcGFydG1lbnQiOnsiaWQiOjEwMTEsInBhcmVudElkIjoxNSwiZGVwdGgiOjIsIm5hbWUiOiLniaHkuLnmsZ_luILlhazlronlsYAiLCJjb2RlIjoiMjMxMDAwMDAwMDAwIn0sImdvdmVybm1lbnQiOltdLCJpZCI6MzAzLCJpZENhcmQiOiIyMzAxMDUxOTk1MDcyOTI5MjIiLCJwY2FyZCI6InNtYXJ0IiwibmFtZSI6InNtYXJ0Iiwiam9iIjpbeyJjb2RlIjoiMjAwMDAzIiwibmFtZSI6IuaJp-azleebkeeuoSJ9XSwiY29udGFjdCI6IjE1NjYzODAzNjc3IiwiaXNBZG1pbiI6MCwiZXhwIjoxNTM1NjkzNDk5fQ.-xE_VK-V4dkoPEC0LyP49dSxIVc1VlAIWykWKXjzutU&wtid=b5042353-734f-4a67-903a-2e2dca1b55ed&type=1';
-    opn(urlzzz, { app: 'Chrome' });
+    // let urlzzz =
+    //   'http://172.19.12.249:97#/loginByToken?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJhNDcyZmUwMi0wOTBhLTQyODktYjdjMy1kMTdlNDRhNGI4ODciLCJpYXQiOjE1MzM2MTk4OTksInN1YiI6IjMwMyIsImlzcyI6IlNlY3VyaXR5IENlbnRlciIsImRlcGFydG1lbnQiOnsiaWQiOjEwMTEsInBhcmVudElkIjoxNSwiZGVwdGgiOjIsIm5hbWUiOiLniaHkuLnmsZ_luILlhazlronlsYAiLCJjb2RlIjoiMjMxMDAwMDAwMDAwIn0sImdvdmVybm1lbnQiOltdLCJpZCI6MzAzLCJpZENhcmQiOiIyMzAxMDUxOTk1MDcyOTI5MjIiLCJwY2FyZCI6InNtYXJ0IiwibmFtZSI6InNtYXJ0Iiwiam9iIjpbeyJjb2RlIjoiMjAwMDAzIiwibmFtZSI6IuaJp-azleebkeeuoSJ9XSwiY29udGFjdCI6IjE1NjYzODAzNjc3IiwiaXNBZG1pbiI6MCwiZXhwIjoxNTM1NjkzNDk5fQ.-xE_VK-V4dkoPEC0LyP49dSxIVc1VlAIWykWKXjzutU&wtid=b5042353-734f-4a67-903a-2e2dca1b55ed&type=1';
+    // opn(urlzzz, { app: 'Chrome' });
   }, 3000);
 })();
 //1231231321
