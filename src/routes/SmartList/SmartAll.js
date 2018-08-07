@@ -205,7 +205,6 @@ export default class SmartAll extends Component {
           this.setState({
             searchList: response.data,
           });
-          console.log('执行？？？？？？？？？？？？？？？？？？？？？');
         },
       });
     }

@@ -125,7 +125,6 @@ export default class SmartDetail extends Component {
   componentWillReceiveProps(next) {
     if (next.login.loginStatus) {
       if (this.props.user.allList !== next.user.allList) {
-        console.log('zx');
         this.setState({
           loading: true,
         });
@@ -176,6 +175,17 @@ export default class SmartDetail extends Component {
         if (sessionStorage.getItem('nodeid') === 'smart_gzdaj') {
           console.log(next.gzList['gzdaj'].id);
           next.gzList['gzdaj'].map((e, i) => {
+            console.log('e-------->', e);
+            next.msgList.map(item => {
+              if (e.id === item.nodeid) {
+                list.push(item);
+              }
+            });
+          });
+        }
+        if (sessionStorage.getItem('nodeid') === 'smart_gzdwp') {
+          console.log(next.gzList['gzdwp'].id);
+          next.gzList['gzdwp'].map((e, i) => {
             console.log('e-------->', e);
             next.msgList.map(item => {
               if (e.id === item.nodeid) {
@@ -273,6 +283,7 @@ export default class SmartDetail extends Component {
     }
   }
   goWindow = path => {
+    // console.log('path-------->',path)
     // window.open(path)
     ipcRenderer.send('visit-page', {
       url: path,

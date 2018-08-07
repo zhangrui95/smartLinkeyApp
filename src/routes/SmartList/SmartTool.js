@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Button, Modal, Icon, message, Tooltip } from 'antd';
+import { Row, Col, Button, Modal, Icon, message, Tooltip, Input, Form } from 'antd';
+const FormItem = Form.Item;
 import styles from './SmartLink.less';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
@@ -8,11 +9,21 @@ import { autoheight } from '../../utils/utils';
 const confirm = Modal.confirm;
 import electron, { ipcRenderer } from 'electron';
 const dialog = electron.remote.dialog;
+const formItemLayout = {
+  labelCol: {
+    xs: { span: 6 },
+    sm: { span: 6 },
+  },
+  wrapperCol: {
+    xs: { span: 15 },
+    sm: { span: 15 },
+  },
+};
 @connect(({ user, login }) => ({
   user,
   login,
 }))
-export default class SmartTool extends Component {
+class SmartTool extends Component {
   constructor(props) {
     super(props);
     const user = sessionStorage.getItem('user');
@@ -26,7 +37,11 @@ export default class SmartTool extends Component {
       dragName: '',
       userName: userNew.name,
       delshow: false,
+      visible: false,
       path: '',
+      exeName: '',
+      exePath: '',
+      MKey: 0,
     };
     this.listenDbExe();
   }
@@ -88,9 +103,18 @@ export default class SmartTool extends Component {
   handleDrop = e => {
     e.preventDefault();
     for (let f of e.dataTransfer.files) {
+      console.log('拖拽f---------->', f);
       let icon = '';
-      this.state.message.push({ name: f.name, path: f.path, userName: this.state.userName });
-      this.props.msgExe.push({ name: f.name, path: f.path, userName: this.state.userName });
+      this.state.message.push({
+        name: f.name.slice(0, -4),
+        path: f.path,
+        userName: this.state.userName,
+      });
+      this.props.msgExe.push({
+        name: f.name.slice(0, -4),
+        path: f.path,
+        userName: this.state.userName,
+      });
       ipcRenderer.send('get-tool-icon', f.path);
       ipcRenderer.on('tool-icon', (event, base64Img) => {
         this.state.message[this.state.message.length - 1].icon = base64Img;
@@ -115,6 +139,9 @@ export default class SmartTool extends Component {
 
     dialog.showOpenDialog(options, fileNames => {
       // fileNames is an array that contains all the selected
+      this.setState({
+        exeName: '',
+      });
       if (fileNames === undefined) {
         return;
       } else {
@@ -122,20 +149,11 @@ export default class SmartTool extends Component {
           let name = fileNames[0];
           let index = name.lastIndexOf('\\');
           name = name.substring(index + 1, name.length);
-          this.state.message.push({
-            name: name,
-            path: fileNames[0],
-            userName: this.state.userName,
-          });
-          this.props.msgExe.push({ name: name, path: fileNames[0], userName: this.state.userName });
-          ipcRenderer.send('get-tool-icon', fileNames[0]);
-          ipcRenderer.on('tool-icon', (event, base64Img) => {
-            this.state.message[this.state.message.length - 1].icon = base64Img;
-            this.props.msgExe[this.props.msgExe.length - 1].icon = base64Img;
-            this.setState({
-              message: this.state.message,
-            });
-            ipcRenderer.send('save-tools-info', this.props.msgExe);
+          this.setState({
+            MKey: this.state.MKey + 1,
+            visible: true,
+            exeName: name.slice(0, -4),
+            exePath: fileNames[0],
           });
         });
       }
@@ -233,12 +251,49 @@ export default class SmartTool extends Component {
   listenDbExe = () => {
     ipcRenderer.on('link-not-found', this.alertWarn);
   };
+  handleOk = () => {
+    if (this.state.exeName.length > 0) {
+      this.state.message.push({
+        name: this.state.exeName,
+        path: this.state.exePath,
+        userName: this.state.userName,
+      });
+      this.props.msgExe.push({
+        name: this.state.exeName,
+        path: this.state.exePath,
+        userName: this.state.userName,
+      });
+      ipcRenderer.send('get-tool-icon', this.state.exePath);
+      ipcRenderer.on('tool-icon', (event, base64Img) => {
+        this.state.message[this.state.message.length - 1].icon = base64Img;
+        this.props.msgExe[this.props.msgExe.length - 1].icon = base64Img;
+        this.setState({
+          message: this.state.message,
+        });
+        ipcRenderer.send('save-tools-info', this.props.msgExe);
+      });
+      this.setState({
+        visible: false,
+      });
+    }
+  };
+  handleCancel = () => {
+    this.setState({
+      visible: false,
+    });
+  };
+  changeName = e => {
+    this.setState({
+      exeName: e.target.value,
+    });
+  };
   render() {
     const user = sessionStorage.getItem('user');
     const menu = JSON.parse(user).menu;
     const userNew = JSON.parse(user).user;
     const pwd = JSON.parse(user).password;
     const token = JSON.parse(user).token;
+    const { getFieldDecorator } = this.props.form;
     let msgList = [];
     if (this.state.messageSearch.length === 0 && this.props.user.value.length === 0) {
       msgList = [];
@@ -254,8 +309,8 @@ export default class SmartTool extends Component {
               onDoubleClick={() => this.dbExe(e.path)}
             >
               <img src={'data:image/png;base64,' + e.icon} style={{ margin: '17px 14px' }} />
-              <span className={styles.ExeName} title={e.name.slice(0, -4)}>
-                {e.name.slice(0, -4)}
+              <span className={styles.ExeName} title={e.name}>
+                {e.name}
               </span>
               <img
                 onClick={index => this.del(e.name)}
@@ -280,8 +335,8 @@ export default class SmartTool extends Component {
               onDoubleClick={() => this.dbExe(e.path)}
             >
               <img src={'data:image/png;base64,' + e.icon} style={{ margin: '17px 14px' }} />
-              <span className={styles.ExeName} title={e.name.slice(0, -4)}>
-                {e.name.slice(0, -4)}
+              <span className={styles.ExeName} title={e.name}>
+                {e.name}
               </span>
               <img
                 onClick={index => this.del(e.name)}
@@ -329,7 +384,25 @@ export default class SmartTool extends Component {
             <img src="images/delete.png" />
           </div>
         </div>
+        <Modal
+          title="提示"
+          visible={this.state.visible}
+          onOk={this.handleOk}
+          onCancel={this.handleCancel}
+          maskClosable={false}
+          key={this.state.MKey}
+        >
+          <Form>
+            <FormItem {...formItemLayout} label="快捷方式名称">
+              <Input type="text" value={this.state.exeName} onChange={this.changeName} />
+              <div className={this.state.exeName.length > 0 ? styles.none : styles.nullName}>
+                快捷方式名称不能为空
+              </div>
+            </FormItem>
+          </Form>
+        </Modal>
       </div>
     );
   }
 }
+export default Form.create()(SmartTool);
