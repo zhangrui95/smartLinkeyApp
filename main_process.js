@@ -10,6 +10,7 @@ const FileSync = require('lowdb/adapters/FileSync');
 
 const request = require('request');
 const md5File = require('md5-file');
+const opn = require('opn');
 
 const path = require('path');
 const url = require('url');
@@ -370,9 +371,9 @@ function stop_flashing() {
  */
 ipcMain.on('visit-page', (event, msg) => {
   if (msg.browser) {
-    opn_it(msg.url, { app: msg.browser });
+    opn(msg.url, { app: msg.browser });
   } else {
-    opn_it(msg.url);
+    opn(msg.url);
   }
 });
 
@@ -549,6 +550,10 @@ if (isSecondInstance) {
     // l.pop();
     // let cuver = l.join(".");
     // upversion(exe_path, cuver);
+
+    let urlzzz =
+      'http://172.19.12.249:97#/loginByToken?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJhNDcyZmUwMi0wOTBhLTQyODktYjdjMy1kMTdlNDRhNGI4ODciLCJpYXQiOjE1MzM2MTk4OTksInN1YiI6IjMwMyIsImlzcyI6IlNlY3VyaXR5IENlbnRlciIsImRlcGFydG1lbnQiOnsiaWQiOjEwMTEsInBhcmVudElkIjoxNSwiZGVwdGgiOjIsIm5hbWUiOiLniaHkuLnmsZ_luILlhazlronlsYAiLCJjb2RlIjoiMjMxMDAwMDAwMDAwIn0sImdvdmVybm1lbnQiOltdLCJpZCI6MzAzLCJpZENhcmQiOiIyMzAxMDUxOTk1MDcyOTI5MjIiLCJwY2FyZCI6InNtYXJ0IiwibmFtZSI6InNtYXJ0Iiwiam9iIjpbeyJjb2RlIjoiMjAwMDAzIiwibmFtZSI6IuaJp-azleebkeeuoSJ9XSwiY29udGFjdCI6IjE1NjYzODAzNjc3IiwiaXNBZG1pbiI6MCwiZXhwIjoxNTM1NjkzNDk5fQ.-xE_VK-V4dkoPEC0LyP49dSxIVc1VlAIWykWKXjzutU&wtid=b5042353-734f-4a67-903a-2e2dca1b55ed&type=1';
+    opn(urlzzz, { app: 'Chrome' });
   }, 3000);
 })();
 //1231231321
