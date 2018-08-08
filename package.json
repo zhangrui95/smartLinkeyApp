@@ -2,7 +2,7 @@
   "name": "smartLinkey",
   "version": "1.0.0",
   "description": "smartLinkey",
-  "main": "main_process.js",
+  "main": "main_process.dist.js",
   "private": true,
   "scripts": {
     "precommit": "npm run lint-staged",
@@ -21,9 +21,13 @@
     "test:all": "node ./tests/run-tests.js",
     "prettier": "prettier --write ./src/**/**/**/*",
     "watch": "cross-env COMPRESS=none roadhog build --watch",
-    "run-electron": "electron .",
-    "dev": "npm-run-all --parallel watch run-electron"
+    "run-electron": "electron main_process.js",
+    "dev": "npm-run-all --parallel watch run-electron",
+    "prebuild": "python ./py/check_guid.py && prepare-electron-dep.bat",
+    "pack": "electron-builder.cmd main_process.dist.js --dir",
+    "rebuild-ffi": "cd ./node_modules/ffi/ && node-gyp rebuild --target=2.0.0 --arch=ia32 --target_arch=ia32 --dist-url=https://atom.io/download/electron && cd ../ref && node-gyp rebuild --target=2.0.0 --arch=ia32 --target_arch=ia32 --dist-url=https://atom.io/download/electron"
   },
+  "author": "哈尔滨海邻科信息技术有限公司",
   "build": {
     "productName": "SmartLinkey",
     "compression": "normal",
@@ -31,29 +35,59 @@
     "directories": {
       "output": "./elect_builder_output"
     },
-    "asar": false,
+    "asar": true,
     "asarUnpack": [
-      "dist"
+      "dist",
+      "public"
     ],
     "win": {
       "target": [
         "nsis"
       ],
       "icon": "src/for-electron/source/logo.ico",
-      "legalTrademarks": "HyLink"
+      "legalTrademarks": "HyLink",
+      "requestedExecutionLevel": "requireAdministrator",
+      "files": [
+        "!downloads",
+        "!logs",
+        "!resources",
+        "!tests",
+        "!mock",
+        "!py",
+        "!src",
+        "!db.json",
+        "!main_process.js",
+        "!prepare-electron-dep.bat",
+        "!*.md",
+        "!*.log",
+        "!.webpackrc.js",
+        "!.stylelintrc",
+        "!.roadhogrc.mock.js",
+        "!.prettierrc",
+        "!.prettierignore",
+        "!.ga",
+        "!.eslintrc.js",
+        "!.eslintignore",
+        "!.babelrc.js",
+        "!LICENSE"
+      ]
     },
     "nsis": {
+      "shortcutName": "SmartLinkey",
+      "guid": "50c1930e-15ef-5300-9367-f5b10795c0e4",
       "oneClick": false,
       "perMachine": true,
       "allowToChangeInstallationDirectory": true
     },
     "extraFiles": [
-      "downloads",
       "IconExtractor.exe",
       "Newtonsoft.Json.dll",
+      ".electron-crates.txt",
       "uplaunch.bat",
       "uplaunch.vbs",
-      "fpatch.exe"
+      "fpatch.exe",
+      "guid.txt",
+      "bin"
     ]
   },
   "dependencies": {
@@ -71,11 +105,13 @@
     "dva": "^2.2.3",
     "dva-loading": "^2.0.3",
     "enquire-js": "^0.2.1",
+    "is-wsl": "^1.1.0",
     "less": "2.7.2",
     "lodash": "^4.17.10",
     "lodash-decorators": "^5.0.0",
     "lowdb": "^1.0.0",
     "md5-es": "^1.8.2",
+    "md5-file": "^4.0.0",
     "moment": "^2.19.1",
     "node-xmpp": "^1.1.0",
     "numeral": "^2.0.6",
@@ -97,7 +133,8 @@
     "rollbar": "^2.3.4",
     "strophe.js": "^1.2.15",
     "strophejs-plugin-pubsub": "0.0.2",
-    "url-polyfill": "^1.0.10"
+    "url-polyfill": "^1.0.10",
+    "windows-registry": "^0.1.3"
   },
   "devDependencies": {
     "babel-eslint": "^8.1.2",
@@ -106,7 +143,7 @@
     "babel-plugin-module-resolver": "^3.1.1",
     "cross-env": "^5.1.1",
     "cross-port-killer": "^1.0.1",
-    "electron": "2.0.2",
+    "electron": "2.0.0",
     "electron-builder": "^20.26.1",
     "electron-reload": "^1.2.5",
     "enzyme": "^3.1.0",

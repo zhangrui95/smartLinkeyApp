@@ -4,11 +4,6 @@ const _ = require('lodash');
 function startIconProcess(exe_path) {
   const iconProcess = child_process.spawn(exe_path + '/IconExtractor.exe', ['-x']);
 
-  // setInterval(() => {
-  //   var json = JSON.stringify({context: 'SomeContextLikeAName', path: 'C:/Users/Public/Desktop/Google Chrome.lnk'}) + "\n";
-  //   iconProcess.stdin.write(json);
-  // }, 3000);
-
   var iconDataBuffer = '';
 
   iconProcess.stdout.on('data', function(data) {
@@ -41,5 +36,9 @@ function startIconProcess(exe_path) {
   return iconProcess;
 }
 
-// exports.iconProcess = iconProcess;
+// setInterval(() => {
+//   var json = JSON.stringify({context: 'SomeContextLikeAName', path: 'C:/Users/Public/Desktop/Google Chrome.lnk'}) + "\n";
+//   iconProcess.stdin.write(json);
+// }, 3000);
+
 exports.startIconProcess = startIconProcess;

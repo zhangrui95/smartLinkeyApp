@@ -5,7 +5,7 @@ timeout /t 1
 IF EXIST "%~dp0node_modules" (
     @SETLOCAL
     @SET PATHEXT=%PATHEXT:;.JS;=;%
-    node "%~dp0\node_modules\electron\cli.js" .
+    node "%~dp0\node_modules\electron\cli.js" main_process.dist.js
 ) ELSE (
     start "ec" "%~dp0\SmartLinkey.exe"
     REM start /D "Chrome" "C:\Program Files (x86)\Google\Chrome\Application\" chrome.exe

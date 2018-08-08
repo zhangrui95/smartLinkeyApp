@@ -16,21 +16,33 @@ const path = require('path');
 const url = require('url');
 const fs = require('fs');
 
-const log = require('./src/for-electron/crates/logging').log;
-const startIconProcess = require('./src/for-electron/crates/geticon').startIconProcess;
-const download_package = require('./src/for-electron/crates/down').download_package;
-const uplaunch = require('./src/for-electron/crates/uplaunch').uplaunch;
-const upversion = require('./src/for-electron/crates/upversion').upversion;
-const opn_it = require('./src/for-electron/crates/opn-open');
-const auto_launch = require('./src/for-electron/crates/launch').auto_launch;
+if (!fs.existsSync('./.electron-crates.txt')) {
+  fs.writeFileSync('./.electron-crates.txt', 'src');
+}
 
-const config = require('./src/for-electron/config.js');
+let crates_top_dir = fs.readFileSync('./.electron-crates.txt', 'utf-8');
+let fetd = crates_top_dir.replace(/[\r\n]/g, '');
+fetd = fetd.replace(/(\s*$)/g, '');
+console.log('electron use crates path: <' + fetd + '>');
+
+const log = require('./' + fetd + '/for-electron/crates/logging').log;
+const startIconProcess = require('./' + fetd + '/for-electron/crates/geticon').startIconProcess;
+const download_package = require('./' + fetd + '/for-electron/crates/down').download_package;
+const uplaunch = require('./' + fetd + '/for-electron/crates/uplaunch').uplaunch;
+const upversion = require('./' + fetd + '/for-electron/crates/upversion').upversion;
+const opn_it = require('./' + fetd + '/for-electron/crates/opn-open');
+
+const config = require('./' + fetd + '/for-electron/config.js');
+if (config.auto_launch) {
+  const auto_launch = require('./' + fetd + '/for-electron/crates/launch').auto_launch;
+}
+
+const icon_path = path.join(__dirname, './' + fetd + '/for-electron/source/logo.ico');
+const icon_none_path = path.join(__dirname, './' + fetd + '/for-electron/source/none.ico');
+
+const upgrade_tmp_dir = 'downloads';
 
 // require('electron-reload')(path.join(__dirname, 'dist'));
-
-const icon_path = path.join(__dirname, 'src/for-electron/source/logo.ico');
-const icon_none_path = path.join(__dirname, 'src/for-electron/source/none.ico');
-const upgrade_tmp_dir = 'downloads';
 
 let mainWindow;
 let appTray = null;
@@ -53,7 +65,9 @@ exe_path = exe_path.replace(/\\/g, '/'); // 把\\的路径调整为/
 const iconProcess = startIconProcess(exe_path);
 
 // 设置开机自启动
-auto_launch(exe_path);
+if (config.auto_launch) {
+  auto_launch(exe_path);
+}
 
 // 定义数据库位置
 const adapter = new FileSync(exe_path + '/db.json');

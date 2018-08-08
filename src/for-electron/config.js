@@ -13,8 +13,9 @@
 var config = {
   title: 'SmartLinkey',
   traysay: '海邻科消息助手',
-  current_version: '1.0.0.8',
+  current_version: '1.0.0.7',
   use_devtools: true,
+  auto_launch: true,
 
   login_page_width: 300,
   login_page_height: 367,

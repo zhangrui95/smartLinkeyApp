@@ -41,6 +41,9 @@ module.exports = (target, opts) => {
 
   args.push(target);
 
+  console.log(cmd);
+  console.log(args);
+  console.log(cpOpts);
   const cp = childProcess.spawn(cmd, args, cpOpts);
 
   if (opts.wait) {
