@@ -66,7 +66,6 @@ class SmartItem extends Component {
       });
     }
     if (this.props.type !== next.type) {
-      this.props.getSubscription();
       this.props.dispatch({
         type: 'user/type',
         payload: {
@@ -227,10 +226,11 @@ class SmartItem extends Component {
     if (next.searchList && next.searchList.length > 0) {
       next.searchList.map((item, index) => {
         if (
-          item.nodeid === 'smart_wtaj' ||
-          item.nodeid === 'smart_wtwp' ||
-          item.nodeid === 'smart_wtjq' ||
-          item.nodeid === 'smart_wtcs'
+          (item.nodeid === 'smart_wtaj' ||
+            item.nodeid === 'smart_wtwp' ||
+            item.nodeid === 'smart_wtjq' ||
+            item.nodeid === 'smart_wtcs') &&
+          next.code === '200003'
         ) {
           numData.push({
             name: item.name,
@@ -311,6 +311,7 @@ class SmartItem extends Component {
                 });
               } else {
                 if (next.type == 2) {
+                  console.log('没有');
                   this.setState({
                     title: dataList[0].name,
                     nodeId: dataList[0].nodeid,
@@ -345,23 +346,6 @@ class SmartItem extends Component {
                 maxmessageid: item.maxmessageid ? item.maxmessageid : 0,
                 nodeid: item.nodeid,
                 remark: item.remark,
-              });
-            }
-            if (dataList.length > 1) {
-              dataList.map((e, index) => {
-                if (e.nodeid === sessionStorage.getItem('nodeidSave')) {
-                  this.setState({
-                    title: e.name,
-                    nodeId: e.nodeid,
-                    index: index,
-                  });
-                }
-              });
-            } else {
-              this.setState({
-                title: dataList[0].name,
-                nodeId: dataList[0].nodeid,
-                index: 0,
               });
             }
           } else if (this.props.code === '200001') {
@@ -405,6 +389,25 @@ class SmartItem extends Component {
           nodeid: 'smart_gzdcs',
           remark: '关注的场所',
         });
+      }
+      if (dataList.length > 0) {
+        if (dataList.length > 1) {
+          dataList.map((e, index) => {
+            if (e.nodeid === sessionStorage.getItem('nodeidSave')) {
+              this.setState({
+                title: e.name,
+                nodeId: e.nodeid,
+                index: index,
+              });
+            }
+          });
+        } else {
+          this.setState({
+            title: dataList[0].name,
+            nodeId: dataList[0].nodeid,
+            index: 0,
+          });
+        }
       }
     }
     if (
@@ -472,33 +475,53 @@ class SmartItem extends Component {
   };
   saveListNum = (item, index) => {
     this.saveNum = 0;
-    this.state.msgLists.map(msgItem => {
-      if (msgItem.nodeid.toLowerCase() === item.nodeid.toLowerCase()) {
-        if (item.maxmessageid !== 0 && !this.props.firstLogin) {
-          if (msgItem.id > this.lastTime[index].maxmessageid) {
-            if (msgItem.messagecount > 1) {
-              this.saveNum = msgItem.messagecount;
-            } else {
-              this.saveNum++;
-            }
-          }
-        } else if (
-          this.lastTime[index].maxmessageid === 0 &&
-          !this.props.firstLogin &&
-          this.props.code === '200001'
-        ) {
-          this.saveNum = 1;
-        } else {
-          if (msgItem.id > this.lastTime[index].maxmessageid) {
-            if (msgItem.messagecount > 1) {
-              this.saveNum = msgItem.messagecount;
-            } else {
-              this.saveNum++;
-            }
-          }
-        }
-      }
-    });
+    // this.state.msgLists.map(msgItem => {
+    //   // console.log('item.nodeid==========>',item.nodeid)
+    //   if(item.nodeid === 'smart_syrjq'){
+    //     if (msgItem.nodeid.toLowerCase() === item.nodeid.toLowerCase()) {
+    //       if (item.maxmessageid !== 0 && !this.props.firstLogin) {
+    //         if (msgItem.id > this.lastTime[index].maxmessageid) {
+    //           if (msgItem.messagecount > 1) {
+    //             this.saveNum = msgItem.messagecount;
+    //           } else {
+    //             this.saveNum++;
+    //           }
+    //         }
+    //       } else if (
+    //         this.lastTime[index].maxmessageid === 0 &&
+    //         !this.props.firstLogin &&
+    //         this.props.code === '200001'
+    //       ) {
+    //         this.saveNum = 1;
+    //       } else {
+    //         if (msgItem.id > this.lastTime[index].maxmessageid) {
+    //           if (msgItem.messagecount > 1) {
+    //             this.saveNum = msgItem.messagecount;
+    //           } else {
+    //             this.saveNum++;
+    //           }
+    //         }
+    //       }
+    //     }
+    //   }else if(item.nodeid === 'smart_gzdaj'){
+    //     // console.log(this.state.gzList['gzdaj'])
+    //     this.state.gzList['gzdaj'].map((e,i)=>{
+    //       // console.log('e.id---------->',e.id);
+    //       if (msgItem.nodeid.toLowerCase() === e.id) {
+    //         if (item.maxmessageid !== 0 && !this.props.firstLogin) {
+    //           if (msgItem.id > this.lastTime[index].maxmessageid) {
+    //             if (msgItem.messagecount > 1) {
+    //               this.saveNum = msgItem.messagecount;
+    //             } else {
+    //               this.saveNum++;
+    //             }
+    //           }
+    //         }
+    //       }
+    //     })
+    //   }
+    // });
+    // this.saveNum = 1;
     return this.saveNum;
   };
   listNum = (item, index) => {
@@ -575,6 +598,7 @@ class SmartItem extends Component {
       gzList: this.state.gzList,
       delId: this.state.delId,
     });
+    this.props.getSubscription();
   };
   compareDown = propertyName => {
     // 降序排序
@@ -595,33 +619,62 @@ class SmartItem extends Component {
     let list = [];
     let listWord = nodeid => {
       let res = '';
-      this.state.msgLists.map(msgItem => {
-        let result = JSON.parse(msgItem.messagecontent).result;
-        let listType = JSON.parse(msgItem.messagecontent).type;
-        if (msgItem.nodeid.toLowerCase() === nodeid.toLowerCase()) {
-          if (listType === 'jqxx') {
-            res = result[parseInt(result.length) - 1].jqmc;
-          } else {
-            res = result[parseInt(result.length) - 1].ajmc;
+      if (nodeid === 'smart_gzdaj' || nodeid === 'smart_gzdwp' || nodeid === 'smart_gzdcs') {
+        let node = nodeid.slice(6);
+        this.state.gzList[node].map((e, i) => {
+          this.state.msgLists.map(msgItem => {
+            let result = JSON.parse(msgItem.messagecontent).result;
+            let listType = JSON.parse(msgItem.messagecontent).type;
+            if (msgItem.nodeid.toLowerCase() === e.id) {
+              if (listType === 'jqxx') {
+                res = result[parseInt(result.length) - 1].jqmc;
+              } else {
+                res = result[parseInt(result.length) - 1].ajmc;
+              }
+            }
+          });
+        });
+      } else {
+        this.state.msgLists.map(msgItem => {
+          let result = JSON.parse(msgItem.messagecontent).result;
+          let listType = JSON.parse(msgItem.messagecontent).type;
+          if (msgItem.nodeid.toLowerCase() === nodeid.toLowerCase()) {
+            if (listType === 'jqxx') {
+              res = result[parseInt(result.length) - 1].jqmc;
+            } else {
+              res = result[parseInt(result.length) - 1].ajmc;
+            }
           }
-        }
-      });
+        });
+      }
       return res;
     };
     let listTime = nodeid => {
-      // item.nodeid === 'smart_gzdwp' ? this.state.gzList.gzdwp[this.state.gzList.gzdwp.length - 1].name
-      //   : item.nodeid === 'smart_gzdaj' ? this.state.gzList.gzdaj[this.state.gzList.gzdaj.length - 1].name
-      //   : item.nodeid === 'smart_gzdcs' ? this.state.gzList.gzdcs[this.state.gzList.gzdcs.length - 1].name
       let time = '';
-      this.state.msgLists.map(msgItem => {
-        if (msgItem.nodeid.toLowerCase() === nodeid.toLowerCase()) {
-          if (msgItem.time) {
-            time = msgItem.time.slice(5, 10);
-          } else {
-            time = getLocalTime(Date.parse(new Date())).slice(5, 10);
+      if (nodeid === 'smart_gzdaj' || nodeid === 'smart_gzdwp' || nodeid === 'smart_gzdcs') {
+        let node = nodeid.slice(6);
+        this.state.gzList[node].map((e, i) => {
+          this.state.msgLists.map(msgItem => {
+            if (msgItem.nodeid.toLowerCase() === e.id) {
+              if (msgItem.time) {
+                time = msgItem.time.slice(5, 10);
+              } else {
+                time = getLocalTime(Date.parse(new Date())).slice(5, 10);
+              }
+            }
+          });
+        });
+      } else {
+        this.state.msgLists.map(msgItem => {
+          if (msgItem.nodeid.toLowerCase() === nodeid.toLowerCase()) {
+            if (msgItem.time) {
+              time = msgItem.time.slice(5, 10);
+            } else {
+              time = getLocalTime(Date.parse(new Date())).slice(5, 10);
+            }
           }
-        }
-      });
+        });
+      }
       return time;
     };
     let maxTime = nodeid => {
@@ -634,12 +687,6 @@ class SmartItem extends Component {
       return max;
     };
     this.numAll = 0;
-    // let datas = []
-    // if(this.props.code === '200001'){
-    //   datas = this.state.data.sort(this.compareDown("maxmessageid"));
-    // }else{
-    //   datas = this.state.data;
-    // }
     this.state.data.map((item, index) => {
       let itemList = (
         <div

@@ -138,7 +138,6 @@ export default class SmartDetail extends Component {
           ).scrollHeight;
         }, 500);
       }
-      let list = [];
       for (var i = 0; i < next.msgList.length - 1; i++) {
         for (var j = i + 1; j < next.msgList.length; j++) {
           if (next.msgList[i].messagecontent == next.msgList[j].messagecontent) {
@@ -147,20 +146,12 @@ export default class SmartDetail extends Component {
           }
         }
       }
-      next.msgList.map(item => {
-        if (sessionStorage.getItem('nodeid').toLowerCase() === item.nodeid.toLowerCase()) {
-          list.push(item);
-        }
-      });
-      this.setState({
-        data: list,
-      });
+      this.getListNew(next);
       if (
         this.props.user.nodeId !== next.user.nodeId ||
         this.props.nodeId !== next.nodeId ||
         this.props.event !== next.event
       ) {
-        list = [];
         this.setState({
           scrollHeight: document.getElementById('scroll').scrollHeight,
           endLength: 1,
@@ -172,42 +163,7 @@ export default class SmartDetail extends Component {
           searchList: null,
           loading: true,
         });
-        if (sessionStorage.getItem('nodeid') === 'smart_gzdaj') {
-          console.log(next.gzList['gzdaj'].id);
-          next.gzList['gzdaj'].map((e, i) => {
-            console.log('e-------->', e);
-            next.msgList.map(item => {
-              if (e.id === item.nodeid) {
-                list.push(item);
-              }
-            });
-          });
-        }
-        if (sessionStorage.getItem('nodeid') === 'smart_gzdwp') {
-          console.log(next.gzList['gzdwp'].id);
-          next.gzList['gzdwp'].map((e, i) => {
-            console.log('e-------->', e);
-            next.msgList.map(item => {
-              if (e.id === item.nodeid) {
-                list.push(item);
-              }
-            });
-          });
-        }
-        if (
-          sessionStorage.getItem('nodeid') !== 'smart_gzdaj' ||
-          sessionStorage.getItem('nodeid') !== 'smart_gzdwp' ||
-          sessionStorage.getItem('nodeid') !== 'smart_gzdcs'
-        ) {
-          next.msgList.map(item => {
-            if (sessionStorage.getItem('nodeid').toLowerCase() === item.nodeid.toLowerCase()) {
-              list.push(item);
-            }
-          });
-        }
-        this.setState({
-          data: list,
-        });
+        this.getListNew(next);
         setTimeout(() => {
           this.setState({
             loading: false,
@@ -282,6 +238,35 @@ export default class SmartDetail extends Component {
       }
     }
   }
+  getListNew = next => {
+    let list = [];
+    if (sessionStorage.getItem('nodeid') === 'smart_gzdaj') {
+      next.gzList['gzdaj'].map((e, i) => {
+        next.msgList.map(item => {
+          if (e.id === item.nodeid) {
+            list.push(item);
+          }
+        });
+      });
+    } else if (sessionStorage.getItem('nodeid') === 'smart_gzdwp') {
+      next.gzList['gzdwp'].map((e, i) => {
+        next.msgList.map(item => {
+          if (e.id === item.nodeid) {
+            list.push(item);
+          }
+        });
+      });
+    } else {
+      next.msgList.map(item => {
+        if (sessionStorage.getItem('nodeid').toLowerCase() === item.nodeid.toLowerCase()) {
+          list.push(item);
+        }
+      });
+    }
+    this.setState({
+      data: list,
+    });
+  };
   goWindow = path => {
     // console.log('path-------->',path)
     // window.open(path)
@@ -384,12 +369,12 @@ export default class SmartDetail extends Component {
               //案管
               result.map((ajItem, index) => {
                 this.state.saveList.map((e, i) => {
-                  if (e.id === ajItem.dbid) {
+                  if (e.id === '/' + ajItem.wtid) {
                     k = 1;
                   }
                 });
                 this.props.gzList.gzdaj.map((e, i) => {
-                  if (e.id === ajItem.dbid) {
+                  if (e.id === '/' + ajItem.wtid) {
                     k = 1;
                   }
                 });
@@ -416,9 +401,13 @@ export default class SmartDetail extends Component {
                               {k > 0 ? (
                                 <Tooltip placement="top" title="取消关注">
                                   <img
-                                    className={styles.saveIcon}
+                                    className={
+                                      this.props.code === '200001' ? styles.none : styles.saveIcon
+                                    }
                                     src="images/tjguanzhu.png"
-                                    onClick={() => this.getCancelSave('smart_wtaj', ajItem.dbid)}
+                                    onClick={() =>
+                                      this.getCancelSave('smart_wtaj', '/' + ajItem.wtid)
+                                    }
                                   />
                                 </Tooltip>
                               ) : (
@@ -431,7 +420,12 @@ export default class SmartDetail extends Component {
                                     className={styles.saveIcon}
                                     src="images/qxguanzhu.png"
                                     onClick={() =>
-                                      this.getSave('smart_wtaj', ajItem.dbid, ajItem.ajmc, 'gzdaj')
+                                      this.getSave(
+                                        'smart_wtaj',
+                                        '/' + ajItem.wtid,
+                                        ajItem.ajmc,
+                                        'gzdaj'
+                                      )
                                     }
                                   />
                                 </Tooltip>
@@ -603,12 +597,12 @@ export default class SmartDetail extends Component {
               //涉案财务
               result.map((wpItem, index) => {
                 this.state.saveList.map((e, i) => {
-                  if (e.id === wpItem.dbid) {
+                  if (e.id === '/' + wpItem.wtid) {
                     k = 1;
                   }
                 });
                 this.props.gzList.gzdwp.map((e, i) => {
-                  if (e.id === wpItem.dbid) {
+                  if (e.id === '/' + wpItem.wtid) {
                     k = 1;
                   }
                 });
@@ -635,9 +629,13 @@ export default class SmartDetail extends Component {
                               {k > 0 ? (
                                 <Tooltip placement="top" title="取消关注">
                                   <img
-                                    className={styles.saveIcon}
+                                    className={
+                                      this.props.code === '200001' ? styles.none : styles.saveIcon
+                                    }
                                     src="images/tjguanzhu.png"
-                                    onClick={() => this.getCancelSave('smart_wtwp', wpItem.dbid)}
+                                    onClick={() =>
+                                      this.getCancelSave('smart_wtwp', '/' + wpItem.wtid)
+                                    }
                                   />
                                 </Tooltip>
                               ) : (
@@ -650,7 +648,12 @@ export default class SmartDetail extends Component {
                                     className={styles.saveIcon}
                                     src="images/qxguanzhu.png"
                                     onClick={() =>
-                                      this.getSave('smart_wtwp', wpItem.dbid, wpItem.ajmc, 'gzdwp')
+                                      this.getSave(
+                                        'smart_wtwp',
+                                        '/' + wpItem.wtid,
+                                        wpItem.ajmc,
+                                        'gzdwp'
+                                      )
                                     }
                                   />
                                 </Tooltip>
@@ -742,12 +745,12 @@ export default class SmartDetail extends Component {
             //案管
             let k = -1;
             this.state.saveList.map((e, i) => {
-              if (e.id === searchItem.dbid) {
+              if (e.id === '/' + searchItem.wtid) {
                 k = 1;
               }
             });
             this.props.gzList.gzdaj.map((e, i) => {
-              if (e.id === searchItem.dbid) {
+              if (e.id === '/' + searchItem.wtid) {
                 k = 1;
               }
             });
@@ -774,12 +777,14 @@ export default class SmartDetail extends Component {
                           {k > 0 ? (
                             <Tooltip placement="top" title="取消关注">
                               <img
-                                className={styles.saveIcon}
+                                className={
+                                  this.props.code === '200001' ? styles.none : styles.saveIcon
+                                }
                                 src="images/tjguanzhu.png"
                                 onClick={() =>
                                   this.getCancelSave(
                                     'smart_wtaj',
-                                    this.state.searchList[i].result.dbid
+                                    '/' + this.state.searchList[i].result.wtid
                                   )
                                 }
                               />
@@ -796,7 +801,7 @@ export default class SmartDetail extends Component {
                                 onClick={() =>
                                   this.getSave(
                                     'smart_wtaj',
-                                    this.state.searchList[i].result.dbid,
+                                    '/' + this.state.searchList[i].result.wtid,
                                     searchItem.ajmc,
                                     'gzdaj'
                                   )
@@ -966,12 +971,12 @@ export default class SmartDetail extends Component {
             //涉案财务
             let k = -1;
             this.state.saveList.map((e, i) => {
-              if (e.id === searchItem.dbid) {
+              if (e.id === '/' + searchItem.wtid) {
                 k = 1;
               }
             });
             this.props.gzList.gzdwp.map((e, i) => {
-              if (e.id === searchItem.dbid) {
+              if (e.id === '/' + searchItem.wtid) {
                 k = 1;
               }
             });
@@ -998,12 +1003,14 @@ export default class SmartDetail extends Component {
                           {k > 0 ? (
                             <Tooltip placement="top" title="取消关注">
                               <img
-                                className={styles.saveIcon}
+                                className={
+                                  this.props.code === '200001' ? styles.none : styles.saveIcon
+                                }
                                 src="images/tjguanzhu.png"
                                 onClick={() =>
                                   this.getCancelSave(
                                     'smart_wtwp',
-                                    this.state.searchList[i].result.dbid
+                                    '/' + this.state.searchList[i].result.wtid
                                   )
                                 }
                               />
@@ -1020,7 +1027,7 @@ export default class SmartDetail extends Component {
                                 onClick={() =>
                                   this.getSave(
                                     'smart_wtwp',
-                                    this.state.searchList[i].result.dbid,
+                                    '/' + this.state.searchList[i].result.wtid,
                                     searchItem.ajmc,
                                     'gzdwp'
                                   )
