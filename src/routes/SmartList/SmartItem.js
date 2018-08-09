@@ -27,6 +27,7 @@ class SmartItem extends Component {
       msgLists: '',
       data: [],
       numData: [],
+      numSaveData: [],
       num: [],
       height: 575,
       serList: [],
@@ -90,7 +91,12 @@ class SmartItem extends Component {
       this.lastTime = [];
       if (next.searchList && next.searchList.length > 0) {
         next.searchList.map((item, index) => {
-          if (item.nodeid !== 'smart_syrjq') {
+          if (
+            item.nodeid !== 'smart_syrjq' &&
+            item.remark !== 'gzdwp' &&
+            item.remark !== 'gzdaj' &&
+            item.remark !== 'gzdcs'
+          ) {
             this.lastTime.push({
               maxmessageid: item.maxmessageid ? item.maxmessageid : 0,
               nodeid: item.nodeid,
@@ -222,6 +228,10 @@ class SmartItem extends Component {
   getAllList = next => {
     let dataList = [];
     let numData = [];
+    let numSaveData = [];
+    this.setState({
+      numSaveData: [],
+    });
     this.num = 0;
     if (next.searchList && next.searchList.length > 0) {
       next.searchList.map((item, index) => {
@@ -248,25 +258,25 @@ class SmartItem extends Component {
             nodeid: item.nodeid,
           });
         }
-        if (next.type == 0) {
-          if (item.remark === 'gzdwp' || item.remark === 'gzdaj' || item.remark === 'gzdcs') {
-            this.state.gzList[item.remark].push({
-              id: item.nodeid,
-              maxmessageid: item.maxmessageid ? item.maxmessageid : 0,
-              name: item.name,
-            });
-            for (var i = 0; i < this.state.gzList[item.remark].length - 1; i++) {
-              for (var j = i + 1; j < this.state.gzList[item.remark].length; j++) {
-                if (this.state.gzList[item.remark][i].id == this.state.gzList[item.remark][j].id) {
-                  this.state.gzList[item.remark].splice(j, 1);
-                  j--;
-                }
+        if (item.remark === 'gzdwp' || item.remark === 'gzdaj' || item.remark === 'gzdcs') {
+          this.state.gzList[item.remark].push({
+            id: item.nodeid,
+            maxmessageid: item.maxmessageid ? item.maxmessageid : 0,
+            name: item.name,
+          });
+          for (var i = 0; i < this.state.gzList[item.remark].length - 1; i++) {
+            for (var j = i + 1; j < this.state.gzList[item.remark].length; j++) {
+              if (this.state.gzList[item.remark][i].id == this.state.gzList[item.remark][j].id) {
+                this.state.gzList[item.remark].splice(j, 1);
+                j--;
               }
             }
-            this.setState({
-              gzList: this.state.gzList,
-            });
           }
+          this.setState({
+            gzList: this.state.gzList,
+          });
+        }
+        if (next.type == 0) {
           if (
             item.remark !== 'gzdwp' &&
             item.remark !== 'gzdaj' &&
@@ -311,7 +321,6 @@ class SmartItem extends Component {
                 });
               } else {
                 if (next.type == 2) {
-                  console.log('没有');
                   this.setState({
                     title: dataList[0].name,
                     nodeId: dataList[0].nodeid,
@@ -393,11 +402,19 @@ class SmartItem extends Component {
       if (dataList.length > 0) {
         if (dataList.length > 1) {
           dataList.map((e, index) => {
-            if (e.nodeid === sessionStorage.getItem('nodeidSave')) {
+            if (sessionStorage.getItem('nodeidSave')) {
+              if (e.nodeid === sessionStorage.getItem('nodeidSave')) {
+                this.setState({
+                  title: e.name,
+                  nodeId: e.nodeid,
+                  index: index,
+                });
+              }
+            } else {
               this.setState({
-                title: e.name,
-                nodeId: e.nodeid,
-                index: index,
+                title: dataList[0].name,
+                nodeId: dataList[0].nodeid,
+                index: 0,
               });
             }
           });
@@ -409,6 +426,44 @@ class SmartItem extends Component {
           });
         }
       }
+    }
+    if (next.code === '200003') {
+      if (this.state.gzList.gzdaj.length > 0) {
+        numSaveData.push({
+          name: '关注的案件',
+          icon: 'images/anjian.png',
+          maxmessageid: this.state.gzList.gzdaj[this.state.gzList.gzdaj.length - 1].maxmessageid
+            ? this.state.gzList.gzdaj[this.state.gzList.gzdaj.length - 1].maxmessageid
+            : 0,
+          nodeid: 'smart_gzdaj',
+          remark: '关注的案件',
+        });
+      }
+      if (this.state.gzList.gzdwp.length > 0) {
+        numSaveData.push({
+          name: '关注的物品',
+          icon: 'images/wentiwupin.png',
+          maxmessageid: this.state.gzList.gzdwp[this.state.gzList.gzdwp.length - 1].maxmessageid
+            ? this.state.gzList.gzdwp[this.state.gzList.gzdwp.length - 1].maxmessageid
+            : 0,
+          nodeid: 'smart_gzdwp',
+          remark: '关注的物品',
+        });
+      }
+      if (this.state.gzList.gzdcs.length > 0) {
+        numSaveData.push({
+          name: '关注的场所',
+          icon: 'images/changsuo.png',
+          maxmessageid: this.state.gzList.gzdcs[this.state.gzList.gzdcs.length - 1].maxmessageid
+            ? this.state.gzList.gzdcs[this.state.gzList.gzdcs.length - 1].maxmessageid
+            : 0,
+          nodeid: 'smart_gzdcs',
+          remark: '关注的场所',
+        });
+      }
+      this.setState({
+        numSaveData: numSaveData,
+      });
     }
     if (
       (this.state.nodeId === '' || this.state.nodeId === 'smart_syrjq') &&
@@ -445,8 +500,24 @@ class SmartItem extends Component {
   };
   getListClick = (index, item, num, maxTime) => {
     if (num > 0) {
-      this.lastTime[index].maxmessageid = maxTime;
-      this.getTimeSaves(item.nodeid, maxTime);
+      if (
+        item.nodeid === 'smart_gzdwp' ||
+        item.nodeid === 'smart_gzdaj' ||
+        item.nodeid === 'smart_gzdcs'
+      ) {
+        let node = item.nodeid.slice(6);
+        let id = [];
+        this.state.gzList[node].map((e, i) => {
+          id.push(e.id);
+        });
+        this.getTimeSaves(id.toString(), maxTime, 'save');
+        this.state.gzList[node].map((e, i) => {
+          e.maxmessageid = maxTime.split(',')[i];
+        });
+      } else {
+        this.lastTime[index].maxmessageid = maxTime;
+        this.getTimeSaves(item.nodeid, maxTime);
+      }
     }
     this.setState({
       index: index,
@@ -462,7 +533,7 @@ class SmartItem extends Component {
     });
   };
   //更新主题读取的时间点
-  getTimeSaves = (node, msgId) => {
+  getTimeSaves = (node, msgId, save) => {
     this.props.dispatch({
       type: 'user/dataSave',
       payload: {
@@ -470,58 +541,33 @@ class SmartItem extends Component {
         maxmessageid: msgId, //读取最后一条的读取时间
         userid: this.props.xmppUser,
       },
-      callback: response => {},
+      callback: response => {
+        if (response.data === 'success') {
+          if (save && save === 'save') {
+            this.props.getSubscription();
+          }
+        }
+      },
     });
   };
   saveListNum = (item, index) => {
     this.saveNum = 0;
-    // this.state.msgLists.map(msgItem => {
-    //   // console.log('item.nodeid==========>',item.nodeid)
-    //   if(item.nodeid === 'smart_syrjq'){
-    //     if (msgItem.nodeid.toLowerCase() === item.nodeid.toLowerCase()) {
-    //       if (item.maxmessageid !== 0 && !this.props.firstLogin) {
-    //         if (msgItem.id > this.lastTime[index].maxmessageid) {
-    //           if (msgItem.messagecount > 1) {
-    //             this.saveNum = msgItem.messagecount;
-    //           } else {
-    //             this.saveNum++;
-    //           }
-    //         }
-    //       } else if (
-    //         this.lastTime[index].maxmessageid === 0 &&
-    //         !this.props.firstLogin &&
-    //         this.props.code === '200001'
-    //       ) {
-    //         this.saveNum = 1;
-    //       } else {
-    //         if (msgItem.id > this.lastTime[index].maxmessageid) {
-    //           if (msgItem.messagecount > 1) {
-    //             this.saveNum = msgItem.messagecount;
-    //           } else {
-    //             this.saveNum++;
-    //           }
-    //         }
-    //       }
-    //     }
-    //   }else if(item.nodeid === 'smart_gzdaj'){
-    //     // console.log(this.state.gzList['gzdaj'])
-    //     this.state.gzList['gzdaj'].map((e,i)=>{
-    //       // console.log('e.id---------->',e.id);
-    //       if (msgItem.nodeid.toLowerCase() === e.id) {
-    //         if (item.maxmessageid !== 0 && !this.props.firstLogin) {
-    //           if (msgItem.id > this.lastTime[index].maxmessageid) {
-    //             if (msgItem.messagecount > 1) {
-    //               this.saveNum = msgItem.messagecount;
-    //             } else {
-    //               this.saveNum++;
-    //             }
-    //           }
-    //         }
-    //       }
-    //     })
-    //   }
-    // });
-    // this.saveNum = 1;
+    let node = item.nodeid.slice(6);
+    if (this.state.gzList[node]) {
+      this.state.gzList[node].map((e, i) => {
+        this.state.msgLists.map(msgItem => {
+          if (msgItem.nodeid.toLowerCase() === e.id) {
+            if (msgItem.id > e.maxmessageid) {
+              if (msgItem.messagecount > 1) {
+                this.saveNum = msgItem.messagecount;
+              } else {
+                this.saveNum++;
+              }
+            }
+          }
+        });
+      });
+    }
     return this.saveNum;
   };
   listNum = (item, index) => {
@@ -556,14 +602,12 @@ class SmartItem extends Component {
     return this.num;
   };
   getSaveAll = () => {
-    // this.state.numData.map((item, index) => {
-    //   if (this.state.nodeId !== item.nodeid) {
-    //     if (item.nodeid === 'smart_syrjq' || item.nodeid === 'smart_gzdwp' || item.nodeid === 'smart_gzdaj'|| item.nodeid === 'smart_gzdcs') {
-    //       this.numSaveAll += parseInt(this.saveListNum(item, index));
-    //     }
-    //   }
-    // });
-    // sessionStorage.setItem('numSaveAll', this.numSaveAll);
+    this.state.numSaveData.map((item, index) => {
+      if (this.state.nodeId !== item.nodeid) {
+        this.numSaveAll += parseInt(this.saveListNum(item, index + 1));
+      }
+    });
+    sessionStorage.setItem('numSaveAll', this.numSaveAll);
     return this.numSaveAll;
   };
   getAll = () => {
@@ -679,20 +723,45 @@ class SmartItem extends Component {
     };
     let maxTime = nodeid => {
       let max = 0;
-      this.state.msgLists.map(msgItem => {
-        if (msgItem.nodeid.toLowerCase() === nodeid.toLowerCase()) {
-          max = msgItem.id;
-        }
-      });
+      let m = [];
+      if (nodeid === 'smart_gzdaj' || nodeid === 'smart_gzdwp' || nodeid === 'smart_gzdcs') {
+        let node = nodeid.slice(6);
+        this.state.gzList[node].map((e, i) => {
+          m.push(0);
+          this.state.msgLists.map(msgItem => {
+            if (msgItem.nodeid.toLowerCase() === e.id) {
+              m[i] = msgItem.id;
+            }
+          });
+          max = m.toString();
+        });
+      } else {
+        this.state.msgLists.map(msgItem => {
+          if (msgItem.nodeid.toLowerCase() === nodeid.toLowerCase()) {
+            max = msgItem.id;
+          }
+        });
+      }
       return max;
     };
     this.numAll = 0;
+    this.numSaveAll = 0;
     this.state.data.map((item, index) => {
       let itemList = (
         <div
           key={item.nodeid}
           onClick={() =>
-            this.getListClick(index, item, this.listNum(item, index), maxTime(item.nodeid))
+            this.getListClick(
+              index,
+              item,
+              item.nodeid === 'smart_syrjq' ||
+              item.nodeid === 'smart_gzdwp' ||
+              item.nodeid === 'smart_gzdaj' ||
+              item.nodeid === 'smart_gzdcs'
+                ? this.saveListNum(item, index)
+                : this.listNum(item, index),
+              maxTime(item.nodeid)
+            )
           }
           className={
             this.state.nodeId === item.nodeid || this.state.index === index
@@ -714,12 +783,11 @@ class SmartItem extends Component {
               {listTime(item.nodeid)}
             </span>
             <Badge
-              className={styles.badgePos}
+              className={item.nodeid === 'smart_syrjq' ? styles.none : styles.badgePos}
               count={
                 this.state.nodeId === item.nodeid
                   ? 0
-                  : item.nodeid === 'smart_syrjq' ||
-                    item.nodeid === 'smart_gzdwp' ||
+                  : item.nodeid === 'smart_gzdwp' ||
                     item.nodeid === 'smart_gzdaj' ||
                     item.nodeid === 'smart_gzdcs'
                     ? this.saveListNum(item, index)

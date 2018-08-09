@@ -9,19 +9,19 @@ export async function queryCurrent() {
 }
 
 export async function getQuery(params) {
-  return request(`${configUrl.GMUrl}/datahandle/query `, {
+  return request(`${configUrl.gmUrl}/datahandle/query `, {
     method: 'POST',
     body: params,
   });
 }
 export async function getDataSave(params) {
-  return request(`${configUrl.GMUrl}/datahandle/save `, {
+  return request(`${configUrl.gmUrl}/datahandle/save `, {
     method: 'POST',
     body: params,
   });
 }
 export async function getFind(params) {
-  return request(`${configUrl.GMUrl}/datahandle/find `, {
+  return request(`${configUrl.gmUrl}/datahandle/find `, {
     method: 'POST',
     body: params,
   });

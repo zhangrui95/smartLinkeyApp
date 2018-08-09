@@ -744,12 +744,12 @@ export default class SmartDetail extends Component {
           if (item.type === 'ajxx') {
             //案管
             let k = -1;
-            this.state.saveList.map((e, i) => {
+            this.state.saveList.map(e => {
               if (e.id === '/' + searchItem.wtid) {
                 k = 1;
               }
             });
-            this.props.gzList.gzdaj.map((e, i) => {
+            this.props.gzList.gzdaj.map(e => {
               if (e.id === '/' + searchItem.wtid) {
                 k = 1;
               }
@@ -802,7 +802,7 @@ export default class SmartDetail extends Component {
                                   this.getSave(
                                     'smart_wtaj',
                                     '/' + this.state.searchList[i].result.wtid,
-                                    searchItem.ajmc,
+                                    this.state.searchList[i].result.ajmc,
                                     'gzdaj'
                                   )
                                 }
@@ -1028,7 +1028,7 @@ export default class SmartDetail extends Component {
                                   this.getSave(
                                     'smart_wtwp',
                                     '/' + this.state.searchList[i].result.wtid,
-                                    searchItem.ajmc,
+                                    this.state.searchList[i].result.ajmc,
                                     'gzdwp'
                                   )
                                 }

@@ -31,7 +31,7 @@ class LoginPage extends Component {
     };
   }
   componentWillMount() {
-    // sessionStorage.clear();
+    sessionStorage.clear();
   }
   componentDidMount() {
     this.props.dispatch({
