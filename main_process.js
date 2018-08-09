@@ -16,11 +16,27 @@ const path = require('path');
 const url = require('url');
 const fs = require('fs');
 
-if (!fs.existsSync('./.electron-crates.txt')) {
-  fs.writeFileSync('./.electron-crates.txt', 'src');
+// ====================================================================
+// __dirname 表示 main.js 所在的路径，此处根据开发及打包后的路径不同
+// 始终获取当前程序的执行路径，用于人脸比对传递绝对路径的图片
+// ====================================================================
+var exe_path;
+try {
+  fs.accessSync('node_modules', fs.constants.F_OK);
+  console.log('launch on development');
+  var exe_path = __dirname;
+} catch (err) {
+  console.error('launch on build');
+  var exe_path = path.join(__dirname, '../..');
+}
+exe_path = exe_path.replace(/\\/g, '/'); // 把\\的路径调整为/
+// ====================================================================
+
+if (!fs.existsSync(exe_path + '/.electron-crates.txt')) {
+  fs.writeFileSync(exe_path + '/.electron-crates.txt', 'dist');
 }
 
-let crates_top_dir = fs.readFileSync('./.electron-crates.txt', 'utf-8');
+let crates_top_dir = fs.readFileSync(exe_path + '/.electron-crates.txt', 'utf-8');
 let fetd = crates_top_dir.replace(/[\r\n]/g, '');
 fetd = fetd.replace(/(\s*$)/g, '');
 console.log('electron use crates path: <' + fetd + '>');
@@ -34,7 +50,7 @@ const opn_it = require('./' + fetd + '/for-electron/crates/opn-open');
 
 const config = require('./' + fetd + '/for-electron/config.js');
 if (config.auto_launch) {
-  const auto_launch = require('./' + fetd + '/for-electron/crates/launch').auto_launch;
+  var auto_launch = require('./' + fetd + '/for-electron/crates/launch').auto_launch;
 }
 
 const icon_path = path.join(__dirname, './' + fetd + '/for-electron/source/logo.ico');
@@ -47,19 +63,6 @@ const upgrade_tmp_dir = 'downloads';
 let mainWindow;
 let appTray = null;
 let willQuitApp = false;
-
-// __dirname 表示 main.js 所在的路径，此处根据开发及打包后的路径不同
-// 始终获取当前程序的执行路径，用于人脸比对传递绝对路径的图片
-var exe_path;
-try {
-  fs.accessSync('node_modules', fs.constants.F_OK);
-  console.log('launch on development');
-  var exe_path = __dirname;
-} catch (err) {
-  console.error('launch on build');
-  var exe_path = path.join(__dirname, '../..');
-}
-exe_path = exe_path.replace(/\\/g, '/'); // 把\\的路径调整为/
 
 // 初始化发送获取工具图标的程序
 const iconProcess = startIconProcess(exe_path);
