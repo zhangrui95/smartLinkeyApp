@@ -31,6 +31,7 @@ export default class SmartDetail extends Component {
       noSearch: true,
       lookMore: false,
       saveList: [],
+      enter: false,
       // oldList:[],
     };
   }
@@ -136,7 +137,7 @@ export default class SmartDetail extends Component {
           document.getElementById('scroll').scrollTop = document.getElementById(
             'scroll'
           ).scrollHeight;
-        }, 500);
+        }, 600);
       }
       for (var i = 0; i < next.msgList.length - 1; i++) {
         for (var j = i + 1; j < next.msgList.length; j++) {
@@ -172,7 +173,7 @@ export default class SmartDetail extends Component {
             'scroll'
           ).scrollHeight;
           document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
-        }, 500);
+        }, 600);
       } else if (
         this.props.user.searchList !== next.user.searchList &&
         this.props.code === '200003'
@@ -300,13 +301,11 @@ export default class SmartDetail extends Component {
       },
       callback: response => {
         if (response.data) {
-          console.log(response);
           message.success('提示:取消关注成功!');
           this.props.cancelSave(id);
         }
       },
     });
-    console.log('取消关注======>', nodeId, id, this.state.saveList);
   };
   //关注
   getSave = (nodeId, id, name, remark) => {
@@ -334,13 +333,21 @@ export default class SmartDetail extends Component {
       },
       callback: response => {
         if (response.data) {
-          console.log(response);
           message.success('提示:关注成功!');
           this.props.getSubscription();
         }
       },
     });
-    console.log('nodeId,id======>', nodeId, id, this.state.saveList);
+  };
+  getMouseEnter = () => {
+    this.setState({
+      enter: true,
+    });
+  };
+  getMouseLeave = () => {
+    this.setState({
+      enter: false,
+    });
   };
   render() {
     let pageLength = parseInt(this.state.endLength) * parseInt(this.state.pageCount);
@@ -1111,9 +1118,11 @@ export default class SmartDetail extends Component {
       <div>
         <div className={styles.headerTitle}>{this.props.getTitle}</div>
         <div
-          className={styles.rightScroll}
+          className={this.state.enter ? styles.rightScrollHover : styles.rightScroll}
           style={{ height: this.state.height + 'px' }}
           id="scroll"
+          onMouseEnter={this.getMouseEnter}
+          onMouseLeave={this.getMouseLeave}
         >
           <Spin
             className={this.state.load && this.props.code === '200003' ? '' : styles.none}

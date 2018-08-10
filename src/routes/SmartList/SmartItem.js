@@ -222,6 +222,34 @@ class SmartItem extends Component {
             this.getTimeSaves(next.searchList[0].nodeid, Date.parse(new Date()));
           }
         }
+        if (next.type == 2) {
+          if (sessionStorage.getItem('nodeidSave')) {
+            let node = sessionStorage.getItem('nodeidSave').slice(6);
+            let id = [];
+            let m = [];
+            let t = false;
+            if (this.state.gzList[node] && this.state.gzList[node].length > 0) {
+              this.state.gzList[node].map((e, i) => {
+                id.push(e.id);
+                m.push(0);
+                this.state.msgLists.map(msgItem => {
+                  if (msgItem.nodeid.toLowerCase() === e.id) {
+                    m[i] = msgItem.id;
+                    if (msgItem.id > e.maxmessageid) {
+                      t = true;
+                    }
+                  }
+                });
+              });
+              if (t) {
+                this.getTimeSaves(id.toString(), m.toString(), 'save');
+                this.state.gzList[node].map((e, i) => {
+                  e.maxmessageid = m[i];
+                });
+              }
+            }
+          }
+        }
       }
     }
   }
