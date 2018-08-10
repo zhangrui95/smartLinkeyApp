@@ -11,6 +11,7 @@ const FileSync = require('lowdb/adapters/FileSync');
 const request = require('request');
 const md5File = require('md5-file');
 const opn = require('opn');
+const setupPug = require('electron-pug');
 
 const { fork } = require('child_process');
 const path = require('path');
@@ -64,6 +65,7 @@ const upgrade_tmp_dir = 'downloads';
 // require('electron-reload')(path.join(__dirname, 'dist'));
 
 let mainWindow;
+let huaci_win;
 let appTray = null;
 let willQuitApp = false;
 
@@ -174,6 +176,45 @@ function createWindow() {
       e.preventDefault();
       mainWindow.hide();
     }
+  });
+}
+
+/**
+ * 创建划词搜索页面
+ */
+async function createHuaci(huaci_states) {
+  // huaci_states = {
+  //   data: [
+  //     "<a onclick='send_event(101)'>复制选中项</a>",
+  //     "<a onclick='send_event(102)'>维汉翻译</a>",
+  //     "<a onclick='send_event(103)'>查询身份证</a>"
+  //   ]
+  // }
+  try {
+    let pug = await setupPug({ pretty: true }, huaci_states);
+    pug.on('error', err => console.error('electron-pug error', err));
+  } catch (err) {
+    // Could not initiate 'electron-pug'
+  }
+
+  huaci_win = new BrowserWindow({
+    width: 130,
+    height: 190,
+    frame: false,
+    useContentSize: true,
+    // backgroundColor: '#89a4c7',
+    transparent: true,
+  });
+
+  huaci_win.loadURL(`file://${__dirname}/${fetd}/for-electron/templates/index.pug`);
+
+  // setTimeout(() => {
+  //   console.log("I send close event");
+  //   huaci_win.webContents.send('please-close');
+  // }, 3000);
+
+  huaci_win.on('closed', function() {
+    huaci_win = null;
   });
 }
 
@@ -534,16 +575,81 @@ ipcMain.on('update-relaunch', (event, updatetime) => {
   }, 500);
 });
 
+function isIdCard(card) {
+  // var reg = /^[1-9]d{5}[1-9]d{3}((0d)|(1[0-2]))(([0|1|2]d)|3[0-1])d{4}$/;
+  const id_card_reg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
+
+  if (id_card_reg.test(card) === false) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+function generate_card_item(huaci) {
+  let huaci_data = huaci.replace(/[\r\n]/g, '');
+
+  let huaci_states = {
+    data: [
+      "<a onclick='send_event(101)'>复制选中项</a>",
+      "<a onclick='send_event(102)'>维汉翻译</a>",
+    ],
+  };
+
+  console.log('<-------------------->');
+  console.log(huaci_data);
+  if (isIdCard(huaci_data)) {
+    huaci_states.data.push("<a onclick='send_event(103)'>查询身份证</a>");
+  } else {
+    console.log('not id_card');
+  }
+  console.log('<-------------------->');
+
+  // huaci_states = {
+  //   data: [
+  //     "<a onclick='send_event(101)'>复制选中项</a>",
+  //     "<a onclick='send_event(102)'>维汉翻译</a>",
+  //     "<a onclick='send_event(103)'>查询身份证</a>"
+  //   ]
+  // }
+  return huaci_states;
+}
+
 /**
- * 接收划词内容，显示选项框
+ * 显示划词功能选项框
  */
-function huaci(message) {
+function create_huaci_card(huaci_data) {
+  let huaci_states = generate_card_item(huaci_data);
+
+  if (huaci_win) {
+    console.log('close && create hua ci');
+    huaci_win.close();
+    createHuaci(huaci_states);
+  } else {
+    console.log('create hua ci');
+    createHuaci(huaci_states);
+  }
+}
+
+/**
+ * 接收划词内容
+ */
+function process_huaci(message) {
   if (message.type === 'huaci') {
+    create_huaci_card(message.data);
   }
 }
 huaci.on('message', message => {
   console.log(`Fork process say: ${message.msg} ${message.data}`);
-  huaci(message);
+  process_huaci(message);
+});
+
+/**
+ * 当划词功能选项框点选后，接收功能的id唯一标识
+ */
+ipcMain.on('huaci-choice', (event, cid) => {
+  console.log(cid);
+  has_huaci = false;
 });
 
 // 保证只有一个实例在运行
