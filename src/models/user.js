@@ -4,6 +4,7 @@ import {
   getQuery,
   getDataSave,
   getFind,
+  getWord01,
 } from '../services/user';
 
 export default {
@@ -20,6 +21,7 @@ export default {
     value: '',
     allList: [],
     msgList: [],
+    searchWordList: null,
   },
 
   effects: {
@@ -96,6 +98,14 @@ export default {
         payload: payload,
       });
     },
+    *getWord1({ payload, callback }, { call, put }) {
+      const response = yield call(getWord01, payload);
+      yield put({
+        type: 'getWordList',
+        payload: response,
+      });
+      callback(response);
+    },
   },
 
   reducers: {
@@ -166,6 +176,12 @@ export default {
       return {
         ...state,
         msgList: payload,
+      };
+    },
+    getWordList(state, { payload }) {
+      return {
+        ...state,
+        searchWordList: payload,
       };
     },
   },

@@ -544,7 +544,6 @@ export default class SmartDetail extends Component {
                           style={{ width: 330, padding: '0 16px' }}
                           cover={<img alt="example" src="images/chatu1.png" />}
                           actions={[
-                            //<div style={{ width: 295, fontSize: '14px' }} onClick={()=>this.goWindow(`${configUrl.jqUrl}` + '/JQCL/userlogin/smartlinkeyLoign?username=' + userNew.idCard + '&&password=' + pwd + '&&type=0')}>
                             <div
                               style={{ width: 295, fontSize: '14px' }}
                               onClick={() =>

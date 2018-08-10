@@ -26,3 +26,9 @@ export async function getFind(params) {
     body: params,
   });
 }
+export async function getWord01(params) {
+  return request('https://www.easy-mock.com/mock/5b2de5fd3bd2c939a1040679/getWord01', {
+    method: 'POST',
+    body: params,
+  });
+}

@@ -3,7 +3,7 @@ import { connect } from 'dva';
 import SmartItem from './SmartItem';
 import PoliceSmartItem from './PoliceSmartItem';
 import SmartLink from './SmartLink';
-import { Badge, message, Modal } from 'antd';
+import { Badge, message, Modal, Form, Row, Col, Input, Button, Icon } from 'antd';
 const confirm = Modal.confirm;
 import { Strophe, $pres } from 'strophe.js';
 import { getSubscriptions } from 'strophejs-plugin-pubsub';
@@ -12,11 +12,13 @@ import styles from './SmartDetail.less';
 const BOSH_SERVICE = 'http://' + `${configUrl.fwName}` + ':7070/http-bind/';
 import { ipcRenderer } from 'electron';
 let connection = '';
+const FormItem = Form.Item;
+
 @connect(({ user, login }) => ({
   user,
   login,
 }))
-export default class SmartAll extends Component {
+class SmartAll extends Component {
   constructor(props) {
     super(props);
     const user = sessionStorage.getItem('user');
@@ -41,12 +43,31 @@ export default class SmartAll extends Component {
       word: '',
       loginState: this.props.login.loginStatus,
       version: '',
+      qcVisible: false,
+      hcList: { 101: 'user/getWord1', 102: 'user/getWord2', 103: 'user/getWord3' },
+      wordSerList: { name: '李四', cardId: '230105199007262322', age: '28', sex: '女' },
     };
     this.msgListAll = [];
     this.lintenUpdate();
   }
 
   componentDidMount() {
+    ipcRenderer.on('huaci', (event, data) => {
+      console.log('huaci---data', data);
+      let type = data.query_type;
+      this.props.dispatch({
+        type: data[type],
+        payload: data[type] === '103' ? { original: data.original } : {},
+        callback: response => {
+          // if(response.data){
+          this.setState({
+            wordSerList: response.data,
+            qcVisible: true,
+          });
+          // }
+        },
+      });
+    });
     this.getXmpp();
     this.setState({
       loading: true,
@@ -140,7 +161,7 @@ export default class SmartAll extends Component {
         if (this.state.loginState) {
           let _this = this;
           Modal.warning({
-            title: '用户已在IP登录，您将被强制下线！',
+            title: '用户已在其他客户端登录，您将被强制下线！',
             content: null,
             okText: '确定',
             onOk() {
@@ -315,8 +336,24 @@ export default class SmartAll extends Component {
   SearchWord = () => {
     alert(this.state.word);
   };
+  handleCancel = () => {
+    this.setState({
+      qcVisible: false,
+    });
+  };
   render() {
     let type = getQueryString(this.props.location.search, 'type');
+    const { getFieldDecorator } = this.props.form;
+    const formItemLayout = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 9 },
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 15 },
+      },
+    };
     let item = '';
     {
       this.state.userItem.job.map(jobs => {
@@ -349,7 +386,41 @@ export default class SmartAll extends Component {
           <div onClick={this.getCopyWord}>复制</div>
           <div onClick={() => this.SearchWord()}>查询</div>
         </div>
+        <Modal
+          title="取词查询"
+          visible={this.state.qcVisible}
+          onCancel={this.handleCancel}
+          maskClosable={false}
+          width={800}
+          footer={null}
+        >
+          <Form className="ant-advanced-search-form" style={{ paddingRight: '40px' }}>
+            <Row gutter={24}>
+              <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
+                <FormItem {...formItemLayout} label="姓名">
+                  {this.state.wordSerList.name ? this.state.wordSerList.name : ''}
+                </FormItem>
+              </Col>
+              <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
+                <FormItem {...formItemLayout} label="身份证号码">
+                  {this.state.wordSerList.cardId ? this.state.wordSerList.cardId : ''}
+                </FormItem>
+              </Col>
+              <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
+                <FormItem {...formItemLayout} label="性别">
+                  {this.state.wordSerList.sex ? this.state.wordSerList.sex : ''}
+                </FormItem>
+              </Col>
+              <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
+                <FormItem {...formItemLayout} label="年龄">
+                  {this.state.wordSerList.age ? this.state.wordSerList.age : ''}
+                </FormItem>
+              </Col>
+            </Row>
+          </Form>
+        </Modal>
       </div>
     );
   }
 }
+export default Form.create()(SmartAll);
