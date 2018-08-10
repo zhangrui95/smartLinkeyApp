@@ -12,6 +12,7 @@ const request = require('request');
 const md5File = require('md5-file');
 const opn = require('opn');
 
+const { fork } = require('child_process');
 const path = require('path');
 const url = require('url');
 const fs = require('fs');
@@ -56,6 +57,8 @@ if (config.auto_launch) {
 const icon_path = path.join(__dirname, './' + fetd + '/for-electron/source/logo.ico');
 const icon_none_path = path.join(__dirname, './' + fetd + '/for-electron/source/none.ico');
 
+const huaci = fork('./' + fetd + '/for-electron/crates/huaci_handler.js');
+
 const upgrade_tmp_dir = 'downloads';
 
 // require('electron-reload')(path.join(__dirname, 'dist'));
@@ -75,6 +78,9 @@ if (config.auto_launch) {
 // 定义数据库位置
 const adapter = new FileSync(exe_path + '/db.json');
 const db = low(adapter);
+
+// 启动划词监听
+huaci.send({ now: 'start' });
 
 /**
  * 创建托盘图标及功能
@@ -526,6 +532,18 @@ ipcMain.on('update-relaunch', (event, updatetime) => {
   setTimeout(() => {
     start_update_relaunch(updatetime);
   }, 500);
+});
+
+/**
+ * 接收划词内容，显示选项框
+ */
+function huaci(message) {
+  if (message.type === 'huaci') {
+  }
+}
+huaci.on('message', message => {
+  console.log(`Fork process say: ${message.msg} ${message.data}`);
+  huaci(message);
 });
 
 // 保证只有一个实例在运行
