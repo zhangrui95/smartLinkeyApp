@@ -44,7 +44,7 @@ class SmartAll extends Component {
       loginState: this.props.login.loginStatus,
       version: '',
       qcVisible: false,
-      hcList: { 101: 'user/getWord1', 102: 'user/getWord2', 103: 'user/getWord3' },
+      hcList: { 101: 'user/getWord1', 102: 'user/getWord1', 103: 'user/getWord1' },
       wordSerList: { name: '李四', cardId: '230105199007262322', age: '28', sex: '女' },
     };
     this.msgListAll = [];
@@ -54,10 +54,10 @@ class SmartAll extends Component {
   componentDidMount() {
     ipcRenderer.on('huaci', (event, data) => {
       console.log('huaci---data', data);
-      let type = data.query_type;
+      let type = data['query_type'];
       this.props.dispatch({
-        type: data[type],
-        payload: data[type] === '103' ? { original: data.original } : {},
+        type: this.state.hcList[type],
+        payload: type === 103 ? { original: data.original } : {},
         callback: response => {
           // if(response.data){
           this.setState({
