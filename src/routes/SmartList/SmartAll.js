@@ -54,20 +54,10 @@ class SmartAll extends Component {
   componentDidMount() {
     ipcRenderer.on('huaci', (event, data) => {
       console.log('huaci---data', data);
-      let type = data['query_type'];
-      this.props.dispatch({
-        type: this.state.hcList[type],
-        payload: type === 103 ? { original: data.original } : {},
-        callback: response => {
-          // if(response.data){
-          this.setState({
-            wordSerList: response.data,
-            qcVisible: true,
-          });
-          // }
-        },
-      });
+      this.qcModal(data);
     });
+    // let a = {original:'23010',query_type:103}
+    // this.qcModal(a);
     this.getXmpp();
     this.setState({
       loading: true,
@@ -126,6 +116,21 @@ class SmartAll extends Component {
       }
     }
   }
+  qcModal = data => {
+    let type = data['query_type'];
+    this.props.dispatch({
+      type: this.state.hcList[type],
+      payload: type === 103 ? { original: data.original } : {},
+      callback: response => {
+        // if(response.data){
+        this.setState({
+          wordSerList: response.data,
+          qcVisible: true,
+        });
+        // }
+      },
+    });
+  };
   lintenUpdate = () => {
     ipcRenderer.on('alert-update-notice', () => {
       confirm({

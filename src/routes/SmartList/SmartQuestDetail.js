@@ -22,6 +22,7 @@ export default class SmartQuestDetail extends Component {
       height: 525,
       keyIndex: ['0'],
       list: [],
+      enter: false,
     };
   }
   componentDidMount() {
@@ -60,6 +61,16 @@ export default class SmartQuestDetail extends Component {
       keyIndex: e,
     });
   };
+  getMouseEnter = () => {
+    this.setState({
+      enter: true,
+    });
+  };
+  getMouseLeave = () => {
+    this.setState({
+      enter: false,
+    });
+  };
   render() {
     let detail = [];
     let idx = -1;
@@ -85,7 +96,12 @@ export default class SmartQuestDetail extends Component {
     return (
       <div>
         <div className={styles.headerTitle}>{this.props.nextTitle}</div>
-        <div className={styles.rightScroll} style={{ height: this.state.height + 'px' }}>
+        <div
+          className={this.state.enter ? styles.rightScrollHover : styles.rightScroll}
+          style={{ height: this.state.height + 'px' }}
+          onMouseEnter={this.getMouseEnter}
+          onMouseLeave={this.getMouseLeave}
+        >
           <div className={styles.rightBox}>
             <Collapse bordered={false} defaultActiveKey={['0']} onChange={this.changePanel}>
               {detail}

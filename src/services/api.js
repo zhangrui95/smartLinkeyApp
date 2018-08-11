@@ -101,7 +101,8 @@ export async function queryNotices() {
   return request('/api/notices');
 }
 export async function getQuestionList(params) {
-  return request(`${configUrl.ywzxUrl}/queryQuestionList`, {
+  // return request(`${configUrl.ywzxUrl}/queryQuestionList`, {
+  return request('https://www.easy-mock.com/mock/5b2de5fd3bd2c939a1040679/getQuestion', {
     method: 'POST',
     body: params,
   });

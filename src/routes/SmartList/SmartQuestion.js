@@ -10,12 +10,12 @@ export default class SmartQuestion extends Component {
       height: 575,
       index: 0,
       title: '',
-      typeId: '973008',
+      typeId: '0',
       data: [
-        { name: '案件流程帮助', icon: 'images/anjian.png', type: '973008' },
-        { name: '警情采录帮助', icon: 'images/weishoulijingqing.png', type: '973009' },
-        { name: '涉案物品帮助', icon: 'images/wentiwupin.png', type: '973010' },
-        { name: '办案区帮助', icon: 'images/changsuo.png', type: '973011' },
+        { name: '案件流程帮助', icon: 'images/anjian.png', type: '0' },
+        { name: '警情采录帮助', icon: 'images/weishoulijingqing.png', type: '1' },
+        { name: '涉案物品帮助', icon: 'images/wentiwupin.png', type: '2' },
+        { name: '办案区帮助', icon: 'images/changsuo.png', type: '3' },
       ],
     };
   }
