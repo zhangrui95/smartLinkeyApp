@@ -45,7 +45,7 @@ class SmartAll extends Component {
       version: '',
       qcVisible: false,
       hcList: { 101: 'user/getWord1', 102: 'user/getWord1', 103: 'user/getWord1' },
-      wordSerList: { name: '李四', cardId: '230105199007262322', age: '28', sex: '女' },
+      wordSerList: {},
     };
     this.msgListAll = [];
     this.lintenUpdate();
@@ -339,7 +339,9 @@ class SmartAll extends Component {
     document.execCommand('Copy');
   };
   SearchWord = () => {
-    alert(this.state.word);
+    let a = { original: '23010', query_type: 103 };
+    this.qcModal(a);
+    // alert(this.state.word);
   };
   handleCancel = () => {
     this.setState({

@@ -734,6 +734,143 @@ export default class SmartDetail extends Component {
                   </div>
                 );
               });
+            } else if (listType === 'baq') {
+              //办案区
+              result.map((baqItem, index) => {
+                this.state.saveList.map((e, i) => {
+                  if (e.id === '/' + baqItem.wtid) {
+                    k = 1;
+                  }
+                });
+                this.props.gzList.gzdcs.map((e, i) => {
+                  if (e.id === '/' + baqItem.wtid) {
+                    k = 1;
+                  }
+                });
+                list.push(
+                  <div className={styles.boxItem} key={'aj' + i.toString() + index}>
+                    <div className={styles.timeStyle}>{item.time}</div>
+                    <div>
+                      {sessionStorage.getItem('nodeid') === 'smart_wtcs' ? (
+                        <div className={styles.headerName}>场所</div>
+                      ) : (
+                        <div className={styles.headerName}>
+                          <img src="images/user.png" className={styles.headerImgSay} />
+                        </div>
+                      )}
+                      <div className={styles.cardBox}>
+                        <div className={styles.newsTitle}>
+                          {sessionStorage.getItem('nodeid') === 'smart_wtcs'
+                            ? '办案区管理系统'
+                            : baqItem.name}
+                        </div>
+                        <Card
+                          title={
+                            <div>
+                              {k > 0 ? (
+                                <Tooltip placement="top" title="取消关注">
+                                  <img
+                                    className={
+                                      this.props.code === '200001' ? styles.none : styles.saveIcon
+                                    }
+                                    src="images/tjguanzhu.png"
+                                    onClick={() =>
+                                      this.getCancelSave('smart_wtcs', '/' + baqItem.wtid)
+                                    }
+                                  />
+                                </Tooltip>
+                              ) : (
+                                <Tooltip
+                                  placement="top"
+                                  title="关注"
+                                  className={this.props.code === '200001' ? styles.none : ''}
+                                >
+                                  <img
+                                    className={styles.saveIcon}
+                                    src="images/qxguanzhu.png"
+                                    onClick={() =>
+                                      this.getSave(
+                                        'smart_wtcs',
+                                        '/' + baqItem.wtid,
+                                        baqItem.csmc,
+                                        'gzdcs'
+                                      )
+                                    }
+                                  />
+                                </Tooltip>
+                              )}
+                              <span
+                                className={styles.overText}
+                                title={baqItem.csmc}
+                                style={
+                                  this.props.code === '200001'
+                                    ? { paddingLeft: '0' }
+                                    : { paddingLeft: '24px' }
+                                }
+                              >
+                                {baqItem.csmc}
+                              </span>
+                              <Tag className={styles.tagStyle}>{baqItem.status}</Tag>
+                            </div>
+                          }
+                          style={{ width: 330, padding: '0 16px' }}
+                          cover={<img alt="example" src="images/chatu1.png" />}
+                          actions={[
+                            <div
+                              style={{ width: 295, fontSize: '14px' }}
+                              onClick={() =>
+                                this.goWindow(
+                                  sessionStorage.getItem('nodeid') === 'smart_wtcs' ||
+                                  (sessionStorage.getItem('nodeid') === 'smart_syrjq' &&
+                                    this.props.code === '200003')
+                                    ? `${configUrl.agUrl}` +
+                                      '#/loginByToken?token=' +
+                                      token +
+                                      '&wtid=' +
+                                      baqItem.wtid +
+                                      '&type=1'
+                                    : `${configUrl.baqUrl}` +
+                                      '/Manager/smartlinkeyLoign?username=' +
+                                      userNew.idCard +
+                                      '&password=' +
+                                      pwd +
+                                      '&dbid=' +
+                                      baqItem.dbid +
+                                      '&type=1'
+                                )
+                              }
+                            >
+                              <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>
+                                {sessionStorage.getItem('nodeid') === 'smart_wtcs' ||
+                                (sessionStorage.getItem('nodeid') === 'smart_syrjq' &&
+                                  this.props.code === '200003')
+                                  ? baqItem.status === '未督办' || baqItem.status === '已反馈'
+                                    ? '立即督办'
+                                    : '查看详情'
+                                  : baqItem.status === '发起督办' || baqItem.status === '整改中'
+                                    ? '立即处理'
+                                    : '查看详情'}
+                              </a>
+                              <a className={styles.goChild}> > </a>
+                            </div>,
+                          ]}
+                        >
+                          <Meta
+                            title={
+                              <div>
+                                <div className={styles.nameStyle}>办案人：{baqItem.barxm}</div>
+                                <div className={styles.nameStyle}>告警时间：{baqItem.gjsj}</div>
+                                <div className={styles.nameStyle}>告警地点：{baqItem.gjdd}</div>
+                                <div className={styles.sawpLeft}>告警类型：{baqItem.gjlx}</div>
+                              </div>
+                            }
+                          />
+                        </Card>
+                      </div>
+                    </div>
+                  </div>
+                );
+              });
             }
           });
       }
