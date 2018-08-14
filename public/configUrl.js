@@ -11,6 +11,7 @@
 //   baqUrl: 'http://139.199.107.156', //办案区
 //   ajlcUrl: 'http://172.19.12.225:8085',
 //   fwName: 'pc-20170308pkrs',
+//   rybjxx:'http://172.19.12.249:7100'
 // };
 window.configUrl = {
   Version: '1.0.0.8', //版本号
@@ -31,4 +32,5 @@ window.configUrl = {
   fwName: 'da84ea6b21cf', //XMPP服务名称,
   // fwName: 'pc-20170308pkrs',
   pcName: '/pc',
+  rybjxx: 'http://172.19.12.249:7100',
 };

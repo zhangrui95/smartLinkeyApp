@@ -120,11 +120,24 @@ class SmartAll extends Component {
     let type = data['query_type'];
     this.props.dispatch({
       type: this.state.hcList[type],
-      payload: type === 103 ? { original: data.original } : {},
+      payload:
+        type === 103
+          ? {
+              hphm: '',
+              hpzl: '',
+              jybmbh: this.state.userItem.department,
+              jysfzh: this.state.userItem.idCard,
+              jyxm: this.state.userItem.name,
+              name: '',
+              sfzh: data['original'],
+              target: 'person',
+              type: '',
+            }
+          : {},
       callback: response => {
         // if(response.data){
         this.setState({
-          wordSerList: response.data,
+          wordSerList: response.result,
           qcVisible: true,
         });
         // }
@@ -339,7 +352,7 @@ class SmartAll extends Component {
     document.execCommand('Copy');
   };
   SearchWord = () => {
-    let a = { original: '23010', query_type: 103 };
+    let a = { original: '230107196307262325', query_type: 103 };
     this.qcModal(a);
     // alert(this.state.word);
   };
@@ -383,6 +396,27 @@ class SmartAll extends Component {
         );
       });
     }
+    let children = [];
+    let name, sex, cardId, mz;
+    if (this.state.wordSerList && this.state.wordSerList.length > 0) {
+      this.state.wordSerList.map((e, i) => {
+        e.tags.map((item, idx) => {
+          if (item.haveData) {
+            if (item.name !== '人口基本信息') {
+              children.push(item.name);
+            } else {
+              children.push('正常');
+            }
+            item.data.map((event, index) => {
+              name = event['姓名'];
+              sex = event['性别'];
+              cardId = event['公民身份号码'];
+              mz = event['民族'];
+            });
+          }
+        });
+      });
+    }
     return (
       <div onContextMenu={this.getRight} onClick={this.hideRight}>
         {item}
@@ -404,23 +438,28 @@ class SmartAll extends Component {
           <Form className="ant-advanced-search-form" style={{ paddingRight: '40px' }}>
             <Row gutter={24}>
               <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
+                <FormItem {...formItemLayout} label="人员背景">
+                  {children.length > 0 ? children.toString() : '暂无'}
+                </FormItem>
+              </Col>
+              <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
                 <FormItem {...formItemLayout} label="姓名">
-                  {this.state.wordSerList.name ? this.state.wordSerList.name : ''}
+                  {name ? name : ''}
                 </FormItem>
               </Col>
               <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
                 <FormItem {...formItemLayout} label="身份证号码">
-                  {this.state.wordSerList.cardId ? this.state.wordSerList.cardId : ''}
+                  {cardId ? cardId : ''}
                 </FormItem>
               </Col>
               <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
                 <FormItem {...formItemLayout} label="性别">
-                  {this.state.wordSerList.sex ? this.state.wordSerList.sex : ''}
+                  {sex ? sex : ''}
                 </FormItem>
               </Col>
               <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
-                <FormItem {...formItemLayout} label="年龄">
-                  {this.state.wordSerList.age ? this.state.wordSerList.age : ''}
+                <FormItem {...formItemLayout} label="民族">
+                  {mz ? mz : ''}
                 </FormItem>
               </Col>
             </Row>

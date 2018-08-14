@@ -2,17 +2,16 @@ import fetch from 'dva/fetch';
 import { notification } from 'antd';
 
 function checkStatus(response) {
-
   let checkResponse = response.clone();
   const res = checkResponse.json();
-  const check = res.then((value) => {
+  const check = res.then(value => {
     if (value.reason) {
       notification.error({
         message: value.reason.text,
       });
       return false;
     }
-  })
+  });
 
   if ((response.status >= 200 && response.status < 300) || response.status == 401) {
     return response;
@@ -44,7 +43,14 @@ export default function request(url, options) {
     newOptions.headers = {
       Accept: 'application/json',
       'Content-Type': 'application/json; charset=utf-8',
-      'Authorization': (sessionStorage.getItem('user') === undefined || sessionStorage.getItem('user') === null) ? '' : JSON.parse(sessionStorage.getItem('user')).token,
+      Authorization:
+        sessionStorage.getItem('user') === undefined || sessionStorage.getItem('user') === null
+          ? ''
+          : JSON.parse(sessionStorage.getItem('user')).token,
+      token:
+        sessionStorage.getItem('user') === undefined || sessionStorage.getItem('user') === null
+          ? ''
+          : JSON.parse(sessionStorage.getItem('user')).token,
       ...newOptions.headers,
     };
     newOptions.body = JSON.stringify(newOptions.body);
@@ -53,7 +59,7 @@ export default function request(url, options) {
   return fetch(url, newOptions)
     .then(checkStatus)
     .then(response => response.json())
-    .catch((error) => {
+    .catch(error => {
       if (error.code) {
         notification.error({
           message: error.name,
