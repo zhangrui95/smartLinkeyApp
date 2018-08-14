@@ -13,12 +13,14 @@ body {
   margin: 8px;
 }
 ul {
-  box-shadow: 0 0 4px;
+  box-shadow: 0 0 4px #aaa;
   background: #fff;
   color: #333;
   height: 60px;
   margin: 0;
   padding: 0;
+  border-radius: 3px;
+  overflow: hidden;
 }
 
 li {
