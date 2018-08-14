@@ -1,5 +1,4 @@
 const { spawn } = require('child_process');
-// const { exec } = require('child_process');
 
 const fs = require('fs');
 const out = fs.openSync('./out.log', 'a');

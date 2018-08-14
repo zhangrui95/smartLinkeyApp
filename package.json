@@ -1,6 +1,6 @@
 {
   "name": "smartLinkey",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "smartLinkey",
   "main": "main_process.dist.js",
   "private": true,
@@ -102,8 +102,10 @@
     "bufferutil": "^3.0.5",
     "bunyan": "^1.8.12",
     "classnames": "^2.2.5",
+    "clipboardy": "^1.2.3",
     "dva": "^2.2.3",
     "dva-loading": "^2.0.3",
+    "electron-pug": "^2.0.0",
     "enquire-js": "^0.2.1",
     "is-wsl": "^1.1.0",
     "less": "2.7.2",

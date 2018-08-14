@@ -17,3 +17,10 @@ ipcRenderer.on('please-close', () => {
   console.log('main tell me close');
   window.close();
 });
+
+setTimeout(() => {
+  document.getElementById('app').className = 'animated fadeOut';
+}, 4000);
+setTimeout(() => {
+  window.close();
+}, 5000);

@@ -23,6 +23,7 @@ var config = {
   main_page_height: 640,
 
   update_url: 'http://172.19.12.206:8000/info.json',
+  quci_list: [{ cid: 101, showtext: '取词复制' }, { cid: 102, showtext: '核查背景信息' }],
 };
 
 module.exports = config;

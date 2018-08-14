@@ -12,6 +12,7 @@ const request = require('request');
 const md5File = require('md5-file');
 const opn = require('opn');
 const setupPug = require('electron-pug');
+const clipboardy = require('clipboardy');
 
 const { fork } = require('child_process');
 const path = require('path');
@@ -66,6 +67,9 @@ const upgrade_tmp_dir = 'downloads';
 
 let mainWindow;
 let huaci_win;
+let sou_win;
+let huaci_x;
+let huaci_y;
 let appTray = null;
 let willQuitApp = false;
 
@@ -80,6 +84,9 @@ if (config.auto_launch) {
 // 定义数据库位置
 const adapter = new FileSync(exe_path + '/db.json');
 const db = low(adapter);
+
+// 取词功能区列表
+const quci_list = config.quci_list;
 
 // 启动划词监听
 huaci.send({ now: 'start' });
@@ -97,9 +104,12 @@ function createTray() {
       click: function trayClick() {
         willQuitApp = true;
         iconProcess.kill('SIGINT');
+        huaci.send({ now: 'stop' });
         appTray.destroy();
         mainWindow.close();
-        app.quit();
+        setTimeout(() => {
+          app.quit();
+        }, 800);
       },
     },
   ]);
@@ -180,9 +190,49 @@ function createWindow() {
 }
 
 /**
+ * 创建"搜"页面
+ */
+function createSouWindow(x, y) {
+  // Create the browser window.
+  sou_win = new BrowserWindow({
+    width: 60,
+    height: 60,
+    autoHideMenuBar: true,
+    useContentSize: true,
+    frame: false,
+    show: false,
+    resizable: false,
+    transparent: true,
+    hasShadow: false,
+    alwaysOnTop: true,
+    skipTaskbar: true,
+    x: x + 10,
+    y: y + 10,
+  });
+  //     useContentSize: true
+  // transparent: false,
+
+  // and load the index.html of the app.
+  sou_win.loadURL(`file://${__dirname}/${fetd}/for-electron/templates/sou.html`);
+
+  // if (config.use_devtools) {
+  //   sou_win.webContents.openDevTools({ mode: 'undocked' });
+  // }
+
+  sou_win.on('ready-to-show', () => {
+    // sou_win.show();
+    sou_win.showInactive();
+  });
+
+  sou_win.on('close', e => {
+    sou_win = null;
+  });
+}
+
+/**
  * 创建划词搜索页面
  */
-async function createHuaci(huaci_states) {
+async function createHuaci() {
   // huaci_states = {
   //   data: [
   //     "<a onclick='send_event(101)'>复制选中项</a>",
@@ -190,24 +240,39 @@ async function createHuaci(huaci_states) {
   //     "<a onclick='send_event(103)'>查询身份证</a>"
   //   ]
   // }
+  huaci_states = {
+    data: quci_list,
+  };
+  console.log('================>');
+  console.log(huaci_states);
   try {
     let pug = await setupPug({ pretty: true }, huaci_states);
     pug.on('error', err => console.error('electron-pug error', err));
   } catch (err) {
+    console.log(err);
+    console.log("Could not initiate 'electron-pug'");
     // Could not initiate 'electron-pug'
   }
 
   huaci_win = new BrowserWindow({
     width: 130,
-    height: 190,
+    height: huaci_states.data.length * 30 + 20,
     frame: false,
     useContentSize: true,
     // backgroundColor: '#89a4c7',
     transparent: true,
+    show: false,
+    skipTaskbar: true,
+    x: huaci_x + 10,
+    y: huaci_y + 10,
   });
 
   huaci_win.loadURL(`file://${__dirname}/${fetd}/for-electron/templates/index.pug`);
 
+  huaci_win.on('ready-to-show', () => {
+    // huaci_win.showInactive();
+    huaci_win.show();
+  });
   // setTimeout(() => {
   //   console.log("I send close event");
   //   huaci_win.webContents.send('please-close');
@@ -370,6 +435,7 @@ ipcMain.on('window-normal', () => {
  */
 ipcMain.on('window-close', () => {
   iconProcess.kill('SIGINT');
+  huaci.send({ now: 'stop' });
   willQuitApp = true;
   mainWindow.close();
   app.quit();
@@ -551,6 +617,7 @@ function update_relaunch() {
   setTimeout(() => {
     // app.exit();
     iconProcess.kill('SIGINT');
+    huaci.send({ now: 'stop' });
     willQuitApp = true;
     mainWindow.close();
     app.quit();
@@ -575,68 +642,69 @@ ipcMain.on('update-relaunch', (event, updatetime) => {
   }, 500);
 });
 
-function isIdCard(card) {
-  // var reg = /^[1-9]d{5}[1-9]d{3}((0d)|(1[0-2]))(([0|1|2]d)|3[0-1])d{4}$/;
-  const id_card_reg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
+// function isIdCard(card) {
+//   // var reg = /^[1-9]d{5}[1-9]d{3}((0d)|(1[0-2]))(([0|1|2]d)|3[0-1])d{4}$/;
+//   const id_card_reg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
 
-  if (id_card_reg.test(card) === false) {
-    return false;
+//   if (id_card_reg.test(card) === false) {
+//     return false;
+//   } else {
+//     return true;
+//   }
+// }
+
+/**
+ * 显示"搜"选项框
+ */
+function create_sou_card(x, y) {
+  if (sou_win) {
+    // console.log('close && create hua ci');
+    sou_win.close();
+    createSouWindow(x, y);
   } else {
-    return true;
+    // console.log('create hua ci');
+    createSouWindow(x, y);
   }
-}
-
-function generate_card_item(huaci) {
-  let huaci_data = huaci.replace(/[\r\n]/g, '');
-
-  let huaci_states = {
-    data: [
-      "<a onclick='send_event(101)'>复制选中项</a>",
-      "<a onclick='send_event(102)'>维汉翻译</a>",
-    ],
-  };
-
-  console.log('<-------------------->');
-  console.log(huaci_data);
-  if (isIdCard(huaci_data)) {
-    huaci_states.data.push("<a onclick='send_event(103)'>查询身份证</a>");
-  } else {
-    console.log('not id_card');
-  }
-  console.log('<-------------------->');
-
-  // huaci_states = {
-  //   data: [
-  //     "<a onclick='send_event(101)'>复制选中项</a>",
-  //     "<a onclick='send_event(102)'>维汉翻译</a>",
-  //     "<a onclick='send_event(103)'>查询身份证</a>"
-  //   ]
-  // }
-  return huaci_states;
 }
 
 /**
  * 显示划词功能选项框
  */
-function create_huaci_card(huaci_data) {
-  let huaci_states = generate_card_item(huaci_data);
-
+function create_huaci_card() {
   if (huaci_win) {
     console.log('close && create hua ci');
     huaci_win.close();
-    createHuaci(huaci_states);
+    createHuaci();
   } else {
     console.log('create hua ci');
-    createHuaci(huaci_states);
+    createHuaci();
   }
 }
+/**
+ * 接收打开选择框的事件
+ */
+ipcMain.on('open-select-card', () => {
+  console.log('user wanna search something~');
+  create_huaci_card();
+});
 
 /**
  * 接收划词内容
  */
+var huaci_original = '';
 function process_huaci(message) {
+  // 获取到划词内容后将内容保存到全局变量
+  huaci_original = message.data;
+
+  // 如果消息类型为huaci，则创建提示窗体
   if (message.type === 'huaci') {
-    create_huaci_card(message.data);
+    // create_huaci_card();
+    huaci_x = message.x;
+    huaci_y = message.y;
+    create_sou_card(message.x, message.y);
+    console.log('------ x ~ y ------');
+    console.log(message.x);
+    console.log(message.y);
   }
 }
 huaci.on('message', message => {
@@ -649,7 +717,24 @@ huaci.on('message', message => {
  */
 ipcMain.on('huaci-choice', (event, cid) => {
   console.log(cid);
-  has_huaci = false;
+
+  if (cid === 101) {
+    console.log('101: copy content to clipboard');
+    clipboardy.writeSync(huaci_original);
+  } else {
+    console.log(`${cid}: do some query`);
+    // 处于托盘则显示页面，否则主窗口聚焦
+    if (mainWindow.isVisible()) {
+      mainWindow.focus();
+    } else {
+      mainWindow.show();
+    }
+    mainWindow.webContents.send('huaci', {
+      original: huaci_original,
+      idcard: '230125199301017777',
+      query_type: cid,
+    });
+  }
 });
 
 // 保证只有一个实例在运行

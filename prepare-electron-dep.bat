@@ -28,6 +28,10 @@ REM Copy Source
 rd /S /q "public/for-electron/source"
 echo D | xcopy /e "src/for-electron/source" "public/for-electron/source"
 
+REM Copy Templates
+rd /S /q "public/for-electron/templates"
+echo D | xcopy /e "src/for-electron/templates" "public/for-electron/templates"
+
 REM Copy Config
 echo F | xcopy /f /y "src/for-electron/config.js" "./public/for-electron/config.js"
 

@@ -6,5 +6,8 @@ html
   body
     #app.animated.fadeIn
       ul
+        //- - for(var i = 0; i < data.length; i++ )
+        //-   li !{data[i]}
         - for(var i = 0; i < data.length; i++ )
-          li !{data[i]}
+          //- li !{data[i]}
+          li(onclick="send_event('" + data[i].cid + "')") #{data[i].showtext}
