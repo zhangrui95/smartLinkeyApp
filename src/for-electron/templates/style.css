@@ -10,10 +10,10 @@ body {
   border-radius: 3px;
   padding: 0;
   width: 120px;
-  margin: 5px;
+  margin: 8px;
 }
 ul {
-  box-shadow: 0 0 3px;
+  box-shadow: 0 0 4px;
   background: #fff;
   color: #333;
   height: 60px;
