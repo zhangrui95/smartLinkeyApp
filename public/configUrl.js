@@ -33,4 +33,5 @@ window.configUrl = {
   // fwName: 'pc-20170308pkrs',
   pcName: '/pc',
   rybjxx: 'http://172.19.12.249:7100',
+  baq: 'http://172.19.12.173:8000',
 };

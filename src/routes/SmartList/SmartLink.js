@@ -47,7 +47,7 @@ class SmartLink extends Component {
       if (item.resourceCode === 'baq_btn') {
         listMenu.push({
           name: '办案区管理系统',
-          link: `${configUrl.baqUrl}`,
+          link: `${configUrl.baq}` + '/#/user/login?token=' + token,
           img: 'images/bananqu.png',
         });
       } else if (item.resourceCode === 'zhag_btn') {
