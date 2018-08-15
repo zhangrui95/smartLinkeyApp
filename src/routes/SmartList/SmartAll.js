@@ -44,7 +44,7 @@ class SmartAll extends Component {
       loginState: this.props.login.loginStatus,
       version: '',
       qcVisible: false,
-      hcList: { 101: 'user/getWord1', 102: 'user/getWord1', 103: 'user/getWord1' },
+      hcList: { 102: 'user/getWord1', 103: 'user/getWord1' },
       wordSerList: {},
     };
     this.msgListAll = [];
@@ -54,7 +54,11 @@ class SmartAll extends Component {
   componentDidMount() {
     ipcRenderer.on('huaci', (event, data) => {
       console.log('huaci---data', data);
-      this.qcModal(data);
+      if (data['query_type'] === '101') {
+        message.success('复制成功');
+      } else {
+        this.qcModal(data);
+      }
     });
     // let a = {original:'23010',query_type:103}
     // this.qcModal(a);
@@ -121,7 +125,7 @@ class SmartAll extends Component {
     this.props.dispatch({
       type: this.state.hcList[type],
       payload:
-        type === 103
+        type === '102'
           ? {
               hphm: '',
               hpzl: '',
@@ -326,36 +330,36 @@ class SmartAll extends Component {
   getOut = () => {
     connection.disconnect();
   };
-  getRight = e => {
-    this.setState({
-      left: e.clientX,
-      top: e.clientY,
-    });
-    this.getCopyWord();
-    let word = window.getSelection ? window.getSelection() : document.selection.createRange().text;
-    if (word.toString().length > 0) {
-      this.setState({
-        rightBox: true,
-        word: word.toString(),
-      });
-      console.log('word----------->', word.toString());
-    }
-  };
-  hideRight = () => {
-    this.setState({
-      rightBox: false,
-    });
-  };
-  getCopyWord = () => {
-    // let word = window.getSelection ? window.getSelection() : document.selection.createRange().text;
-    // console.log('word----------->',word.toString());
-    document.execCommand('Copy');
-  };
-  SearchWord = () => {
-    let a = { original: '230107196307262325', query_type: 103 };
-    this.qcModal(a);
-    // alert(this.state.word);
-  };
+  // getRight = e => {
+  //   this.setState({
+  //     left: e.clientX,
+  //     top: e.clientY,
+  //   });
+  //   this.getCopyWord();
+  //   let word = window.getSelection ? window.getSelection() : document.selection.createRange().text;
+  //   if (word.toString().length > 0) {
+  //     this.setState({
+  //       rightBox: true,
+  //       word: word.toString(),
+  //     });
+  //     console.log('word----------->', word.toString());
+  //   }
+  // };
+  // hideRight = () => {
+  //   this.setState({
+  //     rightBox: false,
+  //   });
+  // };
+  // getCopyWord = () => {
+  //   // let word = window.getSelection ? window.getSelection() : document.selection.createRange().text;
+  //   // console.log('word----------->',word.toString());
+  //   document.execCommand('Copy');
+  // };
+  // SearchWord = () => {
+  //   let a = { original: '230107196307262325', query_type: 103 };
+  //   this.qcModal(a);
+  //   // alert(this.state.word);
+  // };
   handleCancel = () => {
     this.setState({
       qcVisible: false,
@@ -418,7 +422,7 @@ class SmartAll extends Component {
       });
     }
     return (
-      <div onContextMenu={this.getRight} onClick={this.hideRight}>
+      <div>
         {item}
         <div
           className={this.state.rightBox ? styles.rightList : styles.none}
