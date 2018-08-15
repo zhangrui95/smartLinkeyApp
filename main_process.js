@@ -13,6 +13,7 @@ const md5File = require('md5-file');
 const opn = require('opn');
 const setupPug = require('electron-pug');
 const clipboardy = require('clipboardy');
+const electronLocalshortcut = require('electron-localshortcut');
 
 const { fork } = require('child_process');
 const path = require('path');
@@ -155,7 +156,10 @@ function createWindow() {
   );
 
   if (config.use_devtools) {
-    mainWindow.webContents.openDevTools({ mode: 'undocked' });
+    // F12 打开控制台
+    electronLocalshortcut.register(mainWindow, 'F12', () => {
+      mainWindow.webContents.openDevTools({ mode: 'undocked' });
+    });
   }
 
   mainWindow.on('maximize', () => {

@@ -105,6 +105,7 @@
     "clipboardy": "^1.2.3",
     "dva": "^2.2.3",
     "dva-loading": "^2.0.3",
+    "electron-localshortcut": "^3.1.0",
     "electron-pug": "^2.0.0",
     "enquire-js": "^0.2.1",
     "is-wsl": "^1.1.0",
