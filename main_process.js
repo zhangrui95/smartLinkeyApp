@@ -56,10 +56,11 @@ if (config.auto_launch) {
   var auto_launch = require('./' + fetd + '/for-electron/crates/launch').auto_launch;
 }
 
-const icon_path = path.join(__dirname, './' + fetd + '/for-electron/source/logo.ico');
+// const icon_path = path.join(__dirname, './' + fetd + '/for-electron/source/logo.ico');
+const icon_path = path.join(__dirname, `./${fetd}/for-electron/source/logo.ico`);
 const icon_none_path = path.join(__dirname, './' + fetd + '/for-electron/source/none.ico');
 
-const huaci = fork('./' + fetd + '/for-electron/crates/huaci_handler.js');
+const huaci_handler = fork('./' + fetd + '/for-electron/crates/huaci_handler.js');
 
 const upgrade_tmp_dir = 'downloads';
 
@@ -70,6 +71,7 @@ let huaci_win;
 let sou_win;
 let huaci_x;
 let huaci_y;
+let already_login = false;
 let appTray = null;
 let willQuitApp = false;
 
@@ -89,7 +91,7 @@ const db = low(adapter);
 const quci_list = config.quci_list;
 
 // 启动划词监听
-huaci.send({ now: 'start' });
+huaci_handler.send({ now: 'start' });
 
 /**
  * 创建托盘图标及功能
@@ -104,7 +106,7 @@ function createTray() {
       click: function trayClick() {
         willQuitApp = true;
         iconProcess.kill('SIGINT');
-        huaci.send({ now: 'stop' });
+        huaci_handler.send({ now: 'stop' });
         appTray.destroy();
         mainWindow.close();
         setTimeout(() => {
@@ -206,8 +208,8 @@ function createSouWindow(x, y) {
     hasShadow: false,
     alwaysOnTop: true,
     skipTaskbar: true,
-    x: x + 10,
-    y: y + 10,
+    x: x,
+    y: y,
   });
   //     useContentSize: true
   // transparent: false,
@@ -263,8 +265,8 @@ async function createHuaci() {
     transparent: true,
     show: false,
     skipTaskbar: true,
-    x: huaci_x + 10,
-    y: huaci_y + 10,
+    x: huaci_x,
+    y: huaci_y,
   });
 
   huaci_win.loadURL(`file://${__dirname}/${fetd}/for-electron/templates/index.pug`);
@@ -382,6 +384,8 @@ function doSomeThingAfterLoginSuccess() {
  * 登录成功
  */
 ipcMain.on('login-success', () => {
+  already_login = true;
+
   // mainWindow.setMinimumSize(config.main_page_width, config.main_page_height)
   mainWindow.setSize(config.main_page_width, config.main_page_height);
   // mainWindow.setResizable(true);
@@ -396,6 +400,7 @@ ipcMain.on('login-success', () => {
  * 恢复登录页面大小
  */
 ipcMain.on('logout', () => {
+  already_login = false;
   // mainWindow.setMinimumSize(config.login_page_width, config.login_page_height)
   mainWindow.setSize(config.login_page_width, config.login_page_height);
   // mainWindow.setResizable(false);
@@ -435,7 +440,7 @@ ipcMain.on('window-normal', () => {
  */
 ipcMain.on('window-close', () => {
   iconProcess.kill('SIGINT');
-  huaci.send({ now: 'stop' });
+  huaci_handler.send({ now: 'stop' });
   willQuitApp = true;
   mainWindow.close();
   app.quit();
@@ -617,7 +622,7 @@ function update_relaunch() {
   setTimeout(() => {
     // app.exit();
     iconProcess.kill('SIGINT');
-    huaci.send({ now: 'stop' });
+    huaci_handler.send({ now: 'stop' });
     willQuitApp = true;
     mainWindow.close();
     app.quit();
@@ -707,9 +712,11 @@ function process_huaci(message) {
     console.log(message.y);
   }
 }
-huaci.on('message', message => {
+huaci_handler.on('message', message => {
   console.log(`Fork process say: ${message.msg} ${message.data}`);
-  process_huaci(message);
+  if (already_login) {
+    process_huaci(message);
+  }
 });
 
 /**
@@ -718,7 +725,7 @@ huaci.on('message', message => {
 ipcMain.on('huaci-choice', (event, cid) => {
   console.log(cid);
 
-  if (cid === 101) {
+  if (cid === '101') {
     console.log('101: copy content to clipboard');
     clipboardy.writeSync(huaci_original);
   } else {
@@ -782,6 +789,8 @@ if (isSecondInstance) {
     // let urlzzz =
     //   'http://172.19.12.249:97#/loginByToken?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJhNDcyZmUwMi0wOTBhLTQyODktYjdjMy1kMTdlNDRhNGI4ODciLCJpYXQiOjE1MzM2MTk4OTksInN1YiI6IjMwMyIsImlzcyI6IlNlY3VyaXR5IENlbnRlciIsImRlcGFydG1lbnQiOnsiaWQiOjEwMTEsInBhcmVudElkIjoxNSwiZGVwdGgiOjIsIm5hbWUiOiLniaHkuLnmsZ_luILlhazlronlsYAiLCJjb2RlIjoiMjMxMDAwMDAwMDAwIn0sImdvdmVybm1lbnQiOltdLCJpZCI6MzAzLCJpZENhcmQiOiIyMzAxMDUxOTk1MDcyOTI5MjIiLCJwY2FyZCI6InNtYXJ0IiwibmFtZSI6InNtYXJ0Iiwiam9iIjpbeyJjb2RlIjoiMjAwMDAzIiwibmFtZSI6IuaJp-azleebkeeuoSJ9XSwiY29udGFjdCI6IjE1NjYzODAzNjc3IiwiaXNBZG1pbiI6MCwiZXhwIjoxNTM1NjkzNDk5fQ.-xE_VK-V4dkoPEC0LyP49dSxIVc1VlAIWykWKXjzutU&wtid=b5042353-734f-4a67-903a-2e2dca1b55ed&type=1';
     // opn(urlzzz, { app: 'Chrome' });
-  }, 3000);
+    console.log('huaci_handler start');
+    // huaci_handler.send({ now: 'start' });
+  }, 10000);
 })();
 //1231231321

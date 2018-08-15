@@ -12,11 +12,11 @@ const callback = ffi.Callback('void', ['string', 'int', 'int'], function(data, x
   process.send({ type: 'huaci', msg: '', data: data, x: x, y: y });
 });
 
-function start_quci() {
-  // 设置回调函数
-  process.send({ type: 'notice', msg: 'Setting callback', data: '' });
-  angel.SetCallback(callback);
+// 设置回调函数
+process.send({ type: 'notice', msg: 'Setting callback', data: '' });
+angel.SetCallback(callback);
 
+function start_quci() {
   // 开始屏幕取词功能
   let status_code = angel.SetStartHook();
   process.send({ type: 'notice', msg: 'Start huaci ~', data: status_code });
