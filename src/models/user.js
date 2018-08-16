@@ -5,6 +5,7 @@ import {
   getDataSave,
   getFind,
   getWord01,
+  getLoginIp,
 } from '../services/user';
 
 export default {
@@ -104,6 +105,10 @@ export default {
         type: 'getWordList',
         payload: response,
       });
+      callback(response);
+    },
+    *loginIp({ payload, callback }, { call, put }) {
+      const response = yield call(getLoginIp, payload);
       callback(response);
     },
   },

@@ -181,16 +181,23 @@ class SmartAll extends Component {
       console.log('连接断开！');
       setTimeout(() => {
         if (this.state.loginState) {
-          let _this = this;
-          Modal.warning({
-            title: '用户已在其他客户端登录，您将被强制下线！',
-            content: null,
-            okText: '确定',
-            onOk() {
-              _this.props.dispatch({
-                type: 'login/logout',
+          this.props.dispatch({
+            type: 'user/loginIp',
+            payload: { idCard: this.state.userItem.idCard },
+            callback: response => {
+              let _this = this;
+              let ip = response.data.ip ? response.data.ip : '其他客户端';
+              Modal.warning({
+                title: '用户已在' + ip + '登录，您将被强制下线！',
+                content: null,
+                okText: '确定',
+                onOk() {
+                  _this.props.dispatch({
+                    type: 'login/logout',
+                  });
+                  ipcRenderer.send('logout');
+                },
               });
-              ipcRenderer.send('logout');
             },
           });
         }

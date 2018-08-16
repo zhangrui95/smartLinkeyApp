@@ -33,3 +33,9 @@ export async function getWord01(params) {
     body: params,
   });
 }
+export async function getLoginIp(params) {
+  return request(`${configUrl.ZXUrl}/lowcase/lastLoginLog`, {
+    method: 'POST',
+    body: params,
+  });
+}
