@@ -12,17 +12,17 @@ const request = require('request');
 const md5File = require('md5-file');
 const opn = require('opn');
 const setupPug = require('electron-pug');
-const clipboardy = require('clipboardy');
 const electronLocalshortcut = require('electron-localshortcut');
+const execa = require('execa');
+const arch = require('arch');
 
-const { fork } = require('child_process');
 const path = require('path');
 const url = require('url');
 const fs = require('fs');
 
 // ====================================================================
 // __dirname 表示 main.js 所在的路径，此处根据开发及打包后的路径不同
-// 始终获取当前程序的执行路径，用于人脸比对传递绝对路径的图片
+// 始终获取当前程序的启动执行路径，用于执行内置的EXE程序
 // ====================================================================
 var exe_path;
 try {
@@ -45,25 +45,22 @@ let fetd = crates_top_dir.replace(/[\r\n]/g, '');
 fetd = fetd.replace(/(\s*$)/g, '');
 console.log('electron use crates path: <' + fetd + '>');
 
-const log = require('./' + fetd + '/for-electron/crates/logging').log;
-const startIconProcess = require('./' + fetd + '/for-electron/crates/geticon').startIconProcess;
-const download_package = require('./' + fetd + '/for-electron/crates/down').download_package;
-const uplaunch = require('./' + fetd + '/for-electron/crates/uplaunch').uplaunch;
-const upversion = require('./' + fetd + '/for-electron/crates/upversion').upversion;
-const opn_it = require('./' + fetd + '/for-electron/crates/opn-open');
+const { log } = require(`./${fetd}/for-electron/crates/logging`);
+const { startIconProcess } = require(`./${fetd}/for-electron/crates/geticon`);
+const { download_package } = require(`./${fetd}/for-electron/crates/down`);
+const { uplaunch } = require(`./${fetd}/for-electron/crates/uplaunch`);
+const { upversion } = require(`./${fetd}/for-electron/crates/upversion`);
+const { setting_huaci_callback } = require(`./${fetd}/for-electron/crates/huaci_handler`);
+const { start_huaci, stop_huaci } = require(`./${fetd}/for-electron/crates/huaci_handler`);
 
-const config = require('./' + fetd + '/for-electron/config.js');
+const opn_it = require(`./${fetd}/for-electron/crates/opn-open`);
+const config = require(`./${fetd}/for-electron/config.js`);
+
 if (config.auto_launch) {
-  var auto_launch = require('./' + fetd + '/for-electron/crates/launch').auto_launch;
+  var auto_launch = require(`./${fetd}/for-electron/crates/launch`).auto_launch;
 }
-
-// const icon_path = path.join(__dirname, './' + fetd + '/for-electron/source/logo.ico');
 const icon_path = path.join(__dirname, `./${fetd}/for-electron/source/logo.ico`);
-const icon_none_path = path.join(__dirname, './' + fetd + '/for-electron/source/none.ico');
-
-const huaci_handler = fork('./' + fetd + '/for-electron/crates/huaci_handler.js');
-
-const upgrade_tmp_dir = 'downloads';
+const icon_none_path = path.join(__dirname, `./${fetd}/for-electron/source/none.ico`);
 
 // require('electron-reload')(path.join(__dirname, 'dist'));
 
@@ -91,8 +88,11 @@ const db = low(adapter);
 // 取词功能区列表
 const quci_list = config.quci_list;
 
+// 初始化划词的接收函数
+setting_huaci_callback(huaci_receiver);
+
 // 启动划词监听
-huaci_handler.send({ now: 'start' });
+start_huaci();
 
 /**
  * 创建托盘图标及功能
@@ -107,7 +107,8 @@ function createTray() {
       click: function trayClick() {
         willQuitApp = true;
         iconProcess.kill('SIGINT');
-        huaci_handler.send({ now: 'stop' });
+        // huaci_handler.send({ now: 'stop' });
+        stop_huaci();
         appTray.destroy();
         mainWindow.close();
         setTimeout(() => {
@@ -261,8 +262,8 @@ async function createHuaci() {
   }
 
   huaci_win = new BrowserWindow({
-    width: 130,
-    height: huaci_states.data.length * 30 + 20,
+    width: 150,
+    height: huaci_states.data.length * 30 + 30,
     frame: false,
     useContentSize: true,
     // backgroundColor: '#89a4c7',
@@ -291,16 +292,9 @@ async function createHuaci() {
 
 // 应用程序准备完成
 app.on('ready', () => {
-  // let need_uplaunch = db.get('need_uplaunch').value();
-  // if (need_uplaunch) {
-  //   log.info('app start after uplaunch');
-  //   db.set('need_uplaunch', false).write();
-  //   update_relaunch();
-  // } else {
   log.info('app start standalone');
   createTray();
   createWindow();
-  // }
 });
 
 function package_is_ok() {
@@ -444,7 +438,7 @@ ipcMain.on('window-normal', () => {
  */
 ipcMain.on('window-close', () => {
   iconProcess.kill('SIGINT');
-  huaci_handler.send({ now: 'stop' });
+  stop_huaci();
   willQuitApp = true;
   mainWindow.close();
   app.quit();
@@ -626,7 +620,7 @@ function update_relaunch() {
   setTimeout(() => {
     // app.exit();
     iconProcess.kill('SIGINT');
-    huaci_handler.send({ now: 'stop' });
+    stop_huaci();
     willQuitApp = true;
     mainWindow.close();
     app.quit();
@@ -650,17 +644,6 @@ ipcMain.on('update-relaunch', (event, updatetime) => {
     start_update_relaunch(updatetime);
   }, 500);
 });
-
-// function isIdCard(card) {
-//   // var reg = /^[1-9]d{5}[1-9]d{3}((0d)|(1[0-2]))(([0|1|2]d)|3[0-1])d{4}$/;
-//   const id_card_reg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
-
-//   if (id_card_reg.test(card) === false) {
-//     return false;
-//   } else {
-//     return true;
-//   }
-// }
 
 /**
  * 显示"搜"选项框
@@ -706,22 +689,26 @@ function process_huaci(message) {
   huaci_original = message.data;
 
   // 如果消息类型为huaci，则创建提示窗体
-  if (message.type === 'huaci') {
-    // create_huaci_card();
-    huaci_x = message.x;
-    huaci_y = message.y;
-    create_sou_card(message.x, message.y);
-    console.log('------ x ~ y ------');
-    console.log(message.x);
-    console.log(message.y);
-  }
+  huaci_x = message.x;
+  huaci_y = message.y;
+  create_sou_card(message.x, message.y);
+  console.log('------ x ~ y ------');
+  console.log(message.x);
+  console.log(message.y);
 }
-huaci_handler.on('message', message => {
-  console.log(`Fork process say: ${message.msg} ${message.data}`);
+
+// 接收来自DLL的数据
+function huaci_receiver(data, x, y) {
+  console.log(data, x, y);
+  let message = { data: data, x: x, y: y };
   if (already_login) {
     process_huaci(message);
   }
-});
+}
+
+// Binaries from: https://github.com/sindresorhus/win-clipboard
+const winBinPath =
+  arch() === 'x64' ? exe_path + '/bin/clipboard_x86_64.exe' : exe_path + '/bin/clipboard_i686.exe';
 
 /**
  * 当划词功能选项框点选后，接收功能的id唯一标识
@@ -731,7 +718,8 @@ ipcMain.on('huaci-choice', (event, cid) => {
 
   if (cid === '101') {
     console.log('101: copy content to clipboard');
-    clipboardy.writeSync(huaci_original);
+    // clipboardy.writeSync(huaci_original);
+    execa.sync(winBinPath, ['--copy'], { input: huaci_original });
   } else {
     console.log(`${cid}: do some query`);
     // 处于托盘则显示页面，否则主窗口聚焦
@@ -757,6 +745,10 @@ const isSecondInstance = app.makeSingleInstance((commandLine, workingDirectory) 
 });
 
 if (isSecondInstance) {
+  console.log('already runing...');
+  willQuitApp = true;
+  iconProcess.kill('SIGINT');
+  stop_huaci();
   app.quit();
 }
 
@@ -793,7 +785,7 @@ if (isSecondInstance) {
     // let urlzzz =
     //   'http://172.19.12.249:97#/loginByToken?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJhNDcyZmUwMi0wOTBhLTQyODktYjdjMy1kMTdlNDRhNGI4ODciLCJpYXQiOjE1MzM2MTk4OTksInN1YiI6IjMwMyIsImlzcyI6IlNlY3VyaXR5IENlbnRlciIsImRlcGFydG1lbnQiOnsiaWQiOjEwMTEsInBhcmVudElkIjoxNSwiZGVwdGgiOjIsIm5hbWUiOiLniaHkuLnmsZ_luILlhazlronlsYAiLCJjb2RlIjoiMjMxMDAwMDAwMDAwIn0sImdvdmVybm1lbnQiOltdLCJpZCI6MzAzLCJpZENhcmQiOiIyMzAxMDUxOTk1MDcyOTI5MjIiLCJwY2FyZCI6InNtYXJ0IiwibmFtZSI6InNtYXJ0Iiwiam9iIjpbeyJjb2RlIjoiMjAwMDAzIiwibmFtZSI6IuaJp-azleebkeeuoSJ9XSwiY29udGFjdCI6IjE1NjYzODAzNjc3IiwiaXNBZG1pbiI6MCwiZXhwIjoxNTM1NjkzNDk5fQ.-xE_VK-V4dkoPEC0LyP49dSxIVc1VlAIWykWKXjzutU&wtid=b5042353-734f-4a67-903a-2e2dca1b55ed&type=1';
     // opn(urlzzz, { app: 'Chrome' });
-    console.log('huaci_handler start');
+    // console.log('huaci_handler start');
     // huaci_handler.send({ now: 'start' });
   }, 10000);
 })();

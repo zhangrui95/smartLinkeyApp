@@ -7,34 +7,34 @@ const angel = ffi.Library('./angel', {
 });
 
 // 定义回调函数用于接收扫描数据（UTF-8）
-const callback = ffi.Callback('void', ['string', 'int', 'int'], function(data, x, y) {
-  console.log(data, x, y);
-  process.send({ type: 'huaci', msg: '', data: data, x: x, y: y });
-});
+// const callback = ffi.Callback('void', ['string', 'int', 'int'], function(data, x, y) {
+//   console.log(data, x, y);
+// });
 
-// 设置回调函数
-process.send({ type: 'notice', msg: 'Setting callback', data: '' });
-angel.SetCallback(callback);
+var callback;
 
-function start_quci() {
-  // 开始屏幕取词功能
-  let status_code = angel.SetStartHook();
-  process.send({ type: 'notice', msg: 'Start huaci ~', data: status_code });
+function setting_huaci_callback(main_callback) {
+  callback = ffi.Callback('void', ['string', 'int', 'int'], main_callback);
+
+  // 设置回调函数
+  angel.SetCallback(callback);
 }
 
-process.on('message', message => {
-  // 当主进程发送消息过来, 启动划词监听功能
-  console.log('=== hua ci module ===');
-  console.log(message);
-  if (message.now === 'start') {
-    start_quci();
-  } else {
-    angel.SetStopHook();
-  }
-});
+function start_huaci() {
+  // 开始屏幕取词功能
+  let status_code = angel.SetStartHook();
+}
 
-// 轮询, 放置子进程退出
+function stop_huaci() {
+  // 停止屏幕取词功能
+  angel.SetStopHook();
+}
+
+// 防止 callback 函数被垃圾回收机制销毁
 setInterval(function() {
-  console.log(new Date().getTime());
-  console.log('fork process');
+  callback;
 }, 10000);
+
+exports.setting_huaci_callback = setting_huaci_callback;
+exports.start_huaci = start_huaci;
+exports.stop_huaci = stop_huaci;
