@@ -40,9 +40,6 @@ export default class SmartDetail extends Component {
     window.addEventListener('resize', () => {
       this.updateSize();
     });
-    this.setState({
-      loading: true,
-    });
     setTimeout(() => {
       document.getElementById('scroll').scrollTop = document.getElementById('scroll').scrollHeight;
     }, 500);
@@ -390,7 +387,7 @@ export default class SmartDetail extends Component {
                                 <Tooltip placement="top" title="取消关注">
                                   <img
                                     className={
-                                      this.props.code === '200001' ? styles.none : styles.saveIcon
+                                      this.props.code === '200003' ? styles.saveIcon : styles.none
                                     }
                                     src="images/tjguanzhu.png"
                                     onClick={() =>
@@ -402,7 +399,7 @@ export default class SmartDetail extends Component {
                                 <Tooltip
                                   placement="top"
                                   title="关注"
-                                  className={this.props.code === '200001' ? styles.none : ''}
+                                  className={this.props.code === '200003' ? '' : styles.none}
                                 >
                                   <img
                                     className={styles.saveIcon}
@@ -422,9 +419,9 @@ export default class SmartDetail extends Component {
                                 className={styles.overText}
                                 title={ajItem.ajmc}
                                 style={
-                                  this.props.code === '200001'
-                                    ? { paddingLeft: '0' }
-                                    : { paddingLeft: '24px' }
+                                  this.props.code === '200003'
+                                    ? { paddingLeft: '24px' }
+                                    : { paddingLeft: '0' }
                                 }
                               >
                                 {ajItem.ajmc}
@@ -526,7 +523,7 @@ export default class SmartDetail extends Component {
                                 <Tooltip placement="top" title="取消关注">
                                   <img
                                     className={
-                                      this.props.code === '200001' ? styles.none : styles.saveIcon
+                                      this.props.code === '200003' ? styles.saveIcon : styles.none
                                     }
                                     src="images/tjguanzhu.png"
                                     onClick={() =>
@@ -538,7 +535,7 @@ export default class SmartDetail extends Component {
                                 <Tooltip
                                   placement="top"
                                   title="关注"
-                                  className={this.props.code === '200001' ? styles.none : ''}
+                                  className={this.props.code === '200003' ? '' : styles.none}
                                 >
                                   <img
                                     className={styles.saveIcon}
@@ -653,7 +650,7 @@ export default class SmartDetail extends Component {
                                 <Tooltip placement="top" title="取消关注">
                                   <img
                                     className={
-                                      this.props.code === '200001' ? styles.none : styles.saveIcon
+                                      this.props.code === '200003' ? styles.saveIcon : styles.none
                                     }
                                     src="images/tjguanzhu.png"
                                     onClick={() =>
@@ -665,7 +662,7 @@ export default class SmartDetail extends Component {
                                 <Tooltip
                                   placement="top"
                                   title="关注"
-                                  className={this.props.code === '200001' ? styles.none : ''}
+                                  className={this.props.code === '200003' ? '' : styles.none}
                                 >
                                   <img
                                     className={styles.saveIcon}
@@ -685,9 +682,9 @@ export default class SmartDetail extends Component {
                                 className={styles.overText}
                                 title={wpItem.ajmc}
                                 style={
-                                  this.props.code === '200001'
-                                    ? { paddingLeft: '0' }
-                                    : { paddingLeft: '24px' }
+                                  this.props.code === '200003'
+                                    ? { paddingLeft: '24px' }
+                                    : { paddingLeft: '0' }
                                 }
                               >
                                 {wpItem.ajmc}
@@ -786,7 +783,7 @@ export default class SmartDetail extends Component {
                                 <Tooltip placement="top" title="取消关注">
                                   <img
                                     className={
-                                      this.props.code === '200001' ? styles.none : styles.saveIcon
+                                      this.props.code === '200003' ? styles.saveIcon : styles.none
                                     }
                                     src="images/tjguanzhu.png"
                                     onClick={() =>
@@ -798,7 +795,7 @@ export default class SmartDetail extends Component {
                                 <Tooltip
                                   placement="top"
                                   title="关注"
-                                  className={this.props.code === '200001' ? styles.none : ''}
+                                  className={this.props.code === '200003' ? '' : styles.none}
                                 >
                                   <img
                                     className={styles.saveIcon}
@@ -818,9 +815,9 @@ export default class SmartDetail extends Component {
                                 className={styles.overText}
                                 title={baqItem.csmc}
                                 style={
-                                  this.props.code === '200001'
-                                    ? { paddingLeft: '0' }
-                                    : { paddingLeft: '24px' }
+                                  this.props.code === '200003'
+                                    ? { paddingLeft: '24px' }
+                                    : { paddingLeft: '0' }
                                 }
                               >
                                 {baqItem.csmc}
@@ -934,7 +931,7 @@ export default class SmartDetail extends Component {
                             <Tooltip placement="top" title="取消关注">
                               <img
                                 className={
-                                  this.props.code === '200001' ? styles.none : styles.saveIcon
+                                  this.props.code === '200003' ? styles.saveIcon : styles.none
                                 }
                                 src="images/tjguanzhu.png"
                                 onClick={() =>
@@ -949,7 +946,7 @@ export default class SmartDetail extends Component {
                             <Tooltip
                               placement="top"
                               title="关注"
-                              className={this.props.code === '200001' ? styles.none : ''}
+                              className={this.props.code === '200003' ? '' : styles.none}
                             >
                               <img
                                 className={styles.saveIcon}
@@ -969,9 +966,9 @@ export default class SmartDetail extends Component {
                             className={styles.overText}
                             title={searchItem.ajmc}
                             style={
-                              this.props.code === '200001'
-                                ? { paddingLeft: '0' }
-                                : { paddingLeft: '24px' }
+                              this.props.code === '200003'
+                                ? { paddingLeft: '24px' }
+                                : { paddingLeft: '0' }
                             }
                           >
                             {searchItem.ajmc}
@@ -1071,7 +1068,7 @@ export default class SmartDetail extends Component {
                             <Tooltip placement="top" title="取消关注">
                               <img
                                 className={
-                                  this.props.code === '200001' ? styles.none : styles.saveIcon
+                                  this.props.code === '200003' ? styles.saveIcon : styles.none
                                 }
                                 src="images/tjguanzhu.png"
                                 onClick={() =>
@@ -1086,7 +1083,7 @@ export default class SmartDetail extends Component {
                             <Tooltip
                               placement="top"
                               title="关注"
-                              className={this.props.code === '200001' ? styles.none : ''}
+                              className={this.props.code === '200003' ? '' : styles.none}
                             >
                               <img
                                 className={styles.saveIcon}
@@ -1201,7 +1198,7 @@ export default class SmartDetail extends Component {
                             <Tooltip placement="top" title="取消关注">
                               <img
                                 className={
-                                  this.props.code === '200001' ? styles.none : styles.saveIcon
+                                  this.props.code === '200003' ? styles.saveIcon : styles.none
                                 }
                                 src="images/tjguanzhu.png"
                                 onClick={() =>
@@ -1216,7 +1213,7 @@ export default class SmartDetail extends Component {
                             <Tooltip
                               placement="top"
                               title="关注"
-                              className={this.props.code === '200001' ? styles.none : ''}
+                              className={this.props.code === '200003' ? '' : styles.none}
                             >
                               <img
                                 className={styles.saveIcon}
@@ -1236,9 +1233,9 @@ export default class SmartDetail extends Component {
                             className={styles.overText}
                             title={searchItem.ajmc}
                             style={
-                              this.props.code === '200001'
-                                ? { paddingLeft: '0' }
-                                : { paddingLeft: '24px' }
+                              this.props.code === '200003'
+                                ? { paddingLeft: '24px' }
+                                : { paddingLeft: '0' }
                             }
                           >
                             {searchItem.ajmc}

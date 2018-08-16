@@ -253,13 +253,15 @@ class SmartAll extends Component {
         },
         callback: response => {
           let item = '';
-          response.data.map((e, i) => {
-            if (e.nodeid === 'smart_syrjq') {
-              item = e;
-              response.data.splice(i, 1);
-            }
-          });
-          response.data.push(item);
+          if (!this.state.code) {
+            response.data.map((e, i) => {
+              if (e.nodeid === 'smart_syrjq') {
+                item = e;
+                response.data.splice(i, 1);
+              }
+            });
+            response.data.push(item);
+          }
           this.setState({
             searchList: response.data,
           });

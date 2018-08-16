@@ -73,7 +73,7 @@ class SmartItem extends Component {
           type: next.type,
         },
       });
-      if (this.props.code === '200001') {
+      if (this.props.code === '200001' || this.props.code === '200002') {
         this.setState({
           nodeId: '',
         });
@@ -105,7 +105,10 @@ class SmartItem extends Component {
         });
       }
     }
-    if (this.props.user.searchList !== next.user.searchList && this.props.code === '200001') {
+    if (
+      this.props.user.searchList !== next.user.searchList &&
+      (this.props.code === '200001' || this.props.code === '200002')
+    ) {
       let search = [];
       if (next.searchList && next.searchList.length > 0) {
         next.searchList.map(e => {
@@ -144,7 +147,7 @@ class SmartItem extends Component {
       this.props.event !== next.event ||
       this.props.type !== next.type
     ) {
-      if (this.props.code === '200001') {
+      if (this.props.code === '200001' || this.props.code === '200002') {
         if (sessionStorage.getItem('nodeidType')) {
           if (next.searchList && next.searchList.length > 0) {
             if (
@@ -333,7 +336,10 @@ class SmartItem extends Component {
               nodeid: item.nodeid,
               remark: item.remark,
             });
-            if (this.props.code === '200001' && this.props.event !== next.event) {
+            if (
+              (this.props.code === '200001' || this.props.code === '200002') &&
+              this.props.event !== next.event
+            ) {
               if (sessionStorage.getItem('nodeidType')) {
                 dataList.map((e, index) => {
                   if (e.nodeid === sessionStorage.getItem('nodeidType')) {
@@ -347,11 +353,11 @@ class SmartItem extends Component {
               }
             }
             if (!sessionStorage.getItem('nodeidType')) {
-              if (this.props.code === '200001') {
+              if (this.props.code === '200001' || this.props.code === '200002') {
                 this.setState({
-                  title: dataList[dataList.length - 1].name,
-                  nodeId: dataList[dataList.length - 1].nodeid,
-                  index: dataList.length - 1,
+                  title: dataList.length > 0 ? dataList[dataList.length - 1].name : '',
+                  nodeId: dataList.length > 0 ? dataList[dataList.length - 1].nodeid : '',
+                  index: dataList.length > 0 ? dataList.length - 1 : null,
                 });
               } else {
                 if (next.type == 2) {
@@ -391,13 +397,19 @@ class SmartItem extends Component {
             //     remark: item.remark,
             //   });
             // }
-          } else if (this.props.code === '200001') {
+          } else if (this.props.code === '200001' || this.props.code === '200002') {
             this.setState({
               title: '',
             });
           }
         }
       });
+    } else {
+      if (next.type == 0) {
+        this.setState({
+          title: '',
+        });
+      }
     }
     if (next.type == 2 && next.code === '200003') {
       // if (this.state.gzList.gzdaj.length > 0) {
@@ -481,6 +493,24 @@ class SmartItem extends Component {
           });
         }
       }
+    } else if (next.type == 2 && next.code === '200002') {
+      dataList.push({
+        name: '关注的场所',
+        icon: 'images/changsuo.png',
+        maxmessageid:
+          this.state.gzList.gzdcs && this.state.gzList.gzdcs.length > 0
+            ? this.state.gzList.gzdcs[this.state.gzList.gzdcs.length - 1].maxmessageid
+              ? this.state.gzList.gzdcs[this.state.gzList.gzdcs.length - 1].maxmessageid
+              : 0
+            : 0,
+        nodeid: 'smart_gzdcs',
+        remark: '关注的场所',
+      });
+      this.setState({
+        title: dataList[0].name,
+        nodeId: dataList[0].nodeid,
+        index: 0,
+      });
     }
     if (next.code === '200003') {
       if (this.state.gzList.gzdaj.length > 0) {
@@ -638,7 +668,7 @@ class SmartItem extends Component {
         } else if (
           this.lastTime[index].maxmessageid === 0 &&
           !this.props.firstLogin &&
-          this.props.code === '200001'
+          (this.props.code === '200001' || this.props.code === '200002')
         ) {
           this.num = 1;
         } else {
@@ -849,7 +879,9 @@ class SmartItem extends Component {
           <div className={styles.floatLeft}>
             <div className={styles.titles}>{item.name}</div>
             <div className={styles.news}>
-              {this.props.code === '200001' ? '' : listWord(item.nodeid)}
+              {this.props.code === '200001' || this.props.code === '200002'
+                ? ''
+                : listWord(item.nodeid)}
             </div>
           </div>
           <div className={styles.floatLeft}>
@@ -872,7 +904,7 @@ class SmartItem extends Component {
           </div>
         </div>
       );
-      if (this.props.code === '200001') {
+      if (this.props.code === '200001' || this.props.code === '200002') {
         // if(this.listNum(item,index) > 0){
         list.unshift(itemList);
         // }else{
