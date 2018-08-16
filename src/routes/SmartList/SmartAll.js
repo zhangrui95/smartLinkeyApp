@@ -245,6 +245,14 @@ class SmartAll extends Component {
           userid: this.state.xmppUser,
         },
         callback: response => {
+          let item = '';
+          response.data.map((e, i) => {
+            if (e.nodeid === 'smart_syrjq') {
+              item = e;
+              response.data.splice(i, 1);
+            }
+          });
+          response.data.push(item);
           this.setState({
             searchList: response.data,
           });
@@ -315,6 +323,14 @@ class SmartAll extends Component {
           userid: this.state.xmppUser,
         },
         callback: response => {
+          let item = '';
+          response.data.map((e, i) => {
+            if (e.nodeid === 'smart_syrjq') {
+              item = e;
+              response.data.splice(i, 1);
+            }
+          });
+          response.data.push(item);
           this.setState({
             searchList: response.data,
           });

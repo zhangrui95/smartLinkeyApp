@@ -115,7 +115,7 @@ class SmartItem extends Component {
               icon:
                 e.nodeid === 'smart_wtaj'
                   ? 'images/anjian.png'
-                  : e.nodeid === 'smart_wtjq' || item.nodeid === 'smart_syrjq'
+                  : e.nodeid === 'smart_wtjq' || e.nodeid === 'smart_syrjq'
                     ? 'images/weishoulijingqing.png'
                     : e.nodeid === 'smart_wtwp'
                       ? 'images/wentiwupin.png'
@@ -402,18 +402,6 @@ class SmartItem extends Component {
     if (next.type == 2 && next.code === '200003') {
       // if (this.state.gzList.gzdaj.length > 0) {
       dataList.push({
-        name: '关注的警情',
-        icon: 'images/weishoulijingqing.png',
-        maxmessageid:
-          this.state.gzList.gzdjq && this.state.gzList.gzdjq.length > 0
-            ? this.state.gzList.gzdjq[this.state.gzList.gzdjq.length - 1].maxmessageid
-              ? this.state.gzList.gzdjq[this.state.gzList.gzdjq.length - 1].maxmessageid
-              : 0
-            : 0,
-        nodeid: 'smart_gzdjq',
-        remark: '关注的警情',
-      });
-      dataList.push({
         name: '关注的案件',
         icon: 'images/anjian.png',
         maxmessageid:
@@ -452,6 +440,18 @@ class SmartItem extends Component {
             : 0,
         nodeid: 'smart_gzdcs',
         remark: '关注的场所',
+      });
+      dataList.push({
+        name: '关注的警情',
+        icon: 'images/weishoulijingqing.png',
+        maxmessageid:
+          this.state.gzList.gzdjq && this.state.gzList.gzdjq.length > 0
+            ? this.state.gzList.gzdjq[this.state.gzList.gzdjq.length - 1].maxmessageid
+              ? this.state.gzList.gzdjq[this.state.gzList.gzdjq.length - 1].maxmessageid
+              : 0
+            : 0,
+        nodeid: 'smart_gzdjq',
+        remark: '关注的警情',
       });
       // }
       if (dataList.length > 0) {

@@ -439,9 +439,8 @@ export default class SmartDetail extends Component {
                               style={{ width: 295, fontSize: '14px' }}
                               onClick={() =>
                                 this.goWindow(
-                                  sessionStorage.getItem('nodeid') === 'smart_wtaj' ||
-                                  (sessionStorage.getItem('nodeid') === 'smart_syrjq' &&
-                                    this.props.code === '200003')
+                                  sessionStorage.getItem('nodeid') === 'smart_wtaj' &&
+                                  this.props.code === '200003'
                                     ? `${configUrl.agUrl}` +
                                       '#/loginByToken?token=' +
                                       token +
@@ -460,9 +459,8 @@ export default class SmartDetail extends Component {
                               }
                             >
                               <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>
-                                {sessionStorage.getItem('nodeid') === 'smart_wtaj' ||
-                                (sessionStorage.getItem('nodeid') === 'smart_syrjq' &&
-                                  this.props.code === '200003')
+                                {sessionStorage.getItem('nodeid') === 'smart_wtaj' &&
+                                this.props.code === '200003'
                                   ? ajItem.status === '未督办' || ajItem.status === '已反馈'
                                     ? '立即督办'
                                     : '查看详情'
@@ -569,9 +567,8 @@ export default class SmartDetail extends Component {
                               style={{ width: 295, fontSize: '14px' }}
                               onClick={() =>
                                 this.goWindow(
-                                  sessionStorage.getItem('nodeid') === 'smart_wtjq' ||
-                                  (sessionStorage.getItem('nodeid') === 'smart_syrjq' &&
-                                    this.props.code === '200003')
+                                  sessionStorage.getItem('nodeid') === 'smart_wtjq' &&
+                                  this.props.code === '200003'
                                     ? `${configUrl.agUrl}` +
                                       '#/loginByToken?token=' +
                                       token +
@@ -590,9 +587,8 @@ export default class SmartDetail extends Component {
                               }
                             >
                               <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>
-                                {sessionStorage.getItem('nodeid') === 'smart_wtjq' ||
-                                (sessionStorage.getItem('nodeid') === 'smart_syrjq' &&
-                                  this.props.code === '200003')
+                                {sessionStorage.getItem('nodeid') === 'smart_wtjq' &&
+                                this.props.code === '200003'
                                   ? items.status === '未督办' || items.status === '已反馈'
                                     ? '立即督办'
                                     : '查看详情'
@@ -707,9 +703,8 @@ export default class SmartDetail extends Component {
                               style={{ width: 295, fontSize: '14px' }}
                               onClick={() =>
                                 this.goWindow(
-                                  sessionStorage.getItem('nodeid') === 'smart_wtwp' ||
-                                  (sessionStorage.getItem('nodeid') === 'smart_syrjq' &&
-                                    this.props.code === '200003')
+                                  sessionStorage.getItem('nodeid') === 'smart_wtwp' &&
+                                  this.props.code === '200003'
                                     ? `${configUrl.agUrl}` +
                                       '#/loginByToken?token=' +
                                       token +
@@ -725,9 +720,8 @@ export default class SmartDetail extends Component {
                               }
                             >
                               <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>
-                                {sessionStorage.getItem('nodeid') === 'smart_wtwp' ||
-                                (sessionStorage.getItem('nodeid') === 'smart_syrjq' &&
-                                  this.props.code === '200003')
+                                {sessionStorage.getItem('nodeid') === 'smart_wtwp' &&
+                                this.props.code === '200003'
                                   ? wpItem.status === '未督办' || wpItem.status === '已反馈'
                                     ? '立即督办'
                                     : '查看详情'
@@ -841,9 +835,8 @@ export default class SmartDetail extends Component {
                               style={{ width: 295, fontSize: '14px' }}
                               onClick={() =>
                                 this.goWindow(
-                                  sessionStorage.getItem('nodeid') === 'smart_wtcs' ||
-                                  (sessionStorage.getItem('nodeid') === 'smart_syrjq' &&
-                                    this.props.code === '200003')
+                                  sessionStorage.getItem('nodeid') === 'smart_wtcs' &&
+                                  this.props.code === '200003'
                                     ? `${configUrl.agUrl}` +
                                       '#/loginByToken?token=' +
                                       token +
@@ -862,9 +855,8 @@ export default class SmartDetail extends Component {
                               }
                             >
                               <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>
-                                {sessionStorage.getItem('nodeid') === 'smart_wtcs' ||
-                                (sessionStorage.getItem('nodeid') === 'smart_syrjq' &&
-                                  this.props.code === '200003')
+                                {sessionStorage.getItem('nodeid') === 'smart_wtcs' &&
+                                this.props.code === '200003'
                                   ? baqItem.status === '未督办' || baqItem.status === '已反馈'
                                     ? '立即督办'
                                     : '查看详情'
@@ -994,9 +986,8 @@ export default class SmartDetail extends Component {
                           style={{ width: 295, fontSize: '14px' }}
                           onClick={() =>
                             this.goWindow(
-                              sessionStorage.getItem('nodeid') === 'smart_wtaj' ||
-                              (sessionStorage.getItem('nodeid') === 'smart_syrjq' &&
-                                this.props.code === '200003')
+                              sessionStorage.getItem('nodeid') === 'smart_wtaj' &&
+                              this.props.code === '200003'
                                 ? `${configUrl.agUrl}` +
                                   '#/loginByToken?token=' +
                                   token +
@@ -1015,9 +1006,8 @@ export default class SmartDetail extends Component {
                           }
                         >
                           <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>
-                            {sessionStorage.getItem('nodeid') === 'smart_wtaj' ||
-                            (sessionStorage.getItem('nodeid') === 'smart_syrjq' &&
-                              this.props.code === '200003')
+                            {sessionStorage.getItem('nodeid') === 'smart_wtaj' &&
+                            this.props.code === '200003'
                               ? searchItem.status === '未督办' || searchItem.status === '已反馈'
                                 ? '立即督办'
                                 : '查看详情'
@@ -1045,11 +1035,23 @@ export default class SmartDetail extends Component {
             );
           } else if (listType === 'jqxx') {
             //警情
+            let k = -1;
+            this.state.saveList.map(e => {
+              if (e.id === '/' + searchItem.uuid) {
+                k = 1;
+              }
+            });
+            this.props.gzList.gzdaj.map(e => {
+              if (e.id === '/' + searchItem.uuid) {
+                k = 1;
+              }
+            });
             list.push(
               <div className={styles.boxItem} key={'jq' + i.toString()}>
                 <div className={styles.timeStyle}>{readTime}</div>
                 <div>
-                  {sessionStorage.getItem('nodeid') === 'smart_wtjq' ? (
+                  {sessionStorage.getItem('nodeid') === 'smart_wtjq' ||
+                  sessionStorage.getItem('nodeid') === 'smart_syrjq' ? (
                     <div className={styles.headerName}>警情</div>
                   ) : (
                     <div className={styles.headerName}>
@@ -1065,11 +1067,42 @@ export default class SmartDetail extends Component {
                     <Card
                       title={
                         <div>
-                          <span
-                            className={styles.overText}
-                            style={{ paddingLeft: '0' }}
-                            title={searchItem.jqmc}
-                          >
+                          {k > 0 ? (
+                            <Tooltip placement="top" title="取消关注">
+                              <img
+                                className={
+                                  this.props.code === '200001' ? styles.none : styles.saveIcon
+                                }
+                                src="images/tjguanzhu.png"
+                                onClick={() =>
+                                  this.getCancelSave(
+                                    'smart_syrjq',
+                                    '/' + this.state.searchList[i].result.uuid
+                                  )
+                                }
+                              />
+                            </Tooltip>
+                          ) : (
+                            <Tooltip
+                              placement="top"
+                              title="关注"
+                              className={this.props.code === '200001' ? styles.none : ''}
+                            >
+                              <img
+                                className={styles.saveIcon}
+                                src="images/qxguanzhu.png"
+                                onClick={() =>
+                                  this.getSave(
+                                    'smart_syrjq',
+                                    '/' + this.state.searchList[i].result.uuid,
+                                    this.state.searchList[i].result.jqmc,
+                                    'gzdjq'
+                                  )
+                                }
+                              />
+                            </Tooltip>
+                          )}
+                          <span className={styles.overText} title={searchItem.jqmc}>
                             {searchItem.jqmc}
                           </span>
                           <Tag className={styles.tagStyle}>{searchItem.status}</Tag>
@@ -1220,9 +1253,8 @@ export default class SmartDetail extends Component {
                           style={{ width: 295, fontSize: '14px' }}
                           onClick={() =>
                             this.goWindow(
-                              sessionStorage.getItem('nodeid') === 'smart_wtwp' ||
-                              (sessionStorage.getItem('nodeid') === 'smart_syrjq' &&
-                                this.props.code === '200003')
+                              sessionStorage.getItem('nodeid') === 'smart_wtwp' &&
+                              this.props.code === '200003'
                                 ? `${configUrl.agUrl}` +
                                   '#/loginByToken?token=' +
                                   token +
@@ -1238,9 +1270,8 @@ export default class SmartDetail extends Component {
                           }
                         >
                           <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>
-                            {sessionStorage.getItem('nodeid') === 'smart_wtwp' ||
-                            (sessionStorage.getItem('nodeid') === 'smart_syrjq' &&
-                              this.props.code === '200003')
+                            {sessionStorage.getItem('nodeid') === 'smart_wtwp' &&
+                            this.props.code === '200003'
                               ? searchItem.status === '未督办' || searchItem.status === '已反馈'
                                 ? '立即督办'
                                 : '查看详情'
