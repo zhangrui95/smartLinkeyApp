@@ -100,13 +100,22 @@ export async function getLoginSetting(params) {
 export async function queryNotices() {
   return request('/api/notices');
 }
+
 export async function getQuestionList(params) {
   // return request(`${configUrl.ywzxUrl}/queryQuestionList`, {
-  return request('https://www.easy-mock.com/mock/5b2de5fd3bd2c939a1040679/getQuestion', {
+  return request(`${configUrl.McUrl}/dictionary`, {
     method: 'POST',
     body: params,
   });
 }
+
+export async function getQuestionName(params) {
+  return request(`${configUrl.McUrl}/getSysHelpByTypeId`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
 export async function getSaveList(params) {
   return request('http://172.19.12.240:7800/datahandle/createpubsubnode', {
     method: 'POST',

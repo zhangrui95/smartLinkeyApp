@@ -54,9 +54,7 @@ class SmartAll extends Component {
   componentDidMount() {
     ipcRenderer.on('huaci', (event, data) => {
       console.log('huaci---data', data);
-      if (data['query_type'] === '101') {
-        message.success('复制成功');
-      } else {
+      if (data['query_type']) {
         this.qcModal(data);
       }
     });
@@ -186,7 +184,7 @@ class SmartAll extends Component {
             payload: { idCard: this.state.userItem.idCard },
             callback: response => {
               let _this = this;
-              let ip = response.data.ip ? response.data.ip : '其他客户端';
+              let ip = response.data ? response.data.ip : '其他客户端';
               Modal.warning({
                 title: '用户已在' + ip + '登录，您将被强制下线！',
                 content: null,
@@ -211,17 +209,19 @@ class SmartAll extends Component {
       connection.send($pres().tree());
       //获取订阅的主题信息
       // connection.pubsub.getSubscriptions(this.onMessage1, 5000);
-      this.getSubscription();
+      this.getSubscription(0);
     }
   };
-  getSubscription = () => {
-    connection.pubsub.getSubscriptions(this.onMessage1, 5000);
+  getSubscription = type => {
+    connection.pubsub.getSubscriptions(msg1 => {
+      this.onMessage1(msg1, type);
+    }, 5000);
   };
   onNewMsg = (nodeList, maxNum) => {
     connection.pubsub.items(nodeList, null, null, 5000, maxNum);
     this.msgListAll = [];
   };
-  onMessage1 = msg1 => {
+  onMessage1 = (msg1, type) => {
     let node = [];
     this.msgListAll = [];
     let names = msg1.getElementsByTagName('subscription');
@@ -229,14 +229,22 @@ class SmartAll extends Component {
       for (let i = 0; i < names.length; i++) {
         node.push(names[i].attributes[0].textContent);
         sessionStorage.setItem('nodeList', JSON.stringify(node));
-        if (!this.state.code) {
-          this.onNewMsg(
-            names[i].attributes[0].textContent,
-            names[i].attributes[0].textContent === 'smart_wtjq' ? 2 : ''
-          );
-        } else {
-          this.msgListAll = [];
-          this.onNewMsg(names[i].attributes[0].textContent, '');
+        if (type === 0) {
+          if (!this.state.code) {
+            this.onNewMsg(
+              names[i].attributes[0].textContent,
+              names[i].attributes[0].textContent === 'smart_wtjq' ||
+              names[i].attributes[0].textContent === 'smart_wtwp' ||
+              names[i].attributes[0].textContent === 'smart_wtcs' ||
+              names[i].attributes[0].textContent === 'smart_wtaj' ||
+              names[i].attributes[0].textContent === 'smart_syrjq'
+                ? 5
+                : ''
+            );
+          } else {
+            this.msgListAll = [];
+            this.onNewMsg(names[i].attributes[0].textContent, '');
+          }
         }
       }
     }
@@ -287,7 +295,7 @@ class SmartAll extends Component {
       });
       if (this.state.code) {
         this.msgListAll = [];
-        connection.pubsub.getSubscriptions(this.onMessage1, 5000);
+        this.getSubscription(0);
         this.getNodeList();
       }
     }
@@ -410,7 +418,7 @@ class SmartAll extends Component {
           <SmartItem
             firstLogin={this.state.firstLogin}
             code={jobs.code}
-            getSubscription={() => this.getSubscription()}
+            getSubscription={type => this.getSubscription(type)}
             xmppUser={this.state.xmppUser}
             msgList={this.state.msgList}
             nodeList={this.state.nodeList}
@@ -464,35 +472,39 @@ class SmartAll extends Component {
           width={800}
           footer={null}
         >
-          <Form className="ant-advanced-search-form" style={{ paddingRight: '40px' }}>
-            <Row gutter={24}>
-              <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
-                <FormItem {...formItemLayout} label="人员背景">
-                  {children.length > 0 ? children.toString() : '暂无'}
-                </FormItem>
-              </Col>
-              <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
-                <FormItem {...formItemLayout} label="姓名">
-                  {name ? name : ''}
-                </FormItem>
-              </Col>
-              <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
-                <FormItem {...formItemLayout} label="身份证号码">
-                  {cardId ? cardId : ''}
-                </FormItem>
-              </Col>
-              <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
-                <FormItem {...formItemLayout} label="性别">
-                  {sex ? sex : ''}
-                </FormItem>
-              </Col>
-              <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
-                <FormItem {...formItemLayout} label="民族">
-                  {mz ? mz : ''}
-                </FormItem>
-              </Col>
-            </Row>
-          </Form>
+          {this.state.wordSerList && this.state.wordSerList.length > 0 ? (
+            <Form className="ant-advanced-search-form" style={{ paddingRight: '40px' }}>
+              <Row gutter={24}>
+                <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
+                  <FormItem {...formItemLayout} label="人员背景">
+                    {children.length > 0 ? children.toString() : '暂无'}
+                  </FormItem>
+                </Col>
+                <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
+                  <FormItem {...formItemLayout} label="姓名">
+                    {name ? name : ''}
+                  </FormItem>
+                </Col>
+                <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
+                  <FormItem {...formItemLayout} label="身份证号码">
+                    {cardId ? cardId : ''}
+                  </FormItem>
+                </Col>
+                <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
+                  <FormItem {...formItemLayout} label="性别">
+                    {sex ? sex : ''}
+                  </FormItem>
+                </Col>
+                <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
+                  <FormItem {...formItemLayout} label="民族">
+                    {mz ? mz : ''}
+                  </FormItem>
+                </Col>
+              </Row>
+            </Form>
+          ) : (
+            <div style={{ textAlign: 'center' }}>暂无查询结果</div>
+          )}
         </Modal>
       </div>
     );

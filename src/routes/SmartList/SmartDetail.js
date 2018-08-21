@@ -14,6 +14,8 @@ export default class SmartDetail extends Component {
   constructor(props) {
     //初始化nowPage为1
     super(props);
+    const user = sessionStorage.getItem('user');
+    const userNew = JSON.parse(user).user;
     this.state = {
       // xmppList:[],
       searchList: null,
@@ -32,6 +34,7 @@ export default class SmartDetail extends Component {
       lookMore: false,
       saveList: [],
       enter: false,
+      userItem: userNew,
       // oldList:[],
     };
   }
@@ -61,23 +64,46 @@ export default class SmartDetail extends Component {
           lookMore: false,
         });
         if (this.props.code === '200003') {
-          if (sessionStorage.getItem('nodeid') === 'smart_wtjq') {
+          if (
+            sessionStorage.getItem('nodeid') === 'smart_wtjq' ||
+            sessionStorage.getItem('nodeid') === 'smart_wtaj' ||
+            sessionStorage.getItem('nodeid') === 'smart_wtwp' ||
+            sessionStorage.getItem('nodeid') === this.state.userItem.department ||
+            sessionStorage.getItem('nodeid') === 'smart_syrjq'
+          ) {
             this.setState({
               load: true,
               endLength: parseInt(this.state.endLength) + 1,
             });
+            let packagecount = 0;
+            this.props.msgList.map((e, i) => {
+              if (e.nodeid === sessionStorage.getItem('nodeid')) {
+                if (e.packagecount > 2) {
+                  packagecount = e.packagecount;
+                }
+              }
+            });
             this.props.searchList.map(listItem => {
               this.props.onNewMsg(
                 listItem.nodeid,
-                listItem.nodeid === 'smart_wtjq' ? 2 * this.state.endLength : ''
+                listItem.nodeid === sessionStorage.getItem('nodeid') ? 5 * this.state.endLength : 5
               );
             });
-            setTimeout(() => {
+            document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
+            if (packagecount < 5 * this.state.endLength) {
               this.setState({
                 load: false,
               });
-              document.getElementById('scroll').scrollTop = 2200;
-            }, this.state.endLength < 3 ? 500 : this.state.endLength * 80);
+              document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
+            } else {
+              setTimeout(() => {
+                this.setState({
+                  load: false,
+                });
+                document.getElementById('scroll').scrollTop = 2200;
+                document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
+              }, this.state.endLength < 3 ? 500 : this.state.endLength * 80);
+            }
           } else {
             if (
               this.state.data.length <
@@ -235,6 +261,14 @@ export default class SmartDetail extends Component {
           }
         });
       });
+    } else if (sessionStorage.getItem('nodeid') === 'smart_gzdjq') {
+      next.gzList['gzdjq'].map((e, i) => {
+        next.msgList.map(item => {
+          if (e.id === item.nodeid) {
+            list.push(item);
+          }
+        });
+      });
     } else {
       next.msgList.map(item => {
         if (sessionStorage.getItem('nodeid').toLowerCase() === item.nodeid.toLowerCase()) {
@@ -312,7 +346,7 @@ export default class SmartDetail extends Component {
       callback: response => {
         if (response.data) {
           message.success('提示:关注成功!');
-          this.props.getSubscription();
+          this.props.getSubscription(1);
         }
       },
     });
@@ -367,7 +401,8 @@ export default class SmartDetail extends Component {
                   <div className={styles.boxItem} key={'aj' + i.toString() + index}>
                     <div className={styles.timeStyle}>{item.time}</div>
                     <div>
-                      {sessionStorage.getItem('nodeid') === 'smart_wtaj' ? (
+                      {sessionStorage.getItem('nodeid') === 'smart_wtaj' ||
+                      sessionStorage.getItem('nodeid') === 'smart_gzdaj' ? (
                         <div className={styles.headerName}>案管</div>
                       ) : (
                         <div className={styles.headerName}>
@@ -376,7 +411,8 @@ export default class SmartDetail extends Component {
                       )}
                       <div className={styles.cardBox}>
                         <div className={styles.newsTitle}>
-                          {sessionStorage.getItem('nodeid') === 'smart_wtaj'
+                          {sessionStorage.getItem('nodeid') === 'smart_wtaj' ||
+                          sessionStorage.getItem('nodeid') === 'smart_gzdaj'
                             ? '智慧案管系统'
                             : ajItem.name}
                         </div>
@@ -436,7 +472,8 @@ export default class SmartDetail extends Component {
                               style={{ width: 295, fontSize: '14px' }}
                               onClick={() =>
                                 this.goWindow(
-                                  sessionStorage.getItem('nodeid') === 'smart_wtaj' &&
+                                  (sessionStorage.getItem('nodeid') === 'smart_wtaj' ||
+                                    sessionStorage.getItem('nodeid') === 'smart_gzdaj') &&
                                   this.props.code === '200003'
                                     ? `${configUrl.agUrl}` +
                                       '#/loginByToken?token=' +
@@ -456,7 +493,8 @@ export default class SmartDetail extends Component {
                               }
                             >
                               <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>
-                                {sessionStorage.getItem('nodeid') === 'smart_wtaj' &&
+                                {(sessionStorage.getItem('nodeid') === 'smart_wtaj' ||
+                                  sessionStorage.getItem('nodeid') === 'smart_gzdaj') &&
                                 this.props.code === '200003'
                                   ? ajItem.status === '未督办' || ajItem.status === '已反馈'
                                     ? '立即督办'
@@ -503,7 +541,8 @@ export default class SmartDetail extends Component {
                     <div className={styles.timeStyle}>{item.time}</div>
                     <div>
                       {sessionStorage.getItem('nodeid') === 'smart_wtjq' ||
-                      sessionStorage.getItem('nodeid') === 'smart_syrjq' ? (
+                      sessionStorage.getItem('nodeid') === 'smart_syrjq' ||
+                      sessionStorage.getItem('nodeid') === 'smart_gzdjq' ? (
                         <div className={styles.headerName}>警情</div>
                       ) : (
                         <div className={styles.headerName}>
@@ -512,7 +551,8 @@ export default class SmartDetail extends Component {
                       )}
                       <div className={styles.cardBox}>
                         <div className={styles.newsTitle}>
-                          {sessionStorage.getItem('nodeid') === 'smart_wtjq'
+                          {sessionStorage.getItem('nodeid') === 'smart_wtjq' ||
+                          sessionStorage.getItem('nodeid') === 'smart_gzdjq'
                             ? '智慧警情系统'
                             : items.name}
                         </div>
@@ -564,7 +604,8 @@ export default class SmartDetail extends Component {
                               style={{ width: 295, fontSize: '14px' }}
                               onClick={() =>
                                 this.goWindow(
-                                  sessionStorage.getItem('nodeid') === 'smart_wtjq' &&
+                                  (sessionStorage.getItem('nodeid') === 'smart_wtjq' ||
+                                    sessionStorage.getItem('nodeid') === 'smart_gzdjq') &&
                                   this.props.code === '200003'
                                     ? `${configUrl.agUrl}` +
                                       '#/loginByToken?token=' +
@@ -584,7 +625,8 @@ export default class SmartDetail extends Component {
                               }
                             >
                               <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>
-                                {sessionStorage.getItem('nodeid') === 'smart_wtjq' &&
+                                {(sessionStorage.getItem('nodeid') === 'smart_wtjq' ||
+                                  sessionStorage.getItem('nodeid') === 'smart_gzdjq') &&
                                 this.props.code === '200003'
                                   ? items.status === '未督办' || items.status === '已反馈'
                                     ? '立即督办'
@@ -630,7 +672,8 @@ export default class SmartDetail extends Component {
                   <div className={styles.boxItem} key={'wp' + i.toString() + index}>
                     <div className={styles.timeStyle}>{item.time}</div>
                     <div>
-                      {sessionStorage.getItem('nodeid') === 'smart_wtwp' ? (
+                      {sessionStorage.getItem('nodeid') === 'smart_wtwp' ||
+                      sessionStorage.getItem('nodeid') === 'smart_gzdwp' ? (
                         <div className={styles.headerName}>案务</div>
                       ) : (
                         <div className={styles.headerName}>
@@ -639,7 +682,8 @@ export default class SmartDetail extends Component {
                       )}
                       <div className={styles.cardBox}>
                         <div className={styles.newsTitle}>
-                          {sessionStorage.getItem('nodeid') === 'smart_wtwp'
+                          {sessionStorage.getItem('nodeid') === 'smart_wtwp' ||
+                          sessionStorage.getItem('nodeid') === 'smart_gzdwp'
                             ? '涉案财务系统'
                             : wpItem.name}
                         </div>
@@ -700,7 +744,8 @@ export default class SmartDetail extends Component {
                               style={{ width: 295, fontSize: '14px' }}
                               onClick={() =>
                                 this.goWindow(
-                                  sessionStorage.getItem('nodeid') === 'smart_wtwp' &&
+                                  (sessionStorage.getItem('nodeid') === 'smart_wtwp' ||
+                                    sessionStorage.getItem('nodeid') === 'smart_gzdwp') &&
                                   this.props.code === '200003'
                                     ? `${configUrl.agUrl}` +
                                       '#/loginByToken?token=' +
@@ -717,7 +762,8 @@ export default class SmartDetail extends Component {
                               }
                             >
                               <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>
-                                {sessionStorage.getItem('nodeid') === 'smart_wtwp' &&
+                                {(sessionStorage.getItem('nodeid') === 'smart_wtwp' ||
+                                  sessionStorage.getItem('nodeid') === 'smart_gzdwp') &&
                                 this.props.code === '200003'
                                   ? wpItem.status === '未督办' || wpItem.status === '已反馈'
                                     ? '立即督办'
@@ -747,6 +793,7 @@ export default class SmartDetail extends Component {
                 );
               });
             } else if (listType === 'baq') {
+              let k = -1;
               //办案区
               result.map((baqItem, index) => {
                 this.state.saveList.map((e, i) => {
@@ -760,10 +807,10 @@ export default class SmartDetail extends Component {
                   }
                 });
                 list.push(
-                  <div className={styles.boxItem} key={'aj' + i.toString() + index}>
+                  <div className={styles.boxItem} key={'baq' + i.toString() + index}>
                     <div className={styles.timeStyle}>{item.time}</div>
                     <div>
-                      {sessionStorage.getItem('nodeid') === 'smart_wtcs' ? (
+                      {sessionStorage.getItem('nodeid') === this.state.userItem.department ? (
                         <div className={styles.headerName}>场所</div>
                       ) : (
                         <div className={styles.headerName}>
@@ -772,7 +819,7 @@ export default class SmartDetail extends Component {
                       )}
                       <div className={styles.cardBox}>
                         <div className={styles.newsTitle}>
-                          {sessionStorage.getItem('nodeid') === 'smart_wtcs'
+                          {sessionStorage.getItem('nodeid') === this.state.userItem.department
                             ? '办案区管理系统'
                             : baqItem.name}
                         </div>
@@ -787,7 +834,10 @@ export default class SmartDetail extends Component {
                                     }
                                     src="images/tjguanzhu.png"
                                     onClick={() =>
-                                      this.getCancelSave('smart_wtcs', '/' + baqItem.uuid)
+                                      this.getCancelSave(
+                                        this.state.userItem.department,
+                                        '/' + baqItem.uuid
+                                      )
                                     }
                                   />
                                 </Tooltip>
@@ -802,7 +852,7 @@ export default class SmartDetail extends Component {
                                     src="images/qxguanzhu.png"
                                     onClick={() =>
                                       this.getSave(
-                                        'smart_wtcs',
+                                        this.state.userItem.department,
                                         '/' + baqItem.uuid,
                                         baqItem.csmc,
                                         'gzdcs'
@@ -832,14 +882,14 @@ export default class SmartDetail extends Component {
                               style={{ width: 295, fontSize: '14px' }}
                               onClick={() =>
                                 this.goWindow(
-                                  sessionStorage.getItem('nodeid') === 'smart_wtcs' &&
-                                  this.props.code === '200003'
+                                  sessionStorage.getItem('nodeid') ===
+                                    this.state.userItem.department && this.props.code === '200003'
                                     ? `${configUrl.agUrl}` +
                                       '#/loginByToken?token=' +
                                       token +
                                       '&wtid=' +
                                       baqItem.wtid +
-                                      '&type=1'
+                                      '&type=4'
                                     : `${configUrl.baqUrl}` +
                                       '/Manager/smartlinkeyLoign?username=' +
                                       userNew.idCard +
@@ -852,8 +902,8 @@ export default class SmartDetail extends Component {
                               }
                             >
                               <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>
-                                {sessionStorage.getItem('nodeid') === 'smart_wtcs' &&
-                                this.props.code === '200003'
+                                {sessionStorage.getItem('nodeid') ===
+                                  this.state.userItem.department && this.props.code === '200003'
                                   ? baqItem.status === '未督办' || baqItem.status === '已反馈'
                                     ? '立即督办'
                                     : '查看详情'
@@ -911,7 +961,8 @@ export default class SmartDetail extends Component {
               <div className={styles.boxItem} key={'aj' + i.toString()}>
                 <div className={styles.timeStyle}>{readTime}</div>
                 <div>
-                  {sessionStorage.getItem('nodeid') === 'smart_wtaj' ? (
+                  {sessionStorage.getItem('nodeid') === 'smart_wtaj' ||
+                  sessionStorage.getItem('nodeid') === 'smart_gzdaj' ? (
                     <div className={styles.headerName}>案管</div>
                   ) : (
                     <div className={styles.headerName}>
@@ -920,7 +971,8 @@ export default class SmartDetail extends Component {
                   )}
                   <div className={styles.cardBox}>
                     <div className={styles.newsTitle}>
-                      {sessionStorage.getItem('nodeid') === 'smart_wtaj'
+                      {sessionStorage.getItem('nodeid') === 'smart_wtaj' ||
+                      sessionStorage.getItem('nodeid') === 'smart_gzdaj'
                         ? '智慧案管系统'
                         : searchItem.name}
                     </div>
@@ -983,7 +1035,8 @@ export default class SmartDetail extends Component {
                           style={{ width: 295, fontSize: '14px' }}
                           onClick={() =>
                             this.goWindow(
-                              sessionStorage.getItem('nodeid') === 'smart_wtaj' &&
+                              (sessionStorage.getItem('nodeid') === 'smart_wtaj' ||
+                                sessionStorage.getItem('nodeid') === 'smart_gzdaj') &&
                               this.props.code === '200003'
                                 ? `${configUrl.agUrl}` +
                                   '#/loginByToken?token=' +
@@ -1003,7 +1056,8 @@ export default class SmartDetail extends Component {
                           }
                         >
                           <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>
-                            {sessionStorage.getItem('nodeid') === 'smart_wtaj' &&
+                            {(sessionStorage.getItem('nodeid') === 'smart_wtaj' ||
+                              sessionStorage.getItem('nodeid') === 'smart_gzdaj') &&
                             this.props.code === '200003'
                               ? searchItem.status === '未督办' || searchItem.status === '已反馈'
                                 ? '立即督办'
@@ -1048,7 +1102,8 @@ export default class SmartDetail extends Component {
                 <div className={styles.timeStyle}>{readTime}</div>
                 <div>
                   {sessionStorage.getItem('nodeid') === 'smart_wtjq' ||
-                  sessionStorage.getItem('nodeid') === 'smart_syrjq' ? (
+                  sessionStorage.getItem('nodeid') === 'smart_syrjq' ||
+                  sessionStorage.getItem('nodeid') === 'smart_gzdjq' ? (
                     <div className={styles.headerName}>警情</div>
                   ) : (
                     <div className={styles.headerName}>
@@ -1057,7 +1112,8 @@ export default class SmartDetail extends Component {
                   )}
                   <div className={styles.cardBox}>
                     <div className={styles.newsTitle}>
-                      {sessionStorage.getItem('nodeid') === 'smart_wtjq'
+                      {sessionStorage.getItem('nodeid') === 'smart_wtjq' ||
+                      sessionStorage.getItem('nodeid') === 'smart_gzdjq'
                         ? '智慧警情系统'
                         : searchItem.name}
                     </div>
@@ -1113,6 +1169,7 @@ export default class SmartDetail extends Component {
                           onClick={() =>
                             this.goWindow(
                               sessionStorage.getItem('nodeid') === 'smart_wtjq' ||
+                              sessionStorage.getItem('nodeid') === 'smart_gzdjq' ||
                               (sessionStorage.getItem('nodeid') === 'smart_syrjq' &&
                                 this.props.code === '200003')
                                 ? `${configUrl.agUrl}` +
@@ -1134,8 +1191,9 @@ export default class SmartDetail extends Component {
                         >
                           <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>
                             {sessionStorage.getItem('nodeid') === 'smart_wtjq' ||
-                            (sessionStorage.getItem('nodeid') === 'smart_syrjq' &&
-                              this.props.code === '200003')
+                            (sessionStorage.getItem('nodeid') === 'smart_syrjq' ||
+                              (sessionStorage.getItem('nodeid') === 'smart_gzdjq' &&
+                                this.props.code === '200003'))
                               ? searchItem.status === '未督办' || searchItem.status === '已反馈'
                                 ? '立即督办'
                                 : '查看详情'
@@ -1178,7 +1236,8 @@ export default class SmartDetail extends Component {
               <div className={styles.boxItem} key={'wp' + i.toString()}>
                 <div className={styles.timeStyle}>{readTime}</div>
                 <div>
-                  {sessionStorage.getItem('nodeid') === 'smart_wtwp' ? (
+                  {sessionStorage.getItem('nodeid') === 'smart_wtwp' ||
+                  sessionStorage.getItem('nodeid') === 'smart_gzdwp' ? (
                     <div className={styles.headerName}>案务</div>
                   ) : (
                     <div className={styles.headerName}>
@@ -1187,7 +1246,8 @@ export default class SmartDetail extends Component {
                   )}
                   <div className={styles.cardBox}>
                     <div className={styles.newsTitle}>
-                      {sessionStorage.getItem('nodeid') === 'smart_wtwp'
+                      {sessionStorage.getItem('nodeid') === 'smart_wtwp' ||
+                      sessionStorage.getItem('nodeid') === 'smart_gzdwp'
                         ? '涉案财务系统'
                         : searchItem.name}
                     </div>
@@ -1250,7 +1310,8 @@ export default class SmartDetail extends Component {
                           style={{ width: 295, fontSize: '14px' }}
                           onClick={() =>
                             this.goWindow(
-                              sessionStorage.getItem('nodeid') === 'smart_wtwp' &&
+                              (sessionStorage.getItem('nodeid') === 'smart_wtwp' ||
+                                sessionStorage.getItem('nodeid') === 'smart_gzdwp') &&
                               this.props.code === '200003'
                                 ? `${configUrl.agUrl}` +
                                   '#/loginByToken?token=' +
@@ -1267,7 +1328,8 @@ export default class SmartDetail extends Component {
                           }
                         >
                           <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>
-                            {sessionStorage.getItem('nodeid') === 'smart_wtwp' &&
+                            {(sessionStorage.getItem('nodeid') === 'smart_wtwp' ||
+                              sessionStorage.getItem('nodeid') === 'smart_gzdwp') &&
                             this.props.code === '200003'
                               ? searchItem.status === '未督办' || searchItem.status === '已反馈'
                                 ? '立即督办'
@@ -1287,6 +1349,155 @@ export default class SmartDetail extends Component {
                             <div className={styles.sawp}>库管员：{searchItem.kgyxm}</div>
                             <div className={styles.sawpLeft}>入库时间：{searchItem.rksj}</div>
                             <div className={styles.sawpLeft}>问题类型：{searchItem.wtlx}</div>
+                          </div>
+                        }
+                      />
+                    </Card>
+                  </div>
+                </div>
+              </div>
+            );
+          } else if (listType === 'baq') {
+            //办案区
+            let k = -1;
+            this.state.saveList.map((e, i) => {
+              if (e.id === '/' + searchItem.uuid) {
+                k = 1;
+              }
+            });
+            this.props.gzList.gzdcs.map((e, i) => {
+              if (e.id === '/' + searchItem.uuid) {
+                k = 1;
+              }
+            });
+            list.push(
+              <div className={styles.boxItem} key={'baq' + i.toString() + index}>
+                <div className={styles.timeStyle}>{readTime}</div>
+                <div>
+                  {sessionStorage.getItem('nodeid') === this.state.userItem.department ? (
+                    <div className={styles.headerName}>场所</div>
+                  ) : (
+                    <div className={styles.headerName}>
+                      <img src="images/user.png" className={styles.headerImgSay} />
+                    </div>
+                  )}
+                  <div className={styles.cardBox}>
+                    <div className={styles.newsTitle}>
+                      {sessionStorage.getItem('nodeid') === this.state.userItem.department
+                        ? '办案区管理系统'
+                        : this.state.searchList[i].result.name}
+                    </div>
+                    <Card
+                      title={
+                        <div>
+                          {k > 0 ? (
+                            <Tooltip placement="top" title="取消关注">
+                              <img
+                                className={
+                                  this.props.code === '200003' ? styles.saveIcon : styles.none
+                                }
+                                src="images/tjguanzhu.png"
+                                onClick={() =>
+                                  this.getCancelSave(
+                                    this.state.userItem.department,
+                                    '/' + this.state.searchList[i].result.uuid
+                                  )
+                                }
+                              />
+                            </Tooltip>
+                          ) : (
+                            <Tooltip
+                              placement="top"
+                              title="关注"
+                              className={this.props.code === '200003' ? '' : styles.none}
+                            >
+                              <img
+                                className={styles.saveIcon}
+                                src="images/qxguanzhu.png"
+                                onClick={() =>
+                                  this.getSave(
+                                    this.state.userItem.department,
+                                    '/' + this.state.searchList[i].result.uuid,
+                                    this.state.searchList[i].result.csmc,
+                                    'gzdcs'
+                                  )
+                                }
+                              />
+                            </Tooltip>
+                          )}
+                          <span
+                            className={styles.overText}
+                            title={this.state.searchList[i].result.csmc}
+                            style={
+                              this.props.code === '200003'
+                                ? { paddingLeft: '24px' }
+                                : { paddingLeft: '0' }
+                            }
+                          >
+                            {this.state.searchList[i].result.csmc}
+                          </span>
+                          <Tag className={styles.tagStyle}>
+                            {this.state.searchList[i].result.status}
+                          </Tag>
+                        </div>
+                      }
+                      style={{ width: 330, padding: '0 16px' }}
+                      cover={<img alt="example" src="images/chatu1.png" />}
+                      actions={[
+                        <div
+                          style={{ width: 295, fontSize: '14px' }}
+                          onClick={() =>
+                            this.goWindow(
+                              sessionStorage.getItem('nodeid') === this.state.userItem.department &&
+                              this.props.code === '200003'
+                                ? `${configUrl.agUrl}` +
+                                  '#/loginByToken?token=' +
+                                  token +
+                                  '&wtid=' +
+                                  this.state.searchList[i].result.wtid +
+                                  '&type=4'
+                                : `${configUrl.baqUrl}` +
+                                  '/Manager/smartlinkeyLoign?username=' +
+                                  userNew.idCard +
+                                  '&password=' +
+                                  pwd +
+                                  '&dbid=' +
+                                  this.state.searchList[i].result.dbid +
+                                  '&type=1'
+                            )
+                          }
+                        >
+                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>
+                            {sessionStorage.getItem('nodeid') === this.state.userItem.department &&
+                            this.props.code === '200003'
+                              ? this.state.searchList[i].result.status === '未督办' ||
+                                this.state.searchList[i].result.status === '已反馈'
+                                ? '立即督办'
+                                : '查看详情'
+                              : this.state.searchList[i].result.status === '发起督办' ||
+                                this.state.searchList[i].result.status === '整改中'
+                                ? '立即处理'
+                                : '查看详情'}
+                          </a>
+                          <a className={styles.goChild}> > </a>
+                        </div>,
+                      ]}
+                    >
+                      <Meta
+                        title={
+                          <div>
+                            <div className={styles.nameStyle}>
+                              办案人：{this.state.searchList[i].result.barxm}
+                            </div>
+                            <div className={styles.nameStyle}>
+                              告警时间：{this.state.searchList[i].result.gjsj}
+                            </div>
+                            <div className={styles.nameStyle}>
+                              告警地点：{this.state.searchList[i].result.gjdd}
+                            </div>
+                            <div className={styles.sawpLeft}>
+                              告警类型：{this.state.searchList[i].result.gjlx}
+                            </div>
                           </div>
                         }
                       />

@@ -20,6 +20,8 @@ class SmartItem extends Component {
   };
   constructor(props) {
     super(props);
+    const user = sessionStorage.getItem('user');
+    const userNew = JSON.parse(user).user;
     this.state = {
       index: 0,
       title: '',
@@ -35,6 +37,7 @@ class SmartItem extends Component {
       firstLogin: this.props.firstLogin,
       gzList: { gzdwp: [], gzdaj: [], gzdcs: [], gzdjq: [] },
       delId: [],
+      userItem: userNew,
     };
     this.numAll = 0;
     this.numSaveAll = 0;
@@ -122,7 +125,7 @@ class SmartItem extends Component {
                     ? 'images/weishoulijingqing.png'
                     : e.nodeid === 'smart_wtwp'
                       ? 'images/wentiwupin.png'
-                      : e.nodeid === 'smart_wtcs'
+                      : e.nodeid === this.state.userItem.department
                         ? 'images/changsuo.png'
                         : 'images/user.png',
               maxmessageid: e.maxmessageid ? e.maxmessageid : 0,
@@ -270,7 +273,8 @@ class SmartItem extends Component {
           (item.nodeid === 'smart_wtaj' ||
             item.nodeid === 'smart_wtwp' ||
             item.nodeid === 'smart_wtjq' ||
-            item.nodeid === 'smart_wtcs' ||
+            // item.nodeid === 'smart_wtcs' ||
+            item.nodeid === this.state.userItem.department ||
             item.nodeid === 'smart_syrjq') &&
           next.code === '200003'
         ) {
@@ -283,7 +287,7 @@ class SmartItem extends Component {
                   ? 'images/weishoulijingqing.png'
                   : item.nodeid === 'smart_wtwp'
                     ? 'images/wentiwupin.png'
-                    : item.nodeid === 'smart_wtcs'
+                    : item.nodeid === this.state.userItem.department
                       ? 'images/changsuo.png'
                       : 'images/user.png',
             maxmessageid: item.maxmessageid ? item.maxmessageid : 0,
@@ -329,7 +333,7 @@ class SmartItem extends Component {
                     ? 'images/weishoulijingqing.png'
                     : item.nodeid === 'smart_wtwp'
                       ? 'images/wentiwupin.png'
-                      : item.nodeid === 'smart_wtcs'
+                      : item.nodeid === this.state.userItem.department
                         ? 'images/changsuo.png'
                         : 'images/user.png',
               maxmessageid: item.maxmessageid ? item.maxmessageid : 0,
@@ -627,7 +631,7 @@ class SmartItem extends Component {
       callback: response => {
         if (response.data === 'success') {
           if (save && save === 'save') {
-            this.props.getSubscription();
+            this.props.getSubscription(1);
           }
         }
       },
@@ -700,7 +704,8 @@ class SmartItem extends Component {
           item.nodeid === 'smart_wtwp' ||
           item.nodeid === 'smart_wtaj' ||
           item.nodeid === 'smart_wtjq' ||
-          item.nodeid === 'smart_wtcs' ||
+          // item.nodeid === 'smart_wtcs' ||
+          item.nodeid === this.state.userItem.department ||
           item.nodeid === 'smart_syrjq'
         ) {
           this.numAll += parseInt(this.listNum(item, index));
@@ -731,7 +736,7 @@ class SmartItem extends Component {
       gzList: this.state.gzList,
       delId: this.state.delId,
     });
-    this.props.getSubscription();
+    this.props.getSubscription(1);
   };
   compareDown = propertyName => {
     // 降序排序
@@ -995,7 +1000,7 @@ class SmartItem extends Component {
                 onNewMsg={(nodeList, maxNum) => this.props.onNewMsg(nodeList, maxNum)}
                 searchList={this.props.searchList}
                 xmppUser={this.props.xmppUser}
-                getSubscription={this.props.getSubscription}
+                getSubscription={type => this.props.getSubscription(type)}
                 gzList={this.state.gzList}
                 cancelSave={idx => this.cancelSave(idx)}
               />

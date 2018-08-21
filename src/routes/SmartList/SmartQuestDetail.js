@@ -38,15 +38,13 @@ export default class SmartQuestDetail extends Component {
   }
   getQuestList = typeId => {
     this.props.dispatch({
-      type: 'question/getQuestion',
+      type: 'question/QuestionName',
       payload: {
-        currentPage: 1,
-        pd: { faqName: '', faqType: typeId, title: '' },
-        showCount: 9999,
+        type_id: typeId,
       },
       callback: response => {
         this.setState({
-          list: response.data.list,
+          list: response.data,
         });
       },
     });
@@ -88,7 +86,7 @@ export default class SmartQuestDetail extends Component {
             key={index}
             style={customPanelStyle}
           >
-            <p className={styles.colorText}>{e.solution}</p>
+            <p className={styles.colorText}>{e.content}</p>
           </Panel>
         );
       });

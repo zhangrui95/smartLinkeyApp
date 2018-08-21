@@ -3,6 +3,11 @@ import React, { Component } from 'react';
 import { autoheight } from '../../utils/utils';
 import styles from './SmartItem.less';
 import SmartQuestDetail from './SmartQuestDetail';
+import { connect } from 'dva';
+
+@connect(({ question }) => ({
+  question,
+}))
 export default class SmartQuestion extends Component {
   constructor(props) {
     super(props);
@@ -10,22 +15,28 @@ export default class SmartQuestion extends Component {
       height: 575,
       index: 0,
       title: '',
-      typeId: '0',
-      data: [
-        { name: '智慧案管帮助', icon: 'images/zhihuianguan.png', type: '0' },
-        { name: '案件流程帮助', icon: 'images/anjian.png', type: '1' },
-        { name: '警情采录帮助', icon: 'images/weishoulijingqing.png', type: '2' },
-        { name: '涉案物品帮助', icon: 'images/wentiwupin.png', type: '3' },
-        { name: '办案区帮助', icon: 'images/changsuo.png', type: '4' },
-      ],
+      typeId: '109005',
+      data: [],
     };
   }
   componentDidMount() {
     window.addEventListener('resize', () => {
       this.updateSize();
     });
-    this.setState({
-      title: this.state.data[0].name,
+    this.props.dispatch({
+      type: 'question/getQuestion',
+      payload: {
+        pd: {
+          pid: '1090',
+        },
+      },
+      callback: response => {
+        this.setState({
+          data: response.data.list,
+          typeId: response.data.list[0].code,
+          title: response.data.list[0].name,
+        });
+      },
     });
   }
   updateSize() {
@@ -37,7 +48,7 @@ export default class SmartQuestion extends Component {
     this.setState({
       index: index,
       title: item.name,
-      typeId: item.type,
+      typeId: item.code,
     });
   };
   render() {
@@ -50,7 +61,7 @@ export default class SmartQuestion extends Component {
           onClick={() => this.getListClick(index, e)}
         >
           <div className={styles.floatLeft}>
-            <img className={styles.imgLeft} src={e.icon} />
+            <img className={styles.imgLeft} src={e.iconurl} />
           </div>
           <div className={styles.floatLeft}>
             <div className={styles.titles} style={{ marginTop: '28px' }}>
