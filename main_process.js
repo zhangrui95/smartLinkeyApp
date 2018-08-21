@@ -645,32 +645,30 @@ ipcMain.on('update-relaunch', (event, updatetime) => {
   }, 500);
 });
 
+// 如果页面上已经存在"查"或选择框，则关闭它们
+function close_sou_or_select_page() {
+  if (sou_win) {
+    sou_win.close();
+  }
+  if (huaci_win) {
+    huaci_win.close();
+  }
+}
+
 /**
- * 显示"搜"选项框
+ * 显示"查"选项框
  */
 function create_sou_card(x, y) {
-  if (sou_win) {
-    // console.log('close && create hua ci');
-    sou_win.close();
-    createSouWindow(x, y);
-  } else {
-    // console.log('create hua ci');
-    createSouWindow(x, y);
-  }
+  close_sou_or_select_page();
+  createSouWindow(x, y);
 }
 
 /**
  * 显示划词功能选项框
  */
 function create_huaci_card() {
-  if (huaci_win) {
-    console.log('close && create hua ci');
-    huaci_win.close();
-    createHuaci();
-  } else {
-    console.log('create hua ci');
-    createHuaci();
-  }
+  close_sou_or_select_page();
+  createHuaci();
 }
 /**
  * 接收打开选择框的事件
