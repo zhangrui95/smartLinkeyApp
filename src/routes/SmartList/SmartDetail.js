@@ -814,7 +814,11 @@ export default class SmartDetail extends Component {
                     k = 1;
                   }
                 });
-                if (item.state === '717002' || item.state === '717003' || item.state === '717004') {
+                if (
+                  baqItem.state === '717002' ||
+                  baqItem.state === '717003' ||
+                  baqItem.state === '717004'
+                ) {
                   list.push(
                     <div className={styles.boxItem} key={'baq' + i.toString() + index}>
                       <div className={styles.timeStyle}>{item.time}</div>
@@ -852,22 +856,13 @@ export default class SmartDetail extends Component {
                                 style={{ width: 295, fontSize: '14px' }}
                                 onClick={() =>
                                   this.goWindow(
-                                    sessionStorage.getItem('nodeid') ===
-                                      this.state.userItem.idCard && this.props.code === '200003'
-                                      ? `${configUrl.agUrl}` +
-                                        '#/loginByToken?token=' +
-                                        token +
-                                        '&wtid=' +
-                                        baqItem.wtid +
-                                        '&type=4'
-                                      : `${configUrl.baqUrl}` +
-                                        '/Manager/smartlinkeyLoign?username=' +
-                                        userNew.idCard +
-                                        '&password=' +
-                                        pwd +
-                                        '&dbid=' +
-                                        baqItem.dbid +
-                                        '&type=1'
+                                    `${configUrl.baq}` +
+                                      '/#/user/loginBytoken?token=' +
+                                      token +
+                                      '&personId=' +
+                                      baqItem.id +
+                                      '&type=' +
+                                      baqItem.state
                                   )
                                 }
                               >
@@ -884,6 +879,15 @@ export default class SmartDetail extends Component {
                                   <div className={styles.nameStyle}>涉案人：{baqItem.name}</div>
                                   <div className={styles.nameStyle}>办案人：{baqItem.barxm}</div>
                                   <div className={styles.nameStyle}>时间：{baqItem.time}</div>
+                                  <div className={styles.nameStyle}>
+                                    消息类型：{baqItem.state === '717002'
+                                      ? '未离区'
+                                      : baqItem.state === '717003'
+                                        ? '临时离区'
+                                        : baqItem.state === '717004'
+                                          ? '已离区'
+                                          : ''}
+                                  </div>
                                 </div>
                               }
                             />
@@ -969,22 +973,13 @@ export default class SmartDetail extends Component {
                                 style={{ width: 295, fontSize: '14px' }}
                                 onClick={() =>
                                   this.goWindow(
-                                    sessionStorage.getItem('nodeid') ===
-                                      this.state.userItem.idCard && this.props.code === '200003'
-                                      ? `${configUrl.agUrl}` +
-                                        '#/loginByToken?token=' +
-                                        token +
-                                        '&wtid=' +
-                                        baqItem.wtid +
-                                        '&type=4'
-                                      : `${configUrl.baqUrl}` +
-                                        '/Manager/smartlinkeyLoign?username=' +
-                                        userNew.idCard +
-                                        '&password=' +
-                                        pwd +
-                                        '&dbid=' +
-                                        baqItem.dbid +
-                                        '&type=1'
+                                    `${configUrl.baq}` +
+                                      '/#/user/loginBytoken?token=' +
+                                      token +
+                                      '&gjId=' +
+                                      baqItem.id +
+                                      '&type=' +
+                                      baqItem.state
                                   )
                                 }
                               >
@@ -1442,151 +1437,222 @@ export default class SmartDetail extends Component {
             //办案区
             let k = -1;
             this.state.saveList.map((e, i) => {
-              if (e.id === '/' + searchItem.uuid) {
+              if (e.id === searchItem.baqbh) {
                 k = 1;
               }
             });
             this.props.gzList.gzdcs.map((e, i) => {
-              if (e.id === '/' + searchItem.uuid) {
+              if (e.id === searchItem.baqbh) {
                 k = 1;
               }
             });
-            list.push(
-              <div className={styles.boxItem} key={'baq' + i.toString() + index}>
-                <div className={styles.timeStyle}>{readTime}</div>
-                <div>
-                  {sessionStorage.getItem('nodeid') === this.state.userItem.idCard ? (
-                    <div className={styles.headerName}>场所</div>
-                  ) : (
-                    <div className={styles.headerName}>
-                      <img src="images/user.png" className={styles.headerImgSay} />
-                    </div>
-                  )}
-                  <div className={styles.cardBox}>
-                    <div className={styles.newsTitle}>
-                      {sessionStorage.getItem('nodeid') === this.state.userItem.idCard
-                        ? '办案区管理系统'
-                        : this.state.searchList[i].result.name}
-                    </div>
-                    <Card
-                      title={
-                        <div>
-                          {k > 0 ? (
-                            <Tooltip placement="top" title="取消关注">
-                              <img
-                                className={
-                                  this.props.code === '200003' ? styles.saveIcon : styles.none
-                                }
-                                src="images/tjguanzhu.png"
-                                onClick={() =>
-                                  this.getCancelSave(
-                                    this.state.userItem.idCard,
-                                    '/' + this.state.searchList[i].result.uuid
-                                  )
-                                }
-                              />
-                            </Tooltip>
-                          ) : (
-                            <Tooltip
-                              placement="top"
-                              title="关注"
-                              className={this.props.code === '200003' ? '' : styles.none}
-                            >
-                              <img
-                                className={styles.saveIcon}
-                                src="images/qxguanzhu.png"
-                                onClick={() =>
-                                  this.getSave(
-                                    this.state.userItem.idCard,
-                                    '/' + this.state.searchList[i].result.uuid,
-                                    this.state.searchList[i].result.csmc,
-                                    'gzdcs'
-                                  )
-                                }
-                              />
-                            </Tooltip>
-                          )}
-                          <span
-                            className={styles.overText}
-                            title={this.state.searchList[i].result.csmc}
-                            style={
-                              this.props.code === '200003'
-                                ? { paddingLeft: '24px' }
-                                : { paddingLeft: '0' }
-                            }
-                          >
-                            {this.state.searchList[i].result.csmc}
-                          </span>
-                          <Tag className={styles.tagStyle}>
-                            {this.state.searchList[i].result.status}
-                          </Tag>
-                        </div>
-                      }
-                      style={{ width: 330, padding: '0 16px' }}
-                      cover={<img alt="example" src="images/chatu1.png" />}
-                      actions={[
-                        <div
-                          style={{ width: 295, fontSize: '14px' }}
-                          onClick={() =>
-                            this.goWindow(
-                              sessionStorage.getItem('nodeid') === this.state.userItem.idCard &&
-                              this.props.code === '200003'
-                                ? `${configUrl.agUrl}` +
-                                  '#/loginByToken?token=' +
-                                  token +
-                                  '&wtid=' +
-                                  this.state.searchList[i].result.wtid +
-                                  '&type=4'
-                                : `${configUrl.baqUrl}` +
-                                  '/Manager/smartlinkeyLoign?username=' +
-                                  userNew.idCard +
-                                  '&password=' +
-                                  pwd +
-                                  '&dbid=' +
-                                  this.state.searchList[i].result.dbid +
-                                  '&type=1'
-                            )
-                          }
-                        >
-                          <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>
-                            {sessionStorage.getItem('nodeid') === this.state.userItem.idCard &&
-                            this.props.code === '200003'
-                              ? this.state.searchList[i].result.status === '未督办' ||
-                                this.state.searchList[i].result.status === '已反馈'
-                                ? '立即督办'
-                                : '查看详情'
-                              : this.state.searchList[i].result.status === '发起督办' ||
-                                this.state.searchList[i].result.status === '整改中'
-                                ? '立即处理'
-                                : '查看详情'}
-                          </a>
-                          <a className={styles.goChild}> > </a>
-                        </div>,
-                      ]}
-                    >
-                      <Meta
+            if (
+              searchItem.state === '717002' ||
+              searchItem.state === '717003' ||
+              searchItem.state === '717004'
+            ) {
+              list.push(
+                <div className={styles.boxItem} key={'baq' + i.toString() + index}>
+                  <div className={styles.timeStyle}>{readTime}</div>
+                  <div>
+                    {sessionStorage.getItem('nodeid') === this.state.userItem.idCard ? (
+                      <div className={styles.headerName}>场所</div>
+                    ) : (
+                      <div className={styles.headerName}>
+                        <img src="images/user.png" className={styles.headerImgSay} />
+                      </div>
+                    )}
+                    <div className={styles.cardBox}>
+                      <div className={styles.newsTitle}>
+                        {sessionStorage.getItem('nodeid') === this.state.userItem.idCard
+                          ? '办案区管理系统'
+                          : this.state.searchList[i].result.name}
+                      </div>
+                      <Card
                         title={
                           <div>
-                            <div className={styles.nameStyle}>
-                              办案人：{this.state.searchList[i].result.barxm}
-                            </div>
-                            <div className={styles.nameStyle}>
-                              告警时间：{this.state.searchList[i].result.gjsj}
-                            </div>
-                            <div className={styles.nameStyle}>
-                              告警地点：{this.state.searchList[i].result.gjdd}
-                            </div>
-                            <div className={styles.sawpLeft}>
-                              告警类型：{this.state.searchList[i].result.gjlx}
-                            </div>
+                            <span
+                              className={styles.overText}
+                              title={this.state.searchList[i].result.csmc}
+                              style={{ paddingLeft: '0' }}
+                            >
+                              {this.state.searchList[i].result.baqName}
+                            </span>
                           </div>
                         }
-                      />
-                    </Card>
+                        style={{ width: 330, padding: '0 16px' }}
+                        cover={<img alt="example" src="images/chatu1.png" />}
+                        actions={[
+                          <div
+                            style={{ width: 295, fontSize: '14px' }}
+                            onClick={() =>
+                              this.goWindow(
+                                `${configUrl.baq}` +
+                                  '/#/user/loginBytoken?token=' +
+                                  token +
+                                  '&personId=' +
+                                  this.state.searchList[i].result.id +
+                                  '&type=' +
+                                  this.state.searchList[i].result.state
+                              )
+                            }
+                          >
+                            <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>
+                              查看详情
+                            </a>
+                            <a className={styles.goChild}> > </a>
+                          </div>,
+                        ]}
+                      >
+                        <Meta
+                          title={
+                            <div>
+                              <div className={styles.nameStyle}>
+                                涉案人：{this.state.searchList[i].result.name}
+                              </div>
+                              <div className={styles.nameStyle}>
+                                办案人：{this.state.searchList[i].result.barxm}
+                              </div>
+                              <div className={styles.nameStyle}>
+                                时间：{this.state.searchList[i].result.time}
+                              </div>
+                              <div className={styles.nameStyle}>
+                                消息类型：{this.state.searchList[i].result.state === '717002'
+                                  ? '未离区'
+                                  : this.state.searchList[i].result.state === '717003'
+                                    ? '临时离区'
+                                    : this.state.searchList[i].result.state === '717004'
+                                      ? '已离区'
+                                      : ''}
+                              </div>
+                            </div>
+                          }
+                        />
+                      </Card>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
+              );
+            } else {
+              list.push(
+                <div className={styles.boxItem} key={'baq' + i.toString() + index}>
+                  <div className={styles.timeStyle}>{item.time}</div>
+                  <div>
+                    {sessionStorage.getItem('nodeid') === this.state.userItem.idCard ? (
+                      <div className={styles.headerName}>场所</div>
+                    ) : (
+                      <div className={styles.headerName}>
+                        <img src="images/user.png" className={styles.headerImgSay} />
+                      </div>
+                    )}
+                    <div className={styles.cardBox}>
+                      <div className={styles.newsTitle}>
+                        {sessionStorage.getItem('nodeid') === this.state.userItem.idCard
+                          ? '办案区管理系统'
+                          : this.state.searchList[i].result.name}
+                      </div>
+                      <Card
+                        title={
+                          <div>
+                            {k > 0 ? (
+                              <Tooltip placement="top" title="取消关注">
+                                <img
+                                  className={
+                                    this.props.code === '200003' ? styles.saveIcon : styles.none
+                                  }
+                                  src="images/tjguanzhu.png"
+                                  onClick={() =>
+                                    this.getCancelSave(
+                                      this.state.userItem.idCard,
+                                      this.state.searchList[i].result.baqbh
+                                    )
+                                  }
+                                />
+                              </Tooltip>
+                            ) : (
+                              <Tooltip
+                                placement="top"
+                                title="关注"
+                                className={this.props.code === '200003' ? '' : styles.none}
+                              >
+                                <img
+                                  className={styles.saveIcon}
+                                  src="images/qxguanzhu.png"
+                                  onClick={() =>
+                                    this.getSave(
+                                      this.state.userItem.idCard,
+                                      this.state.searchList[i].result.baqbh,
+                                      this.state.searchList[i].result.csmc,
+                                      'gzdcs'
+                                    )
+                                  }
+                                />
+                              </Tooltip>
+                            )}
+                            <span
+                              className={styles.overText}
+                              title={this.state.searchList[i].result.csmc}
+                              style={
+                                this.props.code === '200003'
+                                  ? { paddingLeft: '24px' }
+                                  : { paddingLeft: '0' }
+                              }
+                            >
+                              {this.state.searchList[i].result.csmc}
+                            </span>
+                            <Tag className={styles.tagStyle}>
+                              {this.state.searchList[i].result.status}
+                            </Tag>
+                          </div>
+                        }
+                        style={{ width: 330, padding: '0 16px' }}
+                        cover={<img alt="example" src="images/chatu1.png" />}
+                        actions={[
+                          <div
+                            style={{ width: 295, fontSize: '14px' }}
+                            onClick={() =>
+                              this.goWindow(
+                                `${configUrl.baq}` +
+                                  '/#/user/loginBytoken?token=' +
+                                  token +
+                                  '&gjId=' +
+                                  this.state.searchList[i].result.id +
+                                  '&type=' +
+                                  this.state.searchList[i].result.state
+                              )
+                            }
+                          >
+                            <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>
+                              查看详情
+                            </a>
+                            <a className={styles.goChild}> > </a>
+                          </div>,
+                        ]}
+                      >
+                        <Meta
+                          title={
+                            <div>
+                              <div className={styles.nameStyle}>
+                                办案人：{this.state.searchList[i].result.barxm}
+                              </div>
+                              <div className={styles.nameStyle}>
+                                告警时间：{this.state.searchList[i].result.gjsj}
+                              </div>
+                              <div className={styles.nameStyle}>
+                                告警地点：{this.state.searchList[i].result.gjdd}
+                              </div>
+                              <div className={styles.sawpLeft}>
+                                告警类型：{this.state.searchList[i].result.gjlx}
+                              </div>
+                            </div>
+                          }
+                        />
+                      </Card>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
           }
         });
       }
