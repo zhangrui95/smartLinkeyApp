@@ -6,7 +6,7 @@ import SmartLink from './SmartLink';
 import { Badge, message, Modal, Form, Row, Col, Input, Button, Icon, Spin } from 'antd';
 const confirm = Modal.confirm;
 import { Strophe, $pres } from 'strophe.js';
-import { getSubscriptions } from 'strophejs-plugin-pubsub';
+import { getSubscriptions } from '../../utils/strophe.pubsub';
 import { getQueryString } from '../../utils/utils';
 import styles from './SmartDetail.less';
 const BOSH_SERVICE = 'http://' + `${configUrl.fwName}` + ':7070/http-bind/';
