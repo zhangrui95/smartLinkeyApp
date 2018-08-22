@@ -3,7 +3,7 @@ import { connect } from 'dva';
 import SmartItem from './SmartItem';
 import PoliceSmartItem from './PoliceSmartItem';
 import SmartLink from './SmartLink';
-import { Badge, message, Modal, Form, Row, Col, Input, Button, Icon } from 'antd';
+import { Badge, message, Modal, Form, Row, Col, Input, Button, Icon, Spin } from 'antd';
 const confirm = Modal.confirm;
 import { Strophe, $pres } from 'strophe.js';
 import { getSubscriptions } from 'strophejs-plugin-pubsub';
@@ -46,6 +46,7 @@ class SmartAll extends Component {
       qcVisible: false,
       hcList: { 102: 'user/getWord1', 103: 'user/getWord1' },
       wordSerList: {},
+      qcLoading: false,
     };
     this.msgListAll = [];
     this.lintenUpdate();
@@ -119,6 +120,10 @@ class SmartAll extends Component {
     }
   }
   qcModal = data => {
+    this.setState({
+      qcVisible: true,
+      qcLoading: true,
+    });
     let type = data['query_type'];
     this.props.dispatch({
       type: this.state.hcList[type],
@@ -140,7 +145,7 @@ class SmartAll extends Component {
         // if(response.data){
         this.setState({
           wordSerList: response.result,
-          qcVisible: true,
+          qcLoading: false,
         });
         // }
       },
@@ -218,8 +223,8 @@ class SmartAll extends Component {
     }, 5000);
   };
   onNewMsg = (nodeList, maxNum) => {
-    connection.pubsub.items(nodeList, null, null, 5000, maxNum);
     this.msgListAll = [];
+    connection.pubsub.items(nodeList, null, null, 5000, maxNum);
   };
   onMessage1 = (msg1, type) => {
     let node = [];
@@ -242,7 +247,6 @@ class SmartAll extends Component {
                 : ''
             );
           } else {
-            this.msgListAll = [];
             this.onNewMsg(names[i].attributes[0].textContent, '');
           }
         }
@@ -297,6 +301,8 @@ class SmartAll extends Component {
         this.msgListAll = [];
         this.getSubscription(0);
         this.getNodeList();
+      } else {
+        this.getSubscription(0);
       }
     }
     let item = msg.getElementsByTagName('item');
@@ -471,8 +477,11 @@ class SmartAll extends Component {
           maskClosable={false}
           width={800}
           footer={null}
+          style={{ position: 'relative' }}
         >
-          {this.state.wordSerList && this.state.wordSerList.length > 0 ? (
+          {this.state.qcLoading ? (
+            <Spin size="large" />
+          ) : this.state.wordSerList && this.state.wordSerList.length > 0 ? (
             <Form className="ant-advanced-search-form" style={{ paddingRight: '40px' }}>
               <Row gutter={24}>
                 <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>

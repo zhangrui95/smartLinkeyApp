@@ -5,7 +5,6 @@
   line-height: 50px;
   padding: 0 20px;
   color: #333;
-  font-size: 16px;
 }
 .timeStyle {
   text-align: center;
@@ -14,6 +13,12 @@
   color: rgba(102, 102, 102, 0.6);
 }
 :global {
+  .ant-spin-lg .ant-spin-dot {
+    position: absolute;
+    left: -16px;
+    top: 50%;
+    margin-left: 50%;
+  }
   .ant-card-actions > li {
     margin: 6px 0 5px;
     a {
@@ -38,7 +43,7 @@
   text-align: right;
   font-size: 16px;
   font-weight: 900;
-  font-family: '宋体';
+  font-family: '宋体', 'Microsoft Yahei', 'Microsoft Sans Serif', sans-serif;
 }
 .headerName {
   float: left;
@@ -93,50 +98,42 @@
   font-size: 14px;
   float: right;
 }
-.headerImgSay{
+.headerImgSay {
   width: 100%;
   height: 100%;
   border-radius: 100px;
   display: block;
 }
-.none{
+.none {
   display: none;
 }
-.nameStyle{
+.nameStyle {
   font-size: 14px;
   line-height: 24px;
   color: #666;
 }
-:global{
-  .ant-spin-lg .ant-spin-dot{
-    position: absolute;
-    left: -16px;
-    top: 250px;
-    margin-left: 50%;
-  }
-}
-.overText{
+.overText {
   float: left;
   width: 70%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.sawp{
+.sawp {
   float: left;
   width: 50%;
   font-size: 14px;
   line-height: 24px;
   color: #666;
 }
-.sawpLeft{
+.sawpLeft {
   float: left;
   width: 100%;
   font-size: 14px;
   line-height: 24px;
   color: #666;
 }
-.ajmcOver{
+.ajmcOver {
   width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;

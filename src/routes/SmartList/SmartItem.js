@@ -125,7 +125,7 @@ class SmartItem extends Component {
                     ? 'images/weishoulijingqing.png'
                     : e.nodeid === 'smart_wtwp'
                       ? 'images/wentiwupin.png'
-                      : e.nodeid === this.state.userItem.department
+                      : e.nodeid === this.state.userItem.idCard
                         ? 'images/changsuo.png'
                         : 'images/user.png',
               maxmessageid: e.maxmessageid ? e.maxmessageid : 0,
@@ -274,7 +274,7 @@ class SmartItem extends Component {
             item.nodeid === 'smart_wtwp' ||
             item.nodeid === 'smart_wtjq' ||
             // item.nodeid === 'smart_wtcs' ||
-            item.nodeid === this.state.userItem.department ||
+            item.nodeid === this.state.userItem.idCard ||
             item.nodeid === 'smart_syrjq') &&
           next.code === '200003'
         ) {
@@ -287,12 +287,15 @@ class SmartItem extends Component {
                   ? 'images/weishoulijingqing.png'
                   : item.nodeid === 'smart_wtwp'
                     ? 'images/wentiwupin.png'
-                    : item.nodeid === this.state.userItem.department
+                    : item.nodeid === this.state.userItem.idCard
                       ? 'images/changsuo.png'
                       : 'images/user.png',
             maxmessageid: item.maxmessageid ? item.maxmessageid : 0,
             nodeid: item.nodeid,
           });
+        }
+        if (item.nodeid === this.state.userItem.idCard && next.code === '200001') {
+          item.remark === 'gzdcs';
         }
         if (
           item.remark === 'gzdwp' ||
@@ -333,7 +336,7 @@ class SmartItem extends Component {
                     ? 'images/weishoulijingqing.png'
                     : item.nodeid === 'smart_wtwp'
                       ? 'images/wentiwupin.png'
-                      : item.nodeid === this.state.userItem.department
+                      : item.nodeid === this.state.userItem.idCard
                         ? 'images/changsuo.png'
                         : 'images/user.png',
               maxmessageid: item.maxmessageid ? item.maxmessageid : 0,
@@ -497,7 +500,7 @@ class SmartItem extends Component {
           });
         }
       }
-    } else if (next.type == 2 && next.code === '200002') {
+    } else if (next.type == 2 && (next.code === '200002' || next.code === '200001')) {
       dataList.push({
         name: '关注的场所',
         icon: 'images/changsuo.png',
@@ -705,7 +708,7 @@ class SmartItem extends Component {
           item.nodeid === 'smart_wtaj' ||
           item.nodeid === 'smart_wtjq' ||
           // item.nodeid === 'smart_wtcs' ||
-          item.nodeid === this.state.userItem.department ||
+          item.nodeid === this.state.userItem.idCard ||
           item.nodeid === 'smart_syrjq'
         ) {
           this.numAll += parseInt(this.listNum(item, index));
@@ -756,41 +759,47 @@ class SmartItem extends Component {
     }
     let list = [];
     let listWord = nodeid => {
-      let res = '';
-      if (
-        nodeid === 'smart_gzdaj' ||
-        nodeid === 'smart_gzdwp' ||
-        nodeid === 'smart_gzdcs' ||
-        nodeid === 'smart_gzdjq'
-      ) {
-        let node = nodeid.slice(6);
-        this.state.gzList[node].map((e, i) => {
+      if (this.state.msgLists.length > 0) {
+        let res = '';
+        if (
+          nodeid === 'smart_gzdaj' ||
+          nodeid === 'smart_gzdwp' ||
+          nodeid === 'smart_gzdcs' ||
+          nodeid === 'smart_gzdjq'
+        ) {
+          let node = nodeid.slice(6);
+          this.state.gzList[node].map((e, i) => {
+            this.state.msgLists.map(msgItem => {
+              let result = JSON.parse(msgItem.messagecontent).result;
+              let listType = JSON.parse(msgItem.messagecontent).type;
+              if (msgItem.nodeid.toLowerCase() === e.id) {
+                if (listType === 'jqxx') {
+                  res = result[parseInt(result.length) - 1].jqmc;
+                } else if (listType === 'baq') {
+                  res = result[parseInt(result.length) - 1].csmc;
+                } else {
+                  res = result[parseInt(result.length) - 1].ajmc;
+                }
+              }
+            });
+          });
+        } else {
           this.state.msgLists.map(msgItem => {
             let result = JSON.parse(msgItem.messagecontent).result;
             let listType = JSON.parse(msgItem.messagecontent).type;
-            if (msgItem.nodeid.toLowerCase() === e.id) {
+            if (msgItem.nodeid.toLowerCase() === nodeid.toLowerCase()) {
               if (listType === 'jqxx') {
                 res = result[parseInt(result.length) - 1].jqmc;
+              } else if (listType === 'baq') {
+                res = result[parseInt(result.length) - 1].csmc;
               } else {
                 res = result[parseInt(result.length) - 1].ajmc;
               }
             }
           });
-        });
-      } else {
-        this.state.msgLists.map(msgItem => {
-          let result = JSON.parse(msgItem.messagecontent).result;
-          let listType = JSON.parse(msgItem.messagecontent).type;
-          if (msgItem.nodeid.toLowerCase() === nodeid.toLowerCase()) {
-            if (listType === 'jqxx') {
-              res = result[parseInt(result.length) - 1].jqmc;
-            } else {
-              res = result[parseInt(result.length) - 1].ajmc;
-            }
-          }
-        });
+        }
+        return res;
       }
-      return res;
     };
     let listTime = nodeid => {
       let time = '';
