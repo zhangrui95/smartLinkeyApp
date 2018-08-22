@@ -20,7 +20,11 @@ function auto_launch(exe_path) {
   console.log(regedit_path);
 
   // 从注册表获取程序安装路径
-  var key = new Key(windef.HKEY.HKEY_LOCAL_MACHINE, regedit_path, windef.KEY_ACCESS.KEY_ALL_ACCESS);
+  var key = new Key(
+    windef.HKEY.HKEY_LOCAL_MACHINE,
+    regedit_path,
+    windef.KEY_ACCESS.KEY_QUERY_VALUE
+  );
   var value = key.getValue('InstallLocation');
 
   let program_location = value + '\\SmartLinkey.exe';
