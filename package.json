@@ -37,8 +37,7 @@
     },
     "asar": true,
     "asarUnpack": [
-      "dist",
-      "public"
+      "dist"
     ],
     "win": {
       "target": [
@@ -46,7 +45,6 @@
       ],
       "icon": "src/for-electron/source/logo.ico",
       "legalTrademarks": "HyLink",
-      "requestedExecutionLevel": "requireAdministrator",
       "files": [
         "!downloads",
         "!logs",
@@ -88,7 +86,18 @@
       "fpatch.exe",
       "guid.txt",
       "bin",
-      "angel.dll"
+      "angel.dll",
+      "BottomHandle.exe",
+      "mfc120.dll",
+      "msvcp100.dll",
+      "msvcp100d.dll",
+      "msvcp120.dll",
+      "msvcp120d.dll",
+      "msvcr100.dll",
+      "msvcr100d.dll",
+      "msvcr110.dll",
+      "msvcr120.dll",
+      "msvcr120d.dll"
     ]
   },
   "dependencies": {

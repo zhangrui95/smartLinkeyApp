@@ -20,29 +20,21 @@ const path = require('path');
 const url = require('url');
 const fs = require('fs');
 
-// ====================================================================
-// __dirname 表示 main.js 所在的路径，此处根据开发及打包后的路径不同
-// 始终获取当前程序的启动执行路径，用于执行内置的EXE程序
-// ====================================================================
-var exe_path;
-try {
-  fs.accessSync('node_modules', fs.constants.F_OK);
-  console.log('launch on development');
-  var exe_path = __dirname;
-} catch (err) {
-  console.error('launch on build');
-  var exe_path = path.join(__dirname, '../..');
-}
-exe_path = exe_path.replace(/\\/g, '/'); // 把\\的路径调整为/
-// ====================================================================
+// 程序执行的文件夹, 开发模式, execDir 为 main.js 所在路径，打包后为 product.exe 所在路径
+const execDir = fs.existsSync('node_modules') ? __dirname : path.join(__dirname, '../..');
+const execDir_poxis = execDir.replace(/\\/g, '/');
+console.log(execDir_poxis);
 
-if (!fs.existsSync(exe_path + '/.electron-crates.txt')) {
-  fs.writeFileSync(exe_path + '/.electron-crates.txt', 'dist');
+// 用于决定是从src(开发)还是dist(打包后)寻找crates代码资源
+const crates = execDir_poxis + '/.electron-crates.txt';
+if (!fs.existsSync(crates)) {
+  fs.writeFileSync(crates, 'dist');
 }
 
-let crates_top_dir = fs.readFileSync(exe_path + '/.electron-crates.txt', 'utf-8');
-let fetd = crates_top_dir.replace(/[\r\n]/g, '');
-fetd = fetd.replace(/(\s*$)/g, '');
+// 用于从文件获取路径字符串"src"或者"dist"
+// 备注: `yarn build` 命令会执行 prepare-electron-dep.bat 脚本, 自动修改其值为"dist"
+let crates_top_dir = fs.readFileSync(execDir_poxis + '/.electron-crates.txt', 'utf-8');
+let fetd = crates_top_dir.replace(/[\r\n]/g, '').replace(/(\s*$)/g, '');
 console.log('electron use crates path: <' + fetd + '>');
 
 const { log } = require(`./${fetd}/for-electron/crates/logging`);
@@ -52,7 +44,6 @@ const { uplaunch } = require(`./${fetd}/for-electron/crates/uplaunch`);
 const { upversion } = require(`./${fetd}/for-electron/crates/upversion`);
 const { setting_huaci_callback } = require(`./${fetd}/for-electron/crates/huaci_handler`);
 const { start_huaci, stop_huaci } = require(`./${fetd}/for-electron/crates/huaci_handler`);
-
 const opn_it = require(`./${fetd}/for-electron/crates/opn-open`);
 const config = require(`./${fetd}/for-electron/config.js`);
 
@@ -61,8 +52,12 @@ if (config.auto_launch) {
 }
 const icon_path = path.join(__dirname, `./${fetd}/for-electron/source/logo.ico`);
 const icon_none_path = path.join(__dirname, `./${fetd}/for-electron/source/none.ico`);
+const upgrade_tmp_dir = 'downloads';
 
-// require('electron-reload')(path.join(__dirname, 'dist'));
+if (config.dev_auto_reload) {
+  // 监听 dist 目录下文件，发生变化自动刷新 electron
+  require('electron-reload')(path.join(__dirname, 'dist'));
+}
 
 let mainWindow;
 let huaci_win;
@@ -74,15 +69,15 @@ let appTray = null;
 let willQuitApp = false;
 
 // 初始化发送获取工具图标的程序
-const iconProcess = startIconProcess(exe_path);
+const iconProcess = startIconProcess(execDir_poxis);
 
 // 设置开机自启动
 if (config.auto_launch) {
-  auto_launch(exe_path);
+  auto_launch(execDir_poxis);
 }
 
 // 定义数据库位置
-const adapter = new FileSync(exe_path + '/db.json');
+const adapter = new FileSync(execDir_poxis + '/db.json');
 const db = low(adapter);
 
 // 取词功能区列表
@@ -98,8 +93,6 @@ start_huaci();
  * 创建托盘图标及功能
  */
 function createTray() {
-  // const iconName = 'logo.ico'
-  // const iconPath = path.join(__dirname, 'source', iconName)
   appTray = new Tray(icon_path);
   const contextMenu = Menu.buildFromTemplate([
     {
@@ -216,18 +209,11 @@ function createSouWindow(x, y) {
     x: x,
     y: y,
   });
-  //     useContentSize: true
-  // transparent: false,
 
-  // and load the index.html of the app.
   sou_win.loadURL(`file://${__dirname}/${fetd}/for-electron/templates/sou.html`);
 
-  // if (config.use_devtools) {
-  //   sou_win.webContents.openDevTools({ mode: 'undocked' });
-  // }
-
   sou_win.on('ready-to-show', () => {
-    // sou_win.show();
+    // 显示页面(不获取焦点)
     sou_win.showInactive();
   });
 
@@ -240,6 +226,7 @@ function createSouWindow(x, y) {
  * 创建划词搜索页面
  */
 async function createHuaci() {
+  // 数据类型
   // huaci_states = {
   //   data: [
   //     "<a onclick='send_event(101)'>复制选中项</a>",
@@ -267,8 +254,10 @@ async function createHuaci() {
     frame: false,
     useContentSize: true,
     // backgroundColor: '#89a4c7',
+    resizable: false,
     transparent: true,
     show: false,
+    hasShadow: false,
     skipTaskbar: true,
     x: huaci_x,
     y: huaci_y,
@@ -277,13 +266,8 @@ async function createHuaci() {
   huaci_win.loadURL(`file://${__dirname}/${fetd}/for-electron/templates/index.pug`);
 
   huaci_win.on('ready-to-show', () => {
-    // huaci_win.showInactive();
     huaci_win.show();
   });
-  // setTimeout(() => {
-  //   console.log("I send close event");
-  //   huaci_win.webContents.send('please-close');
-  // }, 3000);
 
   huaci_win.on('closed', function() {
     huaci_win = null;
@@ -541,15 +525,15 @@ ipcMain.on('get-tool-icon', (event, tool_path) => {
  */
 ipcMain.on('open-link', (event, link_path) => {
   // link_path = "C:/Users/Public/Desktop/Google Chrome.lnk"
-  console.log(link_path);
-  if (!fs.existsSync(link_path)) {
+  // let lp = link_path.replace(/(\\)/g, "/");
+  let lp = link_path;
+  console.log(lp);
+  if (!fs.existsSync(lp)) {
+    console.log('link not found');
     event.sender.send('link-not-found');
   } else {
-    // link_path = 'C:/Users/Administrator/Desktop/MD5 & SHA Checksum Utility.exe'
-    console.log(link_path);
-    opn_it(link_path);
-    // opn包有个BUG会把桌面exe中带有的&替换为^&，此处把opn中的代码摘出来使用。
-    // opn(link_path);
+    console.log(lp);
+    opn_it(lp);
   }
 });
 
@@ -599,7 +583,7 @@ function update_version(new_version) {
   l = new_version.split('.');
   l.pop();
   let cuver = l.join('.');
-  upversion(exe_path, cuver);
+  upversion(execDir_poxis, cuver);
 }
 
 /**
@@ -607,7 +591,7 @@ function update_version(new_version) {
  */
 function update_relaunch() {
   // 执行更新
-  uplaunch(exe_path);
+  uplaunch(execDir_poxis);
 
   // 更新JSON数据文件内的版本号
   const package_info = db.get('package_info').value();
@@ -706,7 +690,9 @@ function huaci_receiver(data, x, y) {
 
 // Binaries from: https://github.com/sindresorhus/win-clipboard
 const winBinPath =
-  arch() === 'x64' ? exe_path + '/bin/clipboard_x86_64.exe' : exe_path + '/bin/clipboard_i686.exe';
+  arch() === 'x64'
+    ? execDir_poxis + '/bin/clipboard_x86_64.exe'
+    : execDir_poxis + '/bin/clipboard_i686.exe';
 
 /**
  * 当划词功能选项框点选后，接收功能的id唯一标识
@@ -779,7 +765,7 @@ if (isSecondInstance) {
     // l = current_version.split(".");
     // l.pop();
     // let cuver = l.join(".");
-    // upversion(exe_path, cuver);
+    // upversion(execDir_poxis, cuver);
     // let urlzzz =
     //   'http://172.19.12.249:97#/loginByToken?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJhNDcyZmUwMi0wOTBhLTQyODktYjdjMy1kMTdlNDRhNGI4ODciLCJpYXQiOjE1MzM2MTk4OTksInN1YiI6IjMwMyIsImlzcyI6IlNlY3VyaXR5IENlbnRlciIsImRlcGFydG1lbnQiOnsiaWQiOjEwMTEsInBhcmVudElkIjoxNSwiZGVwdGgiOjIsIm5hbWUiOiLniaHkuLnmsZ_luILlhazlronlsYAiLCJjb2RlIjoiMjMxMDAwMDAwMDAwIn0sImdvdmVybm1lbnQiOltdLCJpZCI6MzAzLCJpZENhcmQiOiIyMzAxMDUxOTk1MDcyOTI5MjIiLCJwY2FyZCI6InNtYXJ0IiwibmFtZSI6InNtYXJ0Iiwiam9iIjpbeyJjb2RlIjoiMjAwMDAzIiwibmFtZSI6IuaJp-azleebkeeuoSJ9XSwiY29udGFjdCI6IjE1NjYzODAzNjc3IiwiaXNBZG1pbiI6MCwiZXhwIjoxNTM1NjkzNDk5fQ.-xE_VK-V4dkoPEC0LyP49dSxIVc1VlAIWykWKXjzutU&wtid=b5042353-734f-4a67-903a-2e2dca1b55ed&type=1';
     // opn(urlzzz, { app: 'Chrome' });
