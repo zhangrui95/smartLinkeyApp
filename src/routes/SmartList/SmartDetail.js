@@ -189,13 +189,11 @@ export default class SmartDetail extends Component {
           this.setState({
             loading: false,
           });
-          setTimeout(() => {
-            document.getElementById('scroll').scrollTop = document.getElementById(
-              'scroll'
-            ).scrollHeight;
-            document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
-          }, 100);
-        }, this.props.user.allList !== next.user.allList ? 0 : 400);
+          document.getElementById('scroll').scrollTop = document.getElementById(
+            'scroll'
+          ).scrollHeight;
+          document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
+        }, this.props.user.allList !== next.user.allList ? 0 : 800);
       } else if (
         this.props.user.searchList !== next.user.searchList &&
         this.props.code === '200003'
