@@ -10,14 +10,14 @@ const FileSync = require('lowdb/adapters/FileSync');
 
 const request = require('request');
 const md5File = require('md5-file');
-const opn = require('opn');
-const setupPug = require('electron-pug');
 const electronLocalshortcut = require('electron-localshortcut');
+const setupPug = require('electron-pug');
+const mouse = require('win-mouse')();
+const bunyan = require('bunyan');
 const execa = require('execa');
 const arch = require('arch');
-const mouse = require('win-mouse')();
-
 const path = require('path');
+const opn = require('opn');
 const url = require('url');
 const fs = require('fs');
 
@@ -38,7 +38,7 @@ let crates_top_dir = fs.readFileSync(execDir_poxis + '/.electron-crates.txt', 'u
 let fetd = crates_top_dir.replace(/[\r\n]/g, '').replace(/(\s*$)/g, '');
 console.log('electron use crates path: <' + fetd + '>');
 
-const { log } = require(`./${fetd}/for-electron/crates/logging`);
+// const { log } = require(`./${fetd}/for-electron/crates/logging`);
 const { startIconProcess } = require(`./${fetd}/for-electron/crates/geticon`);
 const { download_package } = require(`./${fetd}/for-electron/crates/down`);
 const { uplaunch } = require(`./${fetd}/for-electron/crates/uplaunch`);
@@ -55,6 +55,14 @@ const icon_path = path.join(__dirname, `./${fetd}/for-electron/source/logo.ico`)
 const icon_none_path = path.join(__dirname, `./${fetd}/for-electron/source/none.ico`);
 const upgrade_tmp_dir = 'downloads';
 const huaci_threshold = config.huaci_threshold;
+
+const logs_dir = path.join(execDir, 'logs');
+
+if (!fs.existsSync(logs_dir)) fs.mkdirSync(logs_dir);
+const log = bunyan.createLogger({
+  name: 'main',
+  streams: [{ path: 'logs/main.log' }, { level: 'info', stream: process.stdout }],
+});
 
 if (config.dev_auto_reload) {
   // 监听 dist 目录下文件，发生变化自动刷新 electron
@@ -385,6 +393,7 @@ ipcMain.on('login-success', () => {
  * 恢复登录页面大小
  */
 ipcMain.on('logout', () => {
+  stop_huaci();
   already_login = false;
   // mainWindow.setMinimumSize(config.login_page_width, config.login_page_height)
   mainWindow.setSize(config.login_page_width, config.login_page_height);
@@ -726,6 +735,7 @@ ipcMain.on('huaci-choice', (event, cid) => {
     } else {
       mainWindow.show();
     }
+    console.log('send huaci message');
     mainWindow.webContents.send('huaci', {
       original: huaci_original,
       idcard: '230125199301017777',
