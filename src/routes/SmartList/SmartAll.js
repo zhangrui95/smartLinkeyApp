@@ -245,7 +245,7 @@ class SmartAll extends Component {
               names[i].attributes[0].textContent === 'smart_wtcs' ||
               names[i].attributes[0].textContent === 'smart_wtaj' ||
               names[i].attributes[0].textContent === 'smart_syrjq'
-                ? 5
+                ? 3
                 : ''
             );
           } else {

@@ -88,23 +88,23 @@ export default class SmartDetail extends Component {
             this.props.searchList.map(listItem => {
               this.props.onNewMsg(
                 listItem.nodeid,
-                listItem.nodeid === sessionStorage.getItem('nodeid') ? 5 * this.state.endLength : 5
+                listItem.nodeid === sessionStorage.getItem('nodeid') ? 3 * this.state.endLength : 3
               );
             });
             document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
-            if (packagecount < 5 * this.state.endLength) {
-              this.setState({
-                load: false,
+            setTimeout(() => {
+              this.props.msgList.map((e, i) => {
+                if (e.nodeid === sessionStorage.getItem('nodeid')) {
+                  lens.push(JSON.parse(e.messagecontent).result.length);
+                }
               });
-              document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
-            } else {
-              setTimeout(() => {
-                this.props.msgList.map((e, i) => {
-                  if (e.nodeid === sessionStorage.getItem('nodeid')) {
-                    lens.push(JSON.parse(e.messagecontent).result.length);
-                  }
+              if (lens.length < 3 * this.state.endLength) {
+                this.setState({
+                  load: false,
                 });
-                lens.slice(0, 5).map((e, i) => {
+                document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
+              } else {
+                lens.slice(0, 3).map((e, i) => {
                   _length += e;
                 });
                 let length =
@@ -114,8 +114,8 @@ export default class SmartDetail extends Component {
                 });
                 document.getElementById('scroll').scrollTop = length;
                 document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
-              }, this.state.endLength < 3 ? 500 : this.state.endLength * 100);
-            }
+              }
+            }, this.state.endLength < 3 ? 500 : this.state.endLength * 100);
           } else {
             if (
               this.state.data.length <
@@ -193,7 +193,7 @@ export default class SmartDetail extends Component {
             'scroll'
           ).scrollHeight;
           document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
-        }, this.props.user.allList !== next.user.allList ? 0 : 800);
+        }, this.props.user.allList !== next.user.allList ? 0 : 600);
       } else if (
         this.props.user.searchList !== next.user.searchList &&
         this.props.code === '200003'
