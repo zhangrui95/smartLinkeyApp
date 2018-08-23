@@ -54,6 +54,7 @@ export default class SmartDetail extends Component {
   }
   _handleScroll(scrollTop) {
     if (scrollTop === 0) {
+      let _length = 0;
       if (!this.state.lookMore) {
         this.setState({
           lookMore: true,
@@ -76,6 +77,7 @@ export default class SmartDetail extends Component {
               endLength: parseInt(this.state.endLength) + 1,
             });
             let packagecount = 0;
+            let lens = [];
             this.props.msgList.map((e, i) => {
               if (e.nodeid === sessionStorage.getItem('nodeid')) {
                 if (e.packagecount > 2) {
@@ -97,10 +99,20 @@ export default class SmartDetail extends Component {
               document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
             } else {
               setTimeout(() => {
+                this.props.msgList.map((e, i) => {
+                  if (e.nodeid === sessionStorage.getItem('nodeid')) {
+                    lens.push(JSON.parse(e.messagecontent).result.length);
+                  }
+                });
+                lens.slice(0, 5).map((e, i) => {
+                  _length += e;
+                });
+                let length =
+                  sessionStorage.getItem('nodeid') === 'smart_wtwp' ? 473 * _length : 448 * _length;
                 this.setState({
                   load: false,
                 });
-                document.getElementById('scroll').scrollTop = 2200;
+                document.getElementById('scroll').scrollTop = length;
                 document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
               }, this.state.endLength < 3 ? 500 : this.state.endLength * 100);
             }
@@ -131,7 +143,6 @@ export default class SmartDetail extends Component {
                   document.getElementById('scroll').scrollTop = 2200;
                   document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
                 }
-                // document.getElementById('scroll').scrollTop = 480*(parseInt(this.state.data.length) - 5);
               }, 500);
             }
           }

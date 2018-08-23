@@ -101,7 +101,8 @@ export default class GlobalHeader extends PureComponent {
     if (
       sessionStorage.getItem('nodeid') === 'smart_gzdaj' ||
       sessionStorage.getItem('nodeid') === 'smart_gzdwp' ||
-      sessionStorage.getItem('nodeid') === 'smart_gzdcs'
+      sessionStorage.getItem('nodeid') === 'smart_gzdcs' ||
+      sessionStorage.getItem('nodeid') === 'smart_gzdjq'
     ) {
       let ids = [];
       t.props.user.allList.map((e, i) => {
