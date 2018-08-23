@@ -115,7 +115,7 @@ export default class SmartDetail extends Component {
                 document.getElementById('scroll').scrollTop = length;
                 document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
               }
-            }, this.state.endLength < 3 ? 500 : this.state.endLength * 100);
+            }, this.state.endLength < 10 ? 500 : this.state.endLength * 50);
           } else {
             if (
               this.state.data.length <
