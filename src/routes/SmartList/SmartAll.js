@@ -59,8 +59,6 @@ class SmartAll extends Component {
         this.qcModal(data);
       }
     });
-    // let a = {original:'23010',query_type:103}
-    // this.qcModal(a);
     this.getXmpp();
     this.setState({
       loading: true,
@@ -480,7 +478,7 @@ class SmartAll extends Component {
           style={{ position: 'relative' }}
         >
           {this.state.qcLoading ? (
-            <Spin size="large" />
+            <Spin style={{ marginLeft: '50%', position: 'relative', left: '-10px' }} />
           ) : this.state.wordSerList && this.state.wordSerList.length > 0 ? (
             <Form className="ant-advanced-search-form" style={{ paddingRight: '40px' }}>
               <Row gutter={24}>
