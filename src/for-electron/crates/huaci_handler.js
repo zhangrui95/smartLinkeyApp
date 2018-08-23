@@ -31,9 +31,9 @@ function stop_huaci() {
 }
 
 // 防止 callback 函数被垃圾回收机制销毁
-setInterval(function() {
+process.on('exit', () => {
   callback;
-}, 10000);
+});
 
 exports.setting_huaci_callback = setting_huaci_callback;
 exports.start_huaci = start_huaci;

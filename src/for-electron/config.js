@@ -17,6 +17,7 @@ var config = {
   use_devtools: true,
   auto_launch: true,
   dev_auto_reload: false,
+  huaci_threshold: 260,
 
   login_page_width: 300,
   login_page_height: 367,

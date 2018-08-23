@@ -15,6 +15,7 @@ const setupPug = require('electron-pug');
 const electronLocalshortcut = require('electron-localshortcut');
 const execa = require('execa');
 const arch = require('arch');
+const mouse = require('win-mouse')();
 
 const path = require('path');
 const url = require('url');
@@ -53,6 +54,7 @@ if (config.auto_launch) {
 const icon_path = path.join(__dirname, `./${fetd}/for-electron/source/logo.ico`);
 const icon_none_path = path.join(__dirname, `./${fetd}/for-electron/source/none.ico`);
 const upgrade_tmp_dir = 'downloads';
+const huaci_threshold = config.huaci_threshold;
 
 if (config.dev_auto_reload) {
   // 监听 dist 目录下文件，发生变化自动刷新 electron
@@ -82,12 +84,6 @@ const db = low(adapter);
 
 // 取词功能区列表
 const quci_list = config.quci_list;
-
-// 初始化划词的接收函数
-setting_huaci_callback(huaci_receiver);
-
-// 启动划词监听
-start_huaci();
 
 /**
  * 创建托盘图标及功能
@@ -277,6 +273,7 @@ async function createHuaci() {
 // 应用程序准备完成
 app.on('ready', () => {
   log.info('app start standalone');
+
   createTray();
   createWindow();
 });
@@ -304,6 +301,12 @@ function package_is_ok() {
 }
 
 function doSomeThingAfterLoginSuccess() {
+  // 初始化划词的接收函数
+  setting_huaci_callback(huaci_receiver);
+
+  // 启动划词监听
+  start_huaci();
+
   // 发送工具集数据
   let tools = db.get('tools').value();
   if (tools === undefined) {
@@ -674,9 +677,6 @@ function process_huaci(message) {
   huaci_x = message.x;
   huaci_y = message.y;
   create_sou_card(message.x, message.y);
-  console.log('------ x ~ y ------');
-  console.log(message.x);
-  console.log(message.y);
 }
 
 // 接收来自DLL的数据
@@ -687,6 +687,20 @@ function huaci_receiver(data, x, y) {
     process_huaci(message);
   }
 }
+
+// 鼠标移动时接收光标位置, 当光标距离划词弹窗距离超过阈值后关闭划词窗口
+mouse.on('move', function(x, y) {
+  if (sou_win || huaci_win) {
+    if (
+      x < huaci_x - huaci_threshold ||
+      x > huaci_x + huaci_threshold ||
+      y < huaci_y - huaci_threshold ||
+      y > huaci_y + huaci_threshold
+    ) {
+      close_sou_or_select_page();
+    }
+  }
+});
 
 // Binaries from: https://github.com/sindresorhus/win-clipboard
 const winBinPath =
@@ -723,8 +737,12 @@ ipcMain.on('huaci-choice', (event, cid) => {
 // 保证只有一个实例在运行
 const isSecondInstance = app.makeSingleInstance((commandLine, workingDirectory) => {
   if (mainWindow) {
-    if (mainWindow.isMinimized()) mainWindow.restore();
-    mainWindow.focus();
+    if (mainWindow.isMinimized()) {
+      mainWindow.restore();
+      mainWindow.focus();
+    } else {
+      mainWindow.show();
+    }
   }
 });
 
