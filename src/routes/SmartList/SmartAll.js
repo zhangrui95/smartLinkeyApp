@@ -53,12 +53,7 @@ class SmartAll extends Component {
   }
 
   componentDidMount() {
-    ipcRenderer.on('huaci', (event, data) => {
-      console.log('huaci---data', data);
-      if (data['query_type']) {
-        this.qcModal(data);
-      }
-    });
+    ipcRenderer.on('huaci', this.selectWord);
     this.getXmpp();
     this.setState({
       loading: true,
@@ -117,6 +112,15 @@ class SmartAll extends Component {
       }
     }
   }
+  componentWillUnmount() {
+    ipcRenderer.removeListener('huaci', this.selectWord);
+  }
+  selectWord = (event, data) => {
+    console.log('huaci---data', data);
+    if (data['query_type']) {
+      this.qcModal(data);
+    }
+  };
   qcModal = data => {
     this.setState({
       qcVisible: true,
