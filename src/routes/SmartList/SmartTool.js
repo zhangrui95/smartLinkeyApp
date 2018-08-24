@@ -50,6 +50,7 @@ class SmartTool extends Component {
       this.updateSize();
     });
     document.getElementById('scroll').scrollTop = document.getElementById('scroll').scrollHeight;
+    ipcRenderer.on('tool-icon', this.getIcon);
   }
   componentWillReceiveProps(next) {
     if (this.props.user.value !== next.user.value) {
@@ -77,6 +78,7 @@ class SmartTool extends Component {
   }
   componentWillUnmount() {
     ipcRenderer.removeListener('link-not-found', this.alertWarn);
+    ipcRenderer.removeListener('tool-icon', this.getIcon);
   }
   updateSize() {
     this.setState({
@@ -104,7 +106,6 @@ class SmartTool extends Component {
     e.preventDefault();
     for (let f of e.dataTransfer.files) {
       console.log('拖拽f---------->', f);
-      let icon = '';
       this.state.message.push({
         name: f.name.slice(0, -4),
         path: f.path,
@@ -116,20 +117,19 @@ class SmartTool extends Component {
         userName: this.state.userName,
       });
       ipcRenderer.send('get-tool-icon', f.path);
-      ipcRenderer.on('tool-icon', (event, base64Img) => {
-        this.state.message[this.state.message.length - 1].icon = base64Img;
-        this.props.msgExe[this.props.msgExe.length - 1].icon = base64Img;
-        this.setState({
-          message: this.state.message,
-        });
-        ipcRenderer.send('save-tools-info', this.props.msgExe);
-      });
     }
     return false;
   };
-  // filters: [
-  //   { name: 'Database', extensions: ['db'] }
-  // ],
+  getIcon = (e, baseImg) => {
+    if (this.state.message.length > 0) {
+      this.state.message[this.state.message.length - 1].icon = baseImg;
+      this.props.msgExe[this.props.msgExe.length - 1].icon = baseImg;
+      this.setState({
+        message: this.state.message,
+      });
+      ipcRenderer.send('save-tools-info', this.props.msgExe);
+    }
+  };
   showOpenDialogHandler = () => {
     var options = {
       defaultPath: 'D:\\',
