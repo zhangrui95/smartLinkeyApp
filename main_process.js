@@ -1,6 +1,7 @@
 /* eslint-disable */
 const electron = require('electron');
 const app = electron.app;
+app.commandLine.appendSwitch('disable-pinch');
 const BrowserWindow = electron.BrowserWindow;
 const { ipcMain } = require('electron');
 const Menu = electron.Menu;
@@ -25,6 +26,7 @@ const fs = require('fs');
 const execDir = fs.existsSync('node_modules') ? __dirname : path.join(__dirname, '../..');
 const execDir_poxis = execDir.replace(/\\/g, '/');
 console.log(execDir_poxis);
+fs.writeFileSync('D:\\execDir.txt', execDir);
 
 // 用于决定是从src(开发)还是dist(打包后)寻找crates代码资源
 const crates = execDir_poxis + '/.electron-crates.txt';
@@ -61,7 +63,10 @@ const logs_dir = path.join(execDir, 'logs');
 if (!fs.existsSync(logs_dir)) fs.mkdirSync(logs_dir);
 const log = bunyan.createLogger({
   name: 'main',
-  streams: [{ path: 'logs/main.log' }, { level: 'info', stream: process.stdout }],
+  streams: [
+    { path: path.join(execDir, 'logs', 'main.log') },
+    { level: 'info', stream: process.stdout },
+  ],
 });
 
 if (config.dev_auto_reload) {
@@ -159,6 +164,13 @@ function createWindow() {
       mainWindow.webContents.openDevTools({ mode: 'undocked' });
     });
   }
+
+  // let webContents = mainWindow.webContents;
+  // webContents.on('did-finish-load', () => {
+  //   webContents.setZoomFactor(1);
+  //   webContents.setVisualZoomLevelLimits(1, 1);
+  //   webContents.setLayoutZoomLevelLimits(0, 0);
+  // });
 
   mainWindow.on('maximize', () => {
     // console.log("event: maximize");
@@ -545,7 +557,11 @@ ipcMain.on('open-link', (event, link_path) => {
     event.sender.send('link-not-found');
   } else {
     console.log(lp);
-    opn_it(lp);
+    if (lp.indexOf('&') != -1) {
+      opn_it(lp);
+    } else {
+      execa('start', ['', lp]);
+    }
   }
 });
 
@@ -643,12 +659,8 @@ ipcMain.on('update-relaunch', (event, updatetime) => {
 
 // 如果页面上已经存在"查"或选择框，则关闭它们
 function close_sou_or_select_page() {
-  if (sou_win) {
-    sou_win.close();
-  }
-  if (huaci_win) {
-    huaci_win.close();
-  }
+  if (sou_win) sou_win.close();
+  if (huaci_win) huaci_win.close();
 }
 
 /**
@@ -788,17 +800,8 @@ if (isSecondInstance) {
 // })();
 
 (function() {
-  setTimeout(() => {
-    // const current_version = db.get('current_version').value();
-    // l = current_version.split(".");
-    // l.pop();
-    // let cuver = l.join(".");
-    // upversion(execDir_poxis, cuver);
-    // let urlzzz =
-    //   'http://172.19.12.249:97#/loginByToken?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJhNDcyZmUwMi0wOTBhLTQyODktYjdjMy1kMTdlNDRhNGI4ODciLCJpYXQiOjE1MzM2MTk4OTksInN1YiI6IjMwMyIsImlzcyI6IlNlY3VyaXR5IENlbnRlciIsImRlcGFydG1lbnQiOnsiaWQiOjEwMTEsInBhcmVudElkIjoxNSwiZGVwdGgiOjIsIm5hbWUiOiLniaHkuLnmsZ_luILlhazlronlsYAiLCJjb2RlIjoiMjMxMDAwMDAwMDAwIn0sImdvdmVybm1lbnQiOltdLCJpZCI6MzAzLCJpZENhcmQiOiIyMzAxMDUxOTk1MDcyOTI5MjIiLCJwY2FyZCI6InNtYXJ0IiwibmFtZSI6InNtYXJ0Iiwiam9iIjpbeyJjb2RlIjoiMjAwMDAzIiwibmFtZSI6IuaJp-azleebkeeuoSJ9XSwiY29udGFjdCI6IjE1NjYzODAzNjc3IiwiaXNBZG1pbiI6MCwiZXhwIjoxNTM1NjkzNDk5fQ.-xE_VK-V4dkoPEC0LyP49dSxIVc1VlAIWykWKXjzutU&wtid=b5042353-734f-4a67-903a-2e2dca1b55ed&type=1';
-    // opn(urlzzz, { app: 'Chrome' });
-    // console.log('huaci_handler start');
-    // huaci_handler.send({ now: 'start' });
-  }, 10000);
+  // setTimeout(() => {
+  //   execa('start', ['', 'C:/Users/Public/Desktop/Google Chrome.lnk']);
+  // }, 3000);
 })();
 //1231231321
