@@ -264,14 +264,6 @@ class SmartTool extends Component {
         userName: this.state.userName,
       });
       ipcRenderer.send('get-tool-icon', this.state.exePath);
-      ipcRenderer.on('tool-icon', (event, base64Img) => {
-        this.state.message[this.state.message.length - 1].icon = base64Img;
-        this.props.msgExe[this.props.msgExe.length - 1].icon = base64Img;
-        this.setState({
-          message: this.state.message,
-        });
-        ipcRenderer.send('save-tools-info', this.props.msgExe);
-      });
       this.setState({
         visible: false,
       });
