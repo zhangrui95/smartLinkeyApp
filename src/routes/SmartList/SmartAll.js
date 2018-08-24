@@ -49,7 +49,6 @@ class SmartAll extends Component {
       qcLoading: false,
     };
     this.msgListAll = [];
-    this.lintenUpdate();
   }
 
   componentDidMount() {
@@ -111,9 +110,11 @@ class SmartAll extends Component {
         });
       }
     }
+    ipcRenderer.on('alert-update-notice', this.lintenUpdate);
   }
   componentWillUnmount() {
     ipcRenderer.removeListener('huaci', this.selectWord);
+    ipcRenderer.removeListener('alert-update-notice', this.lintenUpdate);
   }
   selectWord = (event, data) => {
     console.log('huaci---data', data);
@@ -154,18 +155,16 @@ class SmartAll extends Component {
     });
   };
   lintenUpdate = () => {
-    ipcRenderer.on('alert-update-notice', () => {
-      confirm({
-        title: '安装包已经下载完成，是否进行更新？',
-        okText: '确定',
-        cancelText: '取消',
-        onOk() {
-          ipcRenderer.send('update-relaunch', 'now');
-        },
-        onCancel() {
-          console.log('Cancel');
-        },
-      });
+    confirm({
+      title: '安装包已经下载完成，是否进行更新？',
+      okText: '确定',
+      cancelText: '取消',
+      onOk() {
+        ipcRenderer.send('update-relaunch', 'now');
+      },
+      onCancel() {
+        ipcRenderer.send('disable-uplaunch');
+      },
     });
   };
   getXmpp = () => {
