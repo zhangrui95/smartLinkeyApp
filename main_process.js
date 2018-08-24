@@ -26,7 +26,7 @@ const fs = require('fs');
 const execDir = fs.existsSync('node_modules') ? __dirname : path.join(__dirname, '../..');
 const execDir_poxis = execDir.replace(/\\/g, '/');
 console.log(execDir_poxis);
-fs.writeFileSync('D:\\execDir.txt', execDir);
+// fs.writeFileSync('D:\\execDir.txt', execDir);
 
 // 用于决定是从src(开发)还是dist(打包后)寻找crates代码资源
 const crates = execDir_poxis + '/.electron-crates.txt';
@@ -58,8 +58,8 @@ const icon_none_path = path.join(__dirname, `./${fetd}/for-electron/source/none.
 const upgrade_tmp_dir = 'downloads';
 const huaci_threshold = config.huaci_threshold;
 
+// 初始化日志功能
 const logs_dir = path.join(execDir, 'logs');
-
 if (!fs.existsSync(logs_dir)) fs.mkdirSync(logs_dir);
 const log = bunyan.createLogger({
   name: 'main',
@@ -69,19 +69,19 @@ const log = bunyan.createLogger({
   ],
 });
 
+// 开发模式下, 监听 dist 目录下文件, 发生变化自动刷新 electron
 if (config.dev_auto_reload) {
-  // 监听 dist 目录下文件，发生变化自动刷新 electron
   require('electron-reload')(path.join(__dirname, 'dist'));
 }
 
-let mainWindow;
-let huaci_win;
-let sou_win;
-let huaci_x;
-let huaci_y;
-let already_login = false;
-let appTray = null;
-let willQuitApp = false;
+let mainWindow; // 主页面
+let huaci_win; // 划词搜索页
+let sou_win; // 划词搜页面
+let huaci_x; // 划词抬起鼠标后坐标X值
+let huaci_y; // 划词抬起鼠标后坐标Y值
+let already_login = false; // 登录前/后状态
+let appTray = null; // 托盘
+let willQuitApp = false; // 点击关闭时是否真的退出应用
 
 // 初始化发送获取工具图标的程序
 const iconProcess = startIconProcess(execDir_poxis);
@@ -92,7 +92,7 @@ if (config.auto_launch) {
 }
 
 // 定义数据库位置
-const adapter = new FileSync(execDir_poxis + '/db.json');
+const adapter = new FileSync(path.join(execDir, 'db.json'));
 const db = low(adapter);
 
 // 取词功能区列表
@@ -109,7 +109,6 @@ function createTray() {
       click: function trayClick() {
         willQuitApp = true;
         iconProcess.kill('SIGINT');
-        // huaci_handler.send({ now: 'stop' });
         stop_huaci();
         appTray.destroy();
         mainWindow.close();
@@ -147,7 +146,6 @@ function createWindow() {
     icon: icon_path,
     transparent: true,
   });
-  //     useContentSize: true
 
   // and load the index.html of the app.
   mainWindow.loadURL(
@@ -165,6 +163,7 @@ function createWindow() {
     });
   }
 
+  // 禁止触摸屏缩放(未测试)
   // let webContents = mainWindow.webContents;
   // webContents.on('did-finish-load', () => {
   //   webContents.setZoomFactor(1);
@@ -182,9 +181,7 @@ function createWindow() {
     mainWindow.webContents.send('windows-now', { code: 0, desc: 'become normal size' });
   });
 
-  mainWindow.on('resize', () => {
-    // console.log("event: resize");
-  });
+  mainWindow.on('resize', () => {});
 
   mainWindow.on('move', () => {});
 
@@ -615,6 +612,13 @@ function update_version(new_version) {
 }
 
 /**
+ * 取消下次启动后更新提醒
+ */
+ipcMain.on('disable-uplaunch', () => {
+  db.set('need_uplaunch', false).write();
+});
+
+/**
  * 更新（替换与重启）
  */
 function update_relaunch() {
@@ -750,7 +754,6 @@ ipcMain.on('huaci-choice', (event, cid) => {
     console.log('send huaci message');
     mainWindow.webContents.send('huaci', {
       original: huaci_original,
-      idcard: '230125199301017777',
       query_type: cid,
     });
   }
