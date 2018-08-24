@@ -93,6 +93,7 @@ class SmartAll extends Component {
         }
       });
     });
+    ipcRenderer.on('alert-update-notice', this.lintenUpdate);
   }
   componentWillReceiveProps(next) {
     if (this.props.login.loginStatus !== next.login.loginStatus) {
@@ -110,7 +111,6 @@ class SmartAll extends Component {
         });
       }
     }
-    ipcRenderer.on('alert-update-notice', this.lintenUpdate);
   }
   componentWillUnmount() {
     ipcRenderer.removeListener('huaci', this.selectWord);
