@@ -350,11 +350,12 @@ class SmartTool extends Component {
     }
     return (
       <div
-        style={{ padding: '0 24px', height: this.state.height + 'px' }}
+        style={{ padding: '0 24px 30px', height: this.state.height + 'px' }}
         onDragOver={ev => this.handleDragOver(ev)}
         onDragLeave={e => this.handleDragLeave(e)}
         onDragEnd={e => this.handleDragEnd(e)}
         onDrop={e => this.handleDrop(e)}
+        className={styles.overScroll}
       >
         <div className="gutter-example">
           <Button
