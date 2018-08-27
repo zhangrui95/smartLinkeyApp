@@ -99,7 +99,16 @@ class SiderMenu extends PureComponent {
       updataModal: false,
       updateV: this.props.login.updateV,
       updateItem: this.props.login.updateItem,
+      nowUpdate: false,
     };
+  }
+  componentDidMount() {
+    ipcRenderer.on('progress', this.getPro);
+    ipcRenderer.on('package-damaged', this.getPackageDamaged);
+  }
+  componentWillUnmount() {
+    ipcRenderer.removeListener('progress', this.getPro);
+    ipcRenderer.removeListener('package-damaged', this.getPackageDamaged);
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.location.pathname !== this.props.location.pathname) {
@@ -407,6 +416,9 @@ class SiderMenu extends PureComponent {
   //   });
   // };
   timeUpdate = time => {
+    this.setState({
+      nowUpdate: false,
+    });
     if (time === '') {
       this.setState({
         jcvisible: false,
@@ -423,37 +435,29 @@ class SiderMenu extends PureComponent {
       countDown(time);
       setTimeout(() => {
         ipcRenderer.send('update-relaunch', 'now');
-        ipcRenderer.on('package-damaged', () => {
-          this.setState({
-            jcvisible: false,
-            updataModal: false,
-            newsLoading: false,
-            proLoadFixed: false,
-          });
-          message.warn('文件包已损坏，更新失败');
-        });
       }, time);
+    }
+  };
+  getPro = (event, percent) => {
+    this.setState({
+      percent: parseInt(percent.percent * 100),
+    });
+    if (percent.percent === 1 && this.state.nowUpdate) {
+      this.setState({
+        updataModal: true,
+        newsLoading: false,
+        proLoadFixed: false,
+      });
     }
   };
   getGX = () => {
     if (this.state.percent === 0 || this.state.percent === 100) {
       ipcRenderer.send('download-package', this.state.updateItem);
-      ipcRenderer.on('progress', (event, percent) => {
-        this.setState({
-          percent: parseInt(percent.percent * 100),
-        });
-        if (percent.percent === 1) {
-          this.setState({
-            updataModal: true,
-            newsLoading: false,
-            proLoadFixed: false,
-          });
-        }
-      });
     }
     this.setState({
       newsLoading: true,
       jcvisible: false,
+      nowUpdate: true,
     });
   };
   modalProShow = update => {
@@ -483,17 +487,17 @@ class SiderMenu extends PureComponent {
       proLoadFixed: false,
     });
   };
+  getPackageDamaged = () => {
+    this.setState({
+      jcvisible: false,
+      updataModal: false,
+      newsLoading: false,
+      proLoadFixed: false,
+    });
+    message.warn('文件包已损坏，更新失败');
+  };
   getUpdate = () => {
     ipcRenderer.send('update-relaunch', 'now');
-    ipcRenderer.on('package-damaged', () => {
-      this.setState({
-        jcvisible: false,
-        updataModal: false,
-        newsLoading: false,
-        proLoadFixed: false,
-      });
-      message.warn('文件包已损坏，更新失败');
-    });
   };
   render() {
     const plainOptions = [
