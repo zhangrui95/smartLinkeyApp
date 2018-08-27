@@ -74,14 +74,14 @@ if (config.dev_auto_reload) {
   require('electron-reload')(path.join(__dirname, 'dist'));
 }
 
-let mainWindow; // 主页面
-let huaci_win; // 划词搜索页
-let sou_win; // 划词搜页面
-let huaci_x; // 划词抬起鼠标后坐标X值
-let huaci_y; // 划词抬起鼠标后坐标Y值
-let already_login = false; // 登录前/后状态
-let appTray = null; // 托盘
-let willQuitApp = false; // 点击关闭时是否真的退出应用
+let mainWindow;               // 主页面
+let huaci_win;                // 划词搜索页
+let sou_win;                  // 划词搜页面
+let huaci_x;                  // 划词抬起鼠标后坐标X值
+let huaci_y;                  // 划词抬起鼠标后坐标Y值
+let already_login = false;    // 登录前/后状态
+let appTray = null;           // 托盘
+let willQuitApp = false;      // 点击关闭时是否真的退出应用
 
 // 初始化发送获取工具图标的程序
 const iconProcess = startIconProcess(execDir_poxis);
@@ -622,6 +622,11 @@ ipcMain.on('disable-uplaunch', () => {
  * 更新（替换与重启）
  */
 function update_relaunch() {
+
+  // 当设置下次启动更新后, 又紧接着点击立即更新, 会导致更新后重启应用还会提示更新
+  // 此处重置重启后提示更新的flag标识
+  db.set('need_uplaunch', false).write();
+
   // 执行更新
   uplaunch(execDir_poxis);
 
