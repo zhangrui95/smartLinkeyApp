@@ -55,7 +55,8 @@ if (config.auto_launch) {
 }
 const icon_path = path.join(__dirname, `./${fetd}/for-electron/source/logo.ico`);
 const icon_none_path = path.join(__dirname, `./${fetd}/for-electron/source/none.ico`);
-const upgrade_tmp_dir = 'downloads';
+const upgrade_tmp_dir = path.join(execDir, 'downloads');
+const upgrade_tmp_file = path.join(upgrade_tmp_dir, 'package.zip')
 const huaci_threshold = config.huaci_threshold;
 
 // 初始化日志功能
@@ -297,14 +298,14 @@ app.on('ready', () => {
 
 function package_is_ok() {
   // 校验安装包是否存在
-  if (!fs.existsSync('downloads/package.zip')) {
+  if (!fs.existsSync(upgrade_tmp_file)) {
     return false;
   }
 
   // 校验文件是否下载完整
   let package_info = db.get('package_info').value();
   const remote_md5 = package_info.md5;
-  const hash = _get_file_md5('downloads/package.zip');
+  const hash = _get_file_md5(upgrade_tmp_file);
   log.info(`check file md5 is: ${hash}`);
   log.info(`Remote MD5 is: ${remote_md5}`);
 
@@ -594,7 +595,7 @@ function down_or_has_cache(event, info) {
     mainWindow.webContents.send('progress', { percent: 1 });
   } else {
     log.info('start downloads package');
-    download_package(event, package_saved_dir, package_url);
+    download_package(event, upgrade_tmp_dir, package_url);
   }
 }
 
