@@ -118,13 +118,15 @@ export default class GlobalHeader extends PureComponent {
         },
       });
     } else {
-      t.props.dispatch({
-        type: 'user/find',
-        payload: {
-          nodeid: sessionStorage.getItem('nodeid'),
-          keyword: val,
-        },
-      });
+      if (t.props.pathItem !== '/smartList/smartAll?type=3') {
+        t.props.dispatch({
+          type: 'user/find',
+          payload: {
+            nodeid: sessionStorage.getItem('nodeid'),
+            keyword: val,
+          },
+        });
+      }
     }
   };
   minWindows = () => {

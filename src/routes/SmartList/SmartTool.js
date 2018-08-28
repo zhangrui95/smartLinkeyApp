@@ -36,6 +36,7 @@ class SmartTool extends Component {
       img: '',
       dragName: '',
       dragIndex: null,
+      dragNum: null,
       userName: userNew.name,
       delshow: false,
       visible: false,
@@ -58,7 +59,7 @@ class SmartTool extends Component {
       let m = [];
       this.state.message.map((e, i) => {
         if (e.name.indexOf(next.user.value) > -1) {
-          m.push(e);
+          m.push({ name: e.name, path: e.path, userName: e.userName, icon: e.icon, index: i });
         }
       });
       this.setState({
@@ -117,6 +118,14 @@ class SmartTool extends Component {
         path: f.path,
         userName: this.state.userName,
       });
+      if (this.props.user.value.length > 0) {
+        this.state.messageSearch.push({
+          name: f.name.slice(0, -4),
+          path: f.path,
+          userName: this.state.userName,
+          index: this.state.messageSearch.length,
+        });
+      }
       ipcRenderer.send('get-tool-icon', f.path);
     }
     return false;
@@ -125,8 +134,10 @@ class SmartTool extends Component {
     if (this.state.message.length > 0) {
       this.state.message[this.state.message.length - 1].icon = baseImg;
       this.props.msgExe[this.props.msgExe.length - 1].icon = baseImg;
+      this.state.messageSearch[this.state.messageSearch.length - 1].icon = baseImg;
       this.setState({
         message: this.state.message,
+        messageSearch: this.state.messageSearch,
       });
       ipcRenderer.send('save-tools-info', this.props.msgExe);
     }
@@ -160,10 +171,11 @@ class SmartTool extends Component {
       }
     });
   };
-  dragStart = (e, index) => {
+  dragStart = (e, index, num) => {
     this.setState({
       dragName: e.name,
       dragIndex: index,
+      dragNum: num,
       delshow: true,
     });
   };
@@ -177,15 +189,18 @@ class SmartTool extends Component {
   };
   allowDrop = event => {
     event.preventDefault();
-    this.del(this.state.dragIndex);
+    this.del(this.state.dragIndex, this.state.dragNum);
   };
-  del = idx => {
+  del = (idx, num) => {
     let _this = this;
     confirm({
       title: '是否确定移除该工具?',
       okText: '确定',
       cancelText: '取消',
       onOk() {
+        if (_this.props.user.value.length > 0) {
+          _this.state.messageSearch.splice(num, 1);
+        }
         _this.state.message.map((e, i) => {
           if (i === idx) {
             _this.state.message.splice(i, 1);
@@ -198,6 +213,7 @@ class SmartTool extends Component {
         });
         _this.setState({
           message: _this.state.message,
+          messageSearch: _this.state.messageSearch,
         });
         ipcRenderer.send('save-tools-info', _this.props.msgExe);
         if (_this.state.message.length === 0) {
@@ -265,6 +281,14 @@ class SmartTool extends Component {
         path: this.state.exePath,
         userName: this.state.userName,
       });
+      if (this.props.user.value.length > 0) {
+        this.state.messageSearch.push({
+          name: this.state.exeName,
+          path: this.state.exePath,
+          userName: this.state.userName,
+          index: this.state.messageSearch.length,
+        });
+      }
       ipcRenderer.send('get-tool-icon', this.state.exePath);
       this.setState({
         visible: false,
@@ -289,7 +313,7 @@ class SmartTool extends Component {
     const token = JSON.parse(user).token;
     const { getFieldDecorator } = this.props.form;
     let msgList = [];
-    if (this.state.messageSearch.length === 0 && this.props.user.value.length === 0) {
+    if (this.props.user.value.length === 0) {
       msgList = [];
       this.state.message.map((e, index) => {
         msgList.push(
@@ -325,7 +349,7 @@ class SmartTool extends Component {
           <Col className="gutter-row" span={6} key={index}>
             <div
               className={styles.colStyle}
-              onDragStart={() => this.dragStart(e)}
+              onDragStart={() => this.dragStart(e, e.index, index)}
               onDragEnd={() => this.dragEnd(e)}
               onDrag={() => this.dragging(e)}
               draggable="true"
@@ -339,7 +363,7 @@ class SmartTool extends Component {
                 {e.name}
               </span>
               <img
-                onClick={() => this.del(index)}
+                onClick={() => this.del(e.index, index)}
                 className={this.state.delete ? styles.del : styles.none}
                 src="images/del.png"
               />
