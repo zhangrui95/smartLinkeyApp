@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import SmartItem from './SmartItem';
-import PoliceSmartItem from './PoliceSmartItem';
 import SmartLink from './SmartLink';
 import { Badge, message, Modal, Form, Row, Col, Input, Button, Icon, Spin } from 'antd';
 const confirm = Modal.confirm;
