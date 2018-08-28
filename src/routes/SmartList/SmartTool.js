@@ -56,15 +56,7 @@ class SmartTool extends Component {
   }
   componentWillReceiveProps(next) {
     if (this.props.user.value !== next.user.value) {
-      let m = [];
-      this.state.message.map((e, i) => {
-        if (e.name.indexOf(next.user.value) > -1) {
-          m.push({ name: e.name, path: e.path, userName: e.userName, icon: e.icon, index: i });
-        }
-      });
-      this.setState({
-        messageSearch: m,
-      });
+      this.getSearchList(next);
     }
     if (this.props.msgExe !== next.msgExe) {
       let msg = [];
@@ -82,6 +74,17 @@ class SmartTool extends Component {
     ipcRenderer.removeListener('link-not-found', this.alertWarn);
     ipcRenderer.removeListener('tool-icon', this.getIcon);
   }
+  getSearchList = next => {
+    let m = [];
+    this.state.message.map((e, i) => {
+      if (e.name.indexOf(next.user.value) > -1) {
+        m.push({ name: e.name, path: e.path, userName: e.userName, icon: e.icon, index: i });
+      }
+    });
+    this.setState({
+      messageSearch: m,
+    });
+  };
   updateSize() {
     this.setState({
       height: autoheight() < 700 ? autoheight() - 65 : autoheight() - 54,
@@ -134,7 +137,9 @@ class SmartTool extends Component {
     if (this.state.message.length > 0) {
       this.state.message[this.state.message.length - 1].icon = baseImg;
       this.props.msgExe[this.props.msgExe.length - 1].icon = baseImg;
-      this.state.messageSearch[this.state.messageSearch.length - 1].icon = baseImg;
+      if (this.props.user.value.length > 0) {
+        this.state.messageSearch[this.state.messageSearch.length - 1].icon = baseImg;
+      }
       this.setState({
         message: this.state.message,
         messageSearch: this.state.messageSearch,
@@ -215,6 +220,7 @@ class SmartTool extends Component {
           message: _this.state.message,
           messageSearch: _this.state.messageSearch,
         });
+        _this.getSearchList(_this.props);
         ipcRenderer.send('save-tools-info', _this.props.msgExe);
         if (_this.state.message.length === 0) {
           _this.setState({
