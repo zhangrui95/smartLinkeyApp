@@ -302,7 +302,10 @@ class SmartTool extends Component {
               draggable="true"
               onDoubleClick={() => this.dbExe(e.path)}
             >
-              <img src={'data:image/png;base64,' + e.icon} style={{ margin: '17px 14px' }} />
+              <img
+                src={e.icon ? 'data:image/png;base64,' + e.icon : ''}
+                style={{ margin: '17px 14px' }}
+              />
               <span className={styles.ExeName} title={e.name}>
                 {e.name}
               </span>
@@ -328,7 +331,10 @@ class SmartTool extends Component {
               draggable="true"
               onDoubleClick={() => this.dbExe(e.path)}
             >
-              <img src={'data:image/png;base64,' + e.icon} style={{ margin: '17px 14px' }} />
+              <img
+                src={e.icon ? 'data:image/png;base64,' + e.icon : ''}
+                style={{ margin: '17px 14px' }}
+              />
               <span className={styles.ExeName} title={e.name}>
                 {e.name}
               </span>
