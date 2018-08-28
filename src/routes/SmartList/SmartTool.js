@@ -35,6 +35,7 @@ class SmartTool extends Component {
       messageSearch: [],
       img: '',
       dragName: '',
+      dragIndex: null,
       userName: userNew.name,
       delshow: false,
       visible: false,
@@ -159,9 +160,10 @@ class SmartTool extends Component {
       }
     });
   };
-  dragStart = e => {
+  dragStart = (e, index) => {
     this.setState({
       dragName: e.name,
+      dragIndex: index,
       delshow: true,
     });
   };
@@ -175,9 +177,9 @@ class SmartTool extends Component {
   };
   allowDrop = event => {
     event.preventDefault();
-    this.del(this.state.dragName);
+    this.del(this.state.dragIndex);
   };
-  del = name => {
+  del = idx => {
     let _this = this;
     confirm({
       title: '是否确定移除该工具?',
@@ -185,12 +187,12 @@ class SmartTool extends Component {
       cancelText: '取消',
       onOk() {
         _this.state.message.map((e, i) => {
-          if (e.name === name) {
+          if (i === idx) {
             _this.state.message.splice(i, 1);
           }
         });
         _this.props.msgExe.map((item, index) => {
-          if (item.name === name && item.userName === _this.state.userName) {
+          if (index === idx && item.userName === _this.state.userName) {
             _this.props.msgExe.splice(index, 1);
           }
         });
@@ -294,7 +296,7 @@ class SmartTool extends Component {
           <Col className="gutter-row" span={6} key={index}>
             <div
               className={styles.colStyle}
-              onDragStart={() => this.dragStart(e)}
+              onDragStart={() => this.dragStart(e, index)}
               onDragEnd={() => this.dragEnd(e)}
               onDrag={() => this.dragging(e)}
               draggable="true"
@@ -305,7 +307,7 @@ class SmartTool extends Component {
                 {e.name}
               </span>
               <img
-                onClick={index => this.del(e.name)}
+                onClick={index => this.del(index)}
                 className={this.state.delete ? styles.del : styles.none}
                 src="images/del.png"
               />
