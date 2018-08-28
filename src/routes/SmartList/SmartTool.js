@@ -307,7 +307,7 @@ class SmartTool extends Component {
                 {e.name}
               </span>
               <img
-                onClick={index => this.del(index)}
+                onClick={() => this.del(index)}
                 className={this.state.delete ? styles.del : styles.none}
                 src="images/del.png"
               />
@@ -333,7 +333,7 @@ class SmartTool extends Component {
                 {e.name}
               </span>
               <img
-                onClick={index => this.del(e.name)}
+                onClick={() => this.del(index)}
                 className={this.state.delete ? styles.del : styles.none}
                 src="images/del.png"
               />
