@@ -27,6 +27,7 @@ function startIconProcess(exe_path) {
         let data = JSON.parse(buf);
         let mainWindow = require('electron').BrowserWindow.fromId(1);
         mainWindow.webContents.send('tool-icon', data.Base64ImageData);
+        iconDataBuffer = '';
       } catch (ex) {
         console.log(ex);
       }
