@@ -122,6 +122,12 @@ class SmartTool extends Component {
         userName: this.state.userName,
       });
       if (this.props.user.value.length > 0) {
+        this.props.dispatch({
+          type: 'user/findTool',
+          payload: {
+            value: '',
+          },
+        });
         this.state.messageSearch.push({
           name: f.name.slice(0, -4),
           path: f.path,
@@ -293,6 +299,12 @@ class SmartTool extends Component {
           path: this.state.exePath,
           userName: this.state.userName,
           index: this.state.messageSearch.length,
+        });
+        this.props.dispatch({
+          type: 'user/findTool',
+          payload: {
+            value: '',
+          },
         });
       }
       ipcRenderer.send('get-tool-icon', this.state.exePath);
