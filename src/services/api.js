@@ -103,27 +103,27 @@ export async function queryNotices() {
 
 export async function getQuestionList(params) {
   // return request(`${configUrl.ywzxUrl}/queryQuestionList`, {
-  return request(`${configUrl.McUrl}/dictionary`, {
+  return request(`${configUrl.ywzxUrl}/dictionary`, {
     method: 'POST',
     body: params,
   });
 }
 
 export async function getQuestionName(params) {
-  return request(`${configUrl.McUrl}/getSysHelpByTypeId`, {
+  return request(`${configUrl.ywzxUrl}/getSysHelpByTypeId`, {
     method: 'POST',
     body: params,
   });
 }
 
 export async function getSaveList(params) {
-  return request('http://172.19.12.240:7800/datahandle/createpubsubnode', {
+  return request(`${configUrl.gmUrl}/datahandle/createpubsubnode`, {
     method: 'POST',
     body: params,
   });
 }
 export async function getCancelCollection(params) {
-  return request('http://172.19.12.240:7800/datahandle/unSubscribe', {
+  return request(`${configUrl.gmUrl}/datahandle/unSubscribe`, {
     method: 'POST',
     body: params,
   });
