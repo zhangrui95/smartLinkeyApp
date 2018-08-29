@@ -228,7 +228,6 @@ class SmartAll extends Component {
   };
   onMessage1 = (msg1, type) => {
     let node = [];
-    this.msgListAll = [];
     let names = msg1.getElementsByTagName('subscription');
     if (names.length > 0) {
       for (let i = 0; i < names.length; i++) {
@@ -301,8 +300,6 @@ class SmartAll extends Component {
         this.msgListAll = [];
         this.getSubscription(0);
         this.getNodeList();
-      } else {
-        this.getSubscription(0);
       }
     }
     let item = msg.getElementsByTagName('item');
