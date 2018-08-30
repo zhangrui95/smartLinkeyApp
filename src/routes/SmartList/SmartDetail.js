@@ -86,12 +86,13 @@ export default class SmartDetail extends Component {
                 }
               }
             });
-            this.props.searchList.map(listItem => {
-              this.props.onNewMsg(
-                listItem.nodeid,
-                listItem.nodeid === sessionStorage.getItem('nodeid') ? 3 * this.state.endLength : 3
-              );
-            });
+            // this.props.searchList.map(listItem => {
+            //   this.props.onNewMsg(
+            //     listItem.nodeid,
+            //     listItem.nodeid === sessionStorage.getItem('nodeid') ? 3 * this.state.endLength : 3
+            //   );
+            // });
+            this.props.onNewMsg(sessionStorage.getItem('nodeid'), 3 * this.state.endLength);
             document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
             setTimeout(() => {
               this.props.msgList.map((e, i) => {

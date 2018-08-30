@@ -223,7 +223,7 @@ class SmartAll extends Component {
     }, 5000);
   };
   onNewMsg = (nodeList, maxNum) => {
-    this.msgListAll = [];
+    // this.msgListAll = [];
     connection.pubsub.items(nodeList, null, null, 5000, maxNum);
   };
   onMessage1 = (msg1, type) => {
@@ -280,6 +280,13 @@ class SmartAll extends Component {
       });
     }
   };
+  compare = property => {
+    return function(a, b) {
+      var value1 = a[property];
+      var value2 = b[property];
+      return value1 - value2;
+    };
+  };
   onMessage = msg => {
     let event = msg.getElementsByTagName('event');
     if (event.length > 0) {
@@ -320,11 +327,11 @@ class SmartAll extends Component {
           packagecount: packagecount[0].textContent,
         });
         this.setState({
-          msgList: this.msgListAll,
+          msgList: this.msgListAll.sort(this.compare('id')),
         });
         this.props.dispatch({
           type: 'user/getMsgList',
-          payload: this.msgListAll,
+          payload: this.msgListAll.sort(this.compare('id')),
         });
       }
     }
@@ -366,36 +373,7 @@ class SmartAll extends Component {
   getOut = () => {
     connection.disconnect();
   };
-  // getRight = e => {
-  //   this.setState({
-  //     left: e.clientX,
-  //     top: e.clientY,
-  //   });
-  //   this.getCopyWord();
-  //   let word = window.getSelection ? window.getSelection() : document.selection.createRange().text;
-  //   if (word.toString().length > 0) {
-  //     this.setState({
-  //       rightBox: true,
-  //       word: word.toString(),
-  //     });
-  //     console.log('word----------->', word.toString());
-  //   }
-  // };
-  // hideRight = () => {
-  //   this.setState({
-  //     rightBox: false,
-  //   });
-  // };
-  // getCopyWord = () => {
-  //   // let word = window.getSelection ? window.getSelection() : document.selection.createRange().text;
-  //   // console.log('word----------->',word.toString());
-  //   document.execCommand('Copy');
-  // };
-  // SearchWord = () => {
-  //   let a = { original: '230107196307262325', query_type: 103 };
-  //   this.qcModal(a);
-  //   // alert(this.state.word);
-  // };
+
   handleCancel = () => {
     this.setState({
       qcVisible: false,
