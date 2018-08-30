@@ -117,13 +117,13 @@ export async function getQuestionName(params) {
 }
 
 export async function getSaveList(params) {
-  return request(`${configUrl.gmUrl}/datahandle/createpubsubnode`, {
+  return request(`${configUrl.GMUrl}/datahandle/createpubsubnode`, {
     method: 'POST',
     body: params,
   });
 }
 export async function getCancelCollection(params) {
-  return request(`${configUrl.gmUrl}/datahandle/unSubscribe`, {
+  return request(`${configUrl.GMUrl}/datahandle/unSubscribe`, {
     method: 'POST',
     body: params,
   });

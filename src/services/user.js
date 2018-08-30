@@ -9,19 +9,19 @@ export async function queryCurrent() {
 }
 
 export async function getQuery(params) {
-  return request(`${configUrl.gmUrl}/datahandle/query `, {
+  return request(`${configUrl.GMUrl}/datahandle/query `, {
     method: 'POST',
     body: params,
   });
 }
 export async function getDataSave(params) {
-  return request(`${configUrl.gmUrl}/datahandle/save `, {
+  return request(`${configUrl.GMUrl}/datahandle/save `, {
     method: 'POST',
     body: params,
   });
 }
 export async function getFind(params) {
-  return request(`${configUrl.gmUrl}/datahandle/find `, {
+  return request(`${configUrl.GMUrl}/datahandle/find `, {
     method: 'POST',
     body: params,
   });
@@ -34,7 +34,7 @@ export async function getWord01(params) {
   });
 }
 export async function getLoginIp(params) {
-  return request(`${configUrl.ZXUrl}/lowcase/lastLoginLog`, {
+  return request(`${configUrl.testUrl}/lowcase/lastLoginLog`, {
     method: 'POST',
     body: params,
   });
