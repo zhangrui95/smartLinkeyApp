@@ -410,6 +410,14 @@ class SmartAll extends Component {
             onNewMsg={(node, maxNum) => this.onNewMsg(node, maxNum)}
             event={this.state.event}
             msgExe={this.state.msgExe}
+            lastTime={
+              this.state.msgList.length > 0
+                ? {
+                    id: this.state.msgList[this.state.msgList.length - 1].id,
+                    nodeid: this.state.msgList[this.state.msgList.length - 1].nodeid,
+                  }
+                : ''
+            }
           />
         );
       });

@@ -63,21 +63,10 @@ class SmartItem extends Component {
     this.setState({
       msgLists: next.msgList,
     });
-    if (this.props.event !== next.event) {
-      setTimeout(() => {
-        next.user.allList.map((e, i) => {
-          next.user.msgList.map(msgItem => {
-            if (
-              msgItem.nodeid === sessionStorage.getItem('nodeidType') &&
-              e.nodeid === msgItem.nodeid
-            ) {
-              if (msgItem.id > e.maxmessageid) {
-                this.getTimeSaves(e.nodeid, msgItem.id);
-              }
-            }
-          });
-        });
-      }, 1000);
+    if (this.props.lastTime.id < next.lastTime.id) {
+      if (next.lastTime.nodeid === sessionStorage.getItem('nodeidType')) {
+        this.getTimeSaves(next.lastTime.nodeid, next.lastTime.id);
+      }
     }
     if (this.props.event !== next.event || this.props.type !== next.type) {
       this.setState({
@@ -247,24 +236,33 @@ class SmartItem extends Component {
             item.remark !== 'gzdcs' &&
             item.remark !== 'gzdjq'
           ) {
-            dataList.push({
-              name: item.nodeid === this.state.userItem.idCard ? '问题场所' : item.name,
-              icon:
-                item.nodeid === 'smart_wtaj'
-                  ? 'images/anjian.png'
-                  : item.nodeid === 'smart_wtjq' || item.nodeid === 'smart_syrjq'
-                    ? 'images/weishoulijingqing.png'
-                    : item.nodeid === 'smart_wtwp'
-                      ? 'images/wentiwupin.png'
-                      : item.nodeid === this.state.userItem.idCard
-                        ? 'images/changsuo.png'
-                        : 'images/user.png',
-              maxmessageid: item.maxmessageid ? item.maxmessageid : 0,
-              nodeid: item.nodeid,
-              remark: item.remark,
-            });
-            if (next.code !== '200003' && item.nodeid === this.state.userItem.idCard) {
-              dataList.splice(item, 1);
+            if (next.code === '200003') {
+              dataList.push({
+                name: item.nodeid === this.state.userItem.idCard ? '问题场所' : item.name,
+                icon:
+                  item.nodeid === 'smart_wtaj'
+                    ? 'images/anjian.png'
+                    : item.nodeid === 'smart_wtjq' || item.nodeid === 'smart_syrjq'
+                      ? 'images/weishoulijingqing.png'
+                      : item.nodeid === 'smart_wtwp'
+                        ? 'images/wentiwupin.png'
+                        : item.nodeid === this.state.userItem.idCard
+                          ? 'images/changsuo.png'
+                          : 'images/user.png',
+                maxmessageid: item.maxmessageid ? item.maxmessageid : 0,
+                nodeid: item.nodeid,
+                remark: item.remark,
+              });
+            } else {
+              if (item.nodeid !== this.state.userItem.idCard) {
+                dataList.push({
+                  name: item.name,
+                  icon: 'images/user.png',
+                  maxmessageid: item.maxmessageid ? item.maxmessageid : 0,
+                  nodeid: item.nodeid,
+                  remark: item.remark,
+                });
+              }
             }
             if (
               (this.props.code === '200001' || this.props.code === '200002') &&
