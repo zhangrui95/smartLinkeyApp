@@ -39,7 +39,12 @@ export default class SmartDetailItem extends Component {
             <Card
               title={
                 <div>
-                  {this.props.k > 0 ? (
+                  {this.props.listType === 'baq' &&
+                  (this.props.childItem.state === '717002' ||
+                    this.props.childItem.state === '717003' ||
+                    this.props.childItem.state === '717004') ? (
+                    ''
+                  ) : this.props.k > 0 ? (
                     <Tooltip placement="top" title="取消关注">
                       <img
                         className={this.props.code === '200003' ? styles.saveIcon : styles.none}
@@ -120,7 +125,14 @@ export default class SmartDetailItem extends Component {
                               : ''
                     }
                     style={
-                      this.props.code === '200003' ? { paddingLeft: '24px' } : { paddingLeft: '0' }
+                      this.props.listType === 'baq' &&
+                      (this.props.childItem.state === '717002' ||
+                        this.props.childItem.state === '717003' ||
+                        this.props.childItem.state === '717004')
+                        ? { paddingLeft: '0' }
+                        : this.props.code === '200003'
+                          ? { paddingLeft: '24px' }
+                          : { paddingLeft: '0' }
                     }
                   >
                     {this.props.listType === 'ajxx'
@@ -133,7 +145,14 @@ export default class SmartDetailItem extends Component {
                             ? this.props.childItem.csmc
                             : ''}
                   </span>
-                  <Tag className={styles.tagStyle}>{this.props.childItem.status}</Tag>
+                  {this.props.listType === 'baq' &&
+                  (this.props.childItem.state === '717002' ||
+                    this.props.childItem.state === '717003' ||
+                    this.props.childItem.state === '717004') ? (
+                    ''
+                  ) : (
+                    <Tag className={styles.tagStyle}>{this.props.childItem.status}</Tag>
+                  )}
                 </div>
               }
               style={{ width: 330, padding: '0 16px' }}
@@ -180,12 +199,35 @@ export default class SmartDetailItem extends Component {
                       <div className={styles.sawpLeft}>问题类型：{this.props.childItem.wtlx}</div>
                     </div>
                   ) : this.props.listType === 'baq' ? (
-                    <div>
-                      <div className={styles.nameStyle}>办案人：{this.props.childItem.barxm}</div>
-                      <div className={styles.nameStyle}>告警时间：{this.props.childItem.gjsj}</div>
-                      <div className={styles.nameStyle}>告警地点：{this.props.childItem.gjdd}</div>
-                      <div className={styles.sawpLeft}>告警类型：{this.props.childItem.gjlx}</div>
-                    </div>
+                    this.props.childItem.state === '717002' ||
+                    this.props.childItem.state === '717003' ||
+                    this.props.childItem.state === '717004' ? (
+                      <div>
+                        <div className={styles.nameStyle}>涉案人：{this.props.childItem.name}</div>
+                        <div className={styles.nameStyle}>办案人：{this.props.childItem.barxm}</div>
+                        <div className={styles.nameStyle}>时间：{this.props.childItem.time}</div>
+                        <div className={styles.nameStyle}>
+                          消息类型：{this.props.childItem.state === '717002'
+                            ? '未离区'
+                            : this.props.childItem.state === '717003'
+                              ? '临时离区'
+                              : this.props.childItem.state === '717004'
+                                ? '已离区'
+                                : ''}
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className={styles.nameStyle}>办案人：{this.props.childItem.barxm}</div>
+                        <div className={styles.nameStyle}>
+                          告警时间：{this.props.childItem.gjsj}
+                        </div>
+                        <div className={styles.nameStyle}>
+                          告警地点：{this.props.childItem.gjdd}
+                        </div>
+                        <div className={styles.sawpLeft}>告警类型：{this.props.childItem.gjlx}</div>
+                      </div>
+                    )
                   ) : (
                     ''
                   )

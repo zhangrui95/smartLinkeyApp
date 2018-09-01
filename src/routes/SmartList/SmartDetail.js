@@ -290,7 +290,7 @@ export default class SmartDetail extends Component {
       });
     } else {
       next.msgList.map(item => {
-        if (sessionStorage.getItem('nodeid').toLowerCase() === item.nodeid.toLowerCase()) {
+        if (sessionStorage.getItem('nodeid') && sessionStorage.getItem('nodeid') === item.nodeid) {
           list.push(item);
         }
       });

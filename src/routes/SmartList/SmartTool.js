@@ -58,6 +58,9 @@ class SmartTool extends Component {
     if (this.props.user.value !== next.user.value) {
       this.getSearchList(next);
     }
+    if (this.props.type !== next.type) {
+      this.getAllTool();
+    }
     if (this.props.msgExe !== next.msgExe) {
       let msg = [];
       next.msgExe.map((e, i) => {
@@ -74,6 +77,14 @@ class SmartTool extends Component {
     ipcRenderer.removeListener('link-not-found', this.alertWarn);
     ipcRenderer.removeListener('tool-icon', this.getIcon);
   }
+  getAllTool = () => {
+    this.props.dispatch({
+      type: 'user/findTool',
+      payload: {
+        value: '',
+      },
+    });
+  };
   getSearchList = next => {
     let m = [];
     this.state.message.map((e, i) => {
@@ -111,31 +122,12 @@ class SmartTool extends Component {
     e.preventDefault();
     for (let f of e.dataTransfer.files) {
       console.log('拖拽f---------->', f);
-      this.state.message.push({
-        name: f.name.slice(0, -4),
-        path: f.path,
-        userName: this.state.userName,
+      this.setState({
+        MKey: this.state.MKey + 1,
+        visible: true,
+        exeName: f.name.slice(0, -4),
+        exePath: f.path,
       });
-      this.props.msgExe.push({
-        name: f.name.slice(0, -4),
-        path: f.path,
-        userName: this.state.userName,
-      });
-      if (this.props.user.value.length > 0) {
-        this.props.dispatch({
-          type: 'user/findTool',
-          payload: {
-            value: '',
-          },
-        });
-        this.state.messageSearch.push({
-          name: f.name.slice(0, -4),
-          path: f.path,
-          userName: this.state.userName,
-          index: this.state.messageSearch.length,
-        });
-      }
-      ipcRenderer.send('get-tool-icon', f.path);
     }
     return false;
   };
@@ -300,12 +292,7 @@ class SmartTool extends Component {
           userName: this.state.userName,
           index: this.state.messageSearch.length,
         });
-        this.props.dispatch({
-          type: 'user/findTool',
-          payload: {
-            value: '',
-          },
-        });
+        this.getAllTool();
       }
       ipcRenderer.send('get-tool-icon', this.state.exePath);
       this.setState({

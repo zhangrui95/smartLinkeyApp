@@ -86,7 +86,7 @@ export default class SmartQuestDetail extends Component {
             key={index}
             style={customPanelStyle}
           >
-            <p className={styles.colorText}>{e.content}</p>
+            <div className={styles.colorText} dangerouslySetInnerHTML={{ __html: e.content }} />
           </Panel>
         );
       });

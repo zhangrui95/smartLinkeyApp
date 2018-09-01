@@ -149,6 +149,16 @@ export default class GlobalHeader extends PureComponent {
   CloseWindow = () => {
     ipcRenderer.send('put-in-tray');
   };
+  getBlur = () => {
+    if (!this.state.searchValue) {
+      this.props.dispatch({
+        type: 'user/findTool',
+        payload: {
+          value: '',
+        },
+      });
+    }
+  };
   render() {
     const { searchValue } = this.state;
     const suffix = searchValue ? <Icon type="close-circle" onClick={this.emitEmpty} /> : null;
@@ -164,6 +174,7 @@ export default class GlobalHeader extends PureComponent {
               value={searchValue}
               onChange={this.onChangesearchValue}
               ref={node => (this.searchValueInput = node)}
+              onBlur={this.getBlur}
             />
           ) : (
             ''
