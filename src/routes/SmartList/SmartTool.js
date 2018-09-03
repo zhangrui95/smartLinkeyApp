@@ -37,7 +37,7 @@ class SmartTool extends Component {
       dragName: '',
       dragIndex: null,
       dragNum: null,
-      userName: userNew.name,
+      idCard: userNew.idCard,
       delshow: false,
       visible: false,
       path: '',
@@ -64,7 +64,7 @@ class SmartTool extends Component {
     if (this.props.msgExe !== next.msgExe) {
       let msg = [];
       next.msgExe.map((e, i) => {
-        if (e.userName === this.state.userName) {
+        if (e.idCard === this.state.idCard) {
           msg.push(e);
         }
       });
@@ -89,7 +89,7 @@ class SmartTool extends Component {
     let m = [];
     this.state.message.map((e, i) => {
       if (e.name.indexOf(next.user.value) > -1) {
-        m.push({ name: e.name, path: e.path, userName: e.userName, icon: e.icon, index: i });
+        m.push({ name: e.name, path: e.path, idCard: e.idCard, icon: e.icon, index: i });
       }
     });
     this.setState({
@@ -210,7 +210,7 @@ class SmartTool extends Component {
           }
         });
         _this.props.msgExe.map((item, index) => {
-          if (index === idx && item.userName === _this.state.userName) {
+          if (index === idx && item.idCard === _this.state.idCard) {
             _this.props.msgExe.splice(index, 1);
           }
         });
@@ -256,7 +256,7 @@ class SmartTool extends Component {
           }
         });
         _this.props.msgExe.map((item, index) => {
-          if (item.path === _this.state.path && item.userName === _this.state.userName) {
+          if (item.path === _this.state.path && item.idCard === _this.state.idCard) {
             _this.props.msgExe.splice(index, 1);
           }
         });
@@ -278,18 +278,18 @@ class SmartTool extends Component {
       this.state.message.push({
         name: this.state.exeName,
         path: this.state.exePath,
-        userName: this.state.userName,
+        idCard: this.state.idCard,
       });
       this.props.msgExe.push({
         name: this.state.exeName,
         path: this.state.exePath,
-        userName: this.state.userName,
+        idCard: this.state.idCard,
       });
       if (this.props.user.value.length > 0) {
         this.state.messageSearch.push({
           name: this.state.exeName,
           path: this.state.exePath,
-          userName: this.state.userName,
+          idCard: this.state.idCard,
           index: this.state.messageSearch.length,
         });
         this.getAllTool();

@@ -15,17 +15,17 @@ export default class GlobalHeader extends PureComponent {
     this.state = {
       searchValue: '',
       delay: 0,
-      icon: 'images/fang.png',
+      icon: 'border',
       codes: false,
     };
     ipcRenderer.on('windows-now', (event, info) => {
       if (info.code == 0) {
         this.setState({
-          icon: 'images/fang.png',
+          icon: 'border',
         });
       } else {
         this.setState({
-          icon: 'images/hy.png',
+          icon: 'block',
         });
       }
     });
@@ -134,14 +134,14 @@ export default class GlobalHeader extends PureComponent {
     ipcRenderer.send('window-min');
   };
   maxWindows = () => {
-    if (this.state.icon === 'images/fang.png') {
+    if (this.state.icon === 'border') {
       this.setState({
-        icon: 'images/hy.png',
+        icon: 'block',
       });
       ipcRenderer.send('window-max');
     } else {
       this.setState({
-        icon: 'images/fang.png',
+        icon: 'border',
       });
       ipcRenderer.send('window-normal');
     }
@@ -182,12 +182,19 @@ export default class GlobalHeader extends PureComponent {
         </div>
         <div className={styles.headerRight}>
           <Icon type="minus" className={styles.iconWindows} onClick={this.minWindows} />
-          <img
-            src={this.state.icon}
+          {/*<img*/}
+          {/*src={this.state.icon}*/}
+          {/*className={styles.iconWindows}*/}
+          {/*style={{ marginTop: '-5px' }}*/}
+          {/*onClick={this.maxWindows}*/}
+          {/*/>*/}
+          <Icon
+            type={this.state.icon}
             className={styles.iconWindows}
-            style={{ marginTop: '-5px' }}
+            theme="outlined"
             onClick={this.maxWindows}
           />
+          {/*<Icon type= theme="outlined" />*/}
           <Icon type="close" className={styles.iconWindows} onClick={this.CloseWindow} />
         </div>
       </div>

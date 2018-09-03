@@ -117,6 +117,7 @@ class LoginPage extends Component {
             <Icon type="close" className={styles.iconWindows} onClick={this.CloseWindow} />
           </span>
         </div>
+        <img src="images/logo.png" className={styles.logoLogin} />
         <Login
           defaultActiveKey={type}
           onTabChange={this.onTabChange}

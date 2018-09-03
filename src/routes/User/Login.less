@@ -1,6 +1,6 @@
 @import '~antd/lib/style/themes/default.less';
 .main {
-  width: 100%!important;
+  width: 100% !important;
   margin: 0 auto;
   @media screen and (max-width: @screen-sm) {
     width: 95%;
@@ -34,25 +34,32 @@
   margin-left: 50%;
   left: -140px;
 }
-:global{
-  .ant-tabs{
+:global {
+  .ant-tabs {
     -webkit-app-region: no-drag;
   }
-  .ant-tabs-nav-wrap{
-    margin-top: 10px!important;
+  .ant-tabs-nav-wrap {
+    margin-top: 10px !important;
   }
-  .ant-input-lg{
-    height: 30px!important;
-    font-size: 14px!important;
+  .ant-input-lg {
+    height: 30px !important;
+    font-size: 14px !important;
   }
 }
-.none{
-  display: none!important;
+.none {
+  display: none !important;
 }
-.loginHeader{
+.loginHeader {
   -webkit-app-region: drag;
   -webkit-user-select: none;
 }
-.iconWindows{
+.iconWindows {
   -webkit-app-region: no-drag;
+  cursor: pointer;
+  &:hover {
+    color: red;
+  }
+}
+.logoLogin {
+  margin: 15px 0 0 45px;
 }
