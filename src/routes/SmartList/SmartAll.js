@@ -46,6 +46,7 @@ class SmartAll extends Component {
       hcList: { 102: 'user/getWord1', 103: 'user/getWord1' },
       wordSerList: {},
       qcLoading: false,
+      Xmpp: false,
     };
     this.msgListAll = [];
   }
@@ -275,6 +276,7 @@ class SmartAll extends Component {
           }
           this.setState({
             searchList: response.data,
+            Xmpp: true,
           });
         },
       });
@@ -410,6 +412,7 @@ class SmartAll extends Component {
             onNewMsg={(node, maxNum) => this.onNewMsg(node, maxNum)}
             event={this.state.event}
             msgExe={this.state.msgExe}
+            Xmpp={this.state.Xmpp}
             lastTime={
               this.state.msgList.length > 0
                 ? {

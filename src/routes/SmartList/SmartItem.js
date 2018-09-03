@@ -63,6 +63,25 @@ class SmartItem extends Component {
     this.setState({
       msgLists: next.msgList,
     });
+    if (this.props.Xmpp !== next.Xmpp) {
+      let arr = [];
+      next.user.allList.map(item => {
+        if (
+          (item.nodeid === 'smart_wtaj' ||
+            item.nodeid === 'smart_wtwp' ||
+            item.nodeid === this.state.userItem.idCard ||
+            item.nodeid === 'smart_syrjq') &&
+          next.code === '200003'
+        ) {
+          arr.push(item);
+        } else if (next.code !== '200003' && item.nodeid !== this.state.userItem.idCard) {
+          arr.push(item);
+        }
+      });
+      if (arr.length > 0) {
+        this.getTimeSaves(arr[0].nodeid, Date.parse(new Date()));
+      }
+    }
     if (this.props.lastTime.id < next.lastTime.id) {
       if (next.lastTime.nodeid === sessionStorage.getItem('nodeidType')) {
         this.getTimeSaves(next.lastTime.nodeid, next.lastTime.id);
