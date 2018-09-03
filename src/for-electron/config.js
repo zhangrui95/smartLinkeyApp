@@ -20,7 +20,7 @@ var config = {
   huaci_threshold: 160,
 
   login_page_width: 300,
-  login_page_height: 367,
+  login_page_height: 375,
   main_page_width: 960,
   main_page_height: 640,
 
