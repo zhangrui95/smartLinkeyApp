@@ -100,7 +100,7 @@ export default class SmartDetail extends Component {
                   lens.push(JSON.parse(e.messagecontent).result.length);
                 }
               });
-              if (lens.length < 3 * this.state.endLength) {
+              if (lens.length < 3 * this.state.endLength - 1) {
                 this.setState({
                   load: false,
                 });
@@ -231,6 +231,7 @@ export default class SmartDetail extends Component {
             loading: true,
             empty: false,
             noSearch: false,
+            lookMore: false,
           });
           setTimeout(() => {
             this.setState({
@@ -603,6 +604,7 @@ export default class SmartDetail extends Component {
               url={url}
               getSave={(nodeId, id, name, remark) => this.getSave(nodeId, id, name, remark)}
               getCancelSave={(nodeId, id) => this.getCancelSave(nodeId, id)}
+              cardId={this.state.userItem.idCard}
             />
           );
         });

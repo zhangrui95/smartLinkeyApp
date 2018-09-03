@@ -20,7 +20,7 @@ export default class SmartQuestDetail extends Component {
     super(props);
     this.state = {
       height: 525,
-      keyIndex: ['0'],
+      keyIndex: [],
       list: [],
       enter: false,
     };
@@ -34,6 +34,9 @@ export default class SmartQuestDetail extends Component {
   componentWillReceiveProps(next) {
     if (this.props.typeId !== next.typeId) {
       this.getQuestList(next.typeId);
+      this.setState({
+        keyIndex: [],
+      });
     }
   }
   getQuestList = typeId => {
@@ -101,7 +104,12 @@ export default class SmartQuestDetail extends Component {
           onMouseLeave={this.getMouseLeave}
         >
           <div className={styles.rightBox}>
-            <Collapse bordered={false} defaultActiveKey={['0']} onChange={this.changePanel}>
+            <Collapse
+              bordered={false}
+              defaultActiveKey={this.state.keyIndex}
+              activeKey={this.state.keyIndex}
+              onChange={this.changePanel}
+            >
               {detail}
             </Collapse>
           </div>

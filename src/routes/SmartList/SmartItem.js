@@ -75,7 +75,7 @@ class SmartItem extends Component {
         ) {
           arr.push(item);
         } else if (next.code !== '200003' && item.nodeid !== this.state.userItem.idCard) {
-          arr.push(item);
+          arr.unshift(item);
         }
       });
       if (arr.length > 0) {

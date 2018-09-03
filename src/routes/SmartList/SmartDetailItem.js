@@ -58,9 +58,11 @@ export default class SmartDetailItem extends Component {
                                 : this.props.listType === 'sacw' && this.props.code === '200003'
                                   ? 'smart_wtwp'
                                   : this.props.listType === 'baq' && this.props.code === '200003'
-                                    ? 'smart_wtcs'
+                                    ? this.props.cardId
                                     : '',
-                            '/' + this.props.childItem.uuid
+                            this.props.listType === 'baq'
+                              ? this.props.childItem.baqbh
+                              : '/' + this.props.childItem.uuid
                           )
                         }
                       />
@@ -83,9 +85,11 @@ export default class SmartDetailItem extends Component {
                                 : this.props.listType === 'sacw' && this.props.code === '200003'
                                   ? 'smart_wtwp'
                                   : this.props.listType === 'baq' && this.props.code === '200003'
-                                    ? 'smart_wtcs'
+                                    ? this.props.cardId
                                     : '',
-                            '/' + this.props.childItem.uuid,
+                            this.props.listType === 'baq'
+                              ? this.props.childItem.baqbh
+                              : '/' + this.props.childItem.uuid,
                             this.props.childItem[
                               this.props.listType === 'ajxx' && this.props.code === '200003'
                                 ? 'ajmc'
@@ -94,7 +98,11 @@ export default class SmartDetailItem extends Component {
                                   : this.props.listType === 'sacw' && this.props.code === '200003'
                                     ? 'ajmc'
                                     : this.props.listType === 'baq' && this.props.code === '200003'
-                                      ? 'csmc'
+                                      ? this.props.childItem.state === '717002' ||
+                                        this.props.childItem.state === '717003' ||
+                                        this.props.childItem.state === '717004'
+                                        ? 'baqName'
+                                        : 'csmc'
                                       : ''
                             ],
                             this.props.listType === 'ajxx' && this.props.code === '200003'
@@ -142,7 +150,11 @@ export default class SmartDetailItem extends Component {
                         : this.props.listType === 'sacw'
                           ? this.props.childItem.ajmc
                           : this.props.listType === 'baq'
-                            ? this.props.childItem.csmc
+                            ? this.props.childItem.state === '717002' ||
+                              this.props.childItem.state === '717003' ||
+                              this.props.childItem.state === '717004'
+                              ? this.props.childItem.baqName
+                              : this.props.childItem.csmc
                             : ''}
                   </span>
                   {this.props.listType === 'baq' &&
