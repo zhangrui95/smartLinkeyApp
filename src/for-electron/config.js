@@ -13,11 +13,11 @@
 var config = {
   title: 'SmartLinkey',
   traysay: '海邻科消息助手',
-  current_version: '1.0.0.7',
+  current_version: '1.1.0.1',
   use_devtools: true,
   auto_launch: true,
   dev_auto_reload: false,
-  huaci_threshold: 260,
+  huaci_threshold: 160,
 
   login_page_width: 300,
   login_page_height: 367,
@@ -25,7 +25,7 @@ var config = {
   main_page_height: 640,
 
   update_url: 'http://172.19.12.206:8000/info.json',
-  quci_list: [{ cid: 101, showtext: '取词复制' }, { cid: 102, showtext: '核查背景信息' }],
+  quci_list: [{ cid: 101, showtext: '复制' }, { cid: 102, showtext: '核查背景信息' }],
 };
 
 module.exports = config;
