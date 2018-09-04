@@ -86,12 +86,6 @@ export default class SmartDetail extends Component {
                 }
               }
             });
-            // this.props.searchList.map(listItem => {
-            //   this.props.onNewMsg(
-            //     listItem.nodeid,
-            //     listItem.nodeid === sessionStorage.getItem('nodeid') ? 3 * this.state.endLength : 3
-            //   );
-            // });
             this.props.onNewMsg(sessionStorage.getItem('nodeid'), 3 * this.state.endLength);
             document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
             setTimeout(() => {
@@ -449,8 +443,8 @@ export default class SmartDetail extends Component {
                     ? `${configUrl.agUrl}` +
                       '#/loginByToken?token=' +
                       token +
-                      '&wtid=' +
-                      items.wtid +
+                      '&system_id=' +
+                      items['system_id'] +
                       '&type=2'
                     : `${configUrl.jqUrl}` +
                       '/JQCL/userlogin/smartlinkeyLoign?username=' +

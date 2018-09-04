@@ -157,10 +157,11 @@ export default class SmartDetailItem extends Component {
                               : this.props.childItem.csmc
                             : ''}
                   </span>
-                  {this.props.listType === 'baq' &&
-                  (this.props.childItem.state === '717002' ||
-                    this.props.childItem.state === '717003' ||
-                    this.props.childItem.state === '717004') ? (
+                  {(this.props.listType === 'baq' &&
+                    (this.props.childItem.state === '717002' ||
+                      this.props.childItem.state === '717003' ||
+                      this.props.childItem.state === '717004')) ||
+                  (this.props.childItem.status === '' || !this.props.childItem.status) ? (
                     ''
                   ) : (
                     <Tag className={styles.tagStyle}>{this.props.childItem.status}</Tag>
@@ -201,7 +202,13 @@ export default class SmartDetailItem extends Component {
                     <div>
                       <div className={styles.nameStyle}>接报人：{this.props.childItem.jjrxm}</div>
                       <div className={styles.nameStyle}>接报时间：{this.props.childItem.jjsj}</div>
-                      <div className={styles.nameStyle}>问题类型：{this.props.childItem.wtlx}</div>
+                      {this.props.childItem.wtlx === '' || !this.props.childItem.wtlx ? (
+                        ''
+                      ) : (
+                        <div className={styles.nameStyle}>
+                          问题类型：{this.props.childItem.wtlx}
+                        </div>
+                      )}
                     </div>
                   ) : this.props.listType === 'sacw' ? (
                     <div>

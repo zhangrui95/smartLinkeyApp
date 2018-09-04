@@ -699,7 +699,9 @@ class SmartItem extends Component {
               let listType = JSON.parse(msgItem.messagecontent).type;
               if (msgItem.nodeid === e.id) {
                 if (listType === 'jqxx') {
-                  res = result[parseInt(result.length) - 1].jqmc;
+                  res = result[parseInt(result.length) - 1].jqmc
+                    ? result[parseInt(result.length) - 1].jqmc
+                    : '';
                 } else if (listType === 'baq') {
                   res = result[parseInt(result.length) - 1].csmc;
                 } else {
@@ -715,7 +717,9 @@ class SmartItem extends Component {
               let listType = JSON.parse(msgItem.messagecontent).type;
               if (msgItem.nodeid === nodeid) {
                 if (listType === 'jqxx') {
-                  res = result[parseInt(result.length) - 1].jqmc;
+                  res = result[parseInt(result.length) - 1].jqmc
+                    ? result[parseInt(result.length) - 1].jqmc
+                    : '';
                 } else if (listType === 'baq') {
                   res = result[parseInt(result.length) - 1].csmc;
                 } else {
