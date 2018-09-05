@@ -70,12 +70,7 @@ class SmartLink extends Component {
         listMenu.push({
           name: '智慧警情系统',
           link:
-            `${configUrl.jqUrl}` +
-            '/JQCL/userlogin/smartlinkeyLoign?username=' +
-            userNew.idCard +
-            '&password=' +
-            pwd +
-            '&type=0',
+            `${configUrl.jqUrl}` + '/JQCL/userlogin/smartlinkeyLoign?token=' + token + '&type=0',
           img: 'images/jingqing.png',
         });
       }

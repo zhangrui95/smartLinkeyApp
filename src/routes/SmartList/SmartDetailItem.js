@@ -61,7 +61,7 @@ export default class SmartDetailItem extends Component {
                                     ? this.props.cardId
                                     : '',
                             this.props.listType === 'baq'
-                              ? this.props.childItem.baqbh
+                              ? this.props.childItem['baq_org_code']
                               : '/' + this.props.childItem.uuid
                           )
                         }
@@ -88,7 +88,7 @@ export default class SmartDetailItem extends Component {
                                     ? this.props.cardId
                                     : '',
                             this.props.listType === 'baq'
-                              ? this.props.childItem.baqbh
+                              ? this.props.childItem['baq_org_code']
                               : '/' + this.props.childItem.uuid,
                             this.props.childItem[
                               this.props.listType === 'ajxx' && this.props.code === '200003'
@@ -100,8 +100,9 @@ export default class SmartDetailItem extends Component {
                                     : this.props.listType === 'baq' && this.props.code === '200003'
                                       ? this.props.childItem.state === '717002' ||
                                         this.props.childItem.state === '717003' ||
-                                        this.props.childItem.state === '717004'
-                                        ? 'baqName'
+                                        this.props.childItem.state === '717004' ||
+                                        this.props.childItem.state === '717006'
+                                        ? 'baqname'
                                         : 'csmc'
                                       : ''
                             ],
@@ -152,8 +153,9 @@ export default class SmartDetailItem extends Component {
                           : this.props.listType === 'baq'
                             ? this.props.childItem.state === '717002' ||
                               this.props.childItem.state === '717003' ||
-                              this.props.childItem.state === '717004'
-                              ? this.props.childItem.baqName
+                              this.props.childItem.state === '717004' ||
+                              this.props.childItem.state === '717006'
+                              ? this.props.childItem.baqname
                               : this.props.childItem.csmc
                             : ''}
                   </span>
@@ -235,7 +237,7 @@ export default class SmartDetailItem extends Component {
                                 : ''}
                         </div>
                       </div>
-                    ) : (
+                    ) : this.props.childItem.state === '717001' ? (
                       <div>
                         <div className={styles.nameStyle}>办案人：{this.props.childItem.barxm}</div>
                         <div className={styles.nameStyle}>
@@ -246,6 +248,16 @@ export default class SmartDetailItem extends Component {
                         </div>
                         <div className={styles.sawpLeft}>告警类型：{this.props.childItem.gjlx}</div>
                       </div>
+                    ) : this.props.childItem.state === '717006' ? (
+                      <div>
+                        <div className={styles.nameStyle}>预约人：{this.props.childItem.yyrxm}</div>
+                        <div className={styles.nameStyle}>
+                          预约时间：{this.props.childItem.time}
+                        </div>
+                        <div className={styles.sawpLeft}>消息类型：预约消息</div>
+                      </div>
+                    ) : (
+                      ''
                     )
                   ) : (
                     ''

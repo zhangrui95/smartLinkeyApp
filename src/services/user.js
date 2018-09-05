@@ -14,6 +14,12 @@ export async function getQuery(params) {
     body: params,
   });
 }
+export async function getSubQuery(params) {
+  return request(`${configUrl.GMUrl}/datahandle/sublogquery `, {
+    method: 'POST',
+    body: params,
+  });
+}
 export async function getDataSave(params) {
   return request(`${configUrl.GMUrl}/datahandle/save `, {
     method: 'POST',

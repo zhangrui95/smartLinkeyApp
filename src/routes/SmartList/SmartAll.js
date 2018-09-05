@@ -6,7 +6,7 @@ import { Badge, message, Modal, Form, Row, Col, Input, Button, Icon, Spin } from
 const confirm = Modal.confirm;
 import { Strophe, $pres } from 'strophe.js';
 import { getSubscriptions } from '../../utils/strophe.pubsub';
-import { getQueryString } from '../../utils/utils';
+import { getQueryString, getLocalTime } from '../../utils/utils';
 import styles from './SmartDetail.less';
 const BOSH_SERVICE = 'http://' + `${configUrl.fwName}` + ':7070/http-bind/';
 import { ipcRenderer } from 'electron';
@@ -47,6 +47,9 @@ class SmartAll extends Component {
       wordSerList: {},
       qcLoading: false,
       Xmpp: false,
+      arrNodeList: [],
+      queryList: [],
+      arrList: [],
     };
     this.msgListAll = [];
   }
@@ -80,7 +83,6 @@ class SmartAll extends Component {
       });
     });
     ipcRenderer.on('update-info', (event, updateList) => {
-      // console.log('update---------->', updateList);
       updateList.map((update, i) => {
         if (update.from === this.state.version && update.to !== this.state.version) {
           // this.setState({
@@ -215,20 +217,23 @@ class SmartAll extends Component {
       connection.send($pres().tree());
       //获取订阅的主题信息
       // connection.pubsub.getSubscriptions(this.onMessage1, 5000);
-      this.getSubscription(0);
+      this.getSubscription(0, true);
     }
   };
-  getSubscription = type => {
+  getSubscription = (type, timeList) => {
     connection.pubsub.getSubscriptions(msg1 => {
-      this.onMessage1(msg1, type);
+      this.onMessage1(msg1, type, timeList);
     }, 5000);
   };
   onNewMsg = (nodeList, maxNum) => {
     // this.msgListAll = [];
     connection.pubsub.items(nodeList, null, null, 5000, maxNum);
   };
-  onMessage1 = (msg1, type) => {
+  onMessage1 = (msg1, type, timeList) => {
     let node = [];
+    this.setState({
+      arrNodeList: [],
+    });
     let names = msg1.getElementsByTagName('subscription');
     if (names.length > 0) {
       for (let i = 0; i < names.length; i++) {
@@ -254,6 +259,9 @@ class SmartAll extends Component {
     }
     //查询主题读取时间点
     if (node.length > 0) {
+      if (timeList) {
+        this.getSubQuery(node);
+      }
       this.setState({
         nodeList: node,
       });
@@ -307,7 +315,7 @@ class SmartAll extends Component {
       });
       if (this.state.code) {
         this.msgListAll = [];
-        this.getSubscription(0);
+        this.getSubscription(0, true);
         this.getNodeList();
       }
     }
@@ -329,11 +337,22 @@ class SmartAll extends Component {
           packagecount: packagecount[0].textContent,
         });
         this.setState({
-          msgList: this.msgListAll.sort(this.compare('id')),
+          arrList: [],
+        });
+        let otherArr = [];
+        this.msgListAll.map(res => {
+          this.state.queryList.map(item => {
+            if (res.time > getLocalTime(item.subtime) && item.nodeid === res.nodeid) {
+              otherArr.push(res);
+            }
+          });
+        });
+        this.setState({
+          msgList: otherArr.sort(this.compare('id')),
         });
         this.props.dispatch({
           type: 'user/getMsgList',
-          payload: this.msgListAll.sort(this.compare('id')),
+          payload: otherArr.sort(this.compare('id')),
         });
       }
     }
@@ -381,6 +400,20 @@ class SmartAll extends Component {
       qcVisible: false,
     });
   };
+  getSubQuery = arrNodeList => {
+    this.props.dispatch({
+      type: 'user/subQuery',
+      payload: {
+        userid: this.state.xmppUser,
+        nodeid: arrNodeList.join(','),
+      },
+      callback: response => {
+        this.setState({
+          queryList: response.data,
+        });
+      },
+    });
+  };
   render() {
     let type = getQueryString(this.props.location.search, 'type');
     const { getFieldDecorator } = this.props.form;
@@ -401,7 +434,7 @@ class SmartAll extends Component {
           <SmartItem
             firstLogin={this.state.firstLogin}
             code={jobs.code}
-            getSubscription={type => this.getSubscription(type)}
+            getSubscription={(type, timeList) => this.getSubscription(type, timeList)}
             xmppUser={this.state.xmppUser}
             msgList={this.state.msgList}
             nodeList={this.state.nodeList}

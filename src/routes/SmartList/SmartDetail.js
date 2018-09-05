@@ -360,7 +360,7 @@ export default class SmartDetail extends Component {
       callback: response => {
         if (response.data) {
           message.success('提示:关注成功!');
-          this.props.getSubscription(1);
+          this.props.getSubscription(1, true);
         }
       },
     });
@@ -430,10 +430,8 @@ export default class SmartDetail extends Component {
                       items.wtid +
                       '&type=1'
                     : `${configUrl.ajlcUrl}` +
-                      '/Manager/smartlinkeyLoign?username=' +
-                      userNew.idCard +
-                      '&password=' +
-                      pwd +
+                      '/Manager/smartlinkeyLoign?token=' +
+                      token +
                       '&dbid=' +
                       items.dbid +
                       '&type=1';
@@ -447,10 +445,8 @@ export default class SmartDetail extends Component {
                       items['system_id'] +
                       '&type=2'
                     : `${configUrl.jqUrl}` +
-                      '/JQCL/userlogin/smartlinkeyLoign?username=' +
-                      userNew.idCard +
-                      '&password=' +
-                      pwd +
+                      '/JQCL/userlogin/smartlinkeyLoign?token=' +
+                      token +
                       '&dbid=' +
                       items.dbid +
                       '&type=1';
@@ -537,10 +533,8 @@ export default class SmartDetail extends Component {
                   searchItem.wtid +
                   '&type=1'
                 : `${configUrl.ajlcUrl}` +
-                  '/Manager/smartlinkeyLoign?username=' +
-                  userNew.idCard +
-                  '&password=' +
-                  pwd +
+                  '/Manager/smartlinkeyLoign?token=' +
+                  token +
                   '&dbid=' +
                   searchItem.dbid +
                   '&type=1';
@@ -554,10 +548,8 @@ export default class SmartDetail extends Component {
                   searchItem.wtid +
                   '&type=2'
                 : `${configUrl.jqUrl}` +
-                  '/JQCL/userlogin/smartlinkeyLoign?username=' +
-                  userNew.idCard +
-                  '&password=' +
-                  pwd +
+                  '/JQCL/userlogin/smartlinkeyLoign?token=' +
+                  token +
                   '&dbid=' +
                   searchItem.dbid +
                   '&type=1';

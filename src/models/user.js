@@ -6,6 +6,7 @@ import {
   getFind,
   getWord01,
   getLoginIp,
+  getSubQuery,
 } from '../services/user';
 
 export default {
@@ -46,6 +47,10 @@ export default {
         type: 'getAllList',
         payload: response,
       });
+      callback(response);
+    },
+    *subQuery({ payload, callback }, { call, put }) {
+      const response = yield call(getSubQuery, payload);
       callback(response);
     },
     *dataSave({ payload, callback }, { call, put }) {

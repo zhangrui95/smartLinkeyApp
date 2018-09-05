@@ -74,7 +74,12 @@ class SmartItem extends Component {
           next.code === '200003'
         ) {
           arr.push(item);
-        } else if (next.code !== '200003' && item.nodeid !== this.state.userItem.idCard) {
+        } else if (
+          next.code !== '200003' &&
+          item.nodeid !== this.state.userItem.idCard &&
+          item.nodeid &&
+          item.nodeid !== this.state.userItem.department
+        ) {
           arr.unshift(item);
         }
       });
@@ -222,15 +227,19 @@ class SmartItem extends Component {
             nodeid: item.nodeid,
           });
         }
-        if (item.nodeid === this.state.userItem.idCard && next.code === '200001') {
+        if (item.nodeid === this.state.userItem.idCard && next.code !== '200003') {
           item.remark === 'gzdcs';
         }
         if (
           item.remark === 'gzdwp' ||
           item.remark === 'gzdaj' ||
           item.remark === 'gzdcs' ||
-          item.remark === 'gzdjq'
+          item.remark === 'gzdjq' ||
+          (item.nodeid === this.state.userItem.idCard && next.code === '200002')
         ) {
+          if (item.nodeid === this.state.userItem.idCard && next.code === '200002') {
+            item.remark = 'gzdcs';
+          }
           this.state.gzList[item.remark].push({
             id: item.nodeid,
             maxmessageid: item.maxmessageid ? item.maxmessageid : 0,
@@ -253,7 +262,8 @@ class SmartItem extends Component {
             item.remark !== 'gzdwp' &&
             item.remark !== 'gzdaj' &&
             item.remark !== 'gzdcs' &&
-            item.remark !== 'gzdjq'
+            item.remark !== 'gzdjq' &&
+            (item.nodeid !== this.state.userItem.department && item.nodeid)
           ) {
             if (next.code === '200003') {
               dataList.push({
@@ -273,7 +283,7 @@ class SmartItem extends Component {
                 remark: item.remark,
               });
             } else {
-              if (item.nodeid !== this.state.userItem.idCard) {
+              if (item.nodeid && item.nodeid !== this.state.userItem.idCard) {
                 dataList.push({
                   name: item.name,
                   icon: 'images/user.png',
@@ -557,7 +567,7 @@ class SmartItem extends Component {
       callback: response => {
         if (response.data === 'success') {
           // if (save && save === 'save') {
-          this.props.getSubscription(1);
+          this.props.getSubscription(1, false);
           // }
         }
       },
@@ -664,7 +674,7 @@ class SmartItem extends Component {
       gzList: this.state.gzList,
       delId: this.state.delId,
     });
-    this.props.getSubscription(1);
+    this.props.getSubscription(1, true);
   };
   compareDown = propertyName => {
     // 降序排序
@@ -942,7 +952,7 @@ class SmartItem extends Component {
                 onNewMsg={(nodeList, maxNum) => this.props.onNewMsg(nodeList, maxNum)}
                 searchList={this.props.searchList}
                 xmppUser={this.props.xmppUser}
-                getSubscription={type => this.props.getSubscription(type)}
+                getSubscription={(type, timeList) => this.props.getSubscription(type, timeList)}
                 gzList={this.state.gzList}
                 cancelSave={idx => this.cancelSave(idx)}
               />
