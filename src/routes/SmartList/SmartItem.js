@@ -107,6 +107,7 @@ class SmartItem extends Component {
       });
       if (this.props.code === '200001' || this.props.code === '200002') {
         this.setState({
+          title: '',
           nodeId: '',
         });
       }
@@ -121,7 +122,7 @@ class SmartItem extends Component {
     }
     if (
       this.props.user.searchList !== next.user.searchList &&
-      (this.props.code === '200001' || this.props.code === '200002')
+      ((this.props.code === '200001' || this.props.code === '200002') && next.type == 0)
     ) {
       let search = [];
       if (next.searchList && next.searchList.length > 0) {

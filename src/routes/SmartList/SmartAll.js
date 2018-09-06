@@ -61,7 +61,7 @@ class SmartAll extends Component {
       loading: true,
     });
     this.state.userItem.job.map(jobs => {
-      if (jobs.code === '200001') {
+      if (jobs.code === '200001' || jobs.code === '200002') {
         this.setState({
           code: true,
         });
@@ -259,7 +259,7 @@ class SmartAll extends Component {
     }
     //查询主题读取时间点
     if (node.length > 0) {
-      if (timeList) {
+      if (timeList && !this.state.code) {
         this.getSubQuery(node);
       }
       this.setState({
@@ -279,7 +279,8 @@ class SmartAll extends Component {
               if (e.nodeid === 'smart_syrjq') {
                 item = e;
                 response.data.splice(i, 1);
-              } else if (e.nodeid === 'smart_wtwp') {
+              }
+              if (e.nodeid === 'smart_wtwp') {
                 items = e;
                 response.data.splice(i, 1);
               }
@@ -346,18 +347,23 @@ class SmartAll extends Component {
         });
         let otherArr = [];
         if (!this.state.code) {
-          this.msgListAll.map(res => {
-            this.state.queryList.map(item => {
-              if (res.time > getLocalTime(item.subtime) && item.nodeid === res.nodeid) {
-                otherArr.push(res);
-              }
+          if (this.state.queryList.length > 0) {
+            this.msgListAll.map(res => {
+              this.state.queryList.map(item => {
+                if (res.time > getLocalTime(item.subtime) && item.nodeid === res.nodeid) {
+                  otherArr.push(res);
+                }
+              });
             });
-          });
+          } else {
+            otherArr = this.msgListAll;
+          }
         } else {
           otherArr = this.msgListAll;
         }
         this.setState({
-          msgList: otherArr.sort(this.compare('id')),
+          msgList:
+            this.state.queryList.length > 0 ? otherArr.sort(this.compare('id')) : this.msgListAll,
         });
         this.props.dispatch({
           type: 'user/getMsgList',

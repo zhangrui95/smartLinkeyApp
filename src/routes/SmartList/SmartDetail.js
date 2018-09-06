@@ -65,7 +65,7 @@ export default class SmartDetail extends Component {
         this.setState({
           lookMore: false,
         });
-        if (this.props.code === '200003') {
+        if (this.props.code) {
           if (
             sessionStorage.getItem('nodeid') === 'smart_wtjq' ||
             sessionStorage.getItem('nodeid') === 'smart_wtaj' ||
@@ -192,7 +192,7 @@ export default class SmartDetail extends Component {
         }, this.props.user.allList !== next.user.allList ? 0 : 600);
       } else if (
         this.props.user.searchList !== next.user.searchList &&
-        this.props.code === '200003'
+        (this.props.code === '200003' || (this.props.code !== '200003' && next.type == 2))
       ) {
         if (next.user.searchList.length > 0) {
           document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
@@ -202,21 +202,23 @@ export default class SmartDetail extends Component {
             JSON.parse(
               this.createXml(search.payload).getElementsByTagName('messagecontent')[0].textContent
             ).result.map(res => {
-              searchAll.push(res);
+              searchAll.push({
+                res: res,
+                time: this.createXml(search.payload).getElementsByTagName('createtime')[0]
+                  .textContent,
+              });
             });
           });
           searchAll.map((e, index) => {
-            if (JSON.stringify(e).indexOf(sessionStorage.getItem('search')) > -1) {
+            if (JSON.stringify(e.res).indexOf(sessionStorage.getItem('search')) > -1) {
               search.push({
-                result: e,
+                result: e.res,
                 type: JSON.parse(
                   this.createXml(
                     next.user.searchList[next.user.searchList.length - 1].payload
                   ).getElementsByTagName('messagecontent')[0].textContent
                 ).type,
-                time: this.createXml(
-                  next.user.searchList[next.user.searchList.length - 1].payload
-                ).getElementsByTagName('createtime')[0].textContent,
+                time: e.time,
               });
             }
           });
@@ -249,6 +251,13 @@ export default class SmartDetail extends Component {
       }
     }
   }
+  compare = property => {
+    return function(a, b) {
+      var value1 = a[property];
+      var value2 = b[property];
+      return value1 - value2;
+    };
+  };
   getListNew = next => {
     let list = [];
     if (sessionStorage.getItem('nodeid') === 'smart_gzdaj') {
@@ -291,7 +300,7 @@ export default class SmartDetail extends Component {
       });
     }
     this.setState({
-      data: list,
+      data: list.sort(this.compare('id')),
     });
   };
   goWindow = path => {
@@ -400,7 +409,7 @@ export default class SmartDetail extends Component {
             let k = -1;
             result.map((items, index) => {
               this.state.saveList.map((e, i) => {
-                if (e.id === '/' + items.uuid) {
+                if (e.id === '/' + items.uuid || e.id === items['baq_org_code']) {
                   k = 1;
                 }
               });
@@ -415,8 +424,14 @@ export default class SmartDetail extends Component {
                         ? 'gzdcs'
                         : ''
               ].map((e, i) => {
-                if (e.id === '/' + items.uuid) {
-                  k = 1;
+                if (listType === 'baq') {
+                  if (e.id === items['baq_org_code']) {
+                    k = 1;
+                  }
+                } else {
+                  if (e.id === '/' + items.uuid) {
+                    k = 1;
+                  }
                 }
               });
               let url = '';
@@ -503,7 +518,7 @@ export default class SmartDetail extends Component {
           listType = item.type;
           readTime = item.time;
           this.state.saveList.map((e, i) => {
-            if (e.id === '/' + searchItem.uuid) {
+            if (e.id === '/' + searchItem.uuid || e.id === searchItem['baq_org_code']) {
               k = 1;
             }
           });
@@ -518,7 +533,7 @@ export default class SmartDetail extends Component {
                     ? 'gzdcs'
                     : ''
           ].map((e, i) => {
-            if (e.id === '/' + searchItem.uuid) {
+            if (e.id === '/' + searchItem.uuid || e.id === searchItem['baq_org_code']) {
               k = 1;
             }
           });
@@ -582,7 +597,7 @@ export default class SmartDetail extends Component {
               listType={listType}
               index=""
               i={i}
-              item={item}
+              item={this.state.searchList[i]}
               childItem={searchItem}
               code={this.props.code}
               goWindow={path => this.goWindow(path)}
@@ -607,13 +622,22 @@ export default class SmartDetail extends Component {
           onMouseLeave={this.getMouseLeave}
         >
           <Spin
-            className={this.state.load && this.props.code === '200003' ? '' : styles.none}
+            className={
+              this.state.load &&
+              (this.props.code === '200003' ||
+                (this.props.code !== '200003' && this.props.type == 2))
+                ? ''
+                : styles.none
+            }
             style={{ margin: '10px 0 0 50%', left: '-10px', position: 'absolute' }}
           />
           <Spin size="large" className={this.state.loading ? '' : styles.none} />
           <div
             className={
-              this.state.lookMore && this.props.code === '200003' && !this.state.loading
+              this.state.lookMore &&
+              (this.props.code === '200003' ||
+                (this.props.code !== '200003' && this.props.type == 2)) &&
+              !this.state.loading
                 ? ''
                 : styles.none
             }

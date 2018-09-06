@@ -17,7 +17,7 @@ export default class SmartDetailItem extends Component {
             <div className={styles.headerName}>警情</div>
           ) : this.props.listType === 'sacw' && this.props.code === '200003' ? (
             <div className={styles.headerName}>案务</div>
-          ) : this.props.listType === 'baq' && this.props.code === '200003' ? (
+          ) : this.props.listType === 'baq' ? (
             <div className={styles.headerName}>场所</div>
           ) : (
             <div className={styles.headerName}>
@@ -32,7 +32,7 @@ export default class SmartDetailItem extends Component {
                   ? '智慧警情系统'
                   : this.props.listType === 'sacw' && this.props.code === '200003'
                     ? '涉案财务系统'
-                    : this.props.listType === 'baq' && this.props.code === '200003'
+                    : this.props.listType === 'baq'
                       ? '办案区管理系统'
                       : this.props.childItem.name}
             </div>
@@ -237,11 +237,13 @@ export default class SmartDetailItem extends Component {
                                 : ''}
                         </div>
                       </div>
-                    ) : this.props.childItem.state === '717001' ? (
+                    ) : this.props.childItem.state === '717001' ||
+                    this.props.childItem.state === '717005' ? (
                       <div>
                         <div className={styles.nameStyle}>办案人：{this.props.childItem.barxm}</div>
                         <div className={styles.nameStyle}>
-                          告警时间：{this.props.childItem.gjsj}
+                          {this.props.childItem.state === '717005' ? '整改时间：' : '告警时间：'}
+                          {this.props.childItem.time}
                         </div>
                         <div className={styles.nameStyle}>
                           告警地点：{this.props.childItem.gjdd}
