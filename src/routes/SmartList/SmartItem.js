@@ -86,6 +86,7 @@ class SmartItem extends Component {
       if (arr.length > 0) {
         this.getTimeSaves(arr[0].nodeid, Date.parse(new Date()));
       }
+    } else {
     }
     if (this.props.lastTime.id < next.lastTime.id) {
       if (next.lastTime.nodeid === sessionStorage.getItem('nodeidType')) {
@@ -235,9 +236,9 @@ class SmartItem extends Component {
           item.remark === 'gzdaj' ||
           item.remark === 'gzdcs' ||
           item.remark === 'gzdjq' ||
-          (item.nodeid === this.state.userItem.idCard && next.code === '200002')
+          (item.nodeid === this.state.userItem.idCard && next.code !== '200003')
         ) {
-          if (item.nodeid === this.state.userItem.idCard && next.code === '200002') {
+          if (item.nodeid === this.state.userItem.idCard && next.code !== '200003') {
             item.remark = 'gzdcs';
           }
           this.state.gzList[item.remark].push({

@@ -469,8 +469,8 @@ export default class SmartDetail extends Component {
                   `${configUrl.baq}` +
                   '/#/user/loginBytoken?token=' +
                   token +
-                  '&gjId=' +
-                  items.id +
+                  '&xxid=' +
+                  `${items.state === '717001' ? items.gjid : items.id}` +
                   '&type=' +
                   items.state;
               }

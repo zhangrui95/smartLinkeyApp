@@ -273,14 +273,19 @@ class SmartAll extends Component {
         },
         callback: response => {
           let item = '';
+          let items = '';
           if (!this.state.code) {
             response.data.map((e, i) => {
               if (e.nodeid === 'smart_syrjq') {
                 item = e;
                 response.data.splice(i, 1);
+              } else if (e.nodeid === 'smart_wtwp') {
+                items = e;
+                response.data.splice(i, 1);
               }
             });
             response.data.push(item);
+            response.data.unshift(items);
           }
           this.setState({
             searchList: response.data,
@@ -340,13 +345,17 @@ class SmartAll extends Component {
           arrList: [],
         });
         let otherArr = [];
-        this.msgListAll.map(res => {
-          this.state.queryList.map(item => {
-            if (res.time > getLocalTime(item.subtime) && item.nodeid === res.nodeid) {
-              otherArr.push(res);
-            }
+        if (!this.state.code) {
+          this.msgListAll.map(res => {
+            this.state.queryList.map(item => {
+              if (res.time > getLocalTime(item.subtime) && item.nodeid === res.nodeid) {
+                otherArr.push(res);
+              }
+            });
           });
-        });
+        } else {
+          otherArr = this.msgListAll;
+        }
         this.setState({
           msgList: otherArr.sort(this.compare('id')),
         });
@@ -447,7 +456,7 @@ class SmartAll extends Component {
             msgExe={this.state.msgExe}
             Xmpp={this.state.Xmpp}
             lastTime={
-              this.state.msgList.length > 0
+              this.state.msgList.length > 0 && this.state.event.length > 0
                 ? {
                     id: this.state.msgList[this.state.msgList.length - 1].id,
                     nodeid: this.state.msgList[this.state.msgList.length - 1].nodeid,
