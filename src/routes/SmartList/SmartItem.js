@@ -214,10 +214,10 @@ class SmartItem extends Component {
     if (next.searchList && next.searchList.length > 0) {
       next.searchList.map((item, index) => {
         if (
-          item.remark !== 'gzdwp' ||
-          item.remark !== 'gzdaj' ||
-          item.remark !== 'gzdcs' ||
-          item.remark === 'gzdjq'
+          item.remark !== 'gzdwp' &&
+          item.remark !== 'gzdaj' &&
+          item.remark !== 'gzdcs' &&
+          item.remark !== 'gzdjq'
         ) {
           numData.push({
             name: item.name,
@@ -718,7 +718,14 @@ class SmartItem extends Component {
                     ? result[parseInt(result.length) - 1].jqmc
                     : '';
                 } else if (listType === 'baq') {
-                  res = result[parseInt(result.length) - 1].csmc;
+                  if (
+                    result[parseInt(result.length) - 1].state === '717001' ||
+                    result[parseInt(result.length) - 1].state === '717005'
+                  ) {
+                    res = result[parseInt(result.length) - 1].csmc;
+                  } else {
+                    res = result[parseInt(result.length) - 1].baqname;
+                  }
                 } else {
                   res = result[parseInt(result.length) - 1].ajmc;
                 }
