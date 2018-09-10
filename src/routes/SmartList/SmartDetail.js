@@ -485,7 +485,9 @@ export default class SmartDetail extends Component {
                   '/#/user/loginBytoken?token=' +
                   token +
                   '&xxid=' +
-                  `${items.state === '717001' ? items.gjid : items.id}` +
+                  `${
+                    items.state === '717001' || items.state === '717005' ? items.gjid : items.id
+                  }` +
                   '&type=' +
                   items.state;
               }

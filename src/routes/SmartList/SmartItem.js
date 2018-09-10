@@ -87,10 +87,16 @@ class SmartItem extends Component {
         this.getTimeSaves(arr[0].nodeid, Date.parse(new Date()));
       }
     } else {
-    }
-    if (this.props.lastTime.id < next.lastTime.id) {
-      if (next.lastTime.nodeid === sessionStorage.getItem('nodeidType')) {
-        this.getTimeSaves(next.lastTime.nodeid, next.lastTime.id);
+      if (this.props.lastTime.id < next.lastTime.id) {
+        next.user.allList.map(res => {
+          if (res.nodeid === sessionStorage.getItem('nodeidType')) {
+            if (res.maxmessageid && res.maxmessageid > 0) {
+              if (next.lastTime.nodeid === sessionStorage.getItem('nodeidType')) {
+                this.getTimeSaves(next.lastTime.nodeid, next.lastTime.id);
+              }
+            }
+          }
+        });
       }
     }
     if (this.props.event !== next.event || this.props.type !== next.type) {
@@ -127,7 +133,10 @@ class SmartItem extends Component {
       let search = [];
       if (next.searchList && next.searchList.length > 0) {
         next.searchList.map(e => {
-          if (e.name.indexOf(sessionStorage.getItem('search')) > -1) {
+          if (
+            e.name.indexOf(sessionStorage.getItem('search')) > -1 &&
+            e.nodeid !== this.state.userItem.idCard
+          ) {
             search.push({
               name: e.name,
               icon:
@@ -205,13 +214,10 @@ class SmartItem extends Component {
     if (next.searchList && next.searchList.length > 0) {
       next.searchList.map((item, index) => {
         if (
-          (item.nodeid === 'smart_wtaj' ||
-            item.nodeid === 'smart_wtwp' ||
-            item.nodeid === 'smart_wtjq' ||
-            // item.nodeid === 'smart_wtcs' ||
-            item.nodeid === this.state.userItem.idCard ||
-            item.nodeid === 'smart_syrjq') &&
-          next.code === '200003'
+          item.remark !== 'gzdwp' ||
+          item.remark !== 'gzdaj' ||
+          item.remark !== 'gzdcs' ||
+          item.remark === 'gzdjq'
         ) {
           numData.push({
             name: item.name,
@@ -640,14 +646,11 @@ class SmartItem extends Component {
   getAll = () => {
     this.state.numData.map((item, index) => {
       if (this.state.nodeId !== item.nodeid) {
-        if (
-          item.nodeid === 'smart_wtwp' ||
-          item.nodeid === 'smart_wtaj' ||
-          item.nodeid === 'smart_wtjq' ||
-          // item.nodeid === 'smart_wtcs' ||
-          item.nodeid === this.state.userItem.idCard ||
-          item.nodeid === 'smart_syrjq'
-        ) {
+        if (item.nodeid !== 'smart_wtjq' && this.props.code === '200003') {
+          this.numAll += parseInt(this.listNum(item, index));
+        } else if (this.props.code !== '200003' && item.nodeid === this.state.userItem.idCard) {
+          return;
+        } else {
           this.numAll += parseInt(this.listNum(item, index));
         }
       }
@@ -864,11 +867,7 @@ class SmartItem extends Component {
         </div>
       );
       if (this.props.code === '200001' || this.props.code === '200002') {
-        // if(this.listNum(item,index) > 0){
         list.unshift(itemList);
-        // }else{
-        //   list.push(itemList);
-        // }
       } else {
         list.push(itemList);
       }
