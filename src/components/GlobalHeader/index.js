@@ -120,10 +120,20 @@ export default class GlobalHeader extends PureComponent {
       });
     } else {
       if (t.props.pathItem !== '/smartList/smartAll?type=3') {
+        let node = '';
+        let id = JSON.parse(sessionStorage.getItem('user')).user.idCard;
+        if (
+          sessionStorage.getItem('nodeid') ===
+          JSON.parse(sessionStorage.getItem('user')).user.idCard
+        ) {
+          node = id + ',smart_baq';
+        } else {
+          node = sessionStorage.getItem('nodeid');
+        }
         t.props.dispatch({
           type: 'user/find',
           payload: {
-            nodeid: sessionStorage.getItem('nodeid'),
+            nodeid: node,
             keyword: val,
           },
         });

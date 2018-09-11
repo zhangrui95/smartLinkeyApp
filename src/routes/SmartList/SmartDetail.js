@@ -292,6 +292,12 @@ export default class SmartDetail extends Component {
           }
         });
       });
+    } else if (sessionStorage.getItem('nodeid') === this.state.userItem.idCard) {
+      next.msgList.map(item => {
+        if (item.nodeid === this.state.userItem.idCard || item.nodeid === 'smart_baq') {
+          list.push(item);
+        }
+      });
     } else {
       next.msgList.map(item => {
         if (sessionStorage.getItem('nodeid') && sessionStorage.getItem('nodeid') === item.nodeid) {
@@ -408,11 +414,6 @@ export default class SmartDetail extends Component {
             result = JSON.parse(item.messagecontent).result;
             let k = -1;
             result.map((items, index) => {
-              this.state.saveList.map((e, i) => {
-                if (e.id === '/' + items.uuid || e.id === items['baq_org_code']) {
-                  k = 1;
-                }
-              });
               this.props.gzList[
                 listType === 'ajxx'
                   ? 'gzdaj'
@@ -432,6 +433,11 @@ export default class SmartDetail extends Component {
                   if (e.id === '/' + items.uuid) {
                     k = 1;
                   }
+                }
+              });
+              this.state.saveList.map((e, i) => {
+                if (e.id === '/' + items.uuid || e.id === items['baq_org_code']) {
+                  k = 1;
                 }
               });
               let url = '';
@@ -480,16 +486,32 @@ export default class SmartDetail extends Component {
                       '&type=1&dbid=' +
                       items.dbid;
               } else if (listType === 'baq') {
-                url =
-                  `${configUrl.baq}` +
-                  '/#/user/loginBytoken?token=' +
-                  token +
-                  '&xxid=' +
-                  `${
-                    items.state === '717001' || items.state === '717005' ? items.gjid : items.id
-                  }` +
-                  '&type=' +
-                  items.state;
+                if (items.state) {
+                  url =
+                    `${configUrl.baq}` +
+                    '/#/user/loginBytoken?token=' +
+                    token +
+                    '&xxid=' +
+                    `${
+                      items.state === '717001' ||
+                      items.state === '717005' ||
+                      items.state === '717007'
+                        ? items.gjid
+                        : items.id
+                    }` +
+                    '&type=' +
+                    items.state;
+                } else {
+                  url =
+                    this.props.code === '200003'
+                      ? `${configUrl.agUrl}` +
+                        '#/loginByToken?token=' +
+                        token +
+                        '&wtid=' +
+                        items.wtid +
+                        '&type=4'
+                      : '';
+                }
               }
               list.push(
                 <SmartDetailItem
@@ -585,14 +607,32 @@ export default class SmartDetail extends Component {
                   '&type=1&dbid=' +
                   searchItem.dbid;
           } else if (listType === 'baq') {
-            url =
-              `${configUrl.baq}` +
-              '/#/user/loginBytoken?token=' +
-              token +
-              '&gjId=' +
-              searchItem.id +
-              '&type=' +
-              searchItem.state;
+            if (searchItem.state) {
+              url =
+                `${configUrl.baq}` +
+                '/#/user/loginBytoken?token=' +
+                token +
+                '&xxid=' +
+                `${
+                  searchItem.state === '717001' ||
+                  searchItem.state === '717005' ||
+                  searchItem.state === '717007'
+                    ? searchItem.gjid
+                    : searchItem.id
+                }` +
+                '&type=' +
+                searchItem.state;
+            } else {
+              url =
+                this.props.code === '200003'
+                  ? `${configUrl.agUrl}` +
+                    '#/loginByToken?token=' +
+                    token +
+                    '&wtid=' +
+                    searchItem.wtid +
+                    '&type=4'
+                  : '';
+            }
           }
           list.push(
             <SmartDetailItem

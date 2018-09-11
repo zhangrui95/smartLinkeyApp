@@ -58,7 +58,7 @@ class SmartLink extends Component {
         });
       } else if (item.resourceCode === 'sjcw_btn') {
         listMenu.push({
-          name: '涉案财务系统',
+          name: '涉案财物系统',
           link:
             `${configUrl.cwUrl}` +
             '/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD=' +

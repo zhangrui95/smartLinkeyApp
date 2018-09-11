@@ -271,6 +271,7 @@ class SmartItem extends Component {
             item.remark !== 'gzdaj' &&
             item.remark !== 'gzdcs' &&
             item.remark !== 'gzdjq' &&
+            item.nodeid !== 'smart_baq' &&
             (item.nodeid !== this.state.userItem.department && item.nodeid)
           ) {
             if (next.code === '200003') {
@@ -546,6 +547,10 @@ class SmartItem extends Component {
         this.state.gzList[node].map((e, i) => {
           e.maxmessageid = maxTime.split(',')[i];
         });
+      } else if (item.nodeid === this.state.userItem.idCard) {
+        let nodes = [this.state.userItem.idCard, 'smart_baq'];
+        let times = [maxTime, Date.parse(new Date())];
+        this.getTimeSaves(nodes.toString(), times.toString());
       } else {
         this.getTimeSaves(item.nodeid, maxTime);
       }
@@ -601,31 +606,53 @@ class SmartItem extends Component {
     }
     return this.saveNum;
   };
-  listNum = (item, index) => {
+  listNum = (item, index, type) => {
     this.num = 0;
     if (this.state.msgLists && this.state.msgLists.length > 0) {
       this.state.msgLists.map(msgItem => {
-        if (msgItem.nodeid === item.nodeid) {
-          if (item.maxmessageid !== 0 && !this.props.firstLogin) {
-            if (msgItem.id > item.maxmessageid) {
+        // console.log('item.nodeid------->',item.nodeid);
+        if (item.nodeid === this.state.userItem.idCard && type !== '0') {
+          let time = 0;
+          this.props.searchList.map((res, i) => {
+            if (res.nodeid === 'smart_baq') {
+              time = res.maxmessageid;
+            }
+          });
+          if (item.maxmessageid > time) {
+            time = item.maxmessageid;
+          }
+          if (msgItem.nodeid === item.nodeid || msgItem.nodeid === 'smart_baq') {
+            if (msgItem.id > time) {
               if (msgItem.messagecount > 1) {
                 this.num = msgItem.messagecount;
               } else {
                 this.num++;
               }
             }
-          } else if (
-            item.maxmessageid === 0 &&
-            !this.props.firstLogin &&
-            (this.props.code === '200001' || this.props.code === '200002')
-          ) {
-            this.num = 1;
-          } else {
-            if (msgItem.id > item.maxmessageid) {
-              if (msgItem.messagecount > 1) {
-                this.num = msgItem.messagecount;
-              } else {
-                this.num++;
+          }
+        } else {
+          if (msgItem.nodeid === item.nodeid) {
+            if (item.maxmessageid !== 0 && !this.props.firstLogin) {
+              if (msgItem.id > item.maxmessageid) {
+                if (msgItem.messagecount > 1) {
+                  this.num = msgItem.messagecount;
+                } else {
+                  this.num++;
+                }
+              }
+            } else if (
+              item.maxmessageid === 0 &&
+              !this.props.firstLogin &&
+              (this.props.code === '200001' || this.props.code === '200002')
+            ) {
+              this.num = 1;
+            } else {
+              if (msgItem.id > item.maxmessageid) {
+                if (msgItem.messagecount > 1) {
+                  this.num = msgItem.messagecount;
+                } else {
+                  this.num++;
+                }
               }
             }
           }
@@ -647,7 +674,7 @@ class SmartItem extends Component {
     this.state.numData.map((item, index) => {
       if (this.state.nodeId !== item.nodeid) {
         if (item.nodeid !== 'smart_wtjq' && this.props.code === '200003') {
-          this.numAll += parseInt(this.listNum(item, index));
+          this.numAll += parseInt(this.listNum(item, index, '0'));
         } else if (this.props.code !== '200003' && item.nodeid === this.state.userItem.idCard) {
           return;
         } else {
@@ -672,6 +699,11 @@ class SmartItem extends Component {
     this.state.gzList.gzdjq.map((event, idx) => {
       if (event.id === id) {
         this.state.gzList.gzdjq.splice(idx, 1);
+      }
+    });
+    this.state.gzList.gzdcs.map((event, idx) => {
+      if (event.id === id) {
+        this.state.gzList.gzdcs.splice(idx, 1);
       }
     });
     this.state.delId.push(id);

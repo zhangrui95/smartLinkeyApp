@@ -16,7 +16,7 @@ export default class SmartDetailItem extends Component {
           ) : this.props.listType === 'jqxx' && this.props.code === '200003' ? (
             <div className={styles.headerName}>警情</div>
           ) : this.props.listType === 'sacw' && this.props.code === '200003' ? (
-            <div className={styles.headerName}>案务</div>
+            <div className={styles.headerName}>财物</div>
           ) : this.props.listType === 'baq' ? (
             <div className={styles.headerName}>场所</div>
           ) : (
@@ -31,7 +31,7 @@ export default class SmartDetailItem extends Component {
                 : this.props.listType === 'jqxx' && this.props.code === '200003'
                   ? '智慧警情系统'
                   : this.props.listType === 'sacw' && this.props.code === '200003'
-                    ? '涉案财务系统'
+                    ? '涉案财物系统'
                     : this.props.listType === 'baq'
                       ? '办案区管理系统'
                       : this.props.childItem.name}
@@ -98,12 +98,14 @@ export default class SmartDetailItem extends Component {
                                   : this.props.listType === 'sacw' && this.props.code === '200003'
                                     ? 'ajmc'
                                     : this.props.listType === 'baq' && this.props.code === '200003'
-                                      ? this.props.childItem.state === '717002' ||
-                                        this.props.childItem.state === '717003' ||
-                                        this.props.childItem.state === '717004' ||
-                                        this.props.childItem.state === '717006'
-                                        ? 'baqname'
-                                        : 'csmc'
+                                      ? !this.props.childItem.state
+                                        ? 'haname'
+                                        : this.props.childItem.state === '717002' ||
+                                          this.props.childItem.state === '717003' ||
+                                          this.props.childItem.state === '717004' ||
+                                          this.props.childItem.state === '717006'
+                                          ? 'baqname'
+                                          : 'csmc'
                                       : ''
                             ],
                             this.props.listType === 'ajxx' && this.props.code === '200003'
@@ -130,7 +132,9 @@ export default class SmartDetailItem extends Component {
                           : this.props.listType === 'sacw'
                             ? this.props.childItem.ajmc
                             : this.props.listType === 'baq'
-                              ? this.props.childItem.csmc
+                              ? !this.props.childItem.state
+                                ? this.props.childItem.haname
+                                : this.props.childItem.csmc
                               : ''
                     }
                     style={
@@ -151,12 +155,14 @@ export default class SmartDetailItem extends Component {
                         : this.props.listType === 'sacw'
                           ? this.props.childItem.ajmc
                           : this.props.listType === 'baq'
-                            ? this.props.childItem.state === '717002' ||
-                              this.props.childItem.state === '717003' ||
-                              this.props.childItem.state === '717004' ||
-                              this.props.childItem.state === '717006'
-                              ? this.props.childItem.baqname
-                              : this.props.childItem.csmc
+                            ? !this.props.childItem.state
+                              ? this.props.childItem.haname
+                              : this.props.childItem.state === '717002' ||
+                                this.props.childItem.state === '717003' ||
+                                this.props.childItem.state === '717004' ||
+                                this.props.childItem.state === '717006'
+                                ? this.props.childItem.baqname
+                                : this.props.childItem.csmc
                             : ''}
                   </span>
                   {(this.props.listType === 'baq' &&
@@ -220,7 +226,17 @@ export default class SmartDetailItem extends Component {
                       <div className={styles.sawpLeft}>问题类型：{this.props.childItem.wtlx}</div>
                     </div>
                   ) : this.props.listType === 'baq' ? (
-                    this.props.childItem.state === '717002' ||
+                    !this.props.childItem.state ? (
+                      <div>
+                        <div className={styles.nameStyle}>办案人：{this.props.childItem.barxm}</div>
+                        <div className={styles.nameStyle}>
+                          告警时间：{this.props.childItem.cjsj}
+                        </div>
+                        <div className={styles.nameStyle}>
+                          告警类型：{this.props.childItem.wtlxmc}
+                        </div>
+                      </div>
+                    ) : this.props.childItem.state === '717002' ||
                     this.props.childItem.state === '717003' ||
                     this.props.childItem.state === '717004' ? (
                       <div>
@@ -228,27 +244,36 @@ export default class SmartDetailItem extends Component {
                         <div className={styles.nameStyle}>办案人：{this.props.childItem.barxm}</div>
                         <div className={styles.nameStyle}>时间：{this.props.childItem.time}</div>
                         <div className={styles.nameStyle}>
-                          消息类型：{this.props.childItem.state === '717002'
-                            ? '未离区'
+                          人员状态：{this.props.childItem.state === '717002'
+                            ? '人员入区'
                             : this.props.childItem.state === '717003'
-                              ? '临时离区'
+                              ? '人员临时离区'
                               : this.props.childItem.state === '717004'
-                                ? '已离区'
+                                ? '人员离区'
                                 : ''}
                         </div>
                       </div>
                     ) : this.props.childItem.state === '717001' ||
-                    this.props.childItem.state === '717005' ? (
+                    this.props.childItem.state === '717005' ||
+                    this.props.childItem.state === '717007' ? (
                       <div>
                         <div className={styles.nameStyle}>办案人：{this.props.childItem.barxm}</div>
                         <div className={styles.nameStyle}>
-                          {this.props.childItem.state === '717005' ? '整改时间：' : '告警时间：'}
+                          {this.props.childItem.state === '717005'
+                            ? '整改时间：'
+                            : this.props.childItem.state === '717007'
+                              ? '预警时间：'
+                              : '告警时间：'}
                           {this.props.childItem.time}
                         </div>
                         <div className={styles.nameStyle}>
-                          告警地点：{this.props.childItem.gjdd}
+                          {this.props.childItem.state === '717007' ? '预警地点：' : '告警地点：'}
+                          {this.props.childItem.gjdd}
                         </div>
-                        <div className={styles.sawpLeft}>告警类型：{this.props.childItem.gjlx}</div>
+                        <div className={styles.sawpLeft}>
+                          {this.props.childItem.state === '717007' ? '预警类型：' : '告警类型：'}
+                          {this.props.childItem.gjlx}
+                        </div>
                       </div>
                     ) : this.props.childItem.state === '717006' ? (
                       <div>
