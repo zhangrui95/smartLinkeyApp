@@ -16,6 +16,7 @@ import {
   Button,
   DatePicker,
   Progress,
+  Switch,
 } from 'antd';
 import pathToRegexp from 'path-to-regexp';
 import { Link } from 'dva/router';
@@ -91,6 +92,7 @@ class SiderMenu extends PureComponent {
       aboutvisible: false,
       jcvisible: false,
       loginWay: [],
+      searchWord: true,
       allNum: 0,
       showTime: false,
       newsLoading: false,
@@ -100,11 +102,17 @@ class SiderMenu extends PureComponent {
       updateV: this.props.login.updateV,
       updateItem: this.props.login.updateItem,
       nowUpdate: false,
+      swithLoading: false,
     };
   }
   componentDidMount() {
     ipcRenderer.on('progress', this.getPro);
     ipcRenderer.on('package-damaged', this.getPackageDamaged);
+    ipcRenderer.on('huaci_status', (event, status) => {
+      this.setState({
+        searchWord: status,
+      });
+    });
   }
   componentWillUnmount() {
     ipcRenderer.removeListener('progress', this.getPro);
@@ -334,6 +342,15 @@ class SiderMenu extends PureComponent {
   };
   handleOks = () => {
     this.props.form.validateFields((err, values) => {
+      ipcRenderer.send('setting-huaci', values['search_word']);
+      this.setState({
+        swithLoading: true,
+      });
+      setTimeout(() => {
+        this.setState({
+          swithLoading: false,
+        });
+      }, 3000);
       let way = '700003';
       if (values.login_way.length < 2) {
         values.login_way.map(ways => {
@@ -656,6 +673,23 @@ class SiderMenu extends PureComponent {
                   ],
                   initialValue: this.state.loginWay,
                 })(<CheckboxGroup options={plainOptions} />)}
+              </FormItem>
+              <FormItem {...formItemLayout} label="屏幕取词">
+                {getFieldDecorator('search_word', {
+                  rules: [
+                    {
+                      required: true,
+                    },
+                  ],
+                  initialValue: this.state.searchWord,
+                })(
+                  <Switch
+                    checkedChildren="开"
+                    unCheckedChildren="关"
+                    defaultChecked
+                    loading={this.state.swithLoading}
+                  />
+                )}
               </FormItem>
             </Form>
           </Modal>

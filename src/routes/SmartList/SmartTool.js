@@ -121,13 +121,19 @@ class SmartTool extends Component {
   handleDrop = e => {
     e.preventDefault();
     for (let f of e.dataTransfer.files) {
-      console.log('拖拽f---------->', f);
-      this.setState({
-        MKey: this.state.MKey + 1,
-        visible: true,
-        exeName: f.name.slice(0, -4),
-        exePath: f.path,
-      });
+      if (
+        f.path.substring(f.path.length - 4) === '.lnk' ||
+        f.path.substring(f.path.length - 4) === '.exe'
+      ) {
+        this.setState({
+          MKey: this.state.MKey + 1,
+          visible: true,
+          exeName: f.name.slice(0, -4),
+          exePath: f.path,
+        });
+      } else {
+        message.warn('暂不支持该类型!');
+      }
     }
     return false;
   };
