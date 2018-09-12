@@ -102,21 +102,17 @@ class SiderMenu extends PureComponent {
       updateV: this.props.login.updateV,
       updateItem: this.props.login.updateItem,
       nowUpdate: false,
-      swithLoading: false,
     };
   }
   componentDidMount() {
     ipcRenderer.on('progress', this.getPro);
     ipcRenderer.on('package-damaged', this.getPackageDamaged);
-    ipcRenderer.on('huaci_status', (event, status) => {
-      this.setState({
-        searchWord: status,
-      });
-    });
+    ipcRenderer.on('huaci_status', this.getSerWord);
   }
   componentWillUnmount() {
     ipcRenderer.removeListener('progress', this.getPro);
     ipcRenderer.removeListener('package-damaged', this.getPackageDamaged);
+    ipcRenderer.removeListener('huaci_status', this.getSerWord);
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.location.pathname !== this.props.location.pathname) {
@@ -135,6 +131,11 @@ class SiderMenu extends PureComponent {
       });
     }
   }
+  getSerWord = (event, status) => {
+    this.setState({
+      searchWord: status,
+    });
+  };
   /**
    * Convert pathname to openKeys
    * /list/search/articles = > ['list','/list/search']
@@ -343,14 +344,6 @@ class SiderMenu extends PureComponent {
   handleOks = () => {
     this.props.form.validateFields((err, values) => {
       ipcRenderer.send('setting-huaci', values['search_word']);
-      this.setState({
-        swithLoading: true,
-      });
-      setTimeout(() => {
-        this.setState({
-          swithLoading: false,
-        });
-      }, 3000);
       let way = '700003';
       if (values.login_way.length < 2) {
         values.login_way.map(ways => {
@@ -682,14 +675,7 @@ class SiderMenu extends PureComponent {
                     },
                   ],
                   initialValue: this.state.searchWord,
-                })(
-                  <Switch
-                    checkedChildren="开"
-                    unCheckedChildren="关"
-                    defaultChecked
-                    loading={this.state.swithLoading}
-                  />
-                )}
+                })(<Switch checkedChildren="开" unCheckedChildren="关" defaultChecked />)}
               </FormItem>
             </Form>
           </Modal>
