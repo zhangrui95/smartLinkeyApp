@@ -506,7 +506,13 @@ export default class SmartDetail extends Component {
                     '/#/user/loginBytoken?token=' +
                     token +
                     '&xxid=' +
-                    `${items.id}` +
+                    `${
+                      items.state === '717001' ||
+                      items.state === '717005' ||
+                      items.state === '717007'
+                        ? items.gjid
+                        : items.id
+                    }` +
                     '&type=' +
                     items.state;
                 } else {
@@ -621,7 +627,13 @@ export default class SmartDetail extends Component {
                 '/#/user/loginBytoken?token=' +
                 token +
                 '&xxid=' +
-                `${searchItem.id}` +
+                `${
+                  searchItem.state === '717001' ||
+                  searchItem.state === '717005' ||
+                  searchItem.state === '717007'
+                    ? searchItem.gjid
+                    : searchItem.id
+                }` +
                 '&type=' +
                 searchItem.state;
             } else {
