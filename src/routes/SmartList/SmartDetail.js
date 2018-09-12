@@ -77,24 +77,30 @@ export default class SmartDetail extends Component {
               load: true,
               endLength: parseInt(this.state.endLength) + 1,
             });
-            let packagecount = 0;
             let lens = [];
-            this.props.msgList.map((e, i) => {
-              if (e.nodeid === sessionStorage.getItem('nodeid')) {
-                if (e.packagecount > 2) {
-                  packagecount = e.packagecount;
-                }
-              }
-            });
+            let lenBaq = [];
             this.props.onNewMsg(sessionStorage.getItem('nodeid'), 3 * this.state.endLength);
+            if (sessionStorage.getItem('nodeid') === this.state.userItem.idCard) {
+              this.props.onNewMsg('smart_baq', 3 * this.state.endLength);
+            }
             document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
             setTimeout(() => {
               this.props.msgList.map((e, i) => {
                 if (e.nodeid === sessionStorage.getItem('nodeid')) {
                   lens.push(JSON.parse(e.messagecontent).result.length);
                 }
+                if (sessionStorage.getItem('nodeid') === this.state.userItem.idCard) {
+                  if (e.nodeid === 'smart_baq') {
+                    lenBaq.push(JSON.parse(e.messagecontent).result.length);
+                  }
+                }
               });
-              if (lens.length < 3 * this.state.endLength - 1) {
+              if (
+                sessionStorage.getItem('nodeid') === this.state.userItem.idCard
+                  ? lens.length < 3 * this.state.endLength - 1 &&
+                    lenBaq.length < 3 * this.state.endLength - 1
+                  : lens.length < 3 * this.state.endLength - 1
+              ) {
                 this.setState({
                   load: false,
                 });
@@ -103,6 +109,11 @@ export default class SmartDetail extends Component {
                 lens.slice(0, 3).map((e, i) => {
                   _length += e;
                 });
+                if (sessionStorage.getItem('nodeid') === this.state.userItem.idCard) {
+                  lenBaq.slice(0, 3).map(res => {
+                    _length += res;
+                  });
+                }
                 let length =
                   sessionStorage.getItem('nodeid') === 'smart_wtwp' ? 473 * _length : 448 * _length;
                 this.setState({
@@ -157,7 +168,10 @@ export default class SmartDetail extends Component {
     if (next.login.loginStatus) {
       for (var i = 0; i < next.msgList.length - 1; i++) {
         for (var j = i + 1; j < next.msgList.length; j++) {
-          if (next.msgList[i].messagecontent == next.msgList[j].messagecontent) {
+          if (
+            next.msgList[i].messagecontent == next.msgList[j].messagecontent &&
+            next.msgList[i].time == next.msgList[j].time
+          ) {
             next.msgList.splice(j, 1);
             j--;
           }
@@ -492,13 +506,7 @@ export default class SmartDetail extends Component {
                     '/#/user/loginBytoken?token=' +
                     token +
                     '&xxid=' +
-                    `${
-                      items.state === '717001' ||
-                      items.state === '717005' ||
-                      items.state === '717007'
-                        ? items.gjid
-                        : items.id
-                    }` +
+                    `${items.id}` +
                     '&type=' +
                     items.state;
                 } else {
@@ -613,13 +621,7 @@ export default class SmartDetail extends Component {
                 '/#/user/loginBytoken?token=' +
                 token +
                 '&xxid=' +
-                `${
-                  searchItem.state === '717001' ||
-                  searchItem.state === '717005' ||
-                  searchItem.state === '717007'
-                    ? searchItem.gjid
-                    : searchItem.id
-                }` +
+                `${searchItem.id}` +
                 '&type=' +
                 searchItem.state;
             } else {

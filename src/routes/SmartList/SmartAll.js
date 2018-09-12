@@ -245,9 +245,10 @@ class SmartAll extends Component {
               names[i].attributes[0].textContent,
               names[i].attributes[0].textContent === 'smart_wtjq' ||
               names[i].attributes[0].textContent === 'smart_wtwp' ||
-              names[i].attributes[0].textContent === 'smart_wtcs' ||
+              names[i].attributes[0].textContent === 'smart_baq' ||
               names[i].attributes[0].textContent === 'smart_wtaj' ||
-              names[i].attributes[0].textContent === 'smart_syrjq'
+              names[i].attributes[0].textContent === 'smart_syrjq' ||
+              names[i].attributes[0].textContent === this.state.userItem.idCard
                 ? 3
                 : ''
             );
