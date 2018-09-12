@@ -56,7 +56,7 @@ if (config.auto_launch) {
 const icon_path = path.join(__dirname, `./${fetd}/for-electron/source/logo.ico`);
 const icon_none_path = path.join(__dirname, `./${fetd}/for-electron/source/none.ico`);
 const upgrade_tmp_dir = path.join(execDir, 'downloads');
-const upgrade_tmp_file = path.join(upgrade_tmp_dir, 'package.zip')
+const upgrade_tmp_file = path.join(upgrade_tmp_dir, 'package.zip');
 const huaci_threshold = config.huaci_threshold;
 
 // 初始化日志功能
@@ -75,14 +75,15 @@ if (config.dev_auto_reload) {
   require('electron-reload')(path.join(__dirname, 'dist'));
 }
 
-let mainWindow;               // 主页面
-let huaci_win;                // 划词搜索页
-let sou_win;                  // 划词搜页面
-let huaci_x;                  // 划词抬起鼠标后坐标X值
-let huaci_y;                  // 划词抬起鼠标后坐标Y值
-let already_login = false;    // 登录前/后状态
-let appTray = null;           // 托盘
-let willQuitApp = false;      // 点击关闭时是否真的退出应用
+let mainWindow; // 主页面
+let huaci_win; // 划词搜索页
+let sou_win; // 划词搜页面
+let huaci_x; // 划词抬起鼠标后坐标X值
+let huaci_y; // 划词抬起鼠标后坐标Y值
+let already_login = false; // 登录前/后状态
+let appTray = null; // 托盘
+let willQuitApp = false; // 点击关闭时是否真的退出应用
+let huaci_running = false; // 划词当前是否在运行
 
 // 初始化发送获取工具图标的程序
 const iconProcess = startIconProcess(execDir_poxis);
@@ -111,6 +112,7 @@ function createTray() {
         willQuitApp = true;
         iconProcess.kill('SIGINT');
         stop_huaci();
+        huaci_running = false;
         appTray.destroy();
         mainWindow.close();
         setTimeout(() => {
@@ -318,12 +320,26 @@ function package_is_ok() {
   return true;
 }
 
+function if_start_huaci() {
+  let huaci = db.get('huaci').value();
+  if (huaci === undefined) {
+    huaci = config.huaci;
+    db.set('huaci', huaci).write();
+  }
+  if (huaci) {
+    // 启动划词监听
+    start_huaci();
+    huaci_running = true;
+  }
+}
+
 function doSomeThingAfterLoginSuccess() {
   // 初始化划词的接收函数
   setting_huaci_callback(huaci_receiver);
 
-  // 启动划词监听
-  start_huaci();
+  // 根据配置判断是否启用划词功能
+  if_start_huaci();
+  mainWindow.webContents.send('huaci_status', huaci_running);
 
   // 发送工具集数据
   let tools = db.get('tools').value();
@@ -404,6 +420,7 @@ ipcMain.on('login-success', () => {
  */
 ipcMain.on('logout', () => {
   stop_huaci();
+  huaci_running = false;
   already_login = false;
   // mainWindow.setMinimumSize(config.login_page_width, config.login_page_height)
   mainWindow.setSize(config.login_page_width, config.login_page_height);
@@ -445,6 +462,7 @@ ipcMain.on('window-normal', () => {
 ipcMain.on('window-close', () => {
   iconProcess.kill('SIGINT');
   stop_huaci();
+  huaci_running = false;
   willQuitApp = true;
   mainWindow.close();
   app.quit();
@@ -623,7 +641,6 @@ ipcMain.on('disable-uplaunch', () => {
  * 更新（替换与重启）
  */
 function update_relaunch() {
-
   // 当设置下次启动更新后, 又紧接着点击立即更新, 会导致更新后重启应用还会提示更新
   // 此处重置重启后提示更新的flag标识
   db.set('need_uplaunch', false).write();
@@ -643,6 +660,7 @@ function update_relaunch() {
     // app.exit();
     iconProcess.kill('SIGINT');
     stop_huaci();
+    huaci_running = false;
     willQuitApp = true;
     mainWindow.close();
     app.quit();
@@ -714,7 +732,7 @@ function process_huaci(message) {
 function huaci_receiver(data, x, y) {
   console.log(data, x, y);
   let message = { data: data, x: x, y: y };
-  if (already_login) {
+  if (already_login && huaci_running) {
     process_huaci(message);
   }
 }
@@ -765,6 +783,19 @@ ipcMain.on('huaci-choice', (event, cid) => {
   }
 });
 
+ipcMain.on('setting-huaci', (event, huaci_status) => {
+  db.set('huaci', huaci_status).write();
+  if (huaci_status && !huaci_running) {
+    start_huaci();
+    huaci_running = true;
+  } else if (!huaci_status && huaci_running) {
+    stop_huaci();
+    huaci_running = false;
+  } else {
+    console.log('嘤嘤嘤？');
+  }
+});
+
 // 保证只有一个实例在运行
 const isSecondInstance = app.makeSingleInstance((commandLine, workingDirectory) => {
   if (mainWindow) {
@@ -782,6 +813,7 @@ if (isSecondInstance) {
   willQuitApp = true;
   iconProcess.kill('SIGINT');
   stop_huaci();
+  huaci_running = false;
   app.quit();
 }
 
