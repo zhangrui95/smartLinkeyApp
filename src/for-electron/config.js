@@ -13,11 +13,12 @@
 var config = {
   title: 'SmartLinkey',
   traysay: '海邻科消息助手',
-  current_version: '1.1.0.1',
+  current_version: '1.1.0.2',
   use_devtools: true,
   auto_launch: true,
   dev_auto_reload: false,
   huaci_threshold: 160,
+  huaci: true,
 
   login_page_width: 300,
   login_page_height: 375,
