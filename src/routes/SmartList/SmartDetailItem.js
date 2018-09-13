@@ -178,25 +178,29 @@ export default class SmartDetailItem extends Component {
               }
               style={{ width: 330, padding: '0 16px' }}
               cover={<img alt="example" src="images/chatu1.png" />}
-              actions={[
-                <div
-                  style={{ width: 295, fontSize: '14px' }}
-                  onClick={() => this.props.goWindow(this.props.url)}
-                >
-                  <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>
-                    {this.props.code === '200003'
-                      ? this.props.childItem.status === '未督办' ||
-                        this.props.childItem.status === '已反馈'
-                        ? '立即督办'
-                        : '查看详情'
-                      : this.props.childItem.status === '发起督办' ||
-                        this.props.childItem.status === '整改中'
-                        ? '立即处理'
-                        : '查看详情'}
-                  </a>
-                  <a className={styles.goChild}> > </a>
-                </div>,
-              ]}
+              actions={
+                this.props.childItem.state === '717007'
+                  ? ''
+                  : [
+                      <div
+                        style={{ width: 295, fontSize: '14px' }}
+                        onClick={() => this.props.goWindow(this.props.url)}
+                      >
+                        <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>
+                          {this.props.code === '200003'
+                            ? this.props.childItem.status === '未督办' ||
+                              this.props.childItem.status === '已反馈'
+                              ? '立即督办'
+                              : '查看详情'
+                            : this.props.childItem.status === '发起督办' ||
+                              this.props.childItem.status === '整改中'
+                              ? '立即处理'
+                              : '查看详情'}
+                        </a>
+                        <a className={styles.goChild}> > </a>
+                      </div>,
+                    ]
+              }
             >
               <Meta
                 title={

@@ -514,7 +514,14 @@ export default class SmartDetail extends Component {
                         : items.id
                     }` +
                     '&type=' +
-                    items.state;
+                    items.state +
+                    `${
+                      items.state === '717001' ||
+                      items.state === '717005' ||
+                      items.state === '717007'
+                        ? '&site=' + `${item.nodeid === this.state.userItem.idCard ? '0' : '1'}`
+                        : ''
+                    }`;
                 } else {
                   url =
                     this.props.code === '200003'
@@ -635,7 +642,14 @@ export default class SmartDetail extends Component {
                     : searchItem.id
                 }` +
                 '&type=' +
-                searchItem.state;
+                searchItem.state +
+                `${
+                  searchItem.state === '717001' ||
+                  searchItem.state === '717005' ||
+                  searchItem.state === '717007'
+                    ? '&site=' + `${item.nodeid === this.state.userItem.idCard ? '0' : '1'}`
+                    : ''
+                }`;
             } else {
               url =
                 this.props.code === '200003'
