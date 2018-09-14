@@ -93,6 +93,7 @@ class SiderMenu extends PureComponent {
       jcvisible: false,
       loginWay: [],
       searchWord: true,
+      word: true,
       allNum: 0,
       showTime: false,
       newsLoading: false,
@@ -134,6 +135,7 @@ class SiderMenu extends PureComponent {
   getSerWord = (event, status) => {
     this.setState({
       searchWord: status,
+      word: status,
     });
   };
   /**
@@ -317,7 +319,7 @@ class SiderMenu extends PureComponent {
       xtszvisible: false,
       aboutvisible: false,
       jcvisible: false,
-      // showTime: false,
+      searchWord: this.state.word,
     });
   };
   showConfirm = () => {
@@ -344,6 +346,9 @@ class SiderMenu extends PureComponent {
   handleOks = () => {
     this.props.form.validateFields((err, values) => {
       ipcRenderer.send('setting-huaci', values['search_word']);
+      this.setState({
+        word: values['search_word'],
+      });
       let way = '700003';
       if (values.login_way.length < 2) {
         values.login_way.map(ways => {
@@ -508,6 +513,11 @@ class SiderMenu extends PureComponent {
   };
   getUpdate = () => {
     ipcRenderer.send('update-relaunch', 'now');
+  };
+  onWordChange = checked => {
+    this.setState({
+      searchWord: checked,
+    });
   };
   render() {
     const plainOptions = [
@@ -675,7 +685,15 @@ class SiderMenu extends PureComponent {
                     },
                   ],
                   initialValue: this.state.searchWord,
-                })(<Switch checkedChildren="开" unCheckedChildren="关" defaultChecked />)}
+                })(
+                  <Switch
+                    checkedChildren="开"
+                    unCheckedChildren="关"
+                    defaultChecked={this.state.searchWord}
+                    checked={this.state.searchWord}
+                    onChange={this.onWordChange}
+                  />
+                )}
               </FormItem>
             </Form>
           </Modal>

@@ -324,7 +324,7 @@ export default class SmartDetail extends Component {
     });
   };
   goWindow = path => {
-    // console.log('path-------->',path)
+    console.log('path-------->', path);
     // window.open(path)
     ipcRenderer.send('visit-page', {
       url: path,
@@ -428,6 +428,17 @@ export default class SmartDetail extends Component {
             result = JSON.parse(item.messagecontent).result;
             let k = -1;
             result.map((items, index) => {
+              this.state.saveList.map((e, i) => {
+                if (listType === 'baq') {
+                  if (e.id === items['baq_org_code']) {
+                    k = 1;
+                  }
+                } else {
+                  if (e.id === '/' + items.uuid) {
+                    k = 1;
+                  }
+                }
+              });
               this.props.gzList[
                 listType === 'ajxx'
                   ? 'gzdaj'
@@ -447,11 +458,6 @@ export default class SmartDetail extends Component {
                   if (e.id === '/' + items.uuid) {
                     k = 1;
                   }
-                }
-              });
-              this.state.saveList.map((e, i) => {
-                if (e.id === '/' + items.uuid || e.id === items['baq_org_code']) {
-                  k = 1;
                 }
               });
               let url = '';
@@ -502,26 +508,36 @@ export default class SmartDetail extends Component {
               } else if (listType === 'baq') {
                 if (items.state) {
                   url =
-                    `${configUrl.baq}` +
-                    '/#/user/loginBytoken?token=' +
-                    token +
-                    '&xxid=' +
-                    `${
-                      items.state === '717001' ||
+                    this.props.code === '200003' &&
+                    (items.state === '717001' ||
                       items.state === '717005' ||
-                      items.state === '717007'
-                        ? items.gjid
-                        : items.id
-                    }` +
-                    '&type=' +
-                    items.state +
-                    `${
-                      items.state === '717001' ||
-                      items.state === '717005' ||
-                      items.state === '717007'
-                        ? '&site=' + `${item.nodeid === this.state.userItem.idCard ? '0' : '1'}`
-                        : ''
-                    }`;
+                      items.state === '717007')
+                      ? `${configUrl.agUrl}` +
+                        '#/loginByToken?token=' +
+                        token +
+                        '&old_id=' +
+                        items.gjid +
+                        '&type=4'
+                      : `${configUrl.baq}` +
+                        '/#/user/loginBytoken?token=' +
+                        token +
+                        '&xxid=' +
+                        `${
+                          items.state === '717001' ||
+                          items.state === '717005' ||
+                          items.state === '717007'
+                            ? items.gjid
+                            : items.id
+                        }` +
+                        '&type=' +
+                        items.state +
+                        `${
+                          items.state === '717001' ||
+                          items.state === '717005' ||
+                          items.state === '717007'
+                            ? '&site=' + `${item.nodeid === this.state.userItem.idCard ? '0' : '1'}`
+                            : ''
+                        }`;
                 } else {
                   url =
                     this.props.code === '200003'
@@ -531,7 +547,17 @@ export default class SmartDetail extends Component {
                         '&wtid=' +
                         items.wtid +
                         '&type=4'
-                      : '';
+                      : `${configUrl.baq}` +
+                        '/#/user/loginBytoken?token=' +
+                        token +
+                        '&xxid=' +
+                        items.dbid +
+                        '&type=' +
+                        `${
+                          items.status === '整改完成' || items.status === '已反馈'
+                            ? '717010'
+                            : '717008'
+                        }`;
                 }
               }
               list.push(
@@ -630,26 +656,36 @@ export default class SmartDetail extends Component {
           } else if (listType === 'baq') {
             if (searchItem.state) {
               url =
-                `${configUrl.baq}` +
-                '/#/user/loginBytoken?token=' +
-                token +
-                '&xxid=' +
-                `${
-                  searchItem.state === '717001' ||
+                this.props.code === '200003' &&
+                (searchItem.state === '717001' ||
                   searchItem.state === '717005' ||
-                  searchItem.state === '717007'
-                    ? searchItem.gjid
-                    : searchItem.id
-                }` +
-                '&type=' +
-                searchItem.state +
-                `${
-                  searchItem.state === '717001' ||
-                  searchItem.state === '717005' ||
-                  searchItem.state === '717007'
-                    ? '&site=' + `${item.nodeid === this.state.userItem.idCard ? '0' : '1'}`
-                    : ''
-                }`;
+                  searchItem.state === '717007')
+                  ? `${configUrl.agUrl}` +
+                    '#/loginByToken?token=' +
+                    token +
+                    '&old_id=' +
+                    searchItem.gjid +
+                    '&type=4'
+                  : `${configUrl.baq}` +
+                    '/#/user/loginBytoken?token=' +
+                    token +
+                    '&xxid=' +
+                    `${
+                      searchItem.state === '717001' ||
+                      searchItem.state === '717005' ||
+                      searchItem.state === '717007'
+                        ? searchItem.gjid
+                        : searchItem.id
+                    }` +
+                    '&type=' +
+                    searchItem.state +
+                    `${
+                      searchItem.state === '717001' ||
+                      searchItem.state === '717005' ||
+                      searchItem.state === '717007'
+                        ? '&site=' + `${item.nodeid === this.state.userItem.idCard ? '0' : '1'}`
+                        : ''
+                    }`;
             } else {
               url =
                 this.props.code === '200003'
@@ -659,8 +695,23 @@ export default class SmartDetail extends Component {
                     '&wtid=' +
                     searchItem.wtid +
                     '&type=4'
-                  : '';
+                  : `${configUrl.baq}` +
+                    '/#/user/loginBytoken?token=' +
+                    token +
+                    '&xxid=' +
+                    searchItem.dbid +
+                    '&type=717008';
             }
+          } else {
+            url =
+              this.props.code === '200003'
+                ? `${configUrl.agUrl}` +
+                  '#/loginByToken?token=' +
+                  token +
+                  '&wtid=' +
+                  searchItem.wtid +
+                  '&type=4'
+                : '';
           }
           list.push(
             <SmartDetailItem

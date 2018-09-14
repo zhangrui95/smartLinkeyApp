@@ -60,6 +60,17 @@ class SmartItem extends Component {
     });
   }
   componentWillReceiveProps(next) {
+    for (var i = 0; i < next.msgList.length - 1; i++) {
+      for (var j = i + 1; j < next.msgList.length; j++) {
+        if (
+          next.msgList[i].messagecontent == next.msgList[j].messagecontent &&
+          next.msgList[i].time == next.msgList[j].time
+        ) {
+          next.msgList.splice(j, 1);
+          j--;
+        }
+      }
+    }
     this.setState({
       msgLists: next.msgList,
     });
@@ -84,19 +95,50 @@ class SmartItem extends Component {
         }
       });
       if (arr.length > 0) {
-        this.getTimeSaves(arr[0].nodeid, Date.parse(new Date()));
+        if (arr[0].nodeid === this.state.userItem.idCard) {
+          this.getTimeSaves(
+            arr[0].nodeid + ',smart_baq',
+            Date.parse(new Date()) + ',' + Date.parse(new Date())
+          );
+        } else {
+          this.getTimeSaves(arr[0].nodeid, Date.parse(new Date()));
+        }
       }
     } else {
       if (this.props.lastTime.id < next.lastTime.id) {
         next.user.allList.map(res => {
-          if (res.nodeid === sessionStorage.getItem('nodeidType')) {
+          if (
+            res.nodeid === sessionStorage.getItem('nodeidType') ||
+            (res.nodeid === 'smart_baq' &&
+              sessionStorage.getItem('nodeidType') === this.state.userItem.idCard)
+          ) {
             if (res.maxmessageid && res.maxmessageid > 0) {
-              if (next.lastTime.nodeid === sessionStorage.getItem('nodeidType')) {
+              if (
+                next.lastTime.nodeid === sessionStorage.getItem('nodeidType') ||
+                (next.lastTime.nodeid === 'smart_baq' &&
+                  sessionStorage.getItem('nodeidType') === this.state.userItem.idCard)
+              ) {
                 this.getTimeSaves(next.lastTime.nodeid, next.lastTime.id);
               }
             }
           }
         });
+        if (sessionStorage.getItem('nodeidSave') === 'smart_gzdcs') {
+          let id = [];
+          let m = [];
+          let t = false;
+          this.state.gzList['gzdcs'].map((e, i) => {
+            id.push(e.id);
+            m.push(0);
+            if (next.lastTime.nodeid === e.id) {
+              m[i] = next.lastTime.nodeid;
+              t = true;
+            }
+          });
+          if (t) {
+            this.getTimeSaves(id.toString(), m.toString());
+          }
+        }
       }
     }
     if (this.props.event !== next.event || this.props.type !== next.type) {
@@ -525,7 +567,11 @@ class SmartItem extends Component {
         if (this.state.nodeId === data.nodeid) {
           this.numList.push(0);
         } else {
-          this.numList.push(this.listNum(data, index));
+          this.numList.push(
+            data.nodeid === this.state.userItem.idCard
+              ? this.listCsNum(data, index)
+              : this.listNum(data, index)
+          );
         }
       });
     }
@@ -606,51 +652,76 @@ class SmartItem extends Component {
     }
     return this.saveNum;
   };
+  listCsNum = (item, index) => {
+    let n = 0;
+    let time = 0;
+    if (this.state.msgLists && this.state.msgLists.length > 0) {
+      this.state.msgLists.map(msgItem => {
+        this.props.searchList.map((res, i) => {
+          if (res.nodeid === 'smart_baq') {
+            time = res.maxmessageid ? res.maxmessageid : 0;
+          }
+        });
+        if (item.maxmessageid > time) {
+          time = item.maxmessageid;
+        }
+        if (msgItem.nodeid === item.nodeid || msgItem.nodeid === 'smart_baq') {
+          if (msgItem.id > time) {
+            if (msgItem.messagecount > 1) {
+              n = msgItem.messagecount;
+            } else {
+              n++;
+            }
+          }
+        }
+      });
+    }
+    return n;
+  };
   listNum = (item, index, type) => {
     this.num = 0;
     if (this.state.msgLists && this.state.msgLists.length > 0) {
       this.state.msgLists.map(msgItem => {
-        // console.log('item.nodeid------->',item.nodeid);
-        if (item.nodeid === this.state.userItem.idCard && type !== '0') {
-          let time = 0;
-          this.props.searchList.map((res, i) => {
-            if (res.nodeid === 'smart_baq') {
-              time = res.maxmessageid;
-            }
-          });
-          if (item.maxmessageid > time) {
-            time = item.maxmessageid;
-          }
-          if (msgItem.nodeid === item.nodeid || msgItem.nodeid === 'smart_baq') {
-            if (msgItem.id > time) {
+        // if (item.nodeid === this.state.userItem.idCard && type !== '0') {
+        // let time = 0;
+        // this.props.searchList.map((res, i) => {
+        //   if (res.nodeid === 'smart_baq') {
+        //     time = res.maxmessageid;
+        //   }
+        // });
+        // if (item.maxmessageid > time) {
+        //   time = item.maxmessageid;
+        // }
+        // if (msgItem.nodeid === item.nodeid || msgItem.nodeid === 'smart_baq') {
+        //   if (msgItem.id > time) {
+        //     if (msgItem.messagecount > 1) {
+        //       this.num = msgItem.messagecount;
+        //     } else {
+        //       this.num++;
+        //     }
+        //   }
+        // }
+        if (msgItem.nodeid === item.nodeid) {
+          if (item.maxmessageid !== 0 && !this.props.firstLogin) {
+            if (msgItem.id > item.maxmessageid) {
               if (msgItem.messagecount > 1) {
                 this.num = msgItem.messagecount;
               } else {
                 this.num++;
               }
             }
-          }
-        } else {
-          if (msgItem.nodeid === item.nodeid) {
-            if (item.maxmessageid !== 0 && !this.props.firstLogin) {
-              if (msgItem.id > item.maxmessageid) {
-                if (msgItem.messagecount > 1) {
-                  this.num = msgItem.messagecount;
-                } else {
-                  this.num++;
-                }
-              }
-            } else if (
-              item.maxmessageid === 0 &&
-              !this.props.firstLogin &&
-              (this.props.code === '200001' || this.props.code === '200002')
-            ) {
-              this.num = 1;
-            } else {
-              if (msgItem.id > item.maxmessageid) {
-                if (msgItem.messagecount > 1) {
-                  this.num = msgItem.messagecount;
-                } else {
+          } else if (
+            item.maxmessageid === 0 &&
+            !this.props.firstLogin &&
+            (this.props.code === '200001' || this.props.code === '200002')
+          ) {
+            this.num = 1;
+          } else {
+            if (msgItem.id > item.maxmessageid) {
+              if (msgItem.messagecount > 1) {
+                this.num = msgItem.messagecount;
+              } else {
+                if (item.maxmessageid !== 0) {
                   this.num++;
                 }
               }
@@ -674,8 +745,11 @@ class SmartItem extends Component {
     this.state.numData.map((item, index) => {
       if (this.state.nodeId !== item.nodeid) {
         if (item.nodeid !== 'smart_wtjq' && this.props.code === '200003') {
-          this.numAll += parseInt(this.listNum(item, index, '0'));
-        } else if (this.props.code !== '200003' && item.nodeid === this.state.userItem.idCard) {
+          this.numAll += parseInt(this.listNum(item, index));
+        } else if (
+          this.props.code !== '200003' &&
+          (item.nodeid === this.state.userItem.idCard || item.nodeid === 'smart_baq')
+        ) {
           return;
         } else {
           this.numAll += parseInt(this.listNum(item, index));
@@ -752,7 +826,8 @@ class SmartItem extends Component {
                 } else if (listType === 'baq') {
                   if (
                     result[parseInt(result.length) - 1].state === '717001' ||
-                    result[parseInt(result.length) - 1].state === '717005'
+                    result[parseInt(result.length) - 1].state === '717005' ||
+                    result[parseInt(result.length) - 1].state === '717007'
                   ) {
                     res = result[parseInt(result.length) - 1].csmc;
                   } else {
@@ -765,19 +840,38 @@ class SmartItem extends Component {
             });
           });
         } else {
-          if (this.state.msgLists && this.state.msgLists.length > 0) {
+          if (this.props.code === '200003') {
+            if (this.state.msgLists && this.state.msgLists.length > 0) {
+              this.state.msgLists.map(msgItem => {
+                let result = JSON.parse(msgItem.messagecontent).result;
+                let listType = JSON.parse(msgItem.messagecontent).type;
+                if (
+                  msgItem.nodeid === nodeid ||
+                  (msgItem.nodeid === 'smart_baq' && nodeid === this.state.userItem.idCard)
+                ) {
+                  if (listType === 'jqxx') {
+                    res = result[parseInt(result.length) - 1].jqmc
+                      ? result[parseInt(result.length) - 1].jqmc
+                      : '';
+                  } else if (listType === 'baq') {
+                    res = result[parseInt(result.length) - 1].csmc
+                      ? result[parseInt(result.length) - 1].csmc
+                      : result[parseInt(result.length) - 1].haname;
+                  } else {
+                    res = result[parseInt(result.length) - 1].ajmc;
+                  }
+                }
+              });
+            }
+          } else {
             this.state.msgLists.map(msgItem => {
               let result = JSON.parse(msgItem.messagecontent).result;
               let listType = JSON.parse(msgItem.messagecontent).type;
               if (msgItem.nodeid === nodeid) {
-                if (listType === 'jqxx') {
-                  res = result[parseInt(result.length) - 1].jqmc
-                    ? result[parseInt(result.length) - 1].jqmc
-                    : '';
-                } else if (listType === 'baq') {
-                  res = result[parseInt(result.length) - 1].csmc;
+                if (listType === 'baq') {
+                  res = result[parseInt(result.length) - 1].wtlxmc;
                 } else {
-                  res = result[parseInt(result.length) - 1].ajmc;
+                  res = result[parseInt(result.length) - 1].wtlx;
                 }
               }
             });
@@ -864,7 +958,9 @@ class SmartItem extends Component {
               item.nodeid === 'smart_gzdcs' ||
               item.nodeid === 'smart_gzdjq'
                 ? this.saveListNum(item, index)
-                : this.listNum(item, index),
+                : item.nodeid === this.state.userItem.idCard || item.nodeid === 'smart_baq'
+                  ? this.listCsNum(item, index)
+                  : this.listNum(item, index),
               maxTime(item.nodeid)
             )
           }
@@ -879,11 +975,7 @@ class SmartItem extends Component {
           </div>
           <div className={styles.floatLeft}>
             <div className={styles.titles}>{item.name}</div>
-            <div className={styles.news}>
-              {this.props.code === '200001' || this.props.code === '200002'
-                ? ''
-                : listWord(item.nodeid)}
-            </div>
+            <div className={styles.news}>{listWord(item.nodeid)}</div>
           </div>
           <div className={styles.floatLeft}>
             <span style={{ float: 'right', fontSize: '13px', marginTop: '18px' }}>
@@ -899,7 +991,9 @@ class SmartItem extends Component {
                     item.nodeid === 'smart_gzdcs' ||
                     item.nodeid === 'smart_gzdjq'
                     ? this.saveListNum(item, index)
-                    : this.listNum(item, index)
+                    : item.nodeid === this.state.userItem.idCard || item.nodeid === 'smart_baq'
+                      ? this.listCsNum(item, index)
+                      : this.listNum(item, index)
               }
             />
           </div>
@@ -917,7 +1011,15 @@ class SmartItem extends Component {
         searchsList.push(
           <div
             key={item.nodeid}
-            onClick={() => this.getListClick(index, item, this.listNum(item, index))}
+            onClick={() =>
+              this.getListClick(
+                index,
+                item,
+                item.nodeid === this.state.userItem.idCard || item.nodeid === 'smart_baq'
+                  ? this.listCsNum(item, index)
+                  : this.listNum(item, index)
+              )
+            }
             className={
               this.state.nodeId === item.nodeid || this.state.index === item.index
                 ? styles.grayList

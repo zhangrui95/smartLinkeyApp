@@ -42,7 +42,8 @@ export default class SmartDetailItem extends Component {
                   {this.props.listType === 'baq' &&
                   (this.props.childItem.state === '717002' ||
                     this.props.childItem.state === '717003' ||
-                    this.props.childItem.state === '717004') ? (
+                    this.props.childItem.state === '717004' ||
+                    this.props.childItem.state === '717009') ? (
                     ''
                   ) : this.props.k > 0 ? (
                     <Tooltip placement="top" title="取消关注">
@@ -141,7 +142,8 @@ export default class SmartDetailItem extends Component {
                       this.props.listType === 'baq' &&
                       (this.props.childItem.state === '717002' ||
                         this.props.childItem.state === '717003' ||
-                        this.props.childItem.state === '717004')
+                        this.props.childItem.state === '717004' ||
+                        this.props.childItem.state === '717009')
                         ? { paddingLeft: '0' }
                         : this.props.code === '200003'
                           ? { paddingLeft: '24px' }
@@ -160,6 +162,7 @@ export default class SmartDetailItem extends Component {
                               : this.props.childItem.state === '717002' ||
                                 this.props.childItem.state === '717003' ||
                                 this.props.childItem.state === '717004' ||
+                                this.props.childItem.state === '717009' ||
                                 this.props.childItem.state === '717006'
                                 ? this.props.childItem.baqname
                                 : this.props.childItem.csmc
@@ -168,7 +171,8 @@ export default class SmartDetailItem extends Component {
                   {(this.props.listType === 'baq' &&
                     (this.props.childItem.state === '717002' ||
                       this.props.childItem.state === '717003' ||
-                      this.props.childItem.state === '717004')) ||
+                      this.props.childItem.state === '717004' ||
+                      this.props.childItem.state === '717009')) ||
                   (this.props.childItem.status === '' || !this.props.childItem.status) ? (
                     ''
                   ) : (
@@ -242,11 +246,15 @@ export default class SmartDetailItem extends Component {
                       </div>
                     ) : this.props.childItem.state === '717002' ||
                     this.props.childItem.state === '717003' ||
-                    this.props.childItem.state === '717004' ? (
+                    this.props.childItem.state === '717004' ||
+                    this.props.childItem.state === '717009' ? (
                       <div>
                         <div className={styles.nameStyle}>涉案人：{this.props.childItem.name}</div>
                         <div className={styles.nameStyle}>办案人：{this.props.childItem.barxm}</div>
-                        <div className={styles.nameStyle}>时间：{this.props.childItem.time}</div>
+                        <div className={styles.nameStyle}>
+                          {this.props.childItem.state === '717009' ? '返回时间：' : '时间：'}
+                          {this.props.childItem.time}
+                        </div>
                         <div className={styles.nameStyle}>
                           人员状态：{this.props.childItem.state === '717002'
                             ? '人员入区'
@@ -254,7 +262,9 @@ export default class SmartDetailItem extends Component {
                               ? '人员临时离区'
                               : this.props.childItem.state === '717004'
                                 ? '人员离区'
-                                : ''}
+                                : this.props.childItem.state === '717009'
+                                  ? '人员返回办案区'
+                                  : ''}
                         </div>
                       </div>
                     ) : this.props.childItem.state === '717001' ||
