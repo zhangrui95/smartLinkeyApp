@@ -165,6 +165,24 @@ export default class SmartDetail extends Component {
     this._handleScroll(scrollTop);
   }
   componentWillReceiveProps(next) {
+    if (this.props.gzList === next.gzList) {
+      let gzArr = [];
+      next.gzList['gzdjq'].map(e => {
+        gzArr.push({ id: e.id });
+      });
+      next.gzList['gzdwp'].map(e => {
+        gzArr.push({ id: e.id });
+      });
+      next.gzList['gzdaj'].map(e => {
+        gzArr.push({ id: e.id });
+      });
+      next.gzList['gzdcs'].map(e => {
+        gzArr.push({ id: e.id });
+      });
+      this.setState({
+        saveList: gzArr,
+      });
+    }
     if (next.login.loginStatus) {
       for (var i = 0; i < next.msgList.length - 1; i++) {
         for (var j = i + 1; j < next.msgList.length; j++) {
@@ -324,7 +342,6 @@ export default class SmartDetail extends Component {
     });
   };
   goWindow = path => {
-    console.log('path-------->', path);
     // window.open(path)
     ipcRenderer.send('visit-page', {
       url: path,
@@ -364,7 +381,7 @@ export default class SmartDetail extends Component {
   };
   //关注
   getSave = (nodeId, id, name, remark) => {
-    this.state.saveList.push({ id: id, maxmessageid: '', name: name });
+    this.state.saveList.push({ id: id });
     if (this.state.saveList.length > 0) {
       for (var i = 0; i < this.state.saveList.length - 1; i++) {
         for (var j = i + 1; j < this.state.saveList.length; j++) {
@@ -429,14 +446,10 @@ export default class SmartDetail extends Component {
             let k = -1;
             result.map((items, index) => {
               this.state.saveList.map((e, i) => {
-                if (listType === 'baq') {
-                  if (e.id === items['baq_org_code']) {
-                    k = 1;
-                  }
+                if (e.id === '/' + items.uuid || e.id === items['baq_org_code']) {
+                  k = 1;
                 } else {
-                  if (e.id === '/' + items.uuid) {
-                    k = 1;
-                  }
+                  k = -1;
                 }
               });
               this.props.gzList[
@@ -450,14 +463,8 @@ export default class SmartDetail extends Component {
                         ? 'gzdcs'
                         : ''
               ].map((e, i) => {
-                if (listType === 'baq') {
-                  if (e.id === items['baq_org_code']) {
-                    k = 1;
-                  }
-                } else {
-                  if (e.id === '/' + items.uuid) {
-                    k = 1;
-                  }
+                if (e.id === '/' + items.uuid || e.id === items['baq_org_code']) {
+                  k = 1;
                 }
               });
               let url = '';
