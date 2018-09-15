@@ -538,6 +538,17 @@ class SmartItem extends Component {
           remark: '关注的场所',
         });
       }
+      if (this.state.gzList.gzdjq.length > 0) {
+        numSaveData.push({
+          name: '关注的警情',
+          icon: 'images/weishoulijingqing.png',
+          maxmessageid: this.state.gzList.gzdjq[this.state.gzList.gzdjq.length - 1].maxmessageid
+            ? this.state.gzList.gzdjq[this.state.gzList.gzdjq.length - 1].maxmessageid
+            : 0,
+          nodeid: 'smart_gzdjq',
+          remark: '关注的警情',
+        });
+      }
       this.setState({
         numSaveData: numSaveData,
       });
