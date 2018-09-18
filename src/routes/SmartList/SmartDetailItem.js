@@ -27,7 +27,7 @@ export default class SmartDetailItem extends Component {
           <div className={styles.cardBox}>
             <div className={styles.newsTitle}>
               {this.props.listType === 'ajxx' && this.props.code === '200003'
-                ? '智慧案管系统'
+                ? '案件流程管理系统'
                 : this.props.listType === 'jqxx' && this.props.code === '200003'
                   ? '智慧警情系统'
                   : this.props.listType === 'sacw' && this.props.code === '200003'
