@@ -842,7 +842,9 @@ class SmartItem extends Component {
                   ) {
                     res = result[parseInt(result.length) - 1].csmc;
                   } else {
-                    res = result[parseInt(result.length) - 1].baqname;
+                    res = result[parseInt(result.length) - 1].baqname
+                      ? result[parseInt(result.length) - 1].baqname
+                      : result[parseInt(result.length) - 1].haname;
                   }
                 } else {
                   res = result[parseInt(result.length) - 1].ajmc;
