@@ -131,7 +131,7 @@ class SmartItem extends Component {
             id.push(e.id);
             m.push(0);
             if (next.lastTime.nodeid === e.id) {
-              m[i] = next.lastTime.nodeid;
+              m[i] = next.lastTime.id;
               t = true;
             }
           });
