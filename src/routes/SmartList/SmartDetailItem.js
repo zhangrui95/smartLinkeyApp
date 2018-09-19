@@ -193,7 +193,8 @@ export default class SmartDetailItem extends Component {
                         <a style={{ float: 'left', width: '80%', textAlign: 'left' }}>
                           {this.props.code === '200003'
                             ? this.props.childItem.status === '未督办' ||
-                              this.props.childItem.status === '已反馈'
+                              this.props.childItem.status === '已反馈' ||
+                              (this.props.childItem.status === '告警' && this.props.agxt)
                               ? '立即督办'
                               : '查看详情'
                             : this.props.childItem.status === '发起督办' ||

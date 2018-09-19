@@ -46,19 +46,19 @@ class SmartLink extends Component {
     menu.map(item => {
       if (item.resourceCode === 'baq_btn') {
         listMenu.push({
-          name: '办案区管理系统',
+          name: item.name,
           link: `${configUrl.baq}` + '/#/user/loginBytoken?token=' + token,
           img: 'images/bananqu.png',
         });
       } else if (item.resourceCode === 'zhag_btn') {
         listMenu.push({
-          name: '智慧案管系统',
+          name: item.name,
           link: `${configUrl.agUrl}` + '#/loginByToken?token=' + token + '&type=0',
-          img: 'images/anjian.png',
+          img: 'images/zhihuianguan.png',
         });
       } else if (item.resourceCode === 'sjcw_btn') {
         listMenu.push({
-          name: '涉案财物系统',
+          name: item.name,
           link:
             `${configUrl.cwUrl}` +
             '/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD=' +
@@ -68,10 +68,16 @@ class SmartLink extends Component {
         });
       } else if (item.resourceCode === 'zhjq_btn') {
         listMenu.push({
-          name: '智慧警情系统',
+          name: item.name,
           link:
             `${configUrl.jqUrl}` + '/JQCL/userlogin/smartlinkeyLoign?token=' + token + '&type=0',
           img: 'images/jingqing.png',
+        });
+      } else if (item.resourceCode === 'ajlc_btn') {
+        listMenu.push({
+          name: item.name,
+          link: `${configUrl.ajlcUrl}` + '/Manager/smartlinkeyLoign?token=' + token + '&type=0',
+          img: 'images/anjian.png',
         });
       }
     });

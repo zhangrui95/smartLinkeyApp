@@ -17,6 +17,12 @@ export default class SmartDetail extends Component {
     super(props);
     const user = sessionStorage.getItem('user');
     const userNew = JSON.parse(user).user;
+    let agxt = false;
+    JSON.parse(user).menu.map(item => {
+      if (item.resourceCode === 'zhag_btn') {
+        agxt = true;
+      }
+    });
     this.state = {
       // xmppList:[],
       searchList: null,
@@ -36,6 +42,7 @@ export default class SmartDetail extends Component {
       saveList: [],
       enter: false,
       userItem: userNew,
+      agxt: agxt,
       // oldList:[],
     };
   }
@@ -514,37 +521,68 @@ export default class SmartDetail extends Component {
                       items.dbid;
               } else if (listType === 'baq') {
                 if (items.state) {
-                  url =
-                    this.props.code === '200003' &&
-                    (items.state === '717001' ||
-                      items.state === '717005' ||
-                      items.state === '717007')
-                      ? `${configUrl.agUrl}` +
-                        '#/loginByToken?token=' +
-                        token +
-                        '&old_id=' +
-                        items.hw_id +
-                        '&type=4'
-                      : `${configUrl.baq}` +
-                        '/#/user/loginBytoken?token=' +
-                        token +
-                        '&xxid=' +
-                        `${
-                          items.state === '717001' ||
-                          items.state === '717005' ||
-                          items.state === '717007'
-                            ? items.gjid
-                            : items.id
-                        }` +
-                        '&type=' +
-                        items.state +
-                        `${
-                          items.state === '717001' ||
-                          items.state === '717005' ||
-                          items.state === '717007'
-                            ? '&site=' + `${item.nodeid === this.state.userItem.idCard ? '0' : '1'}`
-                            : ''
-                        }`;
+                  if (this.state.agxt) {
+                    url =
+                      this.props.code === '200003' &&
+                      (items.state === '717001' ||
+                        items.state === '717005' ||
+                        items.state === '717007')
+                        ? `${configUrl.agUrl}` +
+                          '#/loginByToken?token=' +
+                          token +
+                          '&old_id=' +
+                          items.hw_id +
+                          '&type=4'
+                        : `${configUrl.baq}` +
+                          '/#/user/loginBytoken?token=' +
+                          token +
+                          '&xxid=' +
+                          `${
+                            items.state === '717001' ||
+                            items.state === '717005' ||
+                            items.state === '717007'
+                              ? items.gjid
+                              : items.id
+                          }` +
+                          '&type=' +
+                          items.state +
+                          `${
+                            items.state === '717001' ||
+                            items.state === '717005' ||
+                            items.state === '717007'
+                              ? '&site=' +
+                                `${item.nodeid === this.state.userItem.idCard ? '0' : '1'}`
+                              : ''
+                          }`;
+                  } else {
+                    url =
+                      this.props.code === '200003' &&
+                      (items.state === '717001' ||
+                        items.state === '717005' ||
+                        items.state === '717007')
+                        ? `${configUrl.baq}` +
+                          '/#/user/loginBytoken?token=' +
+                          token +
+                          '&xxid=' +
+                          `${
+                            items.state === '717001' ||
+                            items.state === '717005' ||
+                            items.state === '717007'
+                              ? items.gjid
+                              : items.id
+                          }` +
+                          '&type=' +
+                          items.state +
+                          `${
+                            items.state === '717001' ||
+                            items.state === '717005' ||
+                            items.state === '717007'
+                              ? '&site=' +
+                                `${item.nodeid === this.state.userItem.idCard ? '0' : '1'}`
+                              : ''
+                          }`
+                        : '';
+                  }
                 } else {
                   url =
                     this.props.code === '200003'
@@ -580,6 +618,7 @@ export default class SmartDetail extends Component {
                   url={url}
                   getSave={(nodeId, id, name, remark) => this.getSave(nodeId, id, name, remark)}
                   getCancelSave={(nodeId, id) => this.getCancelSave(nodeId, id)}
+                  agxt={this.state.agxt}
                 />
               );
             });
@@ -662,37 +701,66 @@ export default class SmartDetail extends Component {
                   searchItem.dbid;
           } else if (listType === 'baq') {
             if (searchItem.state) {
-              url =
-                this.props.code === '200003' &&
-                (searchItem.state === '717001' ||
-                  searchItem.state === '717005' ||
-                  searchItem.state === '717007')
-                  ? `${configUrl.agUrl}` +
-                    '#/loginByToken?token=' +
-                    token +
-                    '&old_id=' +
-                    searchItem.hw_id +
-                    '&type=4'
-                  : `${configUrl.baq}` +
-                    '/#/user/loginBytoken?token=' +
-                    token +
-                    '&xxid=' +
-                    `${
-                      searchItem.state === '717001' ||
-                      searchItem.state === '717005' ||
-                      searchItem.state === '717007'
-                        ? searchItem.gjid
-                        : searchItem.id
-                    }` +
-                    '&type=' +
-                    searchItem.state +
-                    `${
-                      searchItem.state === '717001' ||
-                      searchItem.state === '717005' ||
-                      searchItem.state === '717007'
-                        ? '&site=' + `${item.nodeid === this.state.userItem.idCard ? '0' : '1'}`
-                        : ''
-                    }`;
+              if (this.state.agxt) {
+                url =
+                  this.props.code === '200003' &&
+                  (searchItem.state === '717001' ||
+                    searchItem.state === '717005' ||
+                    searchItem.state === '717007')
+                    ? `${configUrl.agUrl}` +
+                      '#/loginByToken?token=' +
+                      token +
+                      '&old_id=' +
+                      searchItem.hw_id +
+                      '&type=4'
+                    : `${configUrl.baq}` +
+                      '/#/user/loginBytoken?token=' +
+                      token +
+                      '&xxid=' +
+                      `${
+                        searchItem.state === '717001' ||
+                        searchItem.state === '717005' ||
+                        searchItem.state === '717007'
+                          ? searchItem.gjid
+                          : searchItem.id
+                      }` +
+                      '&type=' +
+                      searchItem.state +
+                      `${
+                        searchItem.state === '717001' ||
+                        searchItem.state === '717005' ||
+                        searchItem.state === '717007'
+                          ? '&site=' + `${item.nodeid === this.state.userItem.idCard ? '0' : '1'}`
+                          : ''
+                      }`;
+              } else {
+                url =
+                  this.props.code === '200003' &&
+                  (searchItem.state === '717001' ||
+                    searchItem.state === '717005' ||
+                    searchItem.state === '717007')
+                    ? `${configUrl.baq}` +
+                      '/#/user/loginBytoken?token=' +
+                      token +
+                      '&xxid=' +
+                      `${
+                        searchItem.state === '717001' ||
+                        searchItem.state === '717005' ||
+                        searchItem.state === '717007'
+                          ? searchItem.gjid
+                          : searchItem.id
+                      }` +
+                      '&type=' +
+                      searchItem.state +
+                      `${
+                        searchItem.state === '717001' ||
+                        searchItem.state === '717005' ||
+                        searchItem.state === '717007'
+                          ? '&site=' + `${item.nodeid === this.state.userItem.idCard ? '0' : '1'}`
+                          : ''
+                      }`
+                    : '';
+              }
             } else {
               url =
                 this.props.code === '200003'
@@ -734,6 +802,7 @@ export default class SmartDetail extends Component {
               getSave={(nodeId, id, name, remark) => this.getSave(nodeId, id, name, remark)}
               getCancelSave={(nodeId, id) => this.getCancelSave(nodeId, id)}
               cardId={this.state.userItem.idCard}
+              agxt={this.state.agxt}
             />
           );
         });
