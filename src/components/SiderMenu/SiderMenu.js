@@ -92,8 +92,8 @@ class SiderMenu extends PureComponent {
       aboutvisible: false,
       jcvisible: false,
       loginWay: [],
-      searchWord: true,
-      word: true,
+      searchWord: this.props.user.status,
+      word: this.props.user.status,
       allNum: 0,
       showTime: false,
       newsLoading: false,
@@ -108,12 +108,10 @@ class SiderMenu extends PureComponent {
   componentDidMount() {
     ipcRenderer.on('progress', this.getPro);
     ipcRenderer.on('package-damaged', this.getPackageDamaged);
-    ipcRenderer.on('huaci_status', this.getSerWord);
   }
   componentWillUnmount() {
     ipcRenderer.removeListener('progress', this.getPro);
     ipcRenderer.removeListener('package-damaged', this.getPackageDamaged);
-    ipcRenderer.removeListener('huaci_status', this.getSerWord);
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.location.pathname !== this.props.location.pathname) {
@@ -132,12 +130,6 @@ class SiderMenu extends PureComponent {
       });
     }
   }
-  getSerWord = (event, status) => {
-    this.setState({
-      searchWord: status,
-      word: status,
-    });
-  };
   /**
    * Convert pathname to openKeys
    * /list/search/articles = > ['list','/list/search']

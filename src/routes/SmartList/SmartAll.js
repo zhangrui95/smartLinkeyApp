@@ -55,6 +55,7 @@ class SmartAll extends Component {
   }
 
   componentDidMount() {
+    ipcRenderer.on('huaci_status', this.getSerWord);
     ipcRenderer.on('huaci', this.selectWord);
     this.getXmpp();
     this.setState({
@@ -117,7 +118,16 @@ class SmartAll extends Component {
   componentWillUnmount() {
     ipcRenderer.removeListener('huaci', this.selectWord);
     ipcRenderer.removeListener('alert-update-notice', this.lintenUpdate);
+    ipcRenderer.removeListener('huaci_status', this.getSerWord);
   }
+  getSerWord = (event, status) => {
+    this.props.dispatch({
+      type: 'user/huaciStatus',
+      payload: {
+        status: status,
+      },
+    });
+  };
   selectWord = (event, data) => {
     console.log('huaci---data', data);
     if (data['query_type']) {

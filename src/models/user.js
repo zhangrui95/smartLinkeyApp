@@ -24,6 +24,7 @@ export default {
     allList: [],
     msgList: [],
     searchWordList: null,
+    status: null,
   },
 
   effects: {
@@ -116,6 +117,12 @@ export default {
       const response = yield call(getLoginIp, payload);
       callback(response);
     },
+    *huaciStatus({ payload }, { put }) {
+      yield put({
+        type: 'getStatus',
+        payload: payload,
+      });
+    },
   },
 
   reducers: {
@@ -192,6 +199,12 @@ export default {
       return {
         ...state,
         searchWordList: payload,
+      };
+    },
+    getStatus(state, { payload }) {
+      return {
+        ...state,
+        status: payload.status,
       };
     },
   },
