@@ -531,9 +531,8 @@ export default class SmartDetail extends Component {
                           '#/loginByToken?token=' +
                           token +
                           '&old_id=' +
-                          items.hw_id
-                          ? items.hw_id
-                          : items.gjid + '&type=4'
+                          `${items.hw_id ? items.hw_id : items.gjid}` +
+                          '&type=4'
                         : `${configUrl.baq}` +
                           '/#/user/loginBytoken?token=' +
                           token +
@@ -712,9 +711,8 @@ export default class SmartDetail extends Component {
                       '#/loginByToken?token=' +
                       token +
                       '&old_id=' +
-                      searchItem.hw_id
-                      ? searchItem.hw_id
-                      : searchItem.gjid + '&type=4'
+                      `${searchItem.hw_id ? searchItem.hw_id : searchItem.gjid}` +
+                      '&type=4'
                     : `${configUrl.baq}` +
                       '/#/user/loginBytoken?token=' +
                       token +
