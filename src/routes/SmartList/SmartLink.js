@@ -22,7 +22,6 @@ class SmartLink extends Component {
     window.addEventListener('resize', () => {
       this.updateSize();
     });
-    document.getElementById('scroll').scrollTop = document.getElementById('scroll').scrollHeight;
   }
   updateSize() {
     this.setState({

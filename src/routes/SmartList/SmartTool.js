@@ -51,7 +51,6 @@ class SmartTool extends Component {
     window.addEventListener('resize', () => {
       this.updateSize();
     });
-    document.getElementById('scroll').scrollTop = document.getElementById('scroll').scrollHeight;
     ipcRenderer.on('tool-icon', this.getIcon);
   }
   componentWillReceiveProps(next) {

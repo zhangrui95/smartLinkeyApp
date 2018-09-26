@@ -52,7 +52,7 @@ export default class SmartDetail extends Component {
       this.updateSize();
     });
     setTimeout(() => {
-      document.getElementById('scroll').scrollTop = document.getElementById('scroll').scrollHeight;
+      this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
     }, 500);
   }
   updateSize() {
@@ -67,7 +67,7 @@ export default class SmartDetail extends Component {
         this.setState({
           lookMore: true,
         });
-        document.getElementById('scroll').scrollTop = 10;
+        this.refs.scroll.scrollTop = 10;
       } else {
         this.setState({
           lookMore: false,
@@ -90,7 +90,7 @@ export default class SmartDetail extends Component {
             if (sessionStorage.getItem('nodeid') === this.state.userItem.idCard) {
               this.props.onNewMsg('smart_baq', 3 * this.state.endLength);
             }
-            document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
+            this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
             setTimeout(() => {
               this.props.msgList.map((e, i) => {
                 if (e.nodeid === sessionStorage.getItem('nodeid')) {
@@ -111,7 +111,7 @@ export default class SmartDetail extends Component {
                 this.setState({
                   load: false,
                 });
-                document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
+                this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
               } else {
                 lens.slice(0, 3).map((e, i) => {
                   _length += e;
@@ -126,8 +126,8 @@ export default class SmartDetail extends Component {
                 this.setState({
                   load: false,
                 });
-                document.getElementById('scroll').scrollTop = length;
-                document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
+                this.refs.scroll.scrollTop = length;
+                this.refs.scroll.addEventListener('scroll', this.scrollHandler);
               }
             }, this.state.endLength < 10 ? 500 : this.state.endLength * 50);
           } else {
@@ -135,7 +135,7 @@ export default class SmartDetail extends Component {
               this.state.data.length <
               parseInt(this.state.endLength) * parseInt(this.state.pageCount)
             ) {
-              document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
+              this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
             } else {
               this.setState({
                 load: true,
@@ -147,15 +147,15 @@ export default class SmartDetail extends Component {
                 this.setState({
                   endLength: parseInt(this.state.endLength) + 1,
                 });
-                document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
+                this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
                 let len =
                   parseInt(this.state.data.length) -
                   (parseInt(this.state.endLength) - 1) * parseInt(this.state.pageCount);
                 if (len < 5) {
-                  document.getElementById('scroll').scrollTop = 480 * len;
+                  this.refs.scroll.scrollTop = 480 * len;
                 } else {
-                  document.getElementById('scroll').scrollTop = 2200;
-                  document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
+                  this.refs.scroll.scrollTop = 2200;
+                  this.refs.scroll.addEventListener('scroll', this.scrollHandler);
                 }
               }, 500);
             }
@@ -168,7 +168,7 @@ export default class SmartDetail extends Component {
     this.setState({
       scrollHeight: 0,
     });
-    let scrollTop = document.getElementById('scroll').scrollTop;
+    let scrollTop = this.refs.scroll.scrollTop;
     this._handleScroll(scrollTop);
   }
   componentWillReceiveProps(next) {
@@ -209,12 +209,12 @@ export default class SmartDetail extends Component {
         this.props.event !== next.event
       ) {
         this.setState({
-          scrollHeight: document.getElementById('scroll').scrollHeight,
+          scrollHeight: this.refs.scroll.scrollHeight,
           endLength: 1,
           empty: false,
           noSearch: true,
         });
-        document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
+        this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
         this.setState({
           searchList: null,
           loading: true,
@@ -224,17 +224,15 @@ export default class SmartDetail extends Component {
           this.setState({
             loading: false,
           });
-          document.getElementById('scroll').scrollTop = document.getElementById(
-            'scroll'
-          ).scrollHeight;
-          document.getElementById('scroll').addEventListener('scroll', this.scrollHandler);
+          this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
+          this.refs.scroll.addEventListener('scroll', this.scrollHandler);
         }, this.props.user.allList !== next.user.allList ? 0 : 600);
       } else if (
         this.props.user.searchList !== next.user.searchList &&
         (this.props.code === '200003' || (this.props.code !== '200003' && next.type == 2))
       ) {
         if (next.user.searchList.length > 0) {
-          document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
+          this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
           let search = [];
           let searchAll = [];
           next.user.searchList.map(search => {
@@ -272,10 +270,8 @@ export default class SmartDetail extends Component {
             this.setState({
               loading: false,
             });
-            document.getElementById('scroll').scrollTop = document.getElementById(
-              'scroll'
-            ).scrollHeight;
-            document.getElementById('scroll').removeEventListener('scroll', this.scrollHandler);
+            this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
+            this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
           }, 500);
         } else {
           this.setState({
@@ -814,7 +810,7 @@ export default class SmartDetail extends Component {
         <div
           className={this.state.enter ? styles.rightScrollHover : styles.rightScroll}
           style={{ height: this.state.height + 'px' }}
-          id="scroll"
+          ref="scroll"
           onMouseEnter={this.getMouseEnter}
           onMouseLeave={this.getMouseLeave}
         >
