@@ -509,8 +509,7 @@ export default class SmartDetail extends Component {
                   }`;
           } else {
             url =
-              this.props.code === '200003' &&
-              (items.state === '717001' || items.state === '717005' || items.state === '717007')
+              this.props.code === '200003' && items.state
                 ? `${configUrl.baq}` +
                   '/#/user/loginBytoken?token=' +
                   token +
