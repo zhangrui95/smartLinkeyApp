@@ -433,6 +433,122 @@ export default class SmartDetail extends Component {
     const userNew = JSON.parse(user).user;
     const pwd = JSON.parse(user).password;
     const token = JSON.parse(user).token;
+    let listUrl = (listType, items, item) => {
+      let url = '';
+      if (listType === 'ajxx') {
+        url =
+          this.props.code === '200003'
+            ? `${configUrl.agUrl}` +
+              '#/loginByToken?token=' +
+              token +
+              '&wtid=' +
+              items.wtid +
+              '&type=1'
+            : `${configUrl.ajlcUrl}` +
+              '/Manager/smartlinkeyLoign?token=' +
+              token +
+              '&dbid=' +
+              items.dbid +
+              '&type=1';
+      } else if (listType === 'jqxx') {
+        url =
+          this.props.code === '200003'
+            ? `${configUrl.agUrl}` +
+              '#/loginByToken?token=' +
+              token +
+              '&system_id=' +
+              items['system_id'] +
+              '&type=2'
+            : `${configUrl.jqUrl}` +
+              '/JQCL/userlogin/smartlinkeyLoign?token=' +
+              token +
+              '&dbid=' +
+              items.dbid +
+              '&type=1';
+      } else if (listType === 'sacw') {
+        url =
+          this.props.code === '200003'
+            ? `${configUrl.agUrl}` +
+              '#/loginByToken?token=' +
+              token +
+              '&wtid=' +
+              items.wtid +
+              '&type=3'
+            : `${configUrl.cwUrl}` +
+              '/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD=' +
+              userNew.idCard +
+              '&type=1&dbid=' +
+              items.dbid;
+      } else if (listType === 'baq') {
+        if (items.state) {
+          if (this.state.agxt) {
+            url =
+              this.props.code === '200003' &&
+              (items.state === '717001' || items.state === '717005' || items.state === '717007')
+                ? `${configUrl.agUrl}` +
+                  '#/loginByToken?token=' +
+                  token +
+                  '&old_id=' +
+                  `${items.hw_id ? items.hw_id : items.gjid}` +
+                  '&type=4'
+                : `${configUrl.baq}` +
+                  '/#/user/loginBytoken?token=' +
+                  token +
+                  '&xxid=' +
+                  `${
+                    items.state === '717001' || items.state === '717005' || items.state === '717007'
+                      ? items.gjid
+                      : items.id
+                  }` +
+                  '&type=' +
+                  items.state +
+                  `${
+                    items.state === '717001' || items.state === '717005' || items.state === '717007'
+                      ? '&site=' + `${item.nodeid === this.state.userItem.idCard ? '0' : '1'}`
+                      : ''
+                  }`;
+          } else {
+            url =
+              this.props.code === '200003' &&
+              (items.state === '717001' || items.state === '717005' || items.state === '717007')
+                ? `${configUrl.baq}` +
+                  '/#/user/loginBytoken?token=' +
+                  token +
+                  '&xxid=' +
+                  `${
+                    items.state === '717001' || items.state === '717005' || items.state === '717007'
+                      ? items.gjid
+                      : items.id
+                  }` +
+                  '&type=' +
+                  items.state +
+                  `${
+                    items.state === '717001' || items.state === '717005' || items.state === '717007'
+                      ? '&site=' + `${item.nodeid === this.state.userItem.idCard ? '0' : '1'}`
+                      : ''
+                  }`
+                : '';
+          }
+        } else {
+          url =
+            this.props.code === '200003'
+              ? `${configUrl.agUrl}` +
+                '#/loginByToken?token=' +
+                token +
+                '&wtid=' +
+                items.wtid +
+                '&type=4'
+              : `${configUrl.baq}` +
+                '/#/user/loginBytoken?token=' +
+                token +
+                '&xxid=' +
+                items.dbid +
+                '&type=' +
+                `${items.status === '整改完成' || items.status === '已反馈' ? '717010' : '717008'}`;
+        }
+      }
+      return url;
+    };
     if (this.state.searchList === null) {
       list = [];
       if (this.state.data.length > 0) {
@@ -470,137 +586,6 @@ export default class SmartDetail extends Component {
                   k = 1;
                 }
               });
-              let url = '';
-              if (listType === 'ajxx') {
-                url =
-                  this.props.code === '200003'
-                    ? `${configUrl.agUrl}` +
-                      '#/loginByToken?token=' +
-                      token +
-                      '&wtid=' +
-                      items.wtid +
-                      '&type=1'
-                    : `${configUrl.ajlcUrl}` +
-                      '/Manager/smartlinkeyLoign?token=' +
-                      token +
-                      '&dbid=' +
-                      items.dbid +
-                      '&type=1';
-              } else if (listType === 'jqxx') {
-                url =
-                  this.props.code === '200003'
-                    ? `${configUrl.agUrl}` +
-                      '#/loginByToken?token=' +
-                      token +
-                      '&system_id=' +
-                      items['system_id'] +
-                      '&type=2'
-                    : `${configUrl.jqUrl}` +
-                      '/JQCL/userlogin/smartlinkeyLoign?token=' +
-                      token +
-                      '&dbid=' +
-                      items.dbid +
-                      '&type=1';
-              } else if (listType === 'sacw') {
-                url =
-                  this.props.code === '200003'
-                    ? `${configUrl.agUrl}` +
-                      '#/loginByToken?token=' +
-                      token +
-                      '&wtid=' +
-                      items.wtid +
-                      '&type=3'
-                    : `${configUrl.cwUrl}` +
-                      '/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD=' +
-                      userNew.idCard +
-                      '&type=1&dbid=' +
-                      items.dbid;
-              } else if (listType === 'baq') {
-                if (items.state) {
-                  if (this.state.agxt) {
-                    url =
-                      this.props.code === '200003' &&
-                      (items.state === '717001' ||
-                        items.state === '717005' ||
-                        items.state === '717007')
-                        ? `${configUrl.agUrl}` +
-                          '#/loginByToken?token=' +
-                          token +
-                          '&old_id=' +
-                          `${items.hw_id ? items.hw_id : items.gjid}` +
-                          '&type=4'
-                        : `${configUrl.baq}` +
-                          '/#/user/loginBytoken?token=' +
-                          token +
-                          '&xxid=' +
-                          `${
-                            items.state === '717001' ||
-                            items.state === '717005' ||
-                            items.state === '717007'
-                              ? items.gjid
-                              : items.id
-                          }` +
-                          '&type=' +
-                          items.state +
-                          `${
-                            items.state === '717001' ||
-                            items.state === '717005' ||
-                            items.state === '717007'
-                              ? '&site=' +
-                                `${item.nodeid === this.state.userItem.idCard ? '0' : '1'}`
-                              : ''
-                          }`;
-                  } else {
-                    url =
-                      this.props.code === '200003' &&
-                      (items.state === '717001' ||
-                        items.state === '717005' ||
-                        items.state === '717007')
-                        ? `${configUrl.baq}` +
-                          '/#/user/loginBytoken?token=' +
-                          token +
-                          '&xxid=' +
-                          `${
-                            items.state === '717001' ||
-                            items.state === '717005' ||
-                            items.state === '717007'
-                              ? items.gjid
-                              : items.id
-                          }` +
-                          '&type=' +
-                          items.state +
-                          `${
-                            items.state === '717001' ||
-                            items.state === '717005' ||
-                            items.state === '717007'
-                              ? '&site=' +
-                                `${item.nodeid === this.state.userItem.idCard ? '0' : '1'}`
-                              : ''
-                          }`
-                        : '';
-                  }
-                } else {
-                  url =
-                    this.props.code === '200003'
-                      ? `${configUrl.agUrl}` +
-                        '#/loginByToken?token=' +
-                        token +
-                        '&wtid=' +
-                        items.wtid +
-                        '&type=4'
-                      : `${configUrl.baq}` +
-                        '/#/user/loginBytoken?token=' +
-                        token +
-                        '&xxid=' +
-                        items.dbid +
-                        '&type=' +
-                        `${
-                          items.status === '整改完成' || items.status === '已反馈'
-                            ? '717010'
-                            : '717008'
-                        }`;
-                }
-              }
               list.push(
                 <SmartDetailItem
                   listType={listType}
@@ -611,7 +596,7 @@ export default class SmartDetail extends Component {
                   code={this.props.code}
                   goWindow={path => this.goWindow(path)}
                   k={k}
-                  url={url}
+                  url={listUrl(listType, items, item)}
                   getSave={(nodeId, id, name, remark) => this.getSave(nodeId, id, name, remark)}
                   getCancelSave={(nodeId, id) => this.getCancelSave(nodeId, id)}
                   agxt={this.state.agxt}
@@ -623,15 +608,15 @@ export default class SmartDetail extends Component {
     } else {
       list = [];
       let readTime = '';
-      let searchItem = '';
+      let items = '';
       let k = -1;
       if (this.state.searchList.length > 0) {
         this.state.searchList.map((item, i) => {
-          searchItem = this.state.searchList[i].result;
+          items = this.state.searchList[i].result;
           listType = item.type;
           readTime = item.time;
           this.state.saveList.map((e, i) => {
-            if (e.id === '/' + searchItem.uuid || e.id === searchItem['baq_org_code']) {
+            if (e.id === '/' + items.uuid || e.id === items['baq_org_code']) {
               k = 1;
             }
           });
@@ -646,155 +631,21 @@ export default class SmartDetail extends Component {
                     ? 'gzdcs'
                     : ''
           ].map((e, i) => {
-            if (e.id === '/' + searchItem.uuid || e.id === searchItem['baq_org_code']) {
+            if (e.id === '/' + items.uuid || e.id === items['baq_org_code']) {
               k = 1;
             }
           });
-          let url = '';
-          if (listType === 'ajxx') {
-            url =
-              this.props.code === '200003'
-                ? `${configUrl.agUrl}` +
-                  '#/loginByToken?token=' +
-                  token +
-                  '&wtid=' +
-                  searchItem.wtid +
-                  '&type=1'
-                : `${configUrl.ajlcUrl}` +
-                  '/Manager/smartlinkeyLoign?token=' +
-                  token +
-                  '&dbid=' +
-                  searchItem.dbid +
-                  '&type=1';
-          } else if (listType === 'jqxx') {
-            url =
-              this.props.code === '200003'
-                ? `${configUrl.agUrl}` +
-                  '#/loginByToken?token=' +
-                  token +
-                  '&wtid=' +
-                  searchItem.wtid +
-                  '&type=2'
-                : `${configUrl.jqUrl}` +
-                  '/JQCL/userlogin/smartlinkeyLoign?token=' +
-                  token +
-                  '&dbid=' +
-                  searchItem.dbid +
-                  '&type=1';
-          } else if (listType === 'sacw') {
-            url =
-              this.props.code === '200003'
-                ? `${configUrl.agUrl}` +
-                  '#/loginByToken?token=' +
-                  token +
-                  '&wtid=' +
-                  searchItem.wtid +
-                  '&type=3'
-                : `${configUrl.cwUrl}` +
-                  '/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD=' +
-                  userNew.idCard +
-                  '&type=1&dbid=' +
-                  searchItem.dbid;
-          } else if (listType === 'baq') {
-            if (searchItem.state) {
-              if (this.state.agxt) {
-                url =
-                  this.props.code === '200003' &&
-                  (searchItem.state === '717001' ||
-                    searchItem.state === '717005' ||
-                    searchItem.state === '717007')
-                    ? `${configUrl.agUrl}` +
-                      '#/loginByToken?token=' +
-                      token +
-                      '&old_id=' +
-                      `${searchItem.hw_id ? searchItem.hw_id : searchItem.gjid}` +
-                      '&type=4'
-                    : `${configUrl.baq}` +
-                      '/#/user/loginBytoken?token=' +
-                      token +
-                      '&xxid=' +
-                      `${
-                        searchItem.state === '717001' ||
-                        searchItem.state === '717005' ||
-                        searchItem.state === '717007'
-                          ? searchItem.gjid
-                          : searchItem.id
-                      }` +
-                      '&type=' +
-                      searchItem.state +
-                      `${
-                        searchItem.state === '717001' ||
-                        searchItem.state === '717005' ||
-                        searchItem.state === '717007'
-                          ? '&site=' + `${item.nodeid === this.state.userItem.idCard ? '0' : '1'}`
-                          : ''
-                      }`;
-              } else {
-                url =
-                  this.props.code === '200003' &&
-                  (searchItem.state === '717001' ||
-                    searchItem.state === '717005' ||
-                    searchItem.state === '717007')
-                    ? `${configUrl.baq}` +
-                      '/#/user/loginBytoken?token=' +
-                      token +
-                      '&xxid=' +
-                      `${
-                        searchItem.state === '717001' ||
-                        searchItem.state === '717005' ||
-                        searchItem.state === '717007'
-                          ? searchItem.gjid
-                          : searchItem.id
-                      }` +
-                      '&type=' +
-                      searchItem.state +
-                      `${
-                        searchItem.state === '717001' ||
-                        searchItem.state === '717005' ||
-                        searchItem.state === '717007'
-                          ? '&site=' + `${item.nodeid === this.state.userItem.idCard ? '0' : '1'}`
-                          : ''
-                      }`
-                    : '';
-              }
-            } else {
-              url =
-                this.props.code === '200003'
-                  ? `${configUrl.agUrl}` +
-                    '#/loginByToken?token=' +
-                    token +
-                    '&wtid=' +
-                    searchItem.wtid +
-                    '&type=4'
-                  : `${configUrl.baq}` +
-                    '/#/user/loginBytoken?token=' +
-                    token +
-                    '&xxid=' +
-                    searchItem.dbid +
-                    '&type=717008';
-            }
-          } else {
-            url =
-              this.props.code === '200003'
-                ? `${configUrl.agUrl}` +
-                  '#/loginByToken?token=' +
-                  token +
-                  '&wtid=' +
-                  searchItem.wtid +
-                  '&type=4'
-                : '';
-          }
           list.push(
             <SmartDetailItem
               listType={listType}
               index=""
               i={i}
               item={this.state.searchList[i]}
-              childItem={searchItem}
+              childItem={items}
               code={this.props.code}
               goWindow={path => this.goWindow(path)}
               k={k}
-              url={url}
+              url={listUrl(listType, items, item)}
               getSave={(nodeId, id, name, remark) => this.getSave(nodeId, id, name, remark)}
               getCancelSave={(nodeId, id) => this.getCancelSave(nodeId, id)}
               cardId={this.state.userItem.idCard}
