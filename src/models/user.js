@@ -87,11 +87,18 @@ export default {
       });
     },
     *find({ payload, callback }, { call, put }) {
-      const response = yield call(getFind, payload);
-      yield put({
-        type: 'findList',
-        payload: response,
-      });
+      if (payload.nodeid.length > 0) {
+        const response = yield call(getFind, payload);
+        yield put({
+          type: 'findList',
+          payload: response,
+        });
+      } else {
+        yield put({
+          type: 'findList',
+          payload: { data: [] },
+        });
+      }
     },
     *findTool({ payload }, { put }) {
       yield put({

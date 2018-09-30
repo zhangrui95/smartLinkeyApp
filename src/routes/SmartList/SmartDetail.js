@@ -508,25 +508,24 @@ export default class SmartDetail extends Component {
                       : ''
                   }`;
           } else {
-            url =
-              this.props.code === '200003' && items.state
-                ? `${configUrl.baq}` +
-                  '/#/user/loginBytoken?token=' +
-                  token +
-                  '&xxid=' +
-                  `${
-                    items.state === '717001' || items.state === '717005' || items.state === '717007'
-                      ? items.gjid
-                      : items.id
-                  }` +
-                  '&type=' +
-                  items.state +
-                  `${
-                    items.state === '717001' || items.state === '717005' || items.state === '717007'
-                      ? '&site=' + `${item.nodeid === this.state.userItem.idCard ? '0' : '1'}`
-                      : ''
-                  }`
-                : '';
+            url = items.state
+              ? `${configUrl.baq}` +
+                '/#/user/loginBytoken?token=' +
+                token +
+                '&xxid=' +
+                `${
+                  items.state === '717001' || items.state === '717005' || items.state === '717007'
+                    ? items.gjid
+                    : items.id
+                }` +
+                '&type=' +
+                items.state +
+                `${
+                  items.state === '717001' || items.state === '717005' || items.state === '717007'
+                    ? '&site=' + `${item.nodeid === this.state.userItem.idCard ? '0' : '1'}`
+                    : ''
+                }`
+              : '';
           }
         } else {
           url =

@@ -453,12 +453,12 @@ class SmartAll extends Component {
     const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
       labelCol: {
-        xs: { span: 24 },
-        sm: { span: 9 },
+        xs: { span: 10 },
+        sm: { span: 10 },
       },
       wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 15 },
+        xs: { span: 14 },
+        sm: { span: 14 },
       },
     };
     let item = '';
@@ -494,6 +494,7 @@ class SmartAll extends Component {
     }
     let children = [];
     let name, sex, cardId, mz;
+    let events = '';
     if (this.state.wordSerList && this.state.wordSerList.length > 0) {
       this.state.wordSerList.map((e, i) => {
         e.tags.map((item, idx) => {
@@ -504,10 +505,7 @@ class SmartAll extends Component {
               children.push('正常');
             }
             item.data.map((event, index) => {
-              name = event['姓名'];
-              sex = event['性别'];
-              cardId = event['公民身份号码'];
-              mz = event['民族'];
+              events = event;
             });
           }
         });
@@ -542,26 +540,15 @@ class SmartAll extends Component {
                     {children.length > 0 ? children.toString() : '暂无'}
                   </FormItem>
                 </Col>
-                <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
-                  <FormItem {...formItemLayout} label="姓名">
-                    {name ? name : ''}
-                  </FormItem>
-                </Col>
-                <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
-                  <FormItem {...formItemLayout} label="身份证号码">
-                    {cardId ? cardId : ''}
-                  </FormItem>
-                </Col>
-                <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
-                  <FormItem {...formItemLayout} label="性别">
-                    {sex ? sex : ''}
-                  </FormItem>
-                </Col>
-                <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
-                  <FormItem {...formItemLayout} label="民族">
-                    {mz ? mz : ''}
-                  </FormItem>
-                </Col>
+                {configUrl.personList.map(e => {
+                  return (
+                    <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
+                      <FormItem {...formItemLayout} label={e}>
+                        {events[e] ? events[e] : ''}
+                      </FormItem>
+                    </Col>
+                  );
+                })}
               </Row>
             </Form>
           ) : (
