@@ -373,12 +373,11 @@ class SmartAll extends Component {
           otherArr = this.msgListAll;
         }
         this.setState({
-          msgList:
-            this.state.queryList.length > 0 ? otherArr.sort(this.compare('id')) : this.msgListAll,
+          msgList: this.state.queryList.length > 0 ? otherArr : this.msgListAll,
         });
         this.props.dispatch({
           type: 'user/getMsgList',
-          payload: otherArr.sort(this.compare('id')),
+          payload: otherArr,
         });
       }
     }
@@ -481,10 +480,14 @@ class SmartAll extends Component {
             msgExe={this.state.msgExe}
             Xmpp={this.state.Xmpp}
             lastTime={
-              this.state.msgList.length > 0 && this.state.event.length > 0
+              this.state.msgList.sort(this.compare('id')).length > 0 && this.state.event.length > 0
                 ? {
-                    id: this.state.msgList[this.state.msgList.length - 1].id,
-                    nodeid: this.state.msgList[this.state.msgList.length - 1].nodeid,
+                    id: this.state.msgList.sort(this.compare('id'))[
+                      this.state.msgList.sort(this.compare('id')).length - 1
+                    ].id,
+                    nodeid: this.state.msgList.sort(this.compare('id'))[
+                      this.state.msgList.sort(this.compare('id')).length - 1
+                    ].nodeid,
                   }
                 : ''
             }
