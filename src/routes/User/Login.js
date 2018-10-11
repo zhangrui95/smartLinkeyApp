@@ -41,8 +41,7 @@ class LoginPage extends Component {
         window.configUrl = {
           sysName: 'Smartlinkey', //项目名称
           ywzxUrl: response.system.ywzx, //运维中心
-          // testUrl: response.system.login_server, //安全中心登陆接口
-          testUrl: 'http://192.168.3.202:8100', //安全中心登陆接口
+          testUrl: response.system.login_server, //安全中心登陆接口
           GMUrl: response.system.xmpp_api, //XMPP接口
           fwName: response.system.xmpp_server, //XMPP服务名称,
           pcName: '/pc',

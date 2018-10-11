@@ -38,7 +38,7 @@ class SmartLink extends Component {
           this.state.menu.map(item => {
             if (
               (item.resourceCode === 'baq_btn' && event.unique === 'baq') ||
-              (item.resourceCode === 'sacw_btn' && event.unique === 'sacw') ||
+              (item.resourceCode === 'sjcw_btn' && event.unique === 'sacw') ||
               (item.resourceCode === 'zhjq_btn' && event.unique === 'zhjq') ||
               (item.resourceCode === 'zhag_btn' && event.unique === 'zhag') ||
               (item.resourceCode === 'ajlc_btn' && event.unique === 'ajlc') ||

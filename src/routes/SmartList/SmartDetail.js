@@ -6,6 +6,7 @@ import styles from './SmartDetail.less';
 import { getLocalTime, autoheight } from '../../utils/utils';
 import { ipcRenderer } from 'electron';
 import SmartDetailItem from './SmartDetailItem';
+import TableDetail from './newsDetail/TableDetail';
 @connect(({ user, login, save }) => ({
   user,
   login,
@@ -44,6 +45,7 @@ export default class SmartDetail extends Component {
       userItem: userNew,
       agxt: agxt,
       visible: false,
+      isTable: false,
       // oldList:[],
     };
   }
@@ -391,6 +393,11 @@ export default class SmartDetail extends Component {
       visible: false,
     });
   };
+  changeTable = () => {
+    this.setState({
+      isTable: !this.state.isTable,
+    });
+  };
   render() {
     let pageLength = parseInt(this.state.endLength) * parseInt(this.state.pageCount);
     let result = '';
@@ -605,13 +612,14 @@ export default class SmartDetail extends Component {
           {/*{this.props.getTitle}*/}
           <span style={{ float: 'left' }}>消息</span>
           <Icon
-            type="qrcode"
+            type="bars"
             theme="outlined"
-            style={{ float: 'right', marginTop: '10px', fontSize: '28px' }}
+            style={{ float: 'right', marginTop: '10px', fontSize: '28px', cursor: 'pointer' }}
+            onClick={this.changeTable}
           />
           <Icon
             type="file-search"
-            style={{ float: 'right', margin: '10px', fontSize: '28px' }}
+            style={{ float: 'right', margin: '10px', fontSize: '28px', cursor: 'pointer' }}
             theme="outlined"
             onClick={this.showDrawer}
           />
@@ -652,56 +660,60 @@ export default class SmartDetail extends Component {
             </Drawer>
           </div>
         </div>
-        <div
-          className={this.state.enter ? styles.rightScrollHover : styles.rightScroll}
-          style={{ height: this.state.height + 'px' }}
-          ref="scroll"
-          onMouseEnter={this.getMouseEnter}
-          onMouseLeave={this.getMouseLeave}
-        >
-          <Spin
-            className={
-              this.state.load &&
-              (this.props.code === '200003' ||
-                (this.props.code !== '200003' && this.props.type == 2))
-                ? ''
-                : styles.none
-            }
-            style={{ margin: '10px 0 0 50%', left: '-10px', position: 'absolute' }}
-          />
-          <Spin size="large" className={this.state.loading ? '' : styles.none} />
+        {this.state.isTable ? (
+          <TableDetail height={this.state.height} />
+        ) : (
           <div
-            className={
-              this.state.lookMore &&
-              (this.props.code === '200003' ||
-                (this.props.code !== '200003' && this.props.type == 2)) &&
-              !this.state.loading
-                ? ''
-                : styles.none
-            }
-            style={{
-              width: '100%',
-              textAlign: 'center',
-              height: '40px',
-              lineHeight: '50px',
-              fontSize: '12px',
-              color: '#1bb7d2',
-            }}
+            className={this.state.enter ? styles.rightScrollHover : styles.rightScroll}
+            style={{ height: this.state.height + 'px' }}
+            ref="scroll"
+            onMouseEnter={this.getMouseEnter}
+            onMouseLeave={this.getMouseLeave}
           >
-            查看更多消息
+            <Spin
+              className={
+                this.state.load &&
+                (this.props.code === '200003' ||
+                  (this.props.code !== '200003' && this.props.type == 2))
+                  ? ''
+                  : styles.none
+              }
+              style={{ margin: '10px 0 0 50%', left: '-10px', position: 'absolute' }}
+            />
+            <Spin size="large" className={this.state.loading ? '' : styles.none} />
+            <div
+              className={
+                this.state.lookMore &&
+                (this.props.code === '200003' ||
+                  (this.props.code !== '200003' && this.props.type == 2)) &&
+                !this.state.loading
+                  ? ''
+                  : styles.none
+              }
+              style={{
+                width: '100%',
+                textAlign: 'center',
+                height: '40px',
+                lineHeight: '50px',
+                fontSize: '12px',
+                color: '#1bb7d2',
+              }}
+            >
+              查看更多消息
+            </div>
+            <div className={this.state.loading ? styles.none : ''}>
+              {this.state.empty ? (
+                <div
+                  style={{ width: '100%', textAlign: 'center', height: '50px', lineHeight: '50px' }}
+                >
+                  暂无数据
+                </div>
+              ) : (
+                list
+              )}
+            </div>
           </div>
-          <div className={this.state.loading ? styles.none : ''}>
-            {this.state.empty ? (
-              <div
-                style={{ width: '100%', textAlign: 'center', height: '50px', lineHeight: '50px' }}
-              >
-                暂无数据
-              </div>
-            ) : (
-              list
-            )}
-          </div>
-        </div>
+        )}
       </div>
     );
   }

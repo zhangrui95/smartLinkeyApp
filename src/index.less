@@ -168,8 +168,13 @@ img {
   }
   .ant-drawer-right .ant-drawer-content-wrapper {
     height: ~'calc(100% - 10px)!important';
-    right: 5px !important;
     top: 5px !important;
+    right: 0px !important;
+  }
+  .ant-drawer-open {
+    .ant-drawer-content-wrapper {
+      right: 5px !important;
+    }
   }
 }
 .none {

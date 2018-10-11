@@ -388,7 +388,7 @@ class SiderMenu extends PureComponent {
               this.setState({
                 visible: false,
               });
-              message.success('提示：密码修改成功，请重新登陆!');
+              message.success('提示：密码修改成功，请重新登录!');
               this.props.dispatch({
                 type: 'login/getLogout',
               });

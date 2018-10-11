@@ -74,73 +74,73 @@ class SmartItem extends Component {
     this.setState({
       msgLists: next.msgList,
     });
-    if (this.props.Xmpp !== next.Xmpp) {
-      let arr = [];
-      next.user.allList.map(item => {
-        if (
-          (item.nodeid === 'smart_wtaj' ||
-            item.nodeid === 'smart_wtwp' ||
-            item.nodeid === this.state.userItem.idCard ||
-            item.nodeid === 'smart_syrjq') &&
-          next.code === '200003'
-        ) {
-          arr.push(item);
-        } else if (
-          next.code !== '200003' &&
-          item.nodeid !== this.state.userItem.idCard &&
-          item.nodeid &&
-          item.nodeid !== this.state.userItem.department
-        ) {
-          arr.unshift(item);
-        }
-      });
-      if (arr.length > 0) {
-        if (arr[0].nodeid === this.state.userItem.idCard) {
-          this.getTimeSaves(
-            arr[0].nodeid + ',smart_baq',
-            Date.parse(new Date()) + ',' + Date.parse(new Date())
-          );
-        } else {
-          this.getTimeSaves(arr[0].nodeid, Date.parse(new Date()));
-        }
-      }
-    } else {
-      if (this.props.lastTime.id < next.lastTime.id) {
-        next.user.allList.map(res => {
-          if (
-            res.nodeid === sessionStorage.getItem('nodeidType') ||
-            (res.nodeid === 'smart_baq' &&
-              sessionStorage.getItem('nodeidType') === this.state.userItem.idCard)
-          ) {
-            if (res.maxmessageid && res.maxmessageid > 0) {
-              if (
-                next.lastTime.nodeid === sessionStorage.getItem('nodeidType') ||
-                (next.lastTime.nodeid === 'smart_baq' &&
-                  sessionStorage.getItem('nodeidType') === this.state.userItem.idCard)
-              ) {
-                this.getTimeSaves(next.lastTime.nodeid, next.lastTime.id);
-              }
-            }
-          }
-        });
-        if (sessionStorage.getItem('nodeidSave') === 'smart_gzdcs') {
-          let id = [];
-          let m = [];
-          let t = false;
-          this.state.gzList['gzdcs'].map((e, i) => {
-            id.push(e.id);
-            m.push(0);
-            if (next.lastTime.nodeid === e.id) {
-              m[i] = next.lastTime.id;
-              t = true;
-            }
-          });
-          if (t) {
-            this.getTimeSaves(id.toString(), m.toString());
-          }
-        }
-      }
-    }
+    // if (this.props.Xmpp !== next.Xmpp) {
+    //   let arr = [];
+    //   next.user.allList.map(item => {
+    //     if (
+    //       (item.nodeid === 'smart_wtaj' ||
+    //         item.nodeid === 'smart_wtwp' ||
+    //         item.nodeid === this.state.userItem.idCard ||
+    //         item.nodeid === 'smart_syrjq') &&
+    //       next.code === '200003'
+    //     ) {
+    //       arr.push(item);
+    //     } else if (
+    //       next.code !== '200003' &&
+    //       item.nodeid !== this.state.userItem.idCard &&
+    //       item.nodeid &&
+    //       item.nodeid !== this.state.userItem.department
+    //     ) {
+    //       arr.unshift(item);
+    //     }
+    //   });
+    //   if (arr.length > 0) {
+    //     if (arr[0].nodeid === this.state.userItem.idCard) {
+    //       this.getTimeSaves(
+    //         arr[0].nodeid + ',smart_baq',
+    //         Date.parse(new Date()) + ',' + Date.parse(new Date())
+    //       );
+    //     } else {
+    //       this.getTimeSaves(arr[0].nodeid, Date.parse(new Date()));
+    //     }
+    //   }
+    // } else {
+    //   if (this.props.lastTime.id < next.lastTime.id) {
+    //     next.user.allList.map(res => {
+    //       if (
+    //         res.nodeid === sessionStorage.getItem('nodeidType') ||
+    //         (res.nodeid === 'smart_baq' &&
+    //           sessionStorage.getItem('nodeidType') === this.state.userItem.idCard)
+    //       ) {
+    //         if (res.maxmessageid && res.maxmessageid > 0) {
+    //           if (
+    //             next.lastTime.nodeid === sessionStorage.getItem('nodeidType') ||
+    //             (next.lastTime.nodeid === 'smart_baq' &&
+    //               sessionStorage.getItem('nodeidType') === this.state.userItem.idCard)
+    //           ) {
+    //             this.getTimeSaves(next.lastTime.nodeid, next.lastTime.id);
+    //           }
+    //         }
+    //       }
+    //     });
+    //     if (sessionStorage.getItem('nodeidSave') === 'smart_gzdcs') {
+    //       let id = [];
+    //       let m = [];
+    //       let t = false;
+    //       this.state.gzList['gzdcs'].map((e, i) => {
+    //         id.push(e.id);
+    //         m.push(0);
+    //         if (next.lastTime.nodeid === e.id) {
+    //           m[i] = next.lastTime.id;
+    //           t = true;
+    //         }
+    //       });
+    //       if (t) {
+    //         this.getTimeSaves(id.toString(), m.toString());
+    //       }
+    //     }
+    //   }
+    // }
     if (this.props.event !== next.event || this.props.type !== next.type) {
       this.setState({
         firstLogin: false,
