@@ -7,6 +7,8 @@ import {
   getWord01,
   getLoginIp,
   getSubQuery,
+  getConfig,
+  getIcons,
 } from '../services/user';
 
 export default {
@@ -129,6 +131,14 @@ export default {
         type: 'getStatus',
         payload: payload,
       });
+    },
+    *getConfigGoto({ callback }, { call }) {
+      const response = yield call(getConfig);
+      callback(response);
+    },
+    *getIcon({ callback }, { call }) {
+      const response = yield call(getIcons);
+      callback(response);
     },
   },
 

@@ -39,7 +39,7 @@ export default function request(url, options) {
   };
 
   const newOptions = { ...defaultOptions, ...options };
-  if (newOptions.method === 'POST' || newOptions.method === 'PUT') {
+  if (newOptions.method === 'POST' || newOptions.method === 'PUT' || newOptions.method === 'GET') {
     newOptions.headers = {
       Accept: 'application/json',
       'Content-Type': 'application/json; charset=utf-8',

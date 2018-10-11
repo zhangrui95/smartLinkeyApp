@@ -1071,15 +1071,10 @@ class SmartItem extends Component {
               }
               className={styles.allNum}
             />
-            <Badge
-              count={
-                this.props.type == 1 || this.props.type == 3 || this.props.type == 4
-                  ? ''
-                  : this.getSaveAll()
-              }
-              className={styles.allSaveNum}
-            />
-            <div className={styles.listScroll} style={{ height: this.state.height + 'px' }}>
+            <div
+              className={styles.listScroll}
+              style={{ height: this.state.height + 'px', display: 'none' }}
+            >
               <Spin size="large" className={this.props.loading ? '' : styles.none} />
               {sessionStorage.getItem('search') !== '' &&
               this.state.serList.length === 0 &&
@@ -1094,7 +1089,7 @@ class SmartItem extends Component {
                 list
               )}
             </div>
-            <div style={{ float: 'left', width: 'calc(100% - 225px)' }}>
+            <div style={{ float: 'left', width: '100%' }}>
               <SmartDetail
                 len={this.props.len}
                 type={this.props.type}
@@ -1116,26 +1111,14 @@ class SmartItem extends Component {
         </div>
         <div className={this.props.type == 1 ? '' : styles.none}>
           <Badge count={this.props.type == 1 ? this.getAll() : ''} className={styles.allNum} />
-          <Badge
-            count={this.props.type == 1 ? this.getSaveAll() : ''}
-            className={styles.allSaveNum}
-          />
           <SmartLink />
         </div>
         <div className={this.props.type == 3 ? '' : styles.none}>
           <Badge count={this.props.type == 3 ? this.getAll() : ''} className={styles.allNum} />
-          <Badge
-            count={this.props.type == 3 ? this.getSaveAll() : ''}
-            className={styles.allSaveNum}
-          />
           <SmartTool msgExe={this.props.msgExe} type={this.props.type} />
         </div>
         <div className={this.props.type == 4 ? '' : styles.none}>
           <Badge count={this.props.type == 4 ? this.getAll() : ''} className={styles.allNum} />
-          <Badge
-            count={this.props.type == 4 ? this.getSaveAll() : ''}
-            className={styles.allSaveNum}
-          />
           <SmartQuestion />
         </div>
       </div>

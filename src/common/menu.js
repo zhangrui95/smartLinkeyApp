@@ -11,11 +11,11 @@ const menuData = [
     icon: 'images/system2.png',
     path: 'smartList/smartAll?type=1',
   },
-  {
-    name: '关注',
-    icon: 'images/guanzhu2.png',
-    path: 'smartList/smartAll?type=2',
-  },
+  // {
+  //   name: '关注',
+  //   icon: 'images/guanzhu2.png',
+  //   path: 'smartList/smartAll?type=2',
+  // },
   {
     name: '工具集',
     icon: 'images/gongju2.png',

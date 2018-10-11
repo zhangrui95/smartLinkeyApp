@@ -8,8 +8,8 @@ import { Strophe, $pres } from 'strophe.js';
 import { getSubscriptions } from '../../utils/strophe.pubsub';
 import { getQueryString, getLocalTime } from '../../utils/utils';
 import styles from './SmartDetail.less';
-const BOSH_SERVICE = 'http://' + `${configUrl.fwName}` + ':7070/http-bind/';
 import { ipcRenderer } from 'electron';
+
 let connection = '';
 const FormItem = Form.Item;
 
@@ -180,6 +180,7 @@ class SmartAll extends Component {
     });
   };
   getXmpp = () => {
+    const BOSH_SERVICE = 'http://' + `${configUrl.fwName}` + ':7070/http-bind/';
     connection = new Strophe.Connection(BOSH_SERVICE);
     connection.connect(
       this.state.xmppUser + '@' + `${configUrl.fwName}` + `${configUrl.pcName}`,

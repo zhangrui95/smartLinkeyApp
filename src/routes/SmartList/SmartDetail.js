@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'dva';
-import { Card, Icon, Avatar, Tag, Spin, Tooltip, message } from 'antd';
+import { Card, Icon, Avatar, Tag, Spin, Tooltip, message, Drawer, Button } from 'antd';
 const { Meta } = Card;
 import styles from './SmartDetail.less';
 import { getLocalTime, autoheight } from '../../utils/utils';
@@ -43,6 +43,7 @@ export default class SmartDetail extends Component {
       enter: false,
       userItem: userNew,
       agxt: agxt,
+      visible: false,
       // oldList:[],
     };
   }
@@ -295,53 +296,8 @@ export default class SmartDetail extends Component {
   };
   getListNew = next => {
     let list = [];
-    if (sessionStorage.getItem('nodeid') === 'smart_gzdaj') {
-      next.gzList['gzdaj'].map((e, i) => {
-        next.msgList.map(item => {
-          if (e.id === item.nodeid) {
-            list.push(item);
-          }
-        });
-      });
-    } else if (sessionStorage.getItem('nodeid') === 'smart_gzdwp') {
-      next.gzList['gzdwp'].map((e, i) => {
-        next.msgList.map(item => {
-          if (e.id === item.nodeid) {
-            list.push(item);
-          }
-        });
-      });
-    } else if (sessionStorage.getItem('nodeid') === 'smart_gzdjq') {
-      next.gzList['gzdjq'].map((e, i) => {
-        next.msgList.map(item => {
-          if (e.id === item.nodeid) {
-            list.push(item);
-          }
-        });
-      });
-    } else if (sessionStorage.getItem('nodeid') === 'smart_gzdcs') {
-      next.gzList['gzdcs'].map((e, i) => {
-        next.msgList.map(item => {
-          if (e.id === item.nodeid) {
-            list.push(item);
-          }
-        });
-      });
-    } else if (sessionStorage.getItem('nodeid') === this.state.userItem.idCard) {
-      next.msgList.map(item => {
-        if (item.nodeid === this.state.userItem.idCard || item.nodeid === 'smart_baq') {
-          list.push(item);
-        }
-      });
-    } else {
-      next.msgList.map(item => {
-        if (sessionStorage.getItem('nodeid') && sessionStorage.getItem('nodeid') === item.nodeid) {
-          list.push(item);
-        }
-      });
-    }
     this.setState({
-      data: list.sort(this.compare('id')),
+      data: next.msgList.sort(this.compare('id')),
     });
   };
   goWindow = path => {
@@ -359,7 +315,7 @@ export default class SmartDetail extends Component {
     } else return new DOMParser().parseFromString(str, 'text/xml');
   };
   //取消关注
-  getCancelSave = (nodeId, id) => {
+  getCancelSave = id => {
     this.state.saveList.map((e, i) => {
       if (e.id === id) {
         this.state.saveList.splice(i, 1);
@@ -383,7 +339,7 @@ export default class SmartDetail extends Component {
     });
   };
   //关注
-  getSave = (nodeId, id, name, remark) => {
+  getSave = (id, name, remark) => {
     this.state.saveList.push({ id: id });
     if (this.state.saveList.length > 0) {
       for (var i = 0; i < this.state.saveList.length - 1; i++) {
@@ -424,6 +380,17 @@ export default class SmartDetail extends Component {
       enter: false,
     });
   };
+  showDrawer = () => {
+    this.setState({
+      visible: true,
+    });
+  };
+
+  onClose = () => {
+    this.setState({
+      visible: false,
+    });
+  };
   render() {
     let pageLength = parseInt(this.state.endLength) * parseInt(this.state.pageCount);
     let result = '';
@@ -433,120 +400,6 @@ export default class SmartDetail extends Component {
     const userNew = JSON.parse(user).user;
     const pwd = JSON.parse(user).password;
     const token = JSON.parse(user).token;
-    let listUrl = (listType, items, item) => {
-      let url = '';
-      if (listType === 'ajxx') {
-        url =
-          this.props.code === '200003'
-            ? `${configUrl.agUrl}` +
-              '#/loginByToken?token=' +
-              token +
-              '&wtid=' +
-              items.wtid +
-              '&type=1'
-            : `${configUrl.ajlcUrl}` +
-              '/Manager/smartlinkeyLoign?token=' +
-              token +
-              '&dbid=' +
-              items.dbid +
-              '&type=1';
-      } else if (listType === 'jqxx') {
-        url =
-          this.props.code === '200003'
-            ? `${configUrl.agUrl}` +
-              '#/loginByToken?token=' +
-              token +
-              '&system_id=' +
-              items['system_id'] +
-              '&type=2'
-            : `${configUrl.jqUrl}` +
-              '/JQCL/userlogin/smartlinkeyLoign?token=' +
-              token +
-              '&dbid=' +
-              items.dbid +
-              '&type=1';
-      } else if (listType === 'sacw') {
-        url =
-          this.props.code === '200003'
-            ? `${configUrl.agUrl}` +
-              '#/loginByToken?token=' +
-              token +
-              '&wtid=' +
-              items.wtid +
-              '&type=3'
-            : `${configUrl.cwUrl}` +
-              '/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD=' +
-              userNew.idCard +
-              '&type=1&dbid=' +
-              items.dbid;
-      } else if (listType === 'baq') {
-        if (items.state) {
-          if (this.state.agxt) {
-            url =
-              this.props.code === '200003' &&
-              (items.state === '717001' || items.state === '717005' || items.state === '717007')
-                ? `${configUrl.agUrl}` +
-                  '#/loginByToken?token=' +
-                  token +
-                  '&old_id=' +
-                  `${items.hw_id ? items.hw_id : items.gjid}` +
-                  '&type=4'
-                : `${configUrl.baq}` +
-                  '/#/user/loginBytoken?token=' +
-                  token +
-                  '&xxid=' +
-                  `${
-                    items.state === '717001' || items.state === '717005' || items.state === '717007'
-                      ? items.gjid
-                      : items.id
-                  }` +
-                  '&type=' +
-                  items.state +
-                  `${
-                    items.state === '717001' || items.state === '717005' || items.state === '717007'
-                      ? '&site=' + `${item.nodeid === this.state.userItem.idCard ? '0' : '1'}`
-                      : ''
-                  }`;
-          } else {
-            url = items.state
-              ? `${configUrl.baq}` +
-                '/#/user/loginBytoken?token=' +
-                token +
-                '&xxid=' +
-                `${
-                  items.state === '717001' || items.state === '717005' || items.state === '717007'
-                    ? items.gjid
-                    : items.id
-                }` +
-                '&type=' +
-                items.state +
-                `${
-                  items.state === '717001' || items.state === '717005' || items.state === '717007'
-                    ? '&site=' + `${item.nodeid === this.state.userItem.idCard ? '0' : '1'}`
-                    : ''
-                }`
-              : '';
-          }
-        } else {
-          url =
-            this.props.code === '200003'
-              ? `${configUrl.agUrl}` +
-                '#/loginByToken?token=' +
-                token +
-                '&wtid=' +
-                items.wtid +
-                '&type=4'
-              : `${configUrl.baq}` +
-                '/#/user/loginBytoken?token=' +
-                token +
-                '&xxid=' +
-                items.dbid +
-                '&type=' +
-                `${items.status === '整改完成' || items.status === '已反馈' ? '717010' : '717008'}`;
-        }
-      }
-      return url;
-    };
     if (this.state.searchList === null) {
       list = [];
       if (this.state.data.length > 0) {
@@ -584,19 +437,112 @@ export default class SmartDetail extends Component {
                   k = 1;
                 }
               });
+              let itemCs = {
+                xxtb: {
+                  type: 1,
+                  isvisible: true,
+                  msg: 'images/user.png',
+                  act: '点击图标触发的动作',
+                  comment: '备注',
+                },
+                xxbt: {
+                  type: 0,
+                  isvisible: true,
+                  msg: '涉案财物系统',
+                  act: '点击图标触发的动作',
+                  comment: '备注',
+                },
+                xxbj: {
+                  type: 1,
+                  isvisible: true,
+                  msg: '',
+                  act: '点击图标触发的动作',
+                  comment: '备注',
+                  id: 'Z111111111',
+                },
+                xxmc: {
+                  type: 0,
+                  isvisible: true,
+                  msg: '20170811张三盗窃案',
+                  act: '点击图标触发的动作',
+                  comment: '备注',
+                },
+                xxzt: {
+                  type: 0,
+                  isvisible: true,
+                  msg: '未督办',
+                  act: '点击图标触发的动作',
+                  comment: '备注',
+                },
+                xxtp: {
+                  type: 1,
+                  isvisible: true,
+                  msg: 'images/chatu1.png',
+                  act: '点击图标触发的动作',
+                  comment: '备注',
+                },
+                xxxs_ary: [
+                  {
+                    type: 0,
+                    isvisible: true,
+                    msg: '物品名称：手机',
+                    act: '点击图标触发的动作',
+                    comment: '备注',
+                  },
+                  {
+                    type: 0,
+                    isvisible: true,
+                    msg: '库管员：李四',
+                    act: '点击图标触发的动作',
+                    comment: '备注',
+                  },
+                  {
+                    type: 0,
+                    isvisible: true,
+                    msg: '入库时间：2018-09-22',
+                    act: '点击图标触发的动作',
+                    comment: '备注',
+                  },
+                  {
+                    type: 0,
+                    isvisible: true,
+                    msg: '问题类型：非法入库',
+                    act: '点击图标触发的动作',
+                    comment: '备注',
+                  },
+                ],
+                btn_ary: [
+                  {
+                    type: 2,
+                    isvisible: true,
+                    msg: '立即督办',
+                    act:
+                      'http://192.168.3.201:97/#/loginByToken?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIzMTZlYjBmOS1lZGU3LTQxM2UtYTRkZC1hOWM2OGY0YTczOTAiLCJpYXQiOjE1MzkxNDg5MjAsInN1YiI6IjQzMyIsImlzcyI6IlNlY3VyaXR5IENlbnRlciIsImRlcGFydG1lbnQiOnsiaWQiOjEwMTEsInBhcmVudElkIjoxNSwiZGVwdGgiOjIsIm5hbWUiOiLniaHkuLnmsZ_luILlhazlronlsYAiLCJjb2RlIjoiMjMxMDAwMDAwMDAwIn0sImdvdmVybm1lbnQiOltdLCJpZCI6NDMzLCJpZENhcmQiOiIyMzAyMzExOTkwMDEwMTEyNDUiLCJwY2FyZCI6IjYzIiwibmFtZSI6Imxk5rWL6K-VIiwiam9iIjpbeyJjb2RlIjoiMjAwMDAzIiwibmFtZSI6IuaJp-azleebkeeuoSJ9XSwiY29udGFjdCI6IjE1MTE0NTE0NTIxIiwiaXNBZG1pbiI6MCwiZXhwIjoxNTQxMjIyNTIwfQ.RkglY9vV6mZD8eRcvk2mEXCAAD1tfCEIjwf_0zqPEjA&wtid=07189221-89f5-4da8-b8b8-ad02cd634571&type=3',
+                    comment: '备注',
+                  },
+                  {
+                    type: 2,
+                    isvisible: true,
+                    msg: '查看详情',
+                    act:
+                      'http://192.168.3.201:97/#/loginByToken?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIzMTZlYjBmOS1lZGU3LTQxM2UtYTRkZC1hOWM2OGY0YTczOTAiLCJpYXQiOjE1MzkxNDg5MjAsInN1YiI6IjQzMyIsImlzcyI6IlNlY3VyaXR5IENlbnRlciIsImRlcGFydG1lbnQiOnsiaWQiOjEwMTEsInBhcmVudElkIjoxNSwiZGVwdGgiOjIsIm5hbWUiOiLniaHkuLnmsZ_luILlhazlronlsYAiLCJjb2RlIjoiMjMxMDAwMDAwMDAwIn0sImdvdmVybm1lbnQiOltdLCJpZCI6NDMzLCJpZENhcmQiOiIyMzAyMzExOTkwMDEwMTEyNDUiLCJwY2FyZCI6IjYzIiwibmFtZSI6Imxk5rWL6K-VIiwiam9iIjpbeyJjb2RlIjoiMjAwMDAzIiwibmFtZSI6IuaJp-azleebkeeuoSJ9XSwiY29udGFjdCI6IjE1MTE0NTE0NTIxIiwiaXNBZG1pbiI6MCwiZXhwIjoxNTQxMjIyNTIwfQ.RkglY9vV6mZD8eRcvk2mEXCAAD1tfCEIjwf_0zqPEjA&wtid=07189221-89f5-4da8-b8b8-ad02cd634571&type=3',
+                    comment: '备注',
+                  },
+                ],
+              };
               list.push(
                 <SmartDetailItem
                   listType={listType}
                   index={index}
                   i={i}
                   item={item}
-                  childItem={items}
+                  childItem={itemCs}
                   code={this.props.code}
                   goWindow={path => this.goWindow(path)}
                   k={k}
-                  url={listUrl(listType, items, item)}
-                  getSave={(nodeId, id, name, remark) => this.getSave(nodeId, id, name, remark)}
-                  getCancelSave={(nodeId, id) => this.getCancelSave(nodeId, id)}
+                  // url={listUrl(listType, items, item)}
+                  getSave={(id, name, remark) => this.getSave(id, name, remark)}
+                  getCancelSave={id => this.getCancelSave(id)}
                   agxt={this.state.agxt}
                 />
               );
@@ -655,7 +601,57 @@ export default class SmartDetail extends Component {
     }
     return (
       <div>
-        <div className={styles.headerTitle}>{this.props.getTitle}</div>
+        <div className={styles.headerTitle}>
+          {/*{this.props.getTitle}*/}
+          <span style={{ float: 'left' }}>消息</span>
+          <Icon
+            type="qrcode"
+            theme="outlined"
+            style={{ float: 'right', marginTop: '10px', fontSize: '28px' }}
+          />
+          <Icon
+            type="file-search"
+            style={{ float: 'right', margin: '10px', fontSize: '28px' }}
+            theme="outlined"
+            onClick={this.showDrawer}
+          />
+          <div>
+            <Drawer
+              title="筛选"
+              placement="right"
+              closable={false}
+              onClose={this.onClose}
+              visible={this.state.visible}
+              mask={false}
+            >
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  width: '100%',
+                  borderTop: '1px solid #e8e8e8',
+                  padding: '10px 16px',
+                  textAlign: 'right',
+                  left: 0,
+                  background: '#fff',
+                  borderRadius: '0 0 4px 4px',
+                }}
+              >
+                <Button
+                  style={{
+                    marginRight: 8,
+                  }}
+                  onClick={this.onClose}
+                >
+                  取消
+                </Button>
+                <Button onClick={this.onClose} type="primary">
+                  确定
+                </Button>
+              </div>
+            </Drawer>
+          </div>
+        </div>
         <div
           className={this.state.enter ? styles.rightScrollHover : styles.rightScroll}
           style={{ height: this.state.height + 'px' }}

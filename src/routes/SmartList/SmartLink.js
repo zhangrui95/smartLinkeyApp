@@ -7,6 +7,9 @@ import { withCookies, Cookies } from 'react-cookie';
 import { autoheight } from '../../utils/utils';
 import { ipcRenderer } from 'electron';
 
+@connect(({ user }) => ({
+  user,
+}))
 class SmartLink extends Component {
   static propTypes = {
     cookies: instanceOf(Cookies).isRequired,
@@ -16,11 +19,56 @@ class SmartLink extends Component {
     const { cookies } = props;
     this.state = {
       height: 575,
+      listMenu: [],
+      menu: JSON.parse(sessionStorage.getItem('user')).menu,
+      userNew: JSON.parse(sessionStorage.getItem('user')).user,
+      pwd: JSON.parse(sessionStorage.getItem('user')).password,
+      token: JSON.parse(sessionStorage.getItem('user')).token,
+      iconList: [],
     };
   }
   componentDidMount() {
     window.addEventListener('resize', () => {
       this.updateSize();
+    });
+    this.props.dispatch({
+      type: 'user/getConfigGoto',
+      callback: response => {
+        response.third.map((event, i) => {
+          this.state.menu.map(item => {
+            if (
+              (item.resourceCode === 'baq_btn' && event.unique === 'baq') ||
+              (item.resourceCode === 'sacw_btn' && event.unique === 'sacw') ||
+              (item.resourceCode === 'zhjq_btn' && event.unique === 'zhjq') ||
+              (item.resourceCode === 'zhag_btn' && event.unique === 'zhag') ||
+              (item.resourceCode === 'ajlc_btn' && event.unique === 'ajlc') ||
+              item.resourceCode === event.unique
+            ) {
+              this.state.listMenu.push({
+                name: event.name,
+                link:
+                  event.unique === 'sacw'
+                    ? event.goto + this.state.userNew.idCard
+                    : event.goto + this.state.token,
+                icon: event.icon,
+                img: '',
+              });
+            }
+          });
+        });
+      },
+    });
+    this.props.dispatch({
+      type: 'user/getIcon',
+      callback: response => {
+        response.map(e => {
+          this.state.listMenu.map(event => {
+            if (event.icon === e.name) {
+              event.img = e.icon;
+            }
+          });
+        });
+      },
     });
   }
   updateSize() {
@@ -36,55 +84,11 @@ class SmartLink extends Component {
     // window.open(path);
   };
   render() {
-    const user = sessionStorage.getItem('user');
-    const menu = JSON.parse(user).menu;
-    const userNew = JSON.parse(user).user;
-    const pwd = JSON.parse(user).password;
-    const token = JSON.parse(user).token;
-    let listMenu = [];
-    menu.map(item => {
-      if (item.resourceCode === 'baq_btn') {
-        listMenu.push({
-          name: item.name,
-          link: `${configUrl.baq}` + '/#/user/loginBytoken?token=' + token,
-          img: 'images/bananqu.png',
-        });
-      } else if (item.resourceCode === 'zhag_btn') {
-        listMenu.push({
-          name: item.name,
-          link: `${configUrl.agUrl}` + '#/loginByToken?token=' + token + '&type=0',
-          img: 'images/zhihuianguan.png',
-        });
-      } else if (item.resourceCode === 'sjcw_btn') {
-        listMenu.push({
-          name: item.name,
-          link:
-            `${configUrl.cwUrl}` +
-            '/HCRFID/smartlinkey/smartlinkeyLoign.do?userCodeMD=' +
-            userNew.idCard +
-            '&type=0',
-          img: 'images/weishoulijingqing.png',
-        });
-      } else if (item.resourceCode === 'zhjq_btn') {
-        listMenu.push({
-          name: item.name,
-          link:
-            `${configUrl.jqUrl}` + '/JQCL/userlogin/smartlinkeyLoign?token=' + token + '&type=0',
-          img: 'images/jingqing.png',
-        });
-      } else if (item.resourceCode === 'ajlc_btn') {
-        listMenu.push({
-          name: item.name,
-          link: `${configUrl.ajlcUrl}` + '/Manager/smartlinkeyLoign?token=' + token + '&type=0',
-          img: 'images/anjian.png',
-        });
-      }
-    });
     return (
       <div style={{ padding: '0 24px', height: this.state.height + 'px' }}>
         <div className="gutter-example">
           <Row gutter={20}>
-            {listMenu.map(items => {
+            {this.state.listMenu.map(items => {
               return (
                 <Col
                   className="gutter-row"

@@ -45,3 +45,13 @@ export async function getLoginIp(params) {
     body: params,
   });
 }
+export async function getConfig() {
+  return request('http://192.168.3.170:8080/api/config', {
+    method: 'GET',
+  });
+}
+export async function getIcons() {
+  return request('http://192.168.3.170:8080/api/icon', {
+    method: 'GET',
+  });
+}
