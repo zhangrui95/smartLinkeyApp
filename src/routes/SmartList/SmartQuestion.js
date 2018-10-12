@@ -5,8 +5,9 @@ import styles from './SmartItem.less';
 import SmartQuestDetail from './SmartQuestDetail';
 import { connect } from 'dva';
 
-@connect(({ question }) => ({
+@connect(({ question, user }) => ({
   question,
+  user,
 }))
 export default class SmartQuestion extends Component {
   constructor(props) {
@@ -15,6 +16,7 @@ export default class SmartQuestion extends Component {
       height: 575,
       index: 0,
       title: '',
+      menu: JSON.parse(sessionStorage.getItem('user')).menu,
       typeId: '109005',
       data: [],
     };
@@ -24,21 +26,63 @@ export default class SmartQuestion extends Component {
       this.updateSize();
     });
     this.props.dispatch({
-      type: 'question/getQuestion',
-      payload: {
-        pd: {
-          pid: '1090',
-        },
-      },
+      type: 'user/getConfigGoto',
       callback: response => {
-        this.setState({
-          data: response.data.list,
-          typeId: response.data.list[0].code,
-          title: response.data.list[0].name,
+        response.third.map((event, i) => {
+          this.state.menu.map(item => {
+            if (
+              (item.resourceCode === '109004' && event.unique === 'baq') ||
+              (item.resourceCode === '109003' && event.unique === 'sacw') ||
+              (item.resourceCode === '109001' && event.unique === 'zhjq') ||
+              (item.resourceCode === '109005' && event.unique === 'zhag') ||
+              (item.resourceCode === '109002' && event.unique === 'ajlc') ||
+              item.resourceCode === event.unique
+            ) {
+              this.state.data.push({
+                name: item.name,
+                code: item.resourceCode,
+                icon: event.icon,
+                iconurl: '',
+              });
+              this.setState({
+                data: this.state.data,
+                typeId: this.state.data[0].code,
+                title: this.state.data[0].name,
+              });
+            }
+          });
         });
       },
     });
+    this.props.dispatch({
+      type: 'user/getIcon',
+      callback: response => {
+        response.map(e => {
+          this.state.data.map(event => {
+            if (event.icon === e.name) {
+              event.iconurl = e.icon;
+            }
+          });
+        });
+      },
+    });
+    // this.props.dispatch({
+    //   type: 'question/getQuestion',
+    //   payload: {
+    //     pd: {
+    //       pid: '1090',
+    //     },
+    //   },
+    //   callback: response => {
+    //     this.setState({
+    //       data: response.data.list,
+    //       typeId: response.data.list[0].code,
+    //       title: response.data.list[0].name,
+    //     });
+    //   },
+    // });
   }
+
   updateSize() {
     this.setState({
       height: autoheight() < 700 ? autoheight() - 65 : autoheight() - 54,
@@ -61,7 +105,7 @@ export default class SmartQuestion extends Component {
           onClick={() => this.getListClick(index, e)}
         >
           <div className={styles.floatLeft}>
-            <img className={styles.imgLeft} src={e.iconurl} />
+            <img className={styles.imgLeft} src={e.iconurl} style={{ borderRadius: '50px' }} />
           </div>
           <div className={styles.floatLeft}>
             <div className={styles.titles} style={{ marginTop: '28px' }}>
