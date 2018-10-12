@@ -260,7 +260,7 @@ class SmartAll extends Component {
               names[i].attributes[0].textContent === 'smart_wtaj' ||
               names[i].attributes[0].textContent === 'smart_syrjq' ||
               names[i].attributes[0].textContent === this.state.userItem.idCard
-                ? 3
+                ? 10
                 : ''
             );
           } else {

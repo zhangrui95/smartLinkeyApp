@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'dva';
 import { Card, Icon, Avatar, Tag, Spin, Tooltip, message, Drawer, Button } from 'antd';
+import TagSelect from 'ant-design-pro/lib/TagSelect';
 const { Meta } = Card;
 import styles from './SmartDetail.less';
 import { getLocalTime, autoheight } from '../../utils/utils';
@@ -235,7 +236,9 @@ export default class SmartDetail extends Component {
         (this.props.code === '200003' || (this.props.code !== '200003' && next.type == 2))
       ) {
         if (next.user.searchList.length > 0) {
-          this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
+          if (!this.state.isTable) {
+            this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
+          }
           let search = [];
           let searchAll = [];
           next.user.searchList.map(search => {
@@ -273,8 +276,10 @@ export default class SmartDetail extends Component {
             this.setState({
               loading: false,
             });
-            this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
-            this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
+            if (!this.state.isTable) {
+              this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
+              this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
+            }
           }, 500);
         } else {
           this.setState({
@@ -396,9 +401,119 @@ export default class SmartDetail extends Component {
   changeTable = () => {
     this.setState({
       isTable: !this.state.isTable,
+      loading: true,
     });
+    setTimeout(() => {
+      this.setState({
+        loading: false,
+      });
+      if (!this.state.isTable) {
+        this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
+        this.refs.scroll.addEventListener('scroll', this.scrollHandler);
+      }
+    }, 200);
+  };
+  handleFormSubmit = checkedValue => {
+    console.log('checkedValue======>', checkedValue);
+  };
+  handleStatus = statusValue => {
+    console.log('statusValue======>', statusValue);
   };
   render() {
+    let itemCs = {
+      xxtb: {
+        type: 1,
+        isvisible: true,
+        msg: 'images/user.png',
+        act: '点击图标触发的动作',
+        comment: '备注',
+      },
+      xxbt: {
+        type: 0,
+        isvisible: true,
+        msg: '涉案财物系统',
+        act: '点击图标触发的动作',
+        comment: '备注',
+      },
+      xxbj: {
+        type: 1,
+        isvisible: true,
+        msg: 'images/message1.png',
+        actionType: 1, //0收藏 1自定义
+        act: '点击图标触发的动作',
+        comment: '备注',
+        id: 'Z111111111',
+      },
+      xxmc: {
+        type: 0,
+        isvisible: true,
+        msg: '20170811张三盗窃案',
+        act: '点击图标触发的动作',
+        comment: '备注',
+      },
+      xxzt: {
+        type: 0,
+        isvisible: true,
+        msg: '未督办',
+        act: '点击图标触发的动作',
+        comment: '备注',
+      },
+      xxtp: {
+        type: 1,
+        isvisible: true,
+        msg: 'images/chatu1.png',
+        act: '点击图标触发的动作',
+        comment: '备注',
+      },
+      xxxs_ary: [
+        {
+          type: 0,
+          isvisible: true,
+          msg: '物品名称：手机',
+          act: '点击图标触发的动作',
+          comment: '备注',
+        },
+        {
+          type: 0,
+          isvisible: true,
+          msg: '库管员：李四',
+          act: '点击图标触发的动作',
+          comment: '备注',
+        },
+        {
+          type: 0,
+          isvisible: true,
+          msg: '入库时间：2018-09-22',
+          act: '点击图标触发的动作',
+          comment: '备注',
+        },
+        {
+          type: 0,
+          isvisible: true,
+          msg: '问题类型：非法入库',
+          act: '点击图标触发的动作',
+          comment: '备注',
+        },
+      ],
+      btn_ary: [
+        {
+          type: 2,
+          isvisible: true,
+          msg: '立即督办',
+          act:
+            'http://192.168.3.201:97/#/loginByToken?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIzMTZlYjBmOS1lZGU3LTQxM2UtYTRkZC1hOWM2OGY0YTczOTAiLCJpYXQiOjE1MzkxNDg5MjAsInN1YiI6IjQzMyIsImlzcyI6IlNlY3VyaXR5IENlbnRlciIsImRlcGFydG1lbnQiOnsiaWQiOjEwMTEsInBhcmVudElkIjoxNSwiZGVwdGgiOjIsIm5hbWUiOiLniaHkuLnmsZ_luILlhazlronlsYAiLCJjb2RlIjoiMjMxMDAwMDAwMDAwIn0sImdvdmVybm1lbnQiOltdLCJpZCI6NDMzLCJpZENhcmQiOiIyMzAyMzExOTkwMDEwMTEyNDUiLCJwY2FyZCI6IjYzIiwibmFtZSI6Imxk5rWL6K-VIiwiam9iIjpbeyJjb2RlIjoiMjAwMDAzIiwibmFtZSI6IuaJp-azleebkeeuoSJ9XSwiY29udGFjdCI6IjE1MTE0NTE0NTIxIiwiaXNBZG1pbiI6MCwiZXhwIjoxNTQxMjIyNTIwfQ.RkglY9vV6mZD8eRcvk2mEXCAAD1tfCEIjwf_0zqPEjA&wtid=07189221-89f5-4da8-b8b8-ad02cd634571&type=3',
+          comment: '备注',
+        },
+        {
+          type: 2,
+          isvisible: true,
+          msg: '查看详情',
+          act:
+            'http://192.168.3.201:97/#/loginByToken?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIzMTZlYjBmOS1lZGU3LTQxM2UtYTRkZC1hOWM2OGY0YTczOTAiLCJpYXQiOjE1MzkxNDg5MjAsInN1YiI6IjQzMyIsImlzcyI6IlNlY3VyaXR5IENlbnRlciIsImRlcGFydG1lbnQiOnsiaWQiOjEwMTEsInBhcmVudElkIjoxNSwiZGVwdGgiOjIsIm5hbWUiOiLniaHkuLnmsZ_luILlhazlronlsYAiLCJjb2RlIjoiMjMxMDAwMDAwMDAwIn0sImdvdmVybm1lbnQiOltdLCJpZCI6NDMzLCJpZENhcmQiOiIyMzAyMzExOTkwMDEwMTEyNDUiLCJwY2FyZCI6IjYzIiwibmFtZSI6Imxk5rWL6K-VIiwiam9iIjpbeyJjb2RlIjoiMjAwMDAzIiwibmFtZSI6IuaJp-azleebkeeuoSJ9XSwiY29udGFjdCI6IjE1MTE0NTE0NTIxIiwiaXNBZG1pbiI6MCwiZXhwIjoxNTQxMjIyNTIwfQ.RkglY9vV6mZD8eRcvk2mEXCAAD1tfCEIjwf_0zqPEjA&wtid=07189221-89f5-4da8-b8b8-ad02cd634571&type=3',
+          comment: '备注',
+        },
+      ],
+    };
     let pageLength = parseInt(this.state.endLength) * parseInt(this.state.pageCount);
     let result = '';
     let listType = '';
@@ -444,99 +559,6 @@ export default class SmartDetail extends Component {
                   k = 1;
                 }
               });
-              let itemCs = {
-                xxtb: {
-                  type: 1,
-                  isvisible: true,
-                  msg: 'images/user.png',
-                  act: '点击图标触发的动作',
-                  comment: '备注',
-                },
-                xxbt: {
-                  type: 0,
-                  isvisible: true,
-                  msg: '涉案财物系统',
-                  act: '点击图标触发的动作',
-                  comment: '备注',
-                },
-                xxbj: {
-                  type: 1,
-                  isvisible: true,
-                  msg: '',
-                  act: '点击图标触发的动作',
-                  comment: '备注',
-                  id: 'Z111111111',
-                },
-                xxmc: {
-                  type: 0,
-                  isvisible: true,
-                  msg: '20170811张三盗窃案',
-                  act: '点击图标触发的动作',
-                  comment: '备注',
-                },
-                xxzt: {
-                  type: 0,
-                  isvisible: true,
-                  msg: '未督办',
-                  act: '点击图标触发的动作',
-                  comment: '备注',
-                },
-                xxtp: {
-                  type: 1,
-                  isvisible: true,
-                  msg: 'images/chatu1.png',
-                  act: '点击图标触发的动作',
-                  comment: '备注',
-                },
-                xxxs_ary: [
-                  {
-                    type: 0,
-                    isvisible: true,
-                    msg: '物品名称：手机',
-                    act: '点击图标触发的动作',
-                    comment: '备注',
-                  },
-                  {
-                    type: 0,
-                    isvisible: true,
-                    msg: '库管员：李四',
-                    act: '点击图标触发的动作',
-                    comment: '备注',
-                  },
-                  {
-                    type: 0,
-                    isvisible: true,
-                    msg: '入库时间：2018-09-22',
-                    act: '点击图标触发的动作',
-                    comment: '备注',
-                  },
-                  {
-                    type: 0,
-                    isvisible: true,
-                    msg: '问题类型：非法入库',
-                    act: '点击图标触发的动作',
-                    comment: '备注',
-                  },
-                ],
-                btn_ary: [
-                  {
-                    type: 2,
-                    isvisible: true,
-                    msg: '立即督办',
-                    act:
-                      'http://192.168.3.201:97/#/loginByToken?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIzMTZlYjBmOS1lZGU3LTQxM2UtYTRkZC1hOWM2OGY0YTczOTAiLCJpYXQiOjE1MzkxNDg5MjAsInN1YiI6IjQzMyIsImlzcyI6IlNlY3VyaXR5IENlbnRlciIsImRlcGFydG1lbnQiOnsiaWQiOjEwMTEsInBhcmVudElkIjoxNSwiZGVwdGgiOjIsIm5hbWUiOiLniaHkuLnmsZ_luILlhazlronlsYAiLCJjb2RlIjoiMjMxMDAwMDAwMDAwIn0sImdvdmVybm1lbnQiOltdLCJpZCI6NDMzLCJpZENhcmQiOiIyMzAyMzExOTkwMDEwMTEyNDUiLCJwY2FyZCI6IjYzIiwibmFtZSI6Imxk5rWL6K-VIiwiam9iIjpbeyJjb2RlIjoiMjAwMDAzIiwibmFtZSI6IuaJp-azleebkeeuoSJ9XSwiY29udGFjdCI6IjE1MTE0NTE0NTIxIiwiaXNBZG1pbiI6MCwiZXhwIjoxNTQxMjIyNTIwfQ.RkglY9vV6mZD8eRcvk2mEXCAAD1tfCEIjwf_0zqPEjA&wtid=07189221-89f5-4da8-b8b8-ad02cd634571&type=3',
-                    comment: '备注',
-                  },
-                  {
-                    type: 2,
-                    isvisible: true,
-                    msg: '查看详情',
-                    act:
-                      'http://192.168.3.201:97/#/loginByToken?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIzMTZlYjBmOS1lZGU3LTQxM2UtYTRkZC1hOWM2OGY0YTczOTAiLCJpYXQiOjE1MzkxNDg5MjAsInN1YiI6IjQzMyIsImlzcyI6IlNlY3VyaXR5IENlbnRlciIsImRlcGFydG1lbnQiOnsiaWQiOjEwMTEsInBhcmVudElkIjoxNSwiZGVwdGgiOjIsIm5hbWUiOiLniaHkuLnmsZ_luILlhazlronlsYAiLCJjb2RlIjoiMjMxMDAwMDAwMDAwIn0sImdvdmVybm1lbnQiOltdLCJpZCI6NDMzLCJpZENhcmQiOiIyMzAyMzExOTkwMDEwMTEyNDUiLCJwY2FyZCI6IjYzIiwibmFtZSI6Imxk5rWL6K-VIiwiam9iIjpbeyJjb2RlIjoiMjAwMDAzIiwibmFtZSI6IuaJp-azleebkeeuoSJ9XSwiY29udGFjdCI6IjE1MTE0NTE0NTIxIiwiaXNBZG1pbiI6MCwiZXhwIjoxNTQxMjIyNTIwfQ.RkglY9vV6mZD8eRcvk2mEXCAAD1tfCEIjwf_0zqPEjA&wtid=07189221-89f5-4da8-b8b8-ad02cd634571&type=3',
-                    comment: '备注',
-                  },
-                ],
-              };
               list.push(
                 <SmartDetailItem
                   listType={listType}
@@ -592,11 +614,11 @@ export default class SmartDetail extends Component {
               index=""
               i={i}
               item={this.state.searchList[i]}
-              childItem={items}
+              childItem={itemCs}
               code={this.props.code}
               goWindow={path => this.goWindow(path)}
               k={k}
-              url={listUrl(listType, items, item)}
+              // url={listUrl(listType, items, item)}
               getSave={(nodeId, id, name, remark) => this.getSave(nodeId, id, name, remark)}
               getCancelSave={(nodeId, id) => this.getCancelSave(nodeId, id)}
               cardId={this.state.userItem.idCard}
@@ -632,6 +654,27 @@ export default class SmartDetail extends Component {
               visible={this.state.visible}
               mask={false}
             >
+              <div style={{ fontSize: '16px', marginBottom: '5px' }}>系统来源</div>
+              <div>
+                <TagSelect onChange={this.handleFormSubmit} hideCheckAll={true}>
+                  <TagSelect.Option value="zhag">智慧案管系统</TagSelect.Option>
+                  <TagSelect.Option value="zhjq">智慧警情系统</TagSelect.Option>
+                  <TagSelect.Option value="sacw">涉案财物系统</TagSelect.Option>
+                  <TagSelect.Option value="ajlc">案件流程系统</TagSelect.Option>
+                  <TagSelect.Option value="baq">办案区系统</TagSelect.Option>
+                  <TagSelect.Option value="jz">卷宗系统</TagSelect.Option>
+                </TagSelect>
+              </div>
+              <div style={{ fontSize: '16px', marginBottom: '5px' }}>状态</div>
+              <div>
+                <TagSelect onChange={this.handleStatus} hideCheckAll={true}>
+                  <TagSelect.Option value="0">未督办</TagSelect.Option>
+                  <TagSelect.Option value="1">发起督办</TagSelect.Option>
+                  <TagSelect.Option value="2">整改中</TagSelect.Option>
+                  <TagSelect.Option value="3">已反馈</TagSelect.Option>
+                  <TagSelect.Option value="4">告警</TagSelect.Option>
+                </TagSelect>
+              </div>
               <div
                 style={{
                   position: 'absolute',
@@ -661,7 +704,12 @@ export default class SmartDetail extends Component {
           </div>
         </div>
         {this.state.isTable ? (
-          <TableDetail height={this.state.height} />
+          <TableDetail
+            height={this.state.height}
+            data={this.state.data}
+            loading={this.state.loading}
+            goWindow={path => this.goWindow(path)}
+          />
         ) : (
           <div
             className={this.state.enter ? styles.rightScrollHover : styles.rightScroll}
