@@ -16,6 +16,9 @@
   top: 40px;
 }
 :global {
+  .ant-tabs-vertical.ant-tabs-left > .ant-tabs-content {
+    padding-left: 0 !important;
+  }
   .ant-list-item {
     position: relative;
   }
@@ -128,4 +131,16 @@
     background: #f0f2f5;
   }
   display: none;
+}
+.tabsLeft {
+  background: #fff;
+  :global {
+    .ant-tabs-nav .ant-tabs-tab-active {
+      color: #1d94ee !important;
+      font-weight: 400 !important;
+    }
+    .ant-tabs-tab:hover {
+      color: #1d94ee !important;
+    }
+  }
 }

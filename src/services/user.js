@@ -45,13 +45,25 @@ export async function getLoginIp(params) {
     body: params,
   });
 }
+export async function getXmppList(params) {
+  return request(`${configUrl.xmpp_query}`, {
+    method: 'POST',
+    body: params,
+  });
+}
+export async function getSaveXmpp(params) {
+  return request(`${configUrl.xmpp_save}`, {
+    method: 'POST',
+    body: params,
+  });
+}
 export async function getConfig() {
-  return request('http://192.168.3.170:8080/api/config', {
+  return request(`${configUrls.serve}/api/config`, {
     method: 'GET',
   });
 }
 export async function getIcons() {
-  return request('http://192.168.3.170:8080/api/icon', {
+  return request(`${configUrls.serve}/api/icon`, {
     method: 'GET',
   });
 }

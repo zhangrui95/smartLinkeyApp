@@ -254,14 +254,7 @@ class SmartAll extends Component {
           if (!this.state.code) {
             this.onNewMsg(
               names[i].attributes[0].textContent,
-              names[i].attributes[0].textContent === 'smart_wtjq' ||
-              names[i].attributes[0].textContent === 'smart_wtwp' ||
-              names[i].attributes[0].textContent === 'smart_baq' ||
-              names[i].attributes[0].textContent === 'smart_wtaj' ||
-              names[i].attributes[0].textContent === 'smart_syrjq' ||
-              names[i].attributes[0].textContent === this.state.userItem.idCard
-                ? 10
-                : ''
+              names[i].attributes[0].textContent === this.state.userItem.idCard ? 20 : ''
             );
           } else {
             this.onNewMsg(names[i].attributes[0].textContent, '');
@@ -286,20 +279,6 @@ class SmartAll extends Component {
         callback: response => {
           let item = '';
           let items = '';
-          if (!this.state.code) {
-            response.data.map((e, i) => {
-              if (e.nodeid === 'smart_syrjq') {
-                item = e;
-                response.data.splice(i, 1);
-              }
-              if (e.nodeid === 'smart_wtwp') {
-                items = e;
-                response.data.splice(i, 1);
-              }
-            });
-            response.data.push(item);
-            response.data.unshift(items);
-          }
           this.setState({
             searchList: response.data,
             Xmpp: true,
@@ -319,12 +298,41 @@ class SmartAll extends Component {
     let event = msg.getElementsByTagName('event');
     if (event.length > 0) {
       ipcRenderer.send('start-flashing');
-      this.setState({
-        event: event,
-        firstLogin: false,
-        eventNew: !this.state.eventNew,
-      });
       console.log('闪烁--------------------->', event);
+      console.log('event.innerHTML====>', event[0]);
+      let timeid = event[0].getElementsByTagName('item')[0].attributes[0].textContent;
+      let messagecontent = event[0].getElementsByTagName('messagecontent')[0].textContent;
+      let createtime = event[0].getElementsByTagName('createtime')[0].textContent;
+      let nodeid = event[0].getElementsByTagName('nodeid')[0].textContent;
+      let messagecount = event[0].getElementsByTagName('messagecount')[0].textContent;
+      let result = JSON.parse(messagecontent).result[0];
+      console.log('消息--------->', timeid, messagecontent, createtime, nodeid, messagecount);
+      let news = {
+        nodeid: this.state.userItem.idCard,
+        itemid: timeid,
+        messagecount: messagecount,
+        time: createtime,
+        xxtb: result.xxtb,
+        xxbt: result.xxbt,
+        xxbj: result.xxbj,
+        xxmc: result.xxmc,
+        xxzt: result.xxzt,
+        xxtp: result.xxtp,
+        xxxs_ary: result.xxxs_ary,
+        btn_ary: result.btn_ary,
+      };
+      this.props.dispatch({
+        type: 'user/xmppSave',
+        payload: news,
+        callback: response => {
+          this.setState({
+            event: event,
+            firstLogin: false,
+            eventNew: !this.state.eventNew,
+          });
+          console.log('es库存储返回值--------->', response);
+        },
+      });
       this.props.dispatch({
         type: 'user/newsEvent',
         payload: {
@@ -397,22 +405,6 @@ class SmartAll extends Component {
           userid: this.state.xmppUser,
         },
         callback: response => {
-          let item = '';
-          let items = '';
-          if (!this.state.code) {
-            response.data.map((e, i) => {
-              if (e.nodeid === 'smart_syrjq') {
-                item = e;
-                response.data.splice(i, 1);
-              }
-              if (e.nodeid === 'smart_wtwp') {
-                items = e;
-                response.data.splice(i, 1);
-              }
-            });
-            response.data.push(item);
-            response.data.unshift(items);
-          }
           this.setState({
             searchList: response.data,
           });

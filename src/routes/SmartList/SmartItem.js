@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { List, Avatar, Badge, Spin } from 'antd';
+import { List, Avatar, Badge, Spin, Tabs } from 'antd';
 import styles from './SmartItem.less';
 import SmartDetail from './SmartDetail';
 import { instanceOf } from 'prop-types';
@@ -10,6 +10,7 @@ import { getTime, autoheight, getLocalTime } from '../../utils/utils';
 import SmartLink from './SmartLink';
 import SmartQuestion from './SmartQuestion';
 import SmartTool from './SmartTool';
+const TabPane = Tabs.TabPane;
 @connect(({ user, login }) => ({
   user,
   login,
@@ -35,7 +36,7 @@ class SmartItem extends Component {
       serList: [],
       searTrue: false,
       firstLogin: this.props.firstLogin,
-      gzList: { gzdwp: [], gzdaj: [], gzdcs: [], gzdjq: [] },
+      gzList: { gzdwp: [], gzdaj: [], gzdcs: [], gzdjq: [], myFollow: [] },
       delId: [],
       userItem: userNew,
     };
@@ -74,73 +75,34 @@ class SmartItem extends Component {
     this.setState({
       msgLists: next.msgList,
     });
-    // if (this.props.Xmpp !== next.Xmpp) {
-    //   let arr = [];
-    //   next.user.allList.map(item => {
-    //     if (
-    //       (item.nodeid === 'smart_wtaj' ||
-    //         item.nodeid === 'smart_wtwp' ||
-    //         item.nodeid === this.state.userItem.idCard ||
-    //         item.nodeid === 'smart_syrjq') &&
-    //       next.code === '200003'
-    //     ) {
-    //       arr.push(item);
-    //     } else if (
-    //       next.code !== '200003' &&
-    //       item.nodeid !== this.state.userItem.idCard &&
-    //       item.nodeid &&
-    //       item.nodeid !== this.state.userItem.department
-    //     ) {
-    //       arr.unshift(item);
-    //     }
-    //   });
-    //   if (arr.length > 0) {
-    //     if (arr[0].nodeid === this.state.userItem.idCard) {
-    //       this.getTimeSaves(
-    //         arr[0].nodeid + ',smart_baq',
-    //         Date.parse(new Date()) + ',' + Date.parse(new Date())
-    //       );
-    //     } else {
-    //       this.getTimeSaves(arr[0].nodeid, Date.parse(new Date()));
-    //     }
-    //   }
-    // } else {
-    //   if (this.props.lastTime.id < next.lastTime.id) {
-    //     next.user.allList.map(res => {
-    //       if (
-    //         res.nodeid === sessionStorage.getItem('nodeidType') ||
-    //         (res.nodeid === 'smart_baq' &&
-    //           sessionStorage.getItem('nodeidType') === this.state.userItem.idCard)
-    //       ) {
-    //         if (res.maxmessageid && res.maxmessageid > 0) {
-    //           if (
-    //             next.lastTime.nodeid === sessionStorage.getItem('nodeidType') ||
-    //             (next.lastTime.nodeid === 'smart_baq' &&
-    //               sessionStorage.getItem('nodeidType') === this.state.userItem.idCard)
-    //           ) {
-    //             this.getTimeSaves(next.lastTime.nodeid, next.lastTime.id);
-    //           }
-    //         }
-    //       }
-    //     });
-    //     if (sessionStorage.getItem('nodeidSave') === 'smart_gzdcs') {
-    //       let id = [];
-    //       let m = [];
-    //       let t = false;
-    //       this.state.gzList['gzdcs'].map((e, i) => {
-    //         id.push(e.id);
-    //         m.push(0);
-    //         if (next.lastTime.nodeid === e.id) {
-    //           m[i] = next.lastTime.id;
-    //           t = true;
-    //         }
-    //       });
-    //       if (t) {
-    //         this.getTimeSaves(id.toString(), m.toString());
-    //       }
-    //     }
-    //   }
-    // }
+    if (this.props.Xmpp !== next.Xmpp) {
+      let arr = [];
+      next.user.allList.map(item => {
+        if (item.nodeid === this.state.userItem.idCard && next.type == 0) {
+          arr.push(item);
+        }
+      });
+      if (arr.length > 0) {
+        if (arr[0].nodeid === this.state.userItem.idCard && next.type == 0) {
+          this.getTimeSaves(
+            arr[0].nodeid + ',smart_baq',
+            Date.parse(new Date()) + ',' + Date.parse(new Date())
+          );
+        }
+      }
+    } else {
+      if (this.props.lastTime.id < next.lastTime.id) {
+        next.user.allList.map(res => {
+          if (res.nodeid === this.state.userItem.idCard) {
+            if (res.maxmessageid && res.maxmessageid > 0) {
+              if (next.lastTime.nodeid === this.state.userItem.idCard && next.type == 0) {
+                this.getTimeSaves(next.lastTime.nodeid, next.lastTime.id);
+              }
+            }
+          }
+        });
+      }
+    }
     if (this.props.event !== next.event || this.props.type !== next.type) {
       this.setState({
         firstLogin: false,
@@ -153,11 +115,8 @@ class SmartItem extends Component {
           type: next.type,
         },
       });
-      if (this.props.code === '200001' || this.props.code === '200002') {
-        this.setState({
-          title: '',
-          nodeId: '',
-        });
+      if (next.type == 0) {
+        this.getListClick(sessionStorage.getItem('allNum'), next.type);
       }
     }
     if (
@@ -587,42 +546,19 @@ class SmartItem extends Component {
       });
     }
   };
-  getListClick = (index, item, num, maxTime) => {
+  getListClick = (num, type) => {
     if (num > 0) {
-      if (
-        item.nodeid === 'smart_gzdwp' ||
-        item.nodeid === 'smart_gzdaj' ||
-        item.nodeid === 'smart_gzdcs' ||
-        item.nodeid === 'smart_gzdjq'
-      ) {
-        let node = item.nodeid.slice(6);
-        let id = [];
-        this.state.gzList[node].map((e, i) => {
-          id.push(e.id);
-        });
-        this.getTimeSaves(id.toString(), maxTime, 'save');
-        this.state.gzList[node].map((e, i) => {
-          e.maxmessageid = maxTime.split(',')[i];
-        });
-      } else if (item.nodeid === this.state.userItem.idCard) {
+      if (type == 0) {
         let nodes = [this.state.userItem.idCard, 'smart_baq'];
-        let times = [maxTime, Date.parse(new Date())];
+        let times = [Date.parse(new Date()), Date.parse(new Date())];
         this.getTimeSaves(nodes.toString(), times.toString());
-      } else {
-        this.getTimeSaves(item.nodeid, maxTime);
       }
+      // else {
+      //   this.getTimeSaves(item.nodeid, maxTime);
+      // }
     }
     this.setState({
-      index: index,
-      title: item.name,
-      nodeId: item.nodeid,
       firstLogin: false,
-    });
-    this.props.dispatch({
-      type: 'user/nodeId',
-      payload: {
-        node: item.nodeid,
-      },
     });
   };
   //更新主题读取的时间点
@@ -962,21 +898,6 @@ class SmartItem extends Component {
       let itemList = (
         <div
           key={item.nodeid}
-          onClick={() =>
-            this.getListClick(
-              index,
-              item,
-              item.nodeid === 'smart_gzdwp' ||
-              item.nodeid === 'smart_gzdaj' ||
-              item.nodeid === 'smart_gzdcs' ||
-              item.nodeid === 'smart_gzdjq'
-                ? this.saveListNum(item, index)
-                : item.nodeid === this.state.userItem.idCard || item.nodeid === 'smart_baq'
-                  ? this.listCsNum(item, index)
-                  : this.listNum(item, index),
-              maxTime(item.nodeid)
-            )
-          }
           className={
             this.state.nodeId === item.nodeid || this.state.index === index
               ? styles.grayList
@@ -1024,15 +945,6 @@ class SmartItem extends Component {
         searchsList.push(
           <div
             key={item.nodeid}
-            onClick={() =>
-              this.getListClick(
-                index,
-                item,
-                item.nodeid === this.state.userItem.idCard || item.nodeid === 'smart_baq'
-                  ? this.listCsNum(item, index)
-                  : this.listNum(item, index)
-              )
-            }
             className={
               this.state.nodeId === item.nodeid || this.state.index === item.index
                 ? styles.grayList
@@ -1111,7 +1023,15 @@ class SmartItem extends Component {
         </div>
         <div className={this.props.type == 1 ? '' : styles.none}>
           <Badge count={this.props.type == 1 ? this.getAll() : ''} className={styles.allNum} />
-          <SmartLink />
+          <Tabs tabPosition="left" className={styles.tabsLeft}>
+            <TabPane tab="系统快捷登录" key="1">
+              <SmartLink />
+            </TabPane>
+            <TabPane tab="工具集" key="2">
+              {' '}
+              <SmartTool msgExe={this.props.msgExe} type={this.props.type} />
+            </TabPane>
+          </Tabs>
         </div>
         <div className={this.props.type == 3 ? '' : styles.none}>
           <Badge count={this.props.type == 3 ? this.getAll() : ''} className={styles.allNum} />

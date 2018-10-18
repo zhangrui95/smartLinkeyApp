@@ -7,7 +7,7 @@ const menuData = [
     path: 'smartList/smartAll?type=0',
   },
   {
-    name: '系统',
+    name: '系统功能',
     icon: 'images/system2.png',
     path: 'smartList/smartAll?type=1',
   },
@@ -16,11 +16,11 @@ const menuData = [
   //   icon: 'images/guanzhu2.png',
   //   path: 'smartList/smartAll?type=2',
   // },
-  {
-    name: '工具集',
-    icon: 'images/gongju2.png',
-    path: 'smartList/smartAll?type=3',
-  },
+  // {
+  //   name: '工具集',
+  //   icon: 'images/gongju2.png',
+  //   path: 'smartList/smartAll?type=3',
+  // },
   {
     name: '帮助中心',
     icon: 'images/bangzhu2.png',

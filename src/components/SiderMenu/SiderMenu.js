@@ -86,7 +86,7 @@ class SiderMenu extends PureComponent {
     this.state = {
       openKeys: this.getDefaultCollapsedSubMenus(props),
       iconIndex: 0,
-      iconImg: 'images/message1.png',
+      iconImg: 'images/message2.png',
       visible: false,
       xtszvisible: false,
       aboutvisible: false,
@@ -208,6 +208,7 @@ class SiderMenu extends PureComponent {
           key={item.path}
           onClick={() => this.getItemClick(item, index)}
         >
+          <div className={this.state.iconIndex === index ? styles.checkedIcon : styles.none} />
           {this.getMenuItemPath(item, index)}
         </Menu.Item>
       );
@@ -267,7 +268,8 @@ class SiderMenu extends PureComponent {
   getItemClick = (item, index) => {
     this.setState({
       iconIndex: index,
-      iconImg: item.icon.replace('2', '1'),
+      // iconImg: item.icon.replace('2', '1'),
+      iconImg: item.icon,
     });
     this.props.getPathItem(item.path);
   };
@@ -594,7 +596,7 @@ class SiderMenu extends PureComponent {
         <Dropdown overlay={menu} trigger={['click']}>
           <div
             className={styles.logo}
-            style={{ background: 'transparent' }}
+            style={{ background: '#1d94ee' }}
             key="logo"
             onClick={this.headerImgClick}
           >
@@ -696,7 +698,7 @@ class SiderMenu extends PureComponent {
             maskClosable={false}
             footer={null}
           >
-            <img className={styles.logoVersion} src="images/logo.png" />
+            <img className={styles.logoVersion} src="images/logo1.png" />
             <Button className={styles.btnVersion} onClick={this.bbjc} type="primary">
               版本检测
             </Button>

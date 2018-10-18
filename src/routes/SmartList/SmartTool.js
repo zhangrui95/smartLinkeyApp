@@ -384,7 +384,7 @@ class SmartTool extends Component {
     }
     return (
       <div
-        style={{ padding: '0 24px 30px', height: this.state.height + 'px' }}
+        style={{ padding: '0 24px 30px', height: this.state.height + 'px', background: '#f5f6fa' }}
         onDragOver={ev => this.handleDragOver(ev)}
         onDragLeave={e => this.handleDragLeave(e)}
         onDragEnd={e => this.handleDragEnd(e)}

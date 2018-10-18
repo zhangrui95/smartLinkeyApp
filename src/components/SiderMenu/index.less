@@ -1,18 +1,20 @@
 @import '~antd/lib/style/themes/default.less';
 @ease-in-out-circ: cubic-bezier(0.78, 0.14, 0.15, 0.86);
 .logo {
-  height: 64px;
+  height: 54px;
   position: relative;
-  line-height: 64px;
+  line-height: 54px;
   padding-left: 15px;
   transition: all 0.3s;
-  background: #002140;
+  background: #1d94ee;
   cursor: pointer;
   overflow: hidden;
   img {
     background: #fff;
     width: 40px;
     height: 40px;
+    float: left;
+    margin-top: 7px;
     border-radius: 100px;
   }
   h1 {
@@ -28,10 +30,10 @@
 
 .sider {
   //min-height: 100vh;
-  box-shadow: 2px 0 6px rgba(0, 21, 41, 0.35);
+  //box-shadow: 2px 0 6px rgba(0, 21, 41, 0.35);
   position: relative;
   z-index: 10;
-  background: url('../../../public/images/bg.png') no-repeat #00adcb;
+  background: url('../../../public/images/bg.png') no-repeat #232c3d;
   background-size: cover;
   &.ligth {
     background-color: white;
@@ -45,7 +47,7 @@
 }
 
 .icon {
-  width: 28px;
+  width: 32px;
   margin-right: 10px;
   cursor: pointer;
 }
@@ -92,11 +94,11 @@
     -webkit-app-region: no-drag !important;
   }
   .ant-menu-item-active {
-    background: #d2f1f6 !important;
+    background: transparent !important;
   }
   .ant-progress-success-bg,
   .ant-progress-bg {
-    background: #1bb7d2 !important;
+    background: #1d94ee !important;
   }
   .ant-progress-show-info .ant-progress-outer {
     padding-right: calc(40px + 8px);
@@ -106,13 +108,13 @@
     width: 40px;
   }
   .ant-progress-circle.ant-progress-status-success .ant-progress-text {
-    color: #1bb7d2;
+    color: #1d94ee;
   }
   .ant-progress-status-success .ant-progress-circle-path {
-    stroke: #1bb7d2;
+    stroke: #1d94ee;
   }
   .ant-progress-circle-path {
-    stroke: #1bb7d2;
+    stroke: #1d94ee;
   }
 }
 .szMenu {
@@ -144,24 +146,24 @@
   &:hover {
     background: transparent;
     margin: 6px 0 !important;
-    color: #00adcb;
+    color: #1d94ee;
     text-decoration: underline;
   }
   //&:last-child {
   //  &:hover {
   //    background: transparent;
   //    margin: 6px 0 !important;
-  //    color: #00adcb;
+  //    color: #1d94ee;
   //    text-decoration: underline;
   //  }
   //}
 }
 //.changePwd {
 //  margin: 6px 0 !important;
-//  color: #00adcb;
+//  color: #1d94ee;
 //  text-decoration: underline;
 //  &:hover {
-//    color: #00adcb;
+//    color: #1d94ee;
 //    background: none;
 //  }
 //}
@@ -184,7 +186,7 @@
   margin-top: 10px !important;
 }
 .itemClick {
-  background: #d2f1f6;
+  background: transparent;
   height: 50px !important;
   line-height: 48px !important;
   margin-bottom: 10px !important;
@@ -194,8 +196,9 @@
   text-align: center;
   position: relative;
   top: 0;
-  left: -99px;
+  left: -58px;
   margin-left: 50%;
+  width: 100px;
 }
 .btnVersion {
   text-align: center;
@@ -306,4 +309,13 @@
   border-radius: 100px;
   display: inline-block;
   opacity: 0;
+}
+.checkedIcon {
+  width: 6px;
+  height: 6px;
+  border-radius: 10px;
+  background: #1d94ee;
+  position: absolute;
+  left: -3px;
+  top: 22px;
 }

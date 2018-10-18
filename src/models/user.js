@@ -9,6 +9,8 @@ import {
   getSubQuery,
   getConfig,
   getIcons,
+  getXmppList,
+  getSaveXmpp,
 } from '../services/user';
 
 export default {
@@ -27,6 +29,8 @@ export default {
     msgList: [],
     searchWordList: null,
     status: null,
+    xmppList: '',
+    isTables: false,
   },
 
   effects: {
@@ -108,6 +112,12 @@ export default {
         payload: payload,
       });
     },
+    *getTable({ payload }, { put }) {
+      yield put({
+        type: 'getIsTable',
+        payload: payload,
+      });
+    },
     *getMsgList({ payload }, { put }) {
       yield put({
         type: 'getAllMsg',
@@ -139,6 +149,20 @@ export default {
     *getIcon({ callback }, { call }) {
       const response = yield call(getIcons);
       callback(response);
+    },
+    *xmppQuery({ payload, callback }, { call, put }) {
+      const response = yield call(getXmppList, payload);
+      yield put({
+        type: 'getXmppQuery',
+        payload: response,
+      });
+      callback(response);
+    },
+    *xmppSave({ payload, callback }, { call, put }) {
+      const response = yield call(getSaveXmpp, payload);
+      if (response._shards.successful > 0) {
+        callback(response);
+      }
     },
   },
 
@@ -200,6 +224,12 @@ export default {
         value: payload.value,
       };
     },
+    getIsTable(state, { payload }) {
+      return {
+        ...state,
+        isTables: payload.isTable,
+      };
+    },
     getAllList(state, { payload }) {
       return {
         ...state,
@@ -222,6 +252,13 @@ export default {
       return {
         ...state,
         status: payload.status,
+      };
+    },
+    getXmppQuery(state, { payload }) {
+      console.log('payload=======>', payload);
+      return {
+        ...state,
+        xmppList: payload,
       };
     },
   },

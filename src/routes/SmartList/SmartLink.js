@@ -85,7 +85,7 @@ class SmartLink extends Component {
   };
   render() {
     return (
-      <div style={{ padding: '0 24px', height: this.state.height + 'px' }}>
+      <div style={{ padding: '0 24px', height: this.state.height + 'px', background: '#f5f6fa' }}>
         <div className="gutter-example">
           <Row gutter={20}>
             {this.state.listMenu.map(items => {

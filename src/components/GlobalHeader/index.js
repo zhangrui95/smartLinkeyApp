@@ -52,93 +52,41 @@ export default class GlobalHeader extends PureComponent {
     if (
       this.props.user.type !== next.user.type ||
       this.props.user.newEvent !== next.user.newEvent ||
-      (this.props.user.value !== next.user.value && next.user.value === '')
+      (this.props.user.value !== next.user.value && next.user.value === '') ||
+      this.props.user.isTables !== next.user.isTables
     ) {
       this.setState({ searchValue: '' });
       sessionStorage.setItem('search', '');
+      this.getFind('');
     }
   }
   emitEmpty = () => {
     this.searchValueInput.focus();
     this.setState({ searchValue: '' });
     sessionStorage.setItem('search', '');
-    this.props.dispatch({
-      type: 'user/findTool',
-      payload: {
-        value: '',
-      },
-    });
-    this.getFind(this, '');
+    this.getFind('');
   };
   onChangesearchValue = e => {
     let testVal = /^[A-Za-z0-9\u4e00-\u9fa5-,，.:：;"“、]+$/;
     if (testVal.test(e.target.value) || e.target.value === '') {
       this.setState({
         searchValue: e.target.value,
-        delay: this.state.delay + 0.5,
       });
-      let _this = this;
-      let val = e.target.value;
-      setTimeout(function() {
-        _this.setState({ delay: _this.state.delay - 0.5 });
-        if (_this.state.delay == 0) {
-          sessionStorage.setItem('search', val);
-          _this.getFind(_this, val);
-        }
-        _this.props.dispatch({
-          type: 'user/findTool',
-          payload: {
-            value: val,
-          },
-        });
-      }, 800);
+      sessionStorage.setItem('search', e.target.value);
     } else {
       this.setState({
         searchValue: '',
       });
     }
   };
-  getFind = (t, val) => {
-    if (
-      sessionStorage.getItem('nodeid') === 'smart_gzdaj' ||
-      sessionStorage.getItem('nodeid') === 'smart_gzdwp' ||
-      sessionStorage.getItem('nodeid') === 'smart_gzdcs' ||
-      sessionStorage.getItem('nodeid') === 'smart_gzdjq'
-    ) {
-      let ids = [];
-      t.props.user.allList.map((e, i) => {
-        if (e.remark === sessionStorage.getItem('nodeid').slice(6)) {
-          ids.push(e.nodeid);
-        }
-      });
-      t.props.dispatch({
-        type: 'user/find',
-        payload: {
-          nodeid: ids.toString(),
-          keyword: val,
-        },
-      });
-    } else {
-      if (t.props.pathItem !== '/smartList/smartAll?type=3') {
-        let node = '';
-        let id = JSON.parse(sessionStorage.getItem('user')).user.idCard;
-        if (
-          sessionStorage.getItem('nodeid') ===
-          JSON.parse(sessionStorage.getItem('user')).user.idCard
-        ) {
-          node = id + ',smart_baq';
-        } else {
-          node = sessionStorage.getItem('nodeid');
-        }
-        t.props.dispatch({
-          type: 'user/find',
-          payload: {
-            nodeid: node,
-            keyword: val,
-          },
-        });
-      }
-    }
+  getFind = val => {
+    this.props.dispatch({
+      type: 'user/findTool',
+      payload: {
+        value: val,
+      },
+    });
+    console.log('searchValue=============>', val);
   };
   minWindows = () => {
     ipcRenderer.send('window-min');
@@ -174,22 +122,6 @@ export default class GlobalHeader extends PureComponent {
     const suffix = searchValue ? <Icon type="close-circle" onClick={this.emitEmpty} /> : null;
     return (
       <div className={styles.header} id="header">
-        <div className={styles.headerLeft}>
-          {this.props.pathItem !== '/smartList/smartAll?type=1' &&
-          this.props.pathItem !== '/smartList/smartAll?type=4' ? (
-            <Input
-              placeholder="请输入需要搜索的内容"
-              prefix={<Icon type="search" style={{ color: 'rgba(0,0,0,.25)' }} />}
-              suffix={suffix}
-              value={searchValue}
-              onChange={this.onChangesearchValue}
-              ref={node => (this.searchValueInput = node)}
-              onBlur={this.getBlur}
-            />
-          ) : (
-            ''
-          )}
-        </div>
         <div className={styles.headerRight}>
           <Icon type="minus" className={styles.iconWindows} onClick={this.minWindows} />
           {/*<img*/}
@@ -206,6 +138,29 @@ export default class GlobalHeader extends PureComponent {
           />
           {/*<Icon type= theme="outlined" />*/}
           <Icon type="close" className={styles.iconWindows} onClick={this.CloseWindow} />
+        </div>
+        <div className={styles.headerLeft}>
+          {this.props.pathItem !== '/smartList/smartAll?type=1' &&
+          this.props.pathItem !== '/smartList/smartAll?type=4' ? (
+            <Input
+              placeholder="请输入需要搜索的内容"
+              suffix={
+                <Icon
+                  type="search"
+                  theme="outlined"
+                  style={{ color: '#fff' }}
+                  onClick={() => this.getFind(searchValue)}
+                />
+              }
+              // suffix={suffix}
+              value={searchValue}
+              onChange={this.onChangesearchValue}
+              ref={node => (this.searchValueInput = node)}
+              onBlur={this.getBlur}
+            />
+          ) : (
+            ''
+          )}
         </div>
       </div>
     );

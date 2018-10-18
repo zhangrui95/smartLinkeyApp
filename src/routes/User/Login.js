@@ -3,7 +3,7 @@ import { connect } from 'dva';
 import { Link } from 'dva/router';
 import { instanceOf } from 'prop-types';
 import { routerRedux } from 'dva/router';
-import { Checkbox, Alert, Icon } from 'antd';
+import { Checkbox, Alert, Icon, Divider } from 'antd';
 import Login from 'components/Login';
 import styles from './Login.less';
 import { withCookies, Cookies } from 'react-cookie';
@@ -47,6 +47,8 @@ class LoginPage extends Component {
           pcName: '/pc',
           rybjxx: response.system.huaci.huaci_list[1].api, //人员背景核查系统
           personList: ['姓名', '公民身份号码', '性别', '民族'], //人员背景核查信息
+          xmpp_save: response.system.xmpp_save,
+          xmpp_query: response.system.xmpp_query,
         };
         this.props.dispatch({
           type: 'login/getLoginSetting',
@@ -59,6 +61,18 @@ class LoginPage extends Component {
         });
       },
     });
+    // window.configUrl = {
+    //   sysName: 'Smartlinkey', //项目名称
+    //   ywzxUrl: 'http://192.168.3.201:7400', //运维中心
+    //   testUrl: 'http://192.168.3.201:8100', //安全中心登陆接口
+    //   GMUrl: 'http://192.168.3.201:8500', //XMPP接口
+    //   fwName: '192.168.3.201', //XMPP服务名称,
+    //   pcName: '/pc',
+    //   rybjxx: 'http://192.168.3.201:7100', //人员背景核查系统
+    //   personList: ['姓名', '公民身份号码', '性别', '民族'], //人员背景核查信息
+    //   xmpp_save: 'http://192.168.3.202:9200/index_smart1013/my_type/',
+    //   xmpp_query: 'http://192.168.3.202:9200/index_smart1013/_search',
+    // };
   }
   onTabChange = type => {
     this.setState({ type });
@@ -109,7 +123,8 @@ class LoginPage extends Component {
         <Tab key="PKI" tab="PKI登录">
           <img style={{ width: '80%', margin: '20px 10% 0' }} src="images/pki.png" alt="" />
           <div
-            style={{ color: '#fea200', fontSize: '20px', marginTop: '30px', textAlign: 'center' }}
+            style={{ fontSize: '20px', marginTop: '24px', textAlign: 'center' }}
+            className={styles.fontColor}
           >
             请插入PKI
           </div>
@@ -120,11 +135,11 @@ class LoginPage extends Component {
         <div
           className={styles.loginHeader}
           style={{
-            height: '42px',
-            background: '#00adcb',
+            height: '40px',
+            background: '#232c3d',
             color: '#fff',
             padding: '0 20px',
-            lineHeight: '42px',
+            lineHeight: '40px',
             fontSize: '18px',
           }}
         >
@@ -134,6 +149,7 @@ class LoginPage extends Component {
           </span>
         </div>
         <img src="images/logo.png" className={styles.logoLogin} />
+        <img src="images/smartlinkey.png" className={styles.smartIcon} />
         <Login
           defaultActiveKey={type}
           onTabChange={this.onTabChange}
@@ -142,7 +158,11 @@ class LoginPage extends Component {
         >
           <Tab
             key="account"
-            tab="账户密码登录"
+            tab={
+              <div style={{ borderRight: '2px solid #ff3366', paddingRight: '26px' }}>
+                账户密码登录
+              </div>
+            }
             style={{ marginRight: '0!important' }}
             className={this.state.login_way === '700002' ? styles.none : ''}
           >
@@ -152,7 +172,7 @@ class LoginPage extends Component {
               this.renderMessage('账户或密码错误')}
             <UserName name="username" placeholder="请输入用户名" />
             <Password name="password" placeholder="请输入密码" />
-            <Submit loading={submitting} style={{ width: '235px' }}>
+            <Submit loading={submitting} className={styles.btnBg} style={{ width: '235px' }}>
               登录
             </Submit>
           </Tab>

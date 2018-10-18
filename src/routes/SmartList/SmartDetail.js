@@ -1,6 +1,22 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'dva';
-import { Card, Icon, Avatar, Tag, Spin, Tooltip, message, Drawer, Button } from 'antd';
+import {
+  Card,
+  Icon,
+  Avatar,
+  Tag,
+  Spin,
+  Tooltip,
+  message,
+  Drawer,
+  Button,
+  Checkbox,
+  DatePicker,
+  Radio,
+} from 'antd';
+const { MonthPicker, RangePicker, WeekPicker } = DatePicker;
+const CheckboxGroup = Checkbox.Group;
+const RadioGroup = Radio.Group;
 import TagSelect from 'ant-design-pro/lib/TagSelect';
 const { Meta } = Card;
 import styles from './SmartDetail.less';
@@ -27,7 +43,6 @@ export default class SmartDetail extends Component {
     });
     this.state = {
       // xmppList:[],
-      searchList: null,
       loading: false,
       load: false,
       height: 525,
@@ -37,6 +52,8 @@ export default class SmartDetail extends Component {
       startLength: 0,
       endLength: 1,
       pageCount: 5,
+      tableCount: 8,
+      total: 0,
       resultLength: 0,
       empty: false,
       noSearch: true,
@@ -47,6 +64,8 @@ export default class SmartDetail extends Component {
       agxt: agxt,
       visible: false,
       isTable: false,
+      detailList: [],
+      checkedList: ['Apple', 'Orange'],
       // oldList:[],
     };
   }
@@ -55,10 +74,98 @@ export default class SmartDetail extends Component {
     window.addEventListener('resize', () => {
       this.updateSize();
     });
-    setTimeout(() => {
-      this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
-    }, 500);
+    // this.xmppQuery();
   }
+  xmppQuery = (from, size, empty, scrollHeight, isTable, searchValue) => {
+    if (empty) {
+      this.setState({
+        detailList: [],
+      });
+    }
+    this.setState({
+      loading: true,
+    });
+    let payload = {
+      query: {
+        bool: {
+          must: {
+            match: {
+              nodeid: this.state.userItem.idCard,
+            },
+          },
+        },
+      },
+      from: from,
+      size: size,
+      sort: 'time',
+    };
+    let serchPayload = {
+      query: {
+        bool: {
+          must: [
+            {
+              match: {
+                nodeid: this.state.userItem.idCard,
+              },
+            },
+            {
+              query_string: {
+                query: '*' + searchValue + '*',
+              },
+            },
+          ],
+        },
+      },
+      from: from,
+      size: size,
+      sort: 'time',
+    };
+    this.props.dispatch({
+      type: 'user/xmppQuery',
+      payload: searchValue.length > 0 ? serchPayload : payload,
+      callback: response => {
+        response.hits.hits.map(item => {
+          this.state.detailList.push(item._source);
+        });
+        this.setState({
+          detailList: this.state.detailList,
+          total: response.hits.total,
+        });
+        if (!isTable) {
+          if (response.hits.total === this.state.detailList.length) {
+            this.setState({
+              loading: false,
+              lookMore: false,
+              load: false,
+            });
+            if (scrollHeight) {
+              this.refs.scroll.scrollTop = scrollHeight;
+            }
+            this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
+          } else {
+            this.setState({
+              loading: false,
+              lookMore: false,
+              load: false,
+            });
+            if (scrollHeight) {
+              this.refs.scroll.scrollTop = scrollHeight;
+            } else {
+              setTimeout(() => {
+                this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
+              }, 100);
+            }
+            this.refs.scroll.addEventListener('scroll', this.scrollHandler);
+          }
+        } else {
+          this.setState({
+            loading: false,
+          });
+        }
+        console.log('this.state.detailList====', this.state.detailList);
+      },
+    });
+  };
   updateSize() {
     this.setState({
       height: autoheight() < 700 ? autoheight() - 115 : autoheight() - 104,
@@ -77,93 +184,20 @@ export default class SmartDetail extends Component {
           lookMore: false,
         });
         if (this.props.code) {
-          if (
-            sessionStorage.getItem('nodeid') === 'smart_wtjq' ||
-            sessionStorage.getItem('nodeid') === 'smart_wtaj' ||
-            sessionStorage.getItem('nodeid') === 'smart_wtwp' ||
-            sessionStorage.getItem('nodeid') === this.state.userItem.idCard ||
-            sessionStorage.getItem('nodeid') === 'smart_syrjq'
-          ) {
-            this.setState({
-              load: true,
-              endLength: parseInt(this.state.endLength) + 1,
-            });
-            let lens = [];
-            let lenBaq = [];
-            this.props.onNewMsg(sessionStorage.getItem('nodeid'), 3 * this.state.endLength);
-            if (sessionStorage.getItem('nodeid') === this.state.userItem.idCard) {
-              this.props.onNewMsg('smart_baq', 3 * this.state.endLength);
-            }
-            this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
-            setTimeout(() => {
-              this.props.msgList.map((e, i) => {
-                if (e.nodeid === sessionStorage.getItem('nodeid')) {
-                  lens.push(JSON.parse(e.messagecontent).result.length);
-                }
-                if (sessionStorage.getItem('nodeid') === this.state.userItem.idCard) {
-                  if (e.nodeid === 'smart_baq') {
-                    lenBaq.push(JSON.parse(e.messagecontent).result.length);
-                  }
-                }
-              });
-              if (
-                sessionStorage.getItem('nodeid') === this.state.userItem.idCard
-                  ? lens.length < 3 * this.state.endLength - 1 &&
-                    lenBaq.length < 3 * this.state.endLength - 1
-                  : lens.length < 3 * this.state.endLength - 1
-              ) {
-                this.setState({
-                  load: false,
-                });
-                this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
-              } else {
-                lens.slice(0, 3).map((e, i) => {
-                  _length += e;
-                });
-                if (sessionStorage.getItem('nodeid') === this.state.userItem.idCard) {
-                  lenBaq.slice(0, 3).map(res => {
-                    _length += res;
-                  });
-                }
-                let length =
-                  sessionStorage.getItem('nodeid') === 'smart_wtwp' ? 473 * _length : 448 * _length;
-                this.setState({
-                  load: false,
-                });
-                this.refs.scroll.scrollTop = length;
-                this.refs.scroll.addEventListener('scroll', this.scrollHandler);
-              }
-            }, this.state.endLength < 10 ? 500 : this.state.endLength * 50);
-          } else {
-            if (
-              this.state.data.length <
-              parseInt(this.state.endLength) * parseInt(this.state.pageCount)
-            ) {
-              this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
-            } else {
-              this.setState({
-                load: true,
-              });
-              setTimeout(() => {
-                this.setState({
-                  load: false,
-                });
-                this.setState({
-                  endLength: parseInt(this.state.endLength) + 1,
-                });
-                this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
-                let len =
-                  parseInt(this.state.data.length) -
-                  (parseInt(this.state.endLength) - 1) * parseInt(this.state.pageCount);
-                if (len < 5) {
-                  this.refs.scroll.scrollTop = 480 * len;
-                } else {
-                  this.refs.scroll.scrollTop = 2200;
-                  this.refs.scroll.addEventListener('scroll', this.scrollHandler);
-                }
-              }, 500);
-            }
-          }
+          let from = parseInt(this.state.endLength) * this.state.pageCount;
+          this.setState({
+            load: true,
+            endLength: parseInt(this.state.endLength) + 1,
+          });
+          this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
+          this.xmppQuery(
+            from,
+            this.state.pageCount,
+            false,
+            this.state.pageCount * 473,
+            this.state.isTable,
+            this.props.user.value
+          );
         }
       }
     }
@@ -178,16 +212,7 @@ export default class SmartDetail extends Component {
   componentWillReceiveProps(next) {
     if (this.props.gzList === next.gzList) {
       let gzArr = [];
-      next.gzList['gzdjq'].map(e => {
-        gzArr.push({ id: e.id });
-      });
-      next.gzList['gzdwp'].map(e => {
-        gzArr.push({ id: e.id });
-      });
-      next.gzList['gzdaj'].map(e => {
-        gzArr.push({ id: e.id });
-      });
-      next.gzList['gzdcs'].map(e => {
+      next.gzList['myFollow'].map(e => {
         gzArr.push({ id: e.id });
       });
       this.setState({
@@ -195,18 +220,6 @@ export default class SmartDetail extends Component {
       });
     }
     if (next.login.loginStatus) {
-      for (var i = 0; i < next.msgList.length - 1; i++) {
-        for (var j = i + 1; j < next.msgList.length; j++) {
-          if (
-            next.msgList[i].messagecontent == next.msgList[j].messagecontent &&
-            next.msgList[i].time == next.msgList[j].time
-          ) {
-            next.msgList.splice(j, 1);
-            j--;
-          }
-        }
-      }
-      this.getListNew(next);
       if (
         this.props.user.nodeId !== next.user.nodeId ||
         this.props.nodeId !== next.nodeId ||
@@ -220,72 +233,42 @@ export default class SmartDetail extends Component {
         });
         this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
         this.setState({
-          searchList: null,
           loading: true,
         });
-        this.getListNew(next);
         setTimeout(() => {
-          this.setState({
-            loading: false,
-          });
-          this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
-          this.refs.scroll.addEventListener('scroll', this.scrollHandler);
-        }, this.props.user.allList !== next.user.allList ? 0 : 600);
-      } else if (
-        this.props.user.searchList !== next.user.searchList &&
-        (this.props.code === '200003' || (this.props.code !== '200003' && next.type == 2))
-      ) {
-        if (next.user.searchList.length > 0) {
-          if (!this.state.isTable) {
-            this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
-          }
-          let search = [];
-          let searchAll = [];
-          next.user.searchList.map(search => {
-            JSON.parse(
-              this.createXml(search.payload).getElementsByTagName('messagecontent')[0].textContent
-            ).result.map(res => {
-              searchAll.push({
-                res: res,
-                time: this.createXml(search.payload).getElementsByTagName('createtime')[0]
-                  .textContent,
-              });
-            });
-          });
-          searchAll.map((e, index) => {
-            if (JSON.stringify(e.res).indexOf(sessionStorage.getItem('search')) > -1) {
-              search.push({
-                result: e.res,
-                type: JSON.parse(
-                  this.createXml(
-                    next.user.searchList[next.user.searchList.length - 1].payload
-                  ).getElementsByTagName('messagecontent')[0].textContent
-                ).type,
-                time: e.time,
-              });
-            }
-          });
-          this.setState({
-            searchList: search,
-            loading: true,
-            empty: false,
-            noSearch: false,
-            lookMore: false,
-          });
-          setTimeout(() => {
-            this.setState({
-              loading: false,
-            });
-            if (!this.state.isTable) {
-              this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
-              this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
-            }
-          }, 500);
-        } else {
-          this.setState({
-            empty: true,
-          });
-        }
+          this.xmppQuery(
+            0,
+            this.state.isTable ? this.state.tableCount : this.state.pageCount,
+            true,
+            null,
+            this.state.isTable,
+            this.props.user.value
+          );
+        }, 1000);
+      } else if (this.props.user.value !== next.user.value) {
+        //(搜索框)
+        console.log('next.user.xmppList======>', next.user.xmppList);
+        this.xmppQuery(
+          0,
+          this.state.isTable ? this.state.tableCount : this.state.pageCount,
+          true,
+          null,
+          this.state.isTable,
+          next.user.value
+        );
+        // let search = [];
+        // next.user.xmppList.hits.hits.map(item => {
+        //   search.push(item._source);
+        // });
+        // if(next.user.xmppList.hits.hits.length > 0){
+        //   this.setState({
+        //     detailList: search
+        //   })
+        // }else{
+        //   this.setState({
+        //     empty: true
+        //   })
+        // }
       }
       if (this.props.type !== next.type) {
         this.setState({
@@ -391,6 +374,7 @@ export default class SmartDetail extends Component {
     this.setState({
       visible: true,
     });
+    focus();
   };
 
   onClose = () => {
@@ -399,6 +383,12 @@ export default class SmartDetail extends Component {
     });
   };
   changeTable = () => {
+    this.props.dispatch({
+      type: 'user/getTable',
+      payload: {
+        isTable: !this.state.isTable,
+      },
+    });
     this.setState({
       isTable: !this.state.isTable,
       loading: true,
@@ -406,11 +396,17 @@ export default class SmartDetail extends Component {
     setTimeout(() => {
       this.setState({
         loading: false,
+        endLength: 1,
       });
-      if (!this.state.isTable) {
-        this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
-        this.refs.scroll.addEventListener('scroll', this.scrollHandler);
-      }
+      console.log('this.state.isTable', this.state.isTable);
+      this.xmppQuery(
+        0,
+        this.state.isTable ? this.state.tableCount : this.state.pageCount,
+        true,
+        null,
+        this.state.isTable,
+        this.props.user.value
+      );
     }, 200);
   };
   handleFormSubmit = checkedValue => {
@@ -418,6 +414,9 @@ export default class SmartDetail extends Component {
   };
   handleStatus = statusValue => {
     console.log('statusValue======>', statusValue);
+  };
+  onChange = checkedValues => {
+    console.log('checked = ', checkedValues);
   };
   render() {
     let itemCs = {
@@ -518,196 +517,178 @@ export default class SmartDetail extends Component {
     let result = '';
     let listType = '';
     let list = [];
-    const user = sessionStorage.getItem('user');
-    const userNew = JSON.parse(user).user;
-    const pwd = JSON.parse(user).password;
-    const token = JSON.parse(user).token;
-    if (this.state.searchList === null) {
-      list = [];
-      if (this.state.data.length > 0) {
-        this.state.data
-          .slice(
-            parseInt(this.state.data.length) - pageLength > 0
-              ? parseInt(this.state.data.length) - pageLength
-              : 0,
-            parseInt(this.state.data.length)
-          )
-          .map((item, i) => {
-            listType = JSON.parse(item.messagecontent).type;
-            result = JSON.parse(item.messagecontent).result;
-            let k = -1;
-            result.map((items, index) => {
-              this.state.saveList.map((e, i) => {
-                if (e.id === '/' + items.uuid || e.id === items['baq_org_code']) {
-                  k = 1;
-                } else {
-                  k = -1;
-                }
-              });
-              this.props.gzList[
-                listType === 'ajxx'
-                  ? 'gzdaj'
-                  : listType === 'jqxx'
-                    ? 'gzdjq'
-                    : listType === 'sacw'
-                      ? 'gzdwp'
-                      : listType === 'baq'
-                        ? 'gzdcs'
-                        : ''
-              ].map((e, i) => {
-                if (e.id === '/' + items.uuid || e.id === items['baq_org_code']) {
-                  k = 1;
-                }
-              });
-              list.push(
-                <SmartDetailItem
-                  listType={listType}
-                  index={index}
-                  i={i}
-                  item={item}
-                  childItem={itemCs}
-                  code={this.props.code}
-                  goWindow={path => this.goWindow(path)}
-                  k={k}
-                  // url={listUrl(listType, items, item)}
-                  getSave={(id, name, remark) => this.getSave(id, name, remark)}
-                  getCancelSave={id => this.getCancelSave(id)}
-                  agxt={this.state.agxt}
-                />
-              );
-            });
-          });
-      }
-    } else {
-      list = [];
-      let readTime = '';
-      let items = '';
+    list = [];
+    if (this.state.detailList.length > 0) {
       let k = -1;
-      if (this.state.searchList.length > 0) {
-        this.state.searchList.map((item, i) => {
-          items = this.state.searchList[i].result;
-          listType = item.type;
-          readTime = item.time;
-          this.state.saveList.map((e, i) => {
-            if (e.id === '/' + items.uuid || e.id === items['baq_org_code']) {
-              k = 1;
-            }
-          });
-          this.props.gzList[
-            listType === 'ajxx'
-              ? 'gzdaj'
-              : listType === 'jqxx'
-                ? 'gzdjq'
-                : listType === 'sacw'
-                  ? 'gzdwp'
-                  : listType === 'baq'
-                    ? 'gzdcs'
-                    : ''
-          ].map((e, i) => {
-            if (e.id === '/' + items.uuid || e.id === items['baq_org_code']) {
-              k = 1;
-            }
-          });
-          list.push(
-            <SmartDetailItem
-              listType={listType}
-              index=""
-              i={i}
-              item={this.state.searchList[i]}
-              childItem={itemCs}
-              code={this.props.code}
-              goWindow={path => this.goWindow(path)}
-              k={k}
-              // url={listUrl(listType, items, item)}
-              getSave={(nodeId, id, name, remark) => this.getSave(nodeId, id, name, remark)}
-              getCancelSave={(nodeId, id) => this.getCancelSave(nodeId, id)}
-              cardId={this.state.userItem.idCard}
-              agxt={this.state.agxt}
-            />
-          );
+      this.state.detailList.map((items, index) => {
+        this.state.saveList.map((e, i) => {
+          if (e.id === '/' + items.xxbj.id) {
+            k = 1;
+          } else {
+            k = -1;
+          }
         });
-      }
+        this.props.gzList['myFollow'].map((e, i) => {
+          if (e.id === '/' + items.xxbj.id) {
+            k = 1;
+          }
+        });
+        list.push(
+          <SmartDetailItem
+            listType={listType}
+            index={index}
+            i={1}
+            childItem={items}
+            code={this.props.code}
+            goWindow={path => this.goWindow(path)}
+            k={k}
+            getSave={(id, name, remark) => this.getSave(id, name, remark)}
+            getCancelSave={id => this.getCancelSave(id)}
+            agxt={this.state.agxt}
+          />
+        );
+      });
     }
+    const xtly = [
+      { label: '全部', value: '全部' },
+      { label: '办案区', value: '办案区' },
+      { label: '涉案财物', value: '涉案财物' },
+      { label: '智慧警情', value: '智慧警情' },
+      { label: '智慧案管', value: '智慧案管' },
+      { label: '卷宗', value: '卷宗系统' },
+    ];
+    const zt = [
+      { label: '全部', value: '全部' },
+      { label: '未督办', value: '未督办' },
+      { label: '发起督办', value: '发起督办' },
+      { label: '已反馈', value: '已反馈' },
+    ];
+    const lx = [
+      { label: '全部', value: '全部' },
+      { label: '告警', value: '告警' },
+      { label: '日常', value: '日常' },
+    ];
     return (
       <div>
         <div className={styles.headerTitle}>
-          {/*{this.props.getTitle}*/}
           <span style={{ float: 'left' }}>消息</span>
           <Icon
             type="bars"
             theme="outlined"
-            style={{ float: 'right', marginTop: '10px', fontSize: '28px', cursor: 'pointer' }}
+            style={{
+              float: 'right',
+              marginTop: '10px',
+              fontSize: '28px',
+              cursor: 'pointer',
+              color: '#444',
+            }}
             onClick={this.changeTable}
           />
           <Icon
-            type="file-search"
-            style={{ float: 'right', margin: '10px', fontSize: '28px', cursor: 'pointer' }}
+            type="appstore"
+            style={{
+              float: 'right',
+              margin: '10px',
+              fontSize: '28px',
+              cursor: 'pointer',
+              color: '#444',
+            }}
             theme="outlined"
             onClick={this.showDrawer}
           />
           <div>
             <Drawer
-              title="筛选"
+              title={
+                <div>
+                  <span>筛选</span>
+                  <Icon
+                    className={styles.floatR}
+                    onClick={this.onClose}
+                    style={{ fontSize: '18px', cursor: 'pointer', marginTop: '3px' }}
+                    type="arrow-right"
+                    theme="outlined"
+                  />
+                </div>
+              }
               placement="right"
               closable={false}
               onClose={this.onClose}
               visible={this.state.visible}
               mask={false}
+              width={300}
             >
-              <div style={{ fontSize: '16px', marginBottom: '5px' }}>系统来源</div>
-              <div>
-                <TagSelect onChange={this.handleFormSubmit} hideCheckAll={true}>
-                  <TagSelect.Option value="zhag">智慧案管系统</TagSelect.Option>
-                  <TagSelect.Option value="zhjq">智慧警情系统</TagSelect.Option>
-                  <TagSelect.Option value="sacw">涉案财物系统</TagSelect.Option>
-                  <TagSelect.Option value="ajlc">案件流程系统</TagSelect.Option>
-                  <TagSelect.Option value="baq">办案区系统</TagSelect.Option>
-                  <TagSelect.Option value="jz">卷宗系统</TagSelect.Option>
-                </TagSelect>
+              <div className={styles.boxTime} id="time">
+                <RangePicker
+                  open={true}
+                  getCalendarContainer={() => document.getElementById('time')}
+                />
               </div>
-              <div style={{ fontSize: '16px', marginBottom: '5px' }}>状态</div>
-              <div>
-                <TagSelect onChange={this.handleStatus} hideCheckAll={true}>
-                  <TagSelect.Option value="0">未督办</TagSelect.Option>
-                  <TagSelect.Option value="1">发起督办</TagSelect.Option>
-                  <TagSelect.Option value="2">整改中</TagSelect.Option>
-                  <TagSelect.Option value="3">已反馈</TagSelect.Option>
-                  <TagSelect.Option value="4">告警</TagSelect.Option>
-                </TagSelect>
+              <div className={styles.tagScroll} style={{ height: this.state.height - 245 + 'px' }}>
+                <div className={styles.titleBorderNone}>
+                  <span>系统来源</span>
+                  <Icon
+                    className={styles.floatR}
+                    style={{ fontSize: '15px', marginTop: '3px' }}
+                    type="setting"
+                    theme="outlined"
+                  />
+                </div>
+                <div>
+                  <RadioGroup
+                    options={xtly}
+                    onChange={this.onChange}
+                    className={styles.checkedTag}
+                  />
+                </div>
+                <div className={styles.titleTop}>
+                  <span>状态</span>
+                  <Icon
+                    className={styles.floatR}
+                    style={{ fontSize: '15px', marginTop: '3px' }}
+                    type="message"
+                    theme="outlined"
+                  />
+                </div>
+                <div>
+                  <CheckboxGroup
+                    options={zt}
+                    onChange={this.onChange}
+                    className={styles.checkedTag}
+                  />
+                </div>
+                <div className={styles.titleTop}>
+                  <span>类型</span>
+                  <Icon
+                    className={styles.floatR}
+                    style={{ fontSize: '15px', marginTop: '3px' }}
+                    type="schedule"
+                    theme="outlined"
+                  />
+                </div>
+                <div>
+                  <CheckboxGroup
+                    options={lx}
+                    onChange={this.onChange}
+                    className={styles.checkedTag}
+                  />
+                </div>
               </div>
-              <div
-                style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  width: '100%',
-                  borderTop: '1px solid #e8e8e8',
-                  padding: '10px 16px',
-                  textAlign: 'right',
-                  left: 0,
-                  background: '#fff',
-                  borderRadius: '0 0 4px 4px',
-                }}
-              >
-                <Button
-                  style={{
-                    marginRight: 8,
-                  }}
-                  onClick={this.onClose}
-                >
-                  取消
-                </Button>
-                <Button onClick={this.onClose} type="primary">
-                  确定
-                </Button>
-              </div>
+              <Button className={styles.btnTag} onClick={this.onClose} type="primary">
+                确定
+              </Button>
             </Drawer>
           </div>
         </div>
         {this.state.isTable ? (
           <TableDetail
             height={this.state.height}
-            data={this.state.data}
+            total={this.state.total}
+            count={this.state.tableCount}
+            data={this.state.detailList}
             loading={this.state.loading}
+            xmppQuery={(from, size, empty, scrollHeight, isTable, searchValue) =>
+              this.xmppQuery(from, size, empty, scrollHeight, isTable, searchValue)
+            }
             goWindow={path => this.goWindow(path)}
           />
         ) : (
@@ -744,7 +725,7 @@ export default class SmartDetail extends Component {
                 height: '40px',
                 lineHeight: '50px',
                 fontSize: '12px',
-                color: '#1bb7d2',
+                color: '#1d94ee',
               }}
             >
               查看更多消息

@@ -9,7 +9,7 @@ export default class SmartDetailItem extends Component {
         className={styles.boxItem}
         key={this.props.listType + this.props.i.toString() + this.props.index}
       >
-        <div className={styles.timeStyle}>{this.props.item.time}</div>
+        <div className={styles.timeStyle}>{this.props.childItem.time}</div>
         <div>
           {this.props.childItem.xxtb.isvisible ? (
             <div className={styles.headerName}>
@@ -19,16 +19,15 @@ export default class SmartDetailItem extends Component {
             ''
           )}
           <div className={styles.cardBox}>
-            {this.props.childItem.xxbt.isvisible ? (
-              <div className={styles.newsTitle}>{this.props.childItem.xxbt.msg}</div>
-            ) : (
-              ''
-            )}
+            {this.props.childItem.xxbt.isvisible
+              ? ''
+              : //<div className={styles.newsTitle}>{this.props.childItem.xxbt.msg}</div>
+                ''}
             <Card
               title={
                 <div>
                   {this.props.childItem.xxbj.isvisible ? (
-                    this.props.childItem.xxbj.actionType === 0 ? (
+                    this.props.childItem.xxbj.actiontype === '0' ? (
                       this.props.k > 0 ? (
                         <Tooltip placement="top" title="取消关注">
                           <img
@@ -72,7 +71,7 @@ export default class SmartDetailItem extends Component {
                   )}
                 </div>
               }
-              style={{ width: 330, padding: '0 16px' }}
+              style={{ width: 330 }}
               cover={
                 this.props.childItem.xxtp.isvisible ? (
                   <img alt="example" src={this.props.childItem.xxtp.msg} />
