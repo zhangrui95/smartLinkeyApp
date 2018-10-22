@@ -49,6 +49,7 @@ const { setting_huaci_callback } = require(`./${fetd}/for-electron/crates/huaci_
 const { start_huaci, stop_huaci } = require(`./${fetd}/for-electron/crates/huaci_handler`);
 const opn_it = require(`./${fetd}/for-electron/crates/opn-open`);
 const config = require(`./${fetd}/for-electron/config.js`);
+require(`./${fetd}/for-electron/crates/httpserver.js`);
 
 if (config.auto_launch) {
   var auto_launch = require(`./${fetd}/for-electron/crates/launch`).auto_launch;
