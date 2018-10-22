@@ -128,77 +128,36 @@ class SmartItem extends Component {
       this.getAllList(next);
     }
     if (
-      this.props.user.searchList !== next.user.searchList &&
-      ((this.props.code === '200001' || this.props.code === '200002') && next.type == 0)
-    ) {
-      let search = [];
-      if (next.searchList && next.searchList.length > 0) {
-        next.searchList.map(e => {
-          if (
-            e.name.indexOf(sessionStorage.getItem('search')) > -1 &&
-            e.nodeid !== this.state.userItem.idCard
-          ) {
-            search.push({
-              name: e.name,
-              icon:
-                e.nodeid === 'smart_wtaj'
-                  ? 'images/anjian.png'
-                  : e.nodeid === 'smart_wtjq' || e.nodeid === 'smart_syrjq'
-                    ? 'images/weishoulijingqing.png'
-                    : e.nodeid === 'smart_wtwp'
-                      ? 'images/wentiwupin.png'
-                      : e.nodeid === this.state.userItem.idCard
-                        ? 'images/changsuo.png'
-                        : 'images/user.png',
-              maxmessageid: e.maxmessageid ? e.maxmessageid : 0,
-              nodeid: e.nodeid,
-            });
-          }
-        });
-      }
-      this.setState({
-        serList: search,
-        searTrue: true,
-      });
-      if (sessionStorage.getItem('search') === '') {
-        this.setState({
-          searTrue: false,
-        });
-      }
-    }
-    if (
       this.props.msgList !== next.msgList ||
       this.props.searchList !== next.searchList ||
       this.props.event !== next.event ||
       this.props.type !== next.type
     ) {
-      if (this.props.code === '200003') {
-        if (next.type == 2) {
-          let node = sessionStorage.getItem('nodeidSave')
-            ? sessionStorage.getItem('nodeidSave').slice(6)
-            : 'gzdaj';
-          let id = [];
-          let m = [];
-          let t = false;
-          if (this.state.gzList[node] && this.state.gzList[node].length > 0) {
-            this.state.gzList[node].map((e, i) => {
-              id.push(e.id);
-              m.push(0);
-              this.state.msgLists.map(msgItem => {
-                if (msgItem.nodeid.toLowerCase() === e.id) {
-                  m[i] = msgItem.id;
-                  if (msgItem.id > e.maxmessageid) {
-                    t = true;
-                  }
+      if (next.type == 2) {
+        let node = sessionStorage.getItem('nodeidSave')
+          ? sessionStorage.getItem('nodeidSave').slice(6)
+          : 'gzdaj';
+        let id = [];
+        let m = [];
+        let t = false;
+        if (this.state.gzList[node] && this.state.gzList[node].length > 0) {
+          this.state.gzList[node].map((e, i) => {
+            id.push(e.id);
+            m.push(0);
+            this.state.msgLists.map(msgItem => {
+              if (msgItem.nodeid.toLowerCase() === e.id) {
+                m[i] = msgItem.id;
+                if (msgItem.id > e.maxmessageid) {
+                  t = true;
                 }
-              });
+              }
             });
-            if (t) {
-              this.getTimeSaves(id.toString(), m.toString(), 'save');
-              this.state.gzList[node].map((e, i) => {
-                e.maxmessageid = m[i];
-              });
-            }
+          });
+          if (t) {
+            this.getTimeSaves(id.toString(), m.toString(), 'save');
+            this.state.gzList[node].map((e, i) => {
+              e.maxmessageid = m[i];
+            });
           }
         }
       }
@@ -303,39 +262,7 @@ class SmartItem extends Component {
                 });
               }
             }
-            if (
-              (this.props.code === '200001' || this.props.code === '200002') &&
-              this.props.event !== next.event
-            ) {
-              if (sessionStorage.getItem('nodeidType')) {
-                dataList.map((e, index) => {
-                  if (e.nodeid === sessionStorage.getItem('nodeidType')) {
-                    this.setState({
-                      title: e.name,
-                      nodeId: e.nodeid,
-                      index: index,
-                    });
-                  }
-                });
-              }
-            }
-            if (!sessionStorage.getItem('nodeidType')) {
-              if (this.props.code === '200001' || this.props.code === '200002') {
-                this.setState({
-                  title: dataList.length > 0 ? dataList[dataList.length - 1].name : '',
-                  nodeId: dataList.length > 0 ? dataList[dataList.length - 1].nodeid : '',
-                  index: dataList.length > 0 ? dataList.length - 1 : null,
-                });
-              } else {
-                if (next.type == 2) {
-                  this.setState({
-                    title: dataList[0].name,
-                    nodeId: dataList[0].nodeid,
-                    index: 0,
-                  });
-                }
-              }
-            } else {
+            if (sessionStorage.getItem('nodeidType')) {
               dataList.map((e, index) => {
                 if (e.nodeid === sessionStorage.getItem('nodeidType')) {
                   this.setState({
@@ -347,12 +274,6 @@ class SmartItem extends Component {
               });
             }
           }
-        } else if (next.type == 2) {
-          if (this.props.code === '200001' || this.props.code === '200002') {
-            this.setState({
-              title: '',
-            });
-          }
         }
       });
     } else {
@@ -361,156 +282,6 @@ class SmartItem extends Component {
           title: '',
         });
       }
-    }
-    if (next.type == 2 && next.code === '200003') {
-      // if (this.state.gzList.gzdaj.length > 0) {
-      dataList.push({
-        name: '关注的案件',
-        icon: 'images/anjian.png',
-        maxmessageid:
-          this.state.gzList.gzdaj && this.state.gzList.gzdaj.length > 0
-            ? this.state.gzList.gzdaj[this.state.gzList.gzdaj.length - 1].maxmessageid
-              ? this.state.gzList.gzdaj[this.state.gzList.gzdaj.length - 1].maxmessageid
-              : 0
-            : 0,
-        nodeid: 'smart_gzdaj',
-        remark: '关注的案件',
-      });
-      // }
-      // if (this.state.gzList.gzdwp.length > 0) {
-      dataList.push({
-        name: '关注的物品',
-        icon: 'images/wentiwupin.png',
-        maxmessageid:
-          this.state.gzList.gzdwp && this.state.gzList.gzdwp.length > 0
-            ? this.state.gzList.gzdwp[this.state.gzList.gzdwp.length - 1].maxmessageid
-              ? this.state.gzList.gzdwp[this.state.gzList.gzdwp.length - 1].maxmessageid
-              : 0
-            : 0,
-        nodeid: 'smart_gzdwp',
-        remark: '关注的物品',
-      });
-      // }
-      // if (this.state.gzList.gzdcs.length > 0) {
-      dataList.push({
-        name: '关注的场所',
-        icon: 'images/changsuo.png',
-        maxmessageid:
-          this.state.gzList.gzdcs && this.state.gzList.gzdcs.length > 0
-            ? this.state.gzList.gzdcs[this.state.gzList.gzdcs.length - 1].maxmessageid
-              ? this.state.gzList.gzdcs[this.state.gzList.gzdcs.length - 1].maxmessageid
-              : 0
-            : 0,
-        nodeid: 'smart_gzdcs',
-        remark: '关注的场所',
-      });
-      dataList.push({
-        name: '关注的警情',
-        icon: 'images/weishoulijingqing.png',
-        maxmessageid:
-          this.state.gzList.gzdjq && this.state.gzList.gzdjq.length > 0
-            ? this.state.gzList.gzdjq[this.state.gzList.gzdjq.length - 1].maxmessageid
-              ? this.state.gzList.gzdjq[this.state.gzList.gzdjq.length - 1].maxmessageid
-              : 0
-            : 0,
-        nodeid: 'smart_gzdjq',
-        remark: '关注的警情',
-      });
-      // }
-      if (dataList.length > 0) {
-        if (dataList.length > 1) {
-          dataList.map((e, index) => {
-            if (sessionStorage.getItem('nodeidSave')) {
-              if (e.nodeid === sessionStorage.getItem('nodeidSave')) {
-                this.setState({
-                  title: e.name,
-                  nodeId: e.nodeid,
-                  index: index,
-                });
-              }
-            } else {
-              this.setState({
-                title: dataList[0].name,
-                nodeId: dataList[0].nodeid,
-                index: 0,
-              });
-            }
-          });
-        } else {
-          this.setState({
-            title: dataList[0].name,
-            nodeId: dataList[0].nodeid,
-            index: 0,
-          });
-        }
-      }
-    } else if (next.type == 2 && (next.code === '200002' || next.code === '200001')) {
-      dataList.push({
-        name: '关注的场所',
-        icon: 'images/changsuo.png',
-        maxmessageid:
-          this.state.gzList.gzdcs && this.state.gzList.gzdcs.length > 0
-            ? this.state.gzList.gzdcs[this.state.gzList.gzdcs.length - 1].maxmessageid
-              ? this.state.gzList.gzdcs[this.state.gzList.gzdcs.length - 1].maxmessageid
-              : 0
-            : 0,
-        nodeid: 'smart_gzdcs',
-        remark: '关注的场所',
-      });
-      this.setState({
-        title: dataList[0].name,
-        nodeId: dataList[0].nodeid,
-        index: 0,
-      });
-    }
-    if (next.code === '200003') {
-      if (this.state.gzList.gzdaj.length > 0) {
-        numSaveData.push({
-          name: '关注的案件',
-          icon: 'images/anjian.png',
-          maxmessageid: this.state.gzList.gzdaj[this.state.gzList.gzdaj.length - 1].maxmessageid
-            ? this.state.gzList.gzdaj[this.state.gzList.gzdaj.length - 1].maxmessageid
-            : 0,
-          nodeid: 'smart_gzdaj',
-          remark: '关注的案件',
-        });
-      }
-      if (this.state.gzList.gzdwp.length > 0) {
-        numSaveData.push({
-          name: '关注的物品',
-          icon: 'images/wentiwupin.png',
-          maxmessageid: this.state.gzList.gzdwp[this.state.gzList.gzdwp.length - 1].maxmessageid
-            ? this.state.gzList.gzdwp[this.state.gzList.gzdwp.length - 1].maxmessageid
-            : 0,
-          nodeid: 'smart_gzdwp',
-          remark: '关注的物品',
-        });
-      }
-      if (this.state.gzList.gzdcs.length > 0) {
-        numSaveData.push({
-          name: '关注的场所',
-          icon: 'images/changsuo.png',
-          maxmessageid: this.state.gzList.gzdcs[this.state.gzList.gzdcs.length - 1].maxmessageid
-            ? this.state.gzList.gzdcs[this.state.gzList.gzdcs.length - 1].maxmessageid
-            : 0,
-          nodeid: 'smart_gzdcs',
-          remark: '关注的场所',
-        });
-      }
-      if (this.state.gzList.gzdjq.length > 0) {
-        numSaveData.push({
-          name: '关注的警情',
-          icon: 'images/weishoulijingqing.png',
-          maxmessageid: this.state.gzList.gzdjq[this.state.gzList.gzdjq.length - 1].maxmessageid
-            ? this.state.gzList.gzdjq[this.state.gzList.gzdjq.length - 1].maxmessageid
-            : 0,
-          nodeid: 'smart_gzdjq',
-          remark: '关注的警情',
-        });
-      }
-      this.setState({
-        numSaveData: numSaveData,
-      });
     }
     if (this.state.nodeId === '' && this.props.code === '200003') {
       if (dataList.length > 0 && !sessionStorage.getItem('nodeid')) {
@@ -629,25 +400,6 @@ class SmartItem extends Component {
     this.num = 0;
     if (this.state.msgLists && this.state.msgLists.length > 0) {
       this.state.msgLists.map(msgItem => {
-        // if (item.nodeid === this.state.userItem.idCard && type !== '0') {
-        // let time = 0;
-        // this.props.searchList.map((res, i) => {
-        //   if (res.nodeid === 'smart_baq') {
-        //     time = res.maxmessageid;
-        //   }
-        // });
-        // if (item.maxmessageid > time) {
-        //   time = item.maxmessageid;
-        // }
-        // if (msgItem.nodeid === item.nodeid || msgItem.nodeid === 'smart_baq') {
-        //   if (msgItem.id > time) {
-        //     if (msgItem.messagecount > 1) {
-        //       this.num = msgItem.messagecount;
-        //     } else {
-        //       this.num++;
-        //     }
-        //   }
-        // }
         if (msgItem.nodeid === item.nodeid) {
           if (item.maxmessageid !== 0 && !this.props.firstLogin) {
             if (msgItem.id > item.maxmessageid) {
@@ -679,28 +431,10 @@ class SmartItem extends Component {
     }
     return this.num;
   };
-  getSaveAll = () => {
-    this.state.numSaveData.map((item, index) => {
-      if (this.state.nodeId !== item.nodeid) {
-        this.numSaveAll += parseInt(this.saveListNum(item, index + 1));
-      }
-    });
-    sessionStorage.setItem('numSaveAll', this.numSaveAll);
-    return this.numSaveAll;
-  };
   getAll = () => {
     this.state.numData.map((item, index) => {
       if (this.state.nodeId !== item.nodeid) {
-        if (item.nodeid !== 'smart_wtjq' && this.props.code === '200003') {
-          this.numAll += parseInt(this.listNum(item, index));
-        } else if (
-          this.props.code !== '200003' &&
-          (item.nodeid === this.state.userItem.idCard || item.nodeid === 'smart_baq')
-        ) {
-          return;
-        } else {
-          this.numAll += parseInt(this.listNum(item, index));
-        }
+        this.numAll += parseInt(this.listNum(item, index));
       }
     });
     sessionStorage.setItem('allNum', this.numAll);
@@ -789,38 +523,24 @@ class SmartItem extends Component {
             });
           });
         } else {
-          if (this.props.code === '200003') {
-            if (this.state.msgLists && this.state.msgLists.length > 0) {
-              this.state.msgLists.map(msgItem => {
-                let result = JSON.parse(msgItem.messagecontent).result;
-                let listType = JSON.parse(msgItem.messagecontent).type;
-                if (
-                  msgItem.nodeid === nodeid ||
-                  (msgItem.nodeid === 'smart_baq' && nodeid === this.state.userItem.idCard)
-                ) {
-                  if (listType === 'jqxx') {
-                    res = result[parseInt(result.length) - 1].jqmc
-                      ? result[parseInt(result.length) - 1].jqmc
-                      : '';
-                  } else if (listType === 'baq') {
-                    res = result[parseInt(result.length) - 1].csmc
-                      ? result[parseInt(result.length) - 1].csmc
-                      : result[parseInt(result.length) - 1].haname;
-                  } else {
-                    res = result[parseInt(result.length) - 1].ajmc;
-                  }
-                }
-              });
-            }
-          } else {
+          if (this.state.msgLists && this.state.msgLists.length > 0) {
             this.state.msgLists.map(msgItem => {
               let result = JSON.parse(msgItem.messagecontent).result;
               let listType = JSON.parse(msgItem.messagecontent).type;
-              if (msgItem.nodeid === nodeid) {
-                if (listType === 'baq') {
-                  res = result[parseInt(result.length) - 1].wtlxmc;
+              if (
+                msgItem.nodeid === nodeid ||
+                (msgItem.nodeid === 'smart_baq' && nodeid === this.state.userItem.idCard)
+              ) {
+                if (listType === 'jqxx') {
+                  res = result[parseInt(result.length) - 1].jqmc
+                    ? result[parseInt(result.length) - 1].jqmc
+                    : '';
+                } else if (listType === 'baq') {
+                  res = result[parseInt(result.length) - 1].csmc
+                    ? result[parseInt(result.length) - 1].csmc
+                    : result[parseInt(result.length) - 1].haname;
                 } else {
-                  res = result[parseInt(result.length) - 1].wtlx;
+                  res = result[parseInt(result.length) - 1].ajmc;
                 }
               }
             });
@@ -933,40 +653,8 @@ class SmartItem extends Component {
           </div>
         </div>
       );
-      if (this.props.code === '200001' || this.props.code === '200002') {
-        list.unshift(itemList);
-      } else {
-        list.push(itemList);
-      }
+      list.push(itemList);
     });
-    let searchsList = [];
-    if (this.state.serList.length > 0 && this.props.type == 0) {
-      this.state.serList.map((item, index) => {
-        searchsList.push(
-          <div
-            key={item.nodeid}
-            className={
-              this.state.nodeId === item.nodeid || this.state.index === item.index
-                ? styles.grayList
-                : styles.itemList
-            }
-          >
-            <div className={styles.floatLeft}>
-              <img className={styles.imgLeft} src={item.icon} />
-            </div>
-            <div className={styles.floatLeft}>
-              <div className={styles.titles}>{item.name}</div>
-              <div className={styles.news}>{listWord(item.nodeid)}</div>
-            </div>
-            <div className={styles.floatLeft}>
-              <span style={{ float: 'right', fontSize: '13px', marginTop: '18px' }}>
-                {listTime(item.nodeid)}
-              </span>
-            </div>
-          </div>
-        );
-      });
-    }
     return (
       <div>
         <div
@@ -993,13 +681,7 @@ class SmartItem extends Component {
               this.state.searTrue &&
               this.props.type == 0 ? (
                 <div style={{ width: '100%', textAlign: 'center', padding: '10px' }}>暂无数据</div>
-              ) : this.state.serList.length > 0 &&
-              this.state.searTrue &&
-              sessionStorage.getItem('search') !== '' ? (
-                searchsList
-              ) : (
-                list
-              )}
+              ) : list}
             </div>
             <div style={{ float: 'left', width: '100%' }}>
               <SmartDetail
@@ -1017,6 +699,7 @@ class SmartItem extends Component {
                 getSubscription={(type, timeList) => this.props.getSubscription(type, timeList)}
                 gzList={this.state.gzList}
                 cancelSave={idx => this.cancelSave(idx)}
+                Xmpp={this.props.Xmpp}
               />
             </div>
           </div>

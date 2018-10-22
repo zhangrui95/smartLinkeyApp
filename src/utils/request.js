@@ -13,7 +13,7 @@ function checkStatus(response) {
     }
   });
 
-  if ((response.status >= 200 && response.status < 300) || response.status == 401) {
+  if ((response.status >= 200 && response.status <= 401)) {
     return response;
   }
 

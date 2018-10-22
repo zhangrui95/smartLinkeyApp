@@ -57,6 +57,12 @@ export async function getSaveXmpp(params) {
     body: params,
   });
 }
+export async function getSearch(params) {
+  return request(`${configUrl.jz_search}/information/informationSearchGet`, {
+    method: 'POST',
+    body: params,
+  });
+}
 export async function getConfig() {
   return request(`${configUrls.serve}/api/config`, {
     method: 'GET',

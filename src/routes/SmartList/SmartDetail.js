@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'dva';
+import moment from 'moment';
 import {
   Card,
   Icon,
@@ -65,7 +66,15 @@ export default class SmartDetail extends Component {
       visible: false,
       isTable: false,
       detailList: [],
-      checkedList: ['Apple', 'Orange'],
+      checkedList: null,
+      searchResult:null,
+      xtValue:'',
+      arrSearch:[],
+      timeList:[],
+      searchTime:'',
+      timeDate:'',
+      menu:JSON.parse(user).menu,
+      xtly:[{ label: '全部', value: '' }]
       // oldList:[],
     };
   }
@@ -74,9 +83,30 @@ export default class SmartDetail extends Component {
     window.addEventListener('resize', () => {
       this.updateSize();
     });
-    // this.xmppQuery();
+    this.props.dispatch({
+      type: 'user/getConfigGoto',
+      callback: response => {
+        response.third.map((event, i) => {
+          this.state.menu.map(item => {
+            if (
+              (item.resourceCode === 'baq_btn' && event.unique === 'baq') ||
+              (item.resourceCode === 'sjcw_btn' && event.unique === 'sacw') ||
+              (item.resourceCode === 'zhjq_btn' && event.unique === 'zhjq') ||
+              (item.resourceCode === 'zhag_btn' && event.unique === 'zhag') ||
+              (item.resourceCode === 'ajlc_btn' && event.unique === 'ajlc') ||
+              item.resourceCode === event.unique
+            ) {
+              this.state.xtly.push(
+              { label: event.name, value: event.unique }
+              );
+            }
+          });
+        });
+      },
+    });
   }
-  xmppQuery = (from, size, empty, scrollHeight, isTable, searchValue) => {
+  xmppQuery = (from, size, empty, scrollHeight, isTable, searchValue,payloads) => {
+    console.log('payloads====>',payloads)
     if (empty) {
       this.setState({
         detailList: [],
@@ -97,7 +127,11 @@ export default class SmartDetail extends Component {
       },
       from: from,
       size: size,
-      sort: 'time',
+      sort: {
+        time: {
+          order: "desc"
+        }
+      }
     };
     let serchPayload = {
       query: {
@@ -118,11 +152,15 @@ export default class SmartDetail extends Component {
       },
       from: from,
       size: size,
-      sort: 'time',
+      sort: {
+        time: {
+          order: "desc"
+        }
+      }
     };
     this.props.dispatch({
       type: 'user/xmppQuery',
-      payload: searchValue.length > 0 ? serchPayload : payload,
+      payload: payloads ? payloads : (searchValue.length > 0 ? serchPayload : payload),
       callback: response => {
         response.hits.hits.map(item => {
           this.state.detailList.push(item._source);
@@ -140,6 +178,10 @@ export default class SmartDetail extends Component {
             });
             if (scrollHeight) {
               this.refs.scroll.scrollTop = scrollHeight;
+            } else {
+              setTimeout(() => {
+                this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
+              }, 100);
             }
             this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
           } else {
@@ -223,7 +265,8 @@ export default class SmartDetail extends Component {
       if (
         this.props.user.nodeId !== next.user.nodeId ||
         this.props.nodeId !== next.nodeId ||
-        this.props.event !== next.event
+        this.props.event !== next.event ||
+        this.props.Xmpp !== next.Xmpp
       ) {
         this.setState({
           scrollHeight: this.refs.scroll.scrollHeight,
@@ -244,10 +287,10 @@ export default class SmartDetail extends Component {
             this.state.isTable,
             this.props.user.value
           );
-        }, 1000);
+          this.getTimeList();
+        }, this.props.event !== next.event ? 1000 : 0);
       } else if (this.props.user.value !== next.user.value) {
         //(搜索框)
-        console.log('next.user.xmppList======>', next.user.xmppList);
         this.xmppQuery(
           0,
           this.state.isTable ? this.state.tableCount : this.state.pageCount,
@@ -284,6 +327,13 @@ export default class SmartDetail extends Component {
       return value1 - value2;
     };
   };
+  compare1 = property => {
+    return function(a, b) {
+      var value1 = a[property];
+      var value2 = b[property];
+      return value2 - value1;
+    };
+  };
   getListNew = next => {
     let list = [];
     this.setState({
@@ -293,7 +343,7 @@ export default class SmartDetail extends Component {
   goWindow = path => {
     // window.open(path)
     ipcRenderer.send('visit-page', {
-      url: path,
+      url: path + JSON.parse(sessionStorage.getItem('user')).token,
       browser: 'chrome',
     });
   };
@@ -373,6 +423,11 @@ export default class SmartDetail extends Component {
   showDrawer = () => {
     this.setState({
       visible: true,
+      xtValue:'',
+      timeDate:'',
+      arrSearch: [],
+      searchTime:[],
+      searchResult:[]
     });
     focus();
   };
@@ -382,6 +437,66 @@ export default class SmartDetail extends Component {
       visible: false,
     });
   };
+  onSearchList = () => {
+    let ser = [];
+    this.state.arrSearch.map((item)=>{
+      item.value.map((e)=>{
+        ser.push({match : { "xxzt.msg" : e }})
+      })
+    })
+    let payload = {
+      query: {
+        bool: {
+          filter: {
+            bool:{
+              must: [
+                this.state.xtValue ? {
+                  match: {
+                    xtid: this.state.xtValue,
+                  }
+                } : null,
+                {
+                  match: {
+                    nodeid: this.state.userItem.idCard,
+                  }
+                },
+                {
+                  range:{
+                    time:{
+                      gte:this.state.searchTime[0],
+                      lte:this.state.searchTime[1]
+                    }
+                  }
+                },
+                {
+                  query_string: {
+                    query: '*' + this.props.user.value + '*',
+                  },
+                },
+              ],
+              should: ser,
+            }
+          },
+        },
+      },
+      from: 0,
+      size:  this.state.isTable ? this.state.tableCount : this.state.pageCount,
+      sort: {
+        time: {
+          order:"desc"
+        }
+      }
+    }
+    this.xmppQuery(
+      0,
+      this.state.isTable ? this.state.tableCount : this.state.pageCount,
+      true,
+      null,
+      this.state.isTable,
+      this.props.user.value,
+      payload
+    );
+  }
   changeTable = () => {
     this.props.dispatch({
       type: 'user/getTable',
@@ -398,7 +513,6 @@ export default class SmartDetail extends Component {
         loading: false,
         endLength: 1,
       });
-      console.log('this.state.isTable', this.state.isTable);
       this.xmppQuery(
         0,
         this.state.isTable ? this.state.tableCount : this.state.pageCount,
@@ -409,118 +523,107 @@ export default class SmartDetail extends Component {
       );
     }, 200);
   };
-  handleFormSubmit = checkedValue => {
-    console.log('checkedValue======>', checkedValue);
-  };
-  handleStatus = statusValue => {
-    console.log('statusValue======>', statusValue);
-  };
   onChange = checkedValues => {
-    console.log('checked = ', checkedValues);
+    this.setState({
+      xtValue:checkedValues.target.value,
+      searchResult:null,
+      checkedList:null,
+    });
+    this.props.dispatch({
+      type: 'user/getConfigGoto',
+      callback: response => {
+        response.third.map((event, i) => {
+         if(event.unique === checkedValues.target.value){
+           if(event.api !== ""){
+             window.configUrl.jz_search = event.api;
+             this.props.dispatch({
+               type: 'user/getJzSerach',
+               payload: {},
+               callback: response => {
+                 this.setState({searchResult:response.result.TermInfo});
+               },
+             });
+           }
+         }
+        });
+      },
+    });
   };
+  onChangeChecks = (value,type) =>{
+    let arr = [];
+    let t  = true;
+    let idx = 0;
+    if(this.state.arrSearch.length > 0){
+      this.state.arrSearch.map((item,index)=>{
+        if(item.type === type){
+          t = false;
+          idx = index;
+        }
+      })
+      if(!t){
+        this.state.arrSearch[idx] = {type:type,value:value}
+      }else{
+        this.state.arrSearch.push({type:type,value:value})
+      }
+    }else{
+      this.state.arrSearch.push({type:type,value:value})
+    }
+    this.setState({
+      arrSearch:this.state.arrSearch
+    })
+    console.log(this.state.arrSearch)
+    this.setState({
+      lxValue: value
+    })
+  }
+  onChangeTime = (time,t) => {
+    console.log('time=====>',time,t)
+    this.setState({
+      timeDate:time,
+      searchTime:t
+    })
+  }
+  getTimeList = () => {
+    let payload = {
+      query: {
+        bool: {
+          filter: {
+            bool:{
+              must: {
+                match: {
+                  nodeid: this.state.userItem.idCard,
+                }
+              },
+            }
+          },
+        },
+      },
+      from: 0,
+      size: 9999,
+      sort: {
+        time: {
+          order:"desc"
+        }
+      }
+    }
+    this.props.dispatch({
+      type: 'user/xmppQuery',
+      payload:payload,
+      callback: response => {
+        response.hits.hits.map(event => {
+          this.state.timeList.push({time:event._source.time});
+        });
+      }
+    });
+  }
   render() {
-    let itemCs = {
-      xxtb: {
-        type: 1,
-        isvisible: true,
-        msg: 'images/user.png',
-        act: '点击图标触发的动作',
-        comment: '备注',
-      },
-      xxbt: {
-        type: 0,
-        isvisible: true,
-        msg: '涉案财物系统',
-        act: '点击图标触发的动作',
-        comment: '备注',
-      },
-      xxbj: {
-        type: 1,
-        isvisible: true,
-        msg: 'images/message1.png',
-        actionType: 1, //0收藏 1自定义
-        act: '点击图标触发的动作',
-        comment: '备注',
-        id: 'Z111111111',
-      },
-      xxmc: {
-        type: 0,
-        isvisible: true,
-        msg: '20170811张三盗窃案',
-        act: '点击图标触发的动作',
-        comment: '备注',
-      },
-      xxzt: {
-        type: 0,
-        isvisible: true,
-        msg: '未督办',
-        act: '点击图标触发的动作',
-        comment: '备注',
-      },
-      xxtp: {
-        type: 1,
-        isvisible: true,
-        msg: 'images/chatu1.png',
-        act: '点击图标触发的动作',
-        comment: '备注',
-      },
-      xxxs_ary: [
-        {
-          type: 0,
-          isvisible: true,
-          msg: '物品名称：手机',
-          act: '点击图标触发的动作',
-          comment: '备注',
-        },
-        {
-          type: 0,
-          isvisible: true,
-          msg: '库管员：李四',
-          act: '点击图标触发的动作',
-          comment: '备注',
-        },
-        {
-          type: 0,
-          isvisible: true,
-          msg: '入库时间：2018-09-22',
-          act: '点击图标触发的动作',
-          comment: '备注',
-        },
-        {
-          type: 0,
-          isvisible: true,
-          msg: '问题类型：非法入库',
-          act: '点击图标触发的动作',
-          comment: '备注',
-        },
-      ],
-      btn_ary: [
-        {
-          type: 2,
-          isvisible: true,
-          msg: '立即督办',
-          act:
-            'http://192.168.3.201:97/#/loginByToken?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIzMTZlYjBmOS1lZGU3LTQxM2UtYTRkZC1hOWM2OGY0YTczOTAiLCJpYXQiOjE1MzkxNDg5MjAsInN1YiI6IjQzMyIsImlzcyI6IlNlY3VyaXR5IENlbnRlciIsImRlcGFydG1lbnQiOnsiaWQiOjEwMTEsInBhcmVudElkIjoxNSwiZGVwdGgiOjIsIm5hbWUiOiLniaHkuLnmsZ_luILlhazlronlsYAiLCJjb2RlIjoiMjMxMDAwMDAwMDAwIn0sImdvdmVybm1lbnQiOltdLCJpZCI6NDMzLCJpZENhcmQiOiIyMzAyMzExOTkwMDEwMTEyNDUiLCJwY2FyZCI6IjYzIiwibmFtZSI6Imxk5rWL6K-VIiwiam9iIjpbeyJjb2RlIjoiMjAwMDAzIiwibmFtZSI6IuaJp-azleebkeeuoSJ9XSwiY29udGFjdCI6IjE1MTE0NTE0NTIxIiwiaXNBZG1pbiI6MCwiZXhwIjoxNTQxMjIyNTIwfQ.RkglY9vV6mZD8eRcvk2mEXCAAD1tfCEIjwf_0zqPEjA&wtid=07189221-89f5-4da8-b8b8-ad02cd634571&type=3',
-          comment: '备注',
-        },
-        {
-          type: 2,
-          isvisible: true,
-          msg: '查看详情',
-          act:
-            'http://192.168.3.201:97/#/loginByToken?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIzMTZlYjBmOS1lZGU3LTQxM2UtYTRkZC1hOWM2OGY0YTczOTAiLCJpYXQiOjE1MzkxNDg5MjAsInN1YiI6IjQzMyIsImlzcyI6IlNlY3VyaXR5IENlbnRlciIsImRlcGFydG1lbnQiOnsiaWQiOjEwMTEsInBhcmVudElkIjoxNSwiZGVwdGgiOjIsIm5hbWUiOiLniaHkuLnmsZ_luILlhazlronlsYAiLCJjb2RlIjoiMjMxMDAwMDAwMDAwIn0sImdvdmVybm1lbnQiOltdLCJpZCI6NDMzLCJpZENhcmQiOiIyMzAyMzExOTkwMDEwMTEyNDUiLCJwY2FyZCI6IjYzIiwibmFtZSI6Imxk5rWL6K-VIiwiam9iIjpbeyJjb2RlIjoiMjAwMDAzIiwibmFtZSI6IuaJp-azleebkeeuoSJ9XSwiY29udGFjdCI6IjE1MTE0NTE0NTIxIiwiaXNBZG1pbiI6MCwiZXhwIjoxNTQxMjIyNTIwfQ.RkglY9vV6mZD8eRcvk2mEXCAAD1tfCEIjwf_0zqPEjA&wtid=07189221-89f5-4da8-b8b8-ad02cd634571&type=3',
-          comment: '备注',
-        },
-      ],
-    };
-    let pageLength = parseInt(this.state.endLength) * parseInt(this.state.pageCount);
-    let result = '';
     let listType = '';
     let list = [];
     list = [];
     if (this.state.detailList.length > 0) {
       let k = -1;
-      this.state.detailList.map((items, index) => {
+      let data = this.state.detailList;
+      data.sort(this.compare('itemid')).map((items, index) => {
         this.state.saveList.map((e, i) => {
           if (e.id === '/' + items.xxbj.id) {
             k = 1;
@@ -549,25 +652,27 @@ export default class SmartDetail extends Component {
         );
       });
     }
-    const xtly = [
-      { label: '全部', value: '全部' },
-      { label: '办案区', value: '办案区' },
-      { label: '涉案财物', value: '涉案财物' },
-      { label: '智慧警情', value: '智慧警情' },
-      { label: '智慧案管', value: '智慧案管' },
-      { label: '卷宗', value: '卷宗系统' },
-    ];
-    const zt = [
-      { label: '全部', value: '全部' },
-      { label: '未督办', value: '未督办' },
-      { label: '发起督办', value: '发起督办' },
-      { label: '已反馈', value: '已反馈' },
-    ];
-    const lx = [
-      { label: '全部', value: '全部' },
-      { label: '告警', value: '告警' },
-      { label: '日常', value: '日常' },
-    ];
+    const search = [];
+    if(this.state.searchResult){
+      this.state.searchResult.map((item)=>{
+        let serList = [];
+        item.Term.map((e)=>{
+          serList.push(e.Text)
+        })
+        search.push(<div>
+          <div className={styles.titleTop}>
+            <span>{item.Text}</span>
+          </div>
+          <div>
+            <CheckboxGroup
+              options={serList}
+              onChange={(e)=>this.onChangeChecks(e,item.Text)}
+              className={styles.checkedTag}
+            />
+          </div>
+        </div>)
+      })
+    }
     return (
       <div>
         <div className={styles.headerTitle}>
@@ -621,59 +726,46 @@ export default class SmartDetail extends Component {
                 <RangePicker
                   open={true}
                   getCalendarContainer={() => document.getElementById('time')}
+                  onChange={this.onChangeTime}
+                  value={this.state.timeDate}
+                  dateRender={(current,today) => {
+                    const style = {};
+                    this.state.timeList.map((event)=>{
+                      if (event.time.substring(0, 10) === moment(current).format('YYYY-MM-DD')) {
+                        style.background = '#e0d394';
+                      }
+                    })
+                    return (
+                      <div className="ant-calendar-date" style={style}>
+                        {current.date()}
+                      </div>
+                    );
+                  }}
                 />
               </div>
               <div className={styles.tagScroll} style={{ height: this.state.height - 245 + 'px' }}>
-                <div className={styles.titleBorderNone}>
-                  <span>系统来源</span>
-                  <Icon
-                    className={styles.floatR}
-                    style={{ fontSize: '15px', marginTop: '3px' }}
-                    type="setting"
-                    theme="outlined"
-                  />
-                </div>
                 <div>
-                  <RadioGroup
-                    options={xtly}
-                    onChange={this.onChange}
-                    className={styles.checkedTag}
-                  />
+                  <div className={styles.titleBorderNone}>
+                    <span>系统来源</span>
+                    <Icon
+                      className={styles.floatR}
+                      style={{ fontSize: '15px', marginTop: '3px' }}
+                      type="setting"
+                      theme="outlined"
+                    />
+                  </div>
+                  <div>
+                    <RadioGroup
+                      value={this.state.xtValue}
+                      options={this.state.xtly}
+                      onChange={this.onChange}
+                      className={styles.checkedTag}
+                    />
+                  </div>
                 </div>
-                <div className={styles.titleTop}>
-                  <span>状态</span>
-                  <Icon
-                    className={styles.floatR}
-                    style={{ fontSize: '15px', marginTop: '3px' }}
-                    type="message"
-                    theme="outlined"
-                  />
-                </div>
-                <div>
-                  <CheckboxGroup
-                    options={zt}
-                    onChange={this.onChange}
-                    className={styles.checkedTag}
-                  />
-                </div>
-                <div className={styles.titleTop}>
-                  <span>类型</span>
-                  <Icon
-                    className={styles.floatR}
-                    style={{ fontSize: '15px', marginTop: '3px' }}
-                    type="schedule"
-                    theme="outlined"
-                  />
-                </div>
-                <div>
-                  <CheckboxGroup
-                    options={lx}
-                    onChange={this.onChange}
-                    className={styles.checkedTag}
-                  />
-                </div>
+                {this.state.searchResult&&this.state.searchResult.length > 0 ? search : ''}
               </div>
-              <Button className={styles.btnTag} onClick={this.onClose} type="primary">
+              <Button className={styles.btnTag} onClick={this.onSearchList} type="primary">
                 确定
               </Button>
             </Drawer>
@@ -684,7 +776,7 @@ export default class SmartDetail extends Component {
             height={this.state.height}
             total={this.state.total}
             count={this.state.tableCount}
-            data={this.state.detailList}
+            data={this.state.detailList.sort(this.compare1('itemid'))}
             loading={this.state.loading}
             xmppQuery={(from, size, empty, scrollHeight, isTable, searchValue) =>
               this.xmppQuery(from, size, empty, scrollHeight, isTable, searchValue)
@@ -713,8 +805,6 @@ export default class SmartDetail extends Component {
             <div
               className={
                 this.state.lookMore &&
-                (this.props.code === '200003' ||
-                  (this.props.code !== '200003' && this.props.type == 2)) &&
                 !this.state.loading
                   ? ''
                   : styles.none

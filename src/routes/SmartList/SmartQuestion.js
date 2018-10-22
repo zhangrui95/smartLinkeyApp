@@ -17,7 +17,7 @@ export default class SmartQuestion extends Component {
       index: 0,
       title: '',
       menu: JSON.parse(sessionStorage.getItem('user')).menu,
-      typeId: '109005',
+      typeId: '',
       data: [],
     };
   }
@@ -30,14 +30,7 @@ export default class SmartQuestion extends Component {
       callback: response => {
         response.third.map((event, i) => {
           this.state.menu.map(item => {
-            if (
-              (item.resourceCode === '109004' && event.unique === 'baq') ||
-              (item.resourceCode === '109003' && event.unique === 'sacw') ||
-              (item.resourceCode === '109001' && event.unique === 'zhjq') ||
-              (item.resourceCode === '109005' && event.unique === 'zhag') ||
-              (item.resourceCode === '109002' && event.unique === 'ajlc') ||
-              item.resourceCode === event.unique
-            ) {
+            if (item.resourceCode === event.unique) {
               this.state.data.push({
                 name: item.name,
                 code: item.resourceCode,
@@ -54,18 +47,20 @@ export default class SmartQuestion extends Component {
         });
       },
     });
-    this.props.dispatch({
-      type: 'user/getIcon',
-      callback: response => {
-        response.map(e => {
-          this.state.data.map(event => {
-            if (event.icon === e.name) {
-              event.iconurl = e.icon;
-            }
+    setTimeout(()=>{
+      this.props.dispatch({
+        type: 'user/getIcon',
+        callback: response => {
+          response.map(e => {
+            this.state.data.map(event => {
+              if (event.icon === e.name) {
+                event.iconurl = e.icon;
+              }
+            });
           });
-        });
-      },
-    });
+        },
+      });
+    },1000);
     // this.props.dispatch({
     //   type: 'question/getQuestion',
     //   payload: {

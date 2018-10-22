@@ -58,7 +58,7 @@ export default class TableDetail extends Component {
                 <a
                   className={event.isvisible ? '' : styles.none}
                   style={{ color: '#12c32d' }}
-                  onClick={() => this.props.goWindow(event.act)}
+                  onClick={() => this.props.goWindow(event.act.replace(/[$]+/g,'&'))}
                 >
                   {event.msg}
                 </a>

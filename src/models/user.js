@@ -11,6 +11,7 @@ import {
   getIcons,
   getXmppList,
   getSaveXmpp,
+  getSearch
 } from '../services/user';
 
 export default {
@@ -163,6 +164,10 @@ export default {
       if (response._shards.successful > 0) {
         callback(response);
       }
+    },
+    *getJzSerach({ payload, callback }, { call, put }) {
+      const response = yield call(getSearch, payload);
+      callback(response);
     },
   },
 

@@ -36,14 +36,7 @@ class SmartLink extends Component {
       callback: response => {
         response.third.map((event, i) => {
           this.state.menu.map(item => {
-            if (
-              (item.resourceCode === 'baq_btn' && event.unique === 'baq') ||
-              (item.resourceCode === 'sjcw_btn' && event.unique === 'sacw') ||
-              (item.resourceCode === 'zhjq_btn' && event.unique === 'zhjq') ||
-              (item.resourceCode === 'zhag_btn' && event.unique === 'zhag') ||
-              (item.resourceCode === 'ajlc_btn' && event.unique === 'ajlc') ||
-              item.resourceCode === event.unique
-            ) {
+            if (item.resourceCode === event.unique) {
               this.state.listMenu.push({
                 name: event.name,
                 link:
@@ -58,18 +51,20 @@ class SmartLink extends Component {
         });
       },
     });
-    this.props.dispatch({
-      type: 'user/getIcon',
-      callback: response => {
-        response.map(e => {
-          this.state.listMenu.map(event => {
-            if (event.icon === e.name) {
-              event.img = e.icon;
-            }
+    setTimeout(()=>{
+      this.props.dispatch({
+        type: 'user/getIcon',
+        callback: response => {
+          response.map((e) => {
+            this.state.listMenu.map(event => {
+              if (event.icon === e.name) {
+                event.img = e.icon;
+              }
+            });
           });
-        });
-      },
-    });
+        },
+      });
+    },1000)
   }
   updateSize() {
     this.setState({
@@ -97,7 +92,7 @@ class SmartLink extends Component {
                   key={items.name}
                 >
                   <div className={styles.colStyle}>
-                    <img src={items.img} style={{ margin: '12px 14px' }} />
+                    <img src={items.img} style={{ margin: '12px 14px',width:'42px' }} />
                     <span>{items.name}</span>
                   </div>
                 </Col>

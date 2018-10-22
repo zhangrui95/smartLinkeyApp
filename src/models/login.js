@@ -4,6 +4,7 @@ import {
   getUpdatePassword,
   getUpdateLoginSetting,
   getLoginSetting,
+  getTokenLogin
 } from '../services/api';
 import { setAuthority } from '../utils/authority';
 import { reloadAuthorized } from '../utils/Authorized';
@@ -23,6 +24,19 @@ export default {
   effects: {
     *login({ payload, callback }, { call, put }) {
       const response = yield call(fakeAccountLogin, payload);
+      yield put({
+        type: 'changeLoginStatus',
+        payload: response,
+      });
+      if (response.error === null) {
+        callback(response);
+        yield put(routerRedux.push('/smartList/smartAll?type=0'));
+      } else {
+        message.warning('提示：' + response.error.text);
+      }
+    },
+    *loginToken({ payload, callback }, { call, put }) {
+      const response = yield call(getTokenLogin, payload);
       yield put({
         type: 'changeLoginStatus',
         payload: response,

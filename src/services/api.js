@@ -68,6 +68,14 @@ export async function fakeAccountLogin(params) {
   });
 }
 
+export async function getTokenLogin(params) {
+  return request(`${configUrl.testUrl}/api/loginToken`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+
 export async function getUpdatePassword(params) {
   // return request(`${configUrl.testUrl}/login/updatePassword`, {
   return request(`${configUrl.testUrl}/login/updatePassword`, {

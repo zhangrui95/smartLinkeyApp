@@ -299,17 +299,18 @@ class SmartAll extends Component {
     if (event.length > 0) {
       ipcRenderer.send('start-flashing');
       console.log('闪烁--------------------->', event);
-      console.log('event.innerHTML====>', event[0]);
       let timeid = event[0].getElementsByTagName('item')[0].attributes[0].textContent;
       let messagecontent = event[0].getElementsByTagName('messagecontent')[0].textContent;
       let createtime = event[0].getElementsByTagName('createtime')[0].textContent;
       let nodeid = event[0].getElementsByTagName('nodeid')[0].textContent;
       let messagecount = event[0].getElementsByTagName('messagecount')[0].textContent;
+      let xtid = event[0].getElementsByTagName('messagesource')[0].textContent;
       let result = JSON.parse(messagecontent).result[0];
-      console.log('消息--------->', timeid, messagecontent, createtime, nodeid, messagecount);
+      console.log('消息--------->', timeid, messagecontent, createtime, nodeid, messagecount,xtid);
       let news = {
         nodeid: this.state.userItem.idCard,
         itemid: timeid,
+        xtid: xtid,
         messagecount: messagecount,
         time: createtime,
         xxtb: result.xxtb,

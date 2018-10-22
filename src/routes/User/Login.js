@@ -48,7 +48,7 @@ class LoginPage extends Component {
           rybjxx: response.system.huaci.huaci_list[1].api, //人员背景核查系统
           personList: ['姓名', '公民身份号码', '性别', '民族'], //人员背景核查信息
           xmpp_save: response.system.xmpp_save,
-          xmpp_query: response.system.xmpp_query,
+          xmpp_query: response.system.xmpp_query
         };
         this.props.dispatch({
           type: 'login/getLoginSetting',

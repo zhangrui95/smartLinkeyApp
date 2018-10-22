@@ -4,6 +4,12 @@ const { Meta } = Card;
 import styles from './SmartDetail.less';
 export default class SmartDetailItem extends Component {
   render() {
+    let btn = []
+    this.props.childItem.btn_ary.map((e)=>{
+      if(e.isvisible){
+        btn.push(e);
+      }
+    })
     return (
       <div
         className={styles.boxItem}
@@ -79,17 +85,17 @@ export default class SmartDetailItem extends Component {
                   ''
                 )
               }
-              actions={this.props.childItem.btn_ary.map(event => {
+              actions={btn.map(event => {
                 return event.isvisible
                   ? [
                       <div
                         style={{ fontSize: '14px' }}
-                        onClick={() => this.props.goWindow(event.act)}
+                        onClick={() => this.props.goWindow(event.act.replace(/[$]+/g,'&'))}
                       >
                         {event.msg}
                       </div>,
                     ]
-                  : '';
+                  : null;
               })}
             >
               <Meta
