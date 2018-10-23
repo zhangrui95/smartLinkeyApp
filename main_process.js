@@ -145,7 +145,7 @@ function createWindow() {
     autoHideMenuBar: true,
     frame: false,
     show: false,
-    resizable: true,
+    resizable: false,
     hasShadow: true,
     icon: icon_path,
     transparent: true,

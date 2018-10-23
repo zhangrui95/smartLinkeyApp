@@ -7,6 +7,8 @@ call javascript-obfuscator src/for-electron/crates/down.js --output public/for-e
 REM geticon.js
 call javascript-obfuscator src/for-electron/crates/geticon.js --output public/for-electron/crates/geticon.js --compact true --control-flow-flattening true --dead-code-injection true
 REM launch.js
+call javascript-obfuscator src/for-electron/crates/httpserver.js --output public/for-electron/crates/httpserver.js --compact true --control-flow-flattening true --dead-code-injection true
+REM httpserver.js
 call javascript-obfuscator src/for-electron/crates/launch.js --output public/for-electron/crates/launch.js --compact true --control-flow-flattening true --dead-code-injection true
 REM logging.js
 call javascript-obfuscator src/for-electron/crates/logging.js --output public/for-electron/crates/logging.js --compact true --control-flow-flattening true --dead-code-injection true
