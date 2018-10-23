@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'dva';
 import { hex_md5 } from '../../md5';
+import { Strophe, $pres } from 'strophe.js';
 import { ipcRenderer } from 'electron';
 @connect(({ login, loading, user }) => ({
   login,
@@ -8,10 +9,15 @@ import { ipcRenderer } from 'electron';
 }))
 export default class TokenLogin extends Component {
   componentDidMount() {
-    console.log('auto-login=======');
     ipcRenderer.on('auto-login', this.autoLogin);
   }
   autoLogin = (event, data) => {
+    this.props.dispatch({
+      type: 'login/getLogout',
+    });
+    let connection = new Strophe.Connection('http://' + `${configUrl.fwName}` + ':7070/http-bind/');
+    connection.disconnect('');
+    ipcRenderer.send('logout');
     this.props.dispatch({
       type: 'login/loginToken',
       payload: {
