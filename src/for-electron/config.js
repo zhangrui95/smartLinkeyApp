@@ -21,7 +21,7 @@ var config = {
   huaci: true,
 
   login_page_width: 320,
-  login_page_height: 462,
+  login_page_height: 470,
   main_page_width: 960,
   main_page_height: 640,
 

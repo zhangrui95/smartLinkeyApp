@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import SmartItem from './SmartItem';
+import TokenLogin from '../User/TokenLogin';
 import SmartLink from './SmartLink';
 import { Badge, message, Modal, Form, Row, Col, Input, Button, Icon, Spin } from 'antd';
 const confirm = Modal.confirm;
@@ -510,6 +511,7 @@ class SmartAll extends Component {
     }
     return (
       <div>
+        <TokenLogin/>
         {item}
         <div
           className={this.state.rightBox ? styles.rightList : styles.none}

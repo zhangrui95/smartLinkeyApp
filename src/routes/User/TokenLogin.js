@@ -8,10 +8,14 @@ import { ipcRenderer } from 'electron';
 }))
 export default class TokenLogin extends Component {
   componentDidMount() {
+    console.log('auto-login=======')
+    ipcRenderer.on('auto-login', this.autoLogin);
+  }
+  autoLogin = (event, data) =>{
     this.props.dispatch({
       type: 'login/loginToken',
       payload: {
-        token: token,
+        token: data.token,
         sid: 'Smartlinkey_sys',
       },
       callback: response => {
@@ -24,5 +28,8 @@ export default class TokenLogin extends Component {
     this.props.dispatch({
       type: 'login/getLogin',
     });
+  }
+  render(){
+    return(<div></div>)
   }
 }

@@ -29,16 +29,49 @@
   }
 }
 .loginAllStyle {
-  width: 280px !important;
+  width: 70% !important;
   position: absolute;
-  margin-left: 50%;
-  left: -140px;
+  left: 15%;
   top: 200px;
+  :global{
+    .ant-input-affix-wrapper{
+      width: 100%!important;
+      margin-left: 0!important;
+    }
+  }
 }
+@media only screen  and (max-width: 350px){
+  .loginAllStyle {
+    width: 90% !important;
+    position: absolute;
+    left: 5%;
+    top: 200px;
+    :global{
+      .ant-input-affix-wrapper{
+        width: 86%!important;
+        margin-left: 7%!important;
+      }
+    }
+  }
+}
+
 .btnBg {
+  width: 100%!important;
   background: linear-gradient(right, #ff3366, #ff9966) !important;
   border-radius: 50px !important;
   height: 36px !important;
+  margin-left: 0px!important;
+  margin-top: 10px!important;
+}
+@media only screen  and (max-width: 350px){
+  .btnBg {
+    background: linear-gradient(right, #ff3366, #ff9966) !important;
+    border-radius: 50px !important;
+    height: 36px !important;
+    margin-left: 7%!important;
+    margin-top: 10px!important;
+    width: 86%!important;
+  }
 }
 :global {
   .ant-tabs {
@@ -85,4 +118,7 @@
   top: 205px;
   margin-left: 50%;
   left: -50px;
+}
+.none{
+  display: none;
 }

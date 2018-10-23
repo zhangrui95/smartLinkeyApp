@@ -5,13 +5,29 @@ import { Icon } from 'antd';
 import GlobalFooter from '../components/GlobalFooter';
 import styles from './UserLayout.less';
 import logo from '../assets/logo.svg';
-import { getRoutes } from '../utils/utils';
+import { getRoutes, autoheight } from '../utils/utils';
 
 const copyright = (
   <Fragment>{/*Copyright <Icon type="copyright" /> 2018 蚂蚁金服体验技术部出品*/}</Fragment>
 );
 
 class UserLayout extends React.PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+       height: autoheight(),
+    };
+  }
+  componentDidMount() {
+    window.addEventListener('resize', () => {
+      this.updateSize();
+    });
+  }
+  updateSize() {
+    this.setState({
+      height: autoheight(),
+    });
+  }
   getPageTitle() {
     const { routerData, location } = this.props;
     const { pathname } = location;
@@ -25,7 +41,7 @@ class UserLayout extends React.PureComponent {
     const { routerData, match } = this.props;
     return (
       <DocumentTitle title={this.getPageTitle()}>
-        <div className={styles.container}>
+        <div className={styles.container} style={{height:this.state.height + 'px'}}>
           <div className={styles.content}>
             <div className={styles.top}>
               {/*<div className={styles.header}>*/}

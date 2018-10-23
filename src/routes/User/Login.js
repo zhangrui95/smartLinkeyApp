@@ -9,7 +9,13 @@ import styles from './Login.less';
 import { withCookies, Cookies } from 'react-cookie';
 import { hex_md5 } from '../../md5';
 import { ipcRenderer } from 'electron';
+import { enquireScreen, unenquireScreen } from 'enquire-js';
+import TokenLogin from './TokenLogin';
 const { Tab, UserName, Password, Mobile, Captcha, Submit } = Login;
+let isMobile;
+enquireScreen(b => {
+  isMobile = b;
+});
 
 @connect(({ login, loading, user }) => ({
   login,
@@ -29,12 +35,19 @@ class LoginPage extends Component {
       type: 'account',
       autoLogin: true,
       login_way: '700003',
+      isMobile: isMobile,
+      isMob: navigator.userAgent.match(/(iPad).*OS\s([\d_]+)/) || navigator.userAgent.match(/(iPhone\sOS)\s([\d_]+)/) || navigator.userAgent.match(/(Android)\s+([\d.]+)/),
     };
   }
   componentWillMount() {
     sessionStorage.clear();
   }
   componentDidMount() {
+    this.enquireHandler = enquireScreen(mobile => {
+      this.setState({
+        isMobile: mobile,
+      });
+    });
     this.props.dispatch({
       type: 'user/getConfigGoto',
       callback: response => {
@@ -77,7 +90,9 @@ class LoginPage extends Component {
   onTabChange = type => {
     this.setState({ type });
   };
-
+  componentWillUnmount() {
+    unenquireScreen(this.enquireHandler);
+  }
   handleSubmit = (err, values) => {
     const { cookies } = this.props;
     // cookies.set('name', values.userName);
@@ -120,7 +135,7 @@ class LoginPage extends Component {
       this.state.login_way === '700001' ? (
         ''
       ) : (
-        <Tab key="PKI" tab="PKI登录">
+        <Tab key="PKI" tab={<div className={this.state.isMobile&&this.state.isMob ? styles.none : ''}>PKI登录</div>} >
           <img style={{ width: '80%', margin: '20px 10% 0' }} src="images/pki.png" alt="" />
           <div
             style={{ fontSize: '20px', marginTop: '24px', textAlign: 'center' }}
@@ -132,8 +147,9 @@ class LoginPage extends Component {
       );
     return (
       <div className={styles.main}>
+        <TokenLogin/>
         <div
-          className={styles.loginHeader}
+          className={this.state.isMobile&&this.state.isMob ? styles.none : styles.loginHeader}
           style={{
             height: '40px',
             background: '#232c3d',
@@ -148,7 +164,7 @@ class LoginPage extends Component {
             <Icon type="close" className={styles.iconWindows} onClick={this.CloseWindow} />
           </span>
         </div>
-        <img src="images/logo.png" className={styles.logoLogin} />
+        <img src="images/logo.png" className={styles.logoLogin} style={{marginTop:this.state.isMobile&&this.state.isMob ? "50px":"15px"}}/>
         <img src="images/smartlinkey.png" className={styles.smartIcon} />
         <Login
           defaultActiveKey={type}
@@ -159,7 +175,7 @@ class LoginPage extends Component {
           <Tab
             key="account"
             tab={
-              <div style={{ borderRight: '2px solid #ff3366', paddingRight: '26px' }}>
+              <div style={{ borderRight: '2px solid #ff3366', paddingRight: '26px' }}  className={this.state.isMobile&&this.state.isMob ? styles.none : ''}>
                 账户密码登录
               </div>
             }
@@ -172,7 +188,7 @@ class LoginPage extends Component {
               this.renderMessage('账户或密码错误')}
             <UserName name="username" placeholder="请输入用户名" />
             <Password name="password" placeholder="请输入密码" />
-            <Submit loading={submitting} className={styles.btnBg} style={{ width: '235px' }}>
+            <Submit loading={submitting} className={styles.btnBg}>
               登录
             </Submit>
           </Tab>
