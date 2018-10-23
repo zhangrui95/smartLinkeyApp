@@ -11,7 +11,8 @@ import {
   getIcons,
   getXmppList,
   getSaveXmpp,
-  getSearch
+  getSearch,
+  getSacwSearch,
 } from '../services/user';
 
 export default {
@@ -167,6 +168,10 @@ export default {
     },
     *getJzSerach({ payload, callback }, { call, put }) {
       const response = yield call(getSearch, payload);
+      callback(response);
+    },
+    *getSacwSerach({ payload, callback }, { call, put }) {
+      const response = yield call(getSacwSearch, payload);
       callback(response);
     },
   },

@@ -39,10 +39,7 @@ class SmartLink extends Component {
             if (item.resourceCode === event.unique) {
               this.state.listMenu.push({
                 name: event.name,
-                link:
-                  event.unique === 'sacw'
-                    ? event.goto + this.state.userNew.idCard
-                    : event.goto + this.state.token,
+                link: event.unique === '109003' ? event.goto : event.goto + this.state.token,
                 icon: event.icon,
                 img: '',
               });
@@ -51,11 +48,11 @@ class SmartLink extends Component {
         });
       },
     });
-    setTimeout(()=>{
+    setTimeout(() => {
       this.props.dispatch({
         type: 'user/getIcon',
         callback: response => {
-          response.map((e) => {
+          response.map(e => {
             this.state.listMenu.map(event => {
               if (event.icon === e.name) {
                 event.img = e.icon;
@@ -64,7 +61,7 @@ class SmartLink extends Component {
           });
         },
       });
-    },1000)
+    }, 1000);
   }
   updateSize() {
     this.setState({
@@ -92,7 +89,7 @@ class SmartLink extends Component {
                   key={items.name}
                 >
                   <div className={styles.colStyle}>
-                    <img src={items.img} style={{ margin: '12px 14px',width:'42px' }} />
+                    <img src={items.img} style={{ margin: '12px 14px', width: '42px' }} />
                     <span>{items.name}</span>
                   </div>
                 </Col>

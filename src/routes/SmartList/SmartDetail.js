@@ -67,14 +67,14 @@ export default class SmartDetail extends Component {
       isTable: false,
       detailList: [],
       checkedList: null,
-      searchResult:null,
-      xtValue:'',
-      arrSearch:[],
-      timeList:[],
-      searchTime:'',
-      timeDate:'',
-      menu:JSON.parse(user).menu,
-      xtly:[{ label: '全部', value: '' }]
+      searchResult: null,
+      xtValue: '',
+      arrSearch: [],
+      timeList: [],
+      searchTime: '',
+      timeDate: '',
+      menu: JSON.parse(user).menu,
+      xtly: [{ label: '全部', value: '' }],
       // oldList:[],
     };
   }
@@ -96,17 +96,15 @@ export default class SmartDetail extends Component {
               (item.resourceCode === 'ajlc_btn' && event.unique === 'ajlc') ||
               item.resourceCode === event.unique
             ) {
-              this.state.xtly.push(
-              { label: event.name, value: event.unique }
-              );
+              this.state.xtly.push({ label: event.name, value: event.unique });
             }
           });
         });
       },
     });
   }
-  xmppQuery = (from, size, empty, scrollHeight, isTable, searchValue,payloads) => {
-    console.log('payloads====>',payloads)
+  xmppQuery = (from, size, empty, scrollHeight, isTable, searchValue, payloads) => {
+    console.log('payloads====>', payloads);
     if (empty) {
       this.setState({
         detailList: [],
@@ -129,9 +127,9 @@ export default class SmartDetail extends Component {
       size: size,
       sort: {
         time: {
-          order: "desc"
-        }
-      }
+          order: 'desc',
+        },
+      },
     };
     let serchPayload = {
       query: {
@@ -154,13 +152,13 @@ export default class SmartDetail extends Component {
       size: size,
       sort: {
         time: {
-          order: "desc"
-        }
-      }
+          order: 'desc',
+        },
+      },
     };
     this.props.dispatch({
       type: 'user/xmppQuery',
-      payload: payloads ? payloads : (searchValue.length > 0 ? serchPayload : payload),
+      payload: payloads ? payloads : searchValue.length > 0 ? serchPayload : payload,
       callback: response => {
         response.hits.hits.map(item => {
           this.state.detailList.push(item._source);
@@ -423,11 +421,11 @@ export default class SmartDetail extends Component {
   showDrawer = () => {
     this.setState({
       visible: true,
-      xtValue:'',
-      timeDate:'',
+      xtValue: '',
+      timeDate: '',
       arrSearch: [],
-      searchTime:[],
-      searchResult:[]
+      searchTime: [],
+      searchResult: [],
     });
     focus();
   };
@@ -439,34 +437,36 @@ export default class SmartDetail extends Component {
   };
   onSearchList = () => {
     let ser = [];
-    this.state.arrSearch.map((item)=>{
-      item.value.map((e)=>{
-        ser.push({match : { "xxzt.msg" : e }})
-      })
-    })
+    this.state.arrSearch.map(item => {
+      item.value.map(e => {
+        ser.push({ match: { 'xxzt.msg': e } });
+      });
+    });
     let payload = {
       query: {
         bool: {
           filter: {
-            bool:{
+            bool: {
               must: [
-                this.state.xtValue ? {
-                  match: {
-                    xtid: this.state.xtValue,
-                  }
-                } : null,
+                this.state.xtValue
+                  ? {
+                      match: {
+                        xtid: this.state.xtValue,
+                      },
+                    }
+                  : null,
                 {
                   match: {
                     nodeid: this.state.userItem.idCard,
-                  }
+                  },
                 },
                 {
-                  range:{
-                    time:{
-                      gte:this.state.searchTime[0],
-                      lte:this.state.searchTime[1]
-                    }
-                  }
+                  range: {
+                    time: {
+                      gte: this.state.searchTime[0],
+                      lte: this.state.searchTime[1],
+                    },
+                  },
                 },
                 {
                   query_string: {
@@ -475,18 +475,18 @@ export default class SmartDetail extends Component {
                 },
               ],
               should: ser,
-            }
+            },
           },
         },
       },
       from: 0,
-      size:  this.state.isTable ? this.state.tableCount : this.state.pageCount,
+      size: this.state.isTable ? this.state.tableCount : this.state.pageCount,
       sort: {
         time: {
-          order:"desc"
-        }
-      }
-    }
+          order: 'desc',
+        },
+      },
+    };
     this.xmppQuery(
       0,
       this.state.isTable ? this.state.tableCount : this.state.pageCount,
@@ -496,7 +496,7 @@ export default class SmartDetail extends Component {
       this.props.user.value,
       payload
     );
-  }
+  };
   changeTable = () => {
     this.props.dispatch({
       type: 'user/getTable',
@@ -525,76 +525,86 @@ export default class SmartDetail extends Component {
   };
   onChange = checkedValues => {
     this.setState({
-      xtValue:checkedValues.target.value,
-      searchResult:null,
-      checkedList:null,
+      xtValue: checkedValues.target.value,
+      searchResult: null,
+      checkedList: null,
     });
     this.props.dispatch({
       type: 'user/getConfigGoto',
       callback: response => {
         response.third.map((event, i) => {
-         if(event.unique === checkedValues.target.value){
-           if(event.api !== ""){
-             window.configUrl.jz_search = event.api;
-             this.props.dispatch({
-               type: 'user/getJzSerach',
-               payload: {},
-               callback: response => {
-                 this.setState({searchResult:response.result.TermInfo});
-               },
-             });
-           }
-         }
+          if (event.unique === checkedValues.target.value) {
+            if (event.api !== '') {
+              window.configUrl.jz_search = event.api;
+              if (checkedValues.target.value === '109003') {
+                this.props.dispatch({
+                  type: 'user/getSacwSerach',
+                  payload: {},
+                  callback: response => {
+                    this.setState({ searchResult: response.TermInfo });
+                  },
+                });
+              } else {
+                this.props.dispatch({
+                  type: 'user/getJzSerach',
+                  payload: {},
+                  callback: response => {
+                    this.setState({ searchResult: response.result.TermInfo });
+                  },
+                });
+              }
+            }
+          }
         });
       },
     });
   };
-  onChangeChecks = (value,type) =>{
+  onChangeChecks = (value, type) => {
     let arr = [];
-    let t  = true;
+    let t = true;
     let idx = 0;
-    if(this.state.arrSearch.length > 0){
-      this.state.arrSearch.map((item,index)=>{
-        if(item.type === type){
+    if (this.state.arrSearch.length > 0) {
+      this.state.arrSearch.map((item, index) => {
+        if (item.type === type) {
           t = false;
           idx = index;
         }
-      })
-      if(!t){
-        this.state.arrSearch[idx] = {type:type,value:value}
-      }else{
-        this.state.arrSearch.push({type:type,value:value})
+      });
+      if (!t) {
+        this.state.arrSearch[idx] = { type: type, value: value };
+      } else {
+        this.state.arrSearch.push({ type: type, value: value });
       }
-    }else{
-      this.state.arrSearch.push({type:type,value:value})
+    } else {
+      this.state.arrSearch.push({ type: type, value: value });
     }
     this.setState({
-      arrSearch:this.state.arrSearch
-    })
-    console.log(this.state.arrSearch)
+      arrSearch: this.state.arrSearch,
+    });
+    console.log(this.state.arrSearch);
     this.setState({
-      lxValue: value
-    })
-  }
-  onChangeTime = (time,t) => {
-    console.log('time=====>',time,t)
+      lxValue: value,
+    });
+  };
+  onChangeTime = (time, t) => {
+    console.log('time=====>', time, t);
     this.setState({
-      timeDate:time,
-      searchTime:t
-    })
-  }
+      timeDate: time,
+      searchTime: t,
+    });
+  };
   getTimeList = () => {
     let payload = {
       query: {
         bool: {
           filter: {
-            bool:{
+            bool: {
               must: {
                 match: {
                   nodeid: this.state.userItem.idCard,
-                }
+                },
               },
-            }
+            },
           },
         },
       },
@@ -602,20 +612,20 @@ export default class SmartDetail extends Component {
       size: 9999,
       sort: {
         time: {
-          order:"desc"
-        }
-      }
-    }
+          order: 'desc',
+        },
+      },
+    };
     this.props.dispatch({
       type: 'user/xmppQuery',
-      payload:payload,
+      payload: payload,
       callback: response => {
         response.hits.hits.map(event => {
-          this.state.timeList.push({time:event._source.time});
+          this.state.timeList.push({ time: event._source.time });
         });
-      }
+      },
     });
-  }
+  };
   render() {
     let listType = '';
     let list = [];
@@ -653,25 +663,27 @@ export default class SmartDetail extends Component {
       });
     }
     const search = [];
-    if(this.state.searchResult){
-      this.state.searchResult.map((item)=>{
+    if (this.state.searchResult) {
+      this.state.searchResult.map(item => {
         let serList = [];
-        item.Term.map((e)=>{
-          serList.push(e.Text)
-        })
-        search.push(<div>
-          <div className={styles.titleTop}>
-            <span>{item.Text}</span>
-          </div>
+        item.Term.map(e => {
+          serList.push(e.Text);
+        });
+        search.push(
           <div>
-            <CheckboxGroup
-              options={serList}
-              onChange={(e)=>this.onChangeChecks(e,item.Text)}
-              className={styles.checkedTag}
-            />
+            <div className={styles.titleTop}>
+              <span>{item.Text}</span>
+            </div>
+            <div>
+              <CheckboxGroup
+                options={serList}
+                onChange={e => this.onChangeChecks(e, item.Text)}
+                className={styles.checkedTag}
+              />
+            </div>
           </div>
-        </div>)
-      })
+        );
+      });
     }
     return (
       <div>
@@ -728,13 +740,13 @@ export default class SmartDetail extends Component {
                   getCalendarContainer={() => document.getElementById('time')}
                   onChange={this.onChangeTime}
                   value={this.state.timeDate}
-                  dateRender={(current,today) => {
+                  dateRender={(current, today) => {
                     const style = {};
-                    this.state.timeList.map((event)=>{
+                    this.state.timeList.map(event => {
                       if (event.time.substring(0, 10) === moment(current).format('YYYY-MM-DD')) {
                         style.background = '#e0d394';
                       }
-                    })
+                    });
                     return (
                       <div className="ant-calendar-date" style={style}>
                         {current.date()}
@@ -763,7 +775,7 @@ export default class SmartDetail extends Component {
                     />
                   </div>
                 </div>
-                {this.state.searchResult&&this.state.searchResult.length > 0 ? search : ''}
+                {this.state.searchResult && this.state.searchResult.length > 0 ? search : ''}
               </div>
               <Button className={styles.btnTag} onClick={this.onSearchList} type="primary">
                 确定
@@ -803,12 +815,7 @@ export default class SmartDetail extends Component {
             />
             <Spin size="large" className={this.state.loading ? '' : styles.none} />
             <div
-              className={
-                this.state.lookMore &&
-                !this.state.loading
-                  ? ''
-                  : styles.none
-              }
+              className={this.state.lookMore && !this.state.loading ? '' : styles.none}
               style={{
                 width: '100%',
                 textAlign: 'center',

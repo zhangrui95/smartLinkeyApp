@@ -63,6 +63,12 @@ export async function getSearch(params) {
     body: params,
   });
 }
+export async function getSacwSearch(params) {
+  return request(`${configUrl.jz_search}/information/informationSearchGet.do`, {
+    method: 'POST',
+    body: params,
+  });
+}
 export async function getConfig() {
   return request(`${configUrls.serve}/api/config`, {
     method: 'GET',
