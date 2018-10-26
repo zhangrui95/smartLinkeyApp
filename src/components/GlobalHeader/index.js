@@ -141,7 +141,7 @@ export default class GlobalHeader extends PureComponent {
         </div>
         <div className={styles.headerLeft}>
           {this.props.pathItem !== '/smartList/smartAll?type=1' &&
-          this.props.pathItem !== '/smartList/smartAll?type=4' ? (
+          this.props.pathItem !== '/smartList/smartAll?type=5' ? (
             <Input
               placeholder="请输入需要搜索的内容"
               suffix={

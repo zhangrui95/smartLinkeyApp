@@ -732,7 +732,7 @@ export default class SmartDetail extends Component {
               onClose={this.onClose}
               visible={this.state.visible}
               mask={false}
-              width={300}
+              width={310}
             >
               <div className={styles.boxTime} id="time">
                 <RangePicker
