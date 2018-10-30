@@ -90,7 +90,7 @@ export default class SmartDetailItem extends Component {
                   ? [
                       <div
                         style={{ fontSize: '14px' }}
-                        onClick={() => this.props.goWindow(event.act.replace(/[$]+/g,'&'))}
+                        onClick={() => this.props.goWindow(event.act.replace(/[$]+/g,'&').replace('hcrfid', 'HCRFID').replace('uploadimages', 'uploadImages'))}
                       >
                         {event.msg}
                       </div>,

@@ -75,6 +75,7 @@ export default class SmartDetail extends Component {
       timeDate: '',
       menu: JSON.parse(user).menu,
       xtly: [{ label: '全部', value: '' }],
+      payloadSer: null,
       // oldList:[],
     };
   }
@@ -168,7 +169,8 @@ export default class SmartDetail extends Component {
           total: response.hits.total,
         });
         if (!isTable) {
-          if (response.hits.total === this.state.detailList.length) {
+          console.log(response.hits.total === this.state.detailList.length,response.hits.total,this.state.detailList.length)
+          if (response.hits.total === this.state.detailList.length || response.hits.total < this.state.detailList.length) {
             this.setState({
               loading: false,
               lookMore: false,
@@ -236,7 +238,8 @@ export default class SmartDetail extends Component {
             false,
             this.state.pageCount * 473,
             this.state.isTable,
-            this.props.user.value
+            this.props.user.value,
+            this.state.payloadSer ? this.state.payloadSer : null
           );
         }
       }
@@ -487,6 +490,9 @@ export default class SmartDetail extends Component {
         },
       },
     };
+    this.setState({
+      payloadSer: payload
+    })
     this.xmppQuery(
       0,
       this.state.isTable ? this.state.tableCount : this.state.pageCount,

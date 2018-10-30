@@ -90,7 +90,7 @@ class SmartLink extends Component {
                 >
                   <div className={styles.colStyle}>
                     <img src={items.img} style={{ margin: '12px 14px', width: '42px' }} />
-                    <span>{items.name}</span>
+                    <span title={items.name} className={styles.ExeName}>{items.name}</span>
                   </div>
                 </Col>
               );
