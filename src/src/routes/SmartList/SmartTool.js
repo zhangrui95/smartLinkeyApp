@@ -52,7 +52,6 @@ class SmartTool extends Component {
       this.updateSize();
     });
     ipcRenderer.on('tool-icon', this.getIcon);
-    this.getMsg(this.props.msgExe);
   }
   componentWillReceiveProps(next) {
     if (this.props.user.value !== next.user.value) {
@@ -62,23 +61,20 @@ class SmartTool extends Component {
       this.getAllTool();
     }
     if (this.props.msgExe !== next.msgExe) {
-     this.getMsg(next.msgExe);
+      let msg = [];
+      next.msgExe.map((e, i) => {
+        if (e.idCard === this.state.idCard) {
+          msg.push(e);
+        }
+      });
+      this.setState({
+        message: msg,
+      });
     }
   }
   componentWillUnmount() {
     ipcRenderer.removeListener('link-not-found', this.alertWarn);
     ipcRenderer.removeListener('tool-icon', this.getIcon);
-  }
-  getMsg = (msgExe) => {
-    let msg = [];
-    msgExe.map((e, i) => {
-      if (e.idCard === this.state.idCard) {
-        msg.push(e);
-      }
-    });
-    this.setState({
-      message: msg,
-    });
   }
   getAllTool = () => {
     this.props.dispatch({

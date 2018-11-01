@@ -11,17 +11,14 @@ export default class TableDetail extends Component {
     super(props);
   }
   changePage = e => {
-    if(this.props.payloadSer){
-      this.props.payloadSer.from = (e - 1) * this.props.count
-    }
+    console.log('e------>', e);
     this.props.xmppQuery(
       (e - 1) * this.props.count,
       this.props.count,
       true,
       null,
       true,
-      this.props.user.value,
-      this.props.payloadSer
+      this.props.user.value
     );
   };
   render() {

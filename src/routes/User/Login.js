@@ -176,7 +176,7 @@ class LoginPage extends Component {
             key="account"
             tab={
               <div style={{ borderRight: '2px solid #ff3366', paddingRight: '26px' }}  className={this.state.isMobile&&this.state.isMob ? styles.none : ''}>
-                账户密码登录
+                帐号密码登录
               </div>
             }
             style={{ marginRight: '0!important' }}
@@ -185,7 +185,7 @@ class LoginPage extends Component {
             {login.status === 'error' &&
               login.type === 'account' &&
               !submitting &&
-              this.renderMessage('账户或密码错误')}
+              this.renderMessage('帐号或密码错误')}
             <UserName name="username" placeholder="请输入用户名" />
             <Password name="password" placeholder="请输入密码" />
             <Submit loading={submitting} className={styles.btnBg}>

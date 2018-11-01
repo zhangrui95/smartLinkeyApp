@@ -1,0 +1,57 @@
+.tableBox {
+  background: #f5f6fa;
+  padding: 16px;
+}
+.none {
+  display: none;
+}
+:global {
+  .ant-table {
+    background: #fff;
+    border: 1px solid #e6eaed;
+    border-radius: 4px;
+  }
+  .ant-table-thead > tr > th {
+    color: #8090a7;
+    background: #fff;
+    text-align: center;
+  }
+  .ant-table-tbody > tr > td {
+    text-align: center;
+  }
+  .ant-table-tbody {
+    tr:last-child {
+      td {
+        border: none !important;
+      }
+    }
+  }
+  .ant-pagination.mini .ant-pagination-prev,
+  .ant-pagination.mini .ant-pagination-next {
+    background: #fff;
+    border: 1px solid #e8e9ed;
+  }
+  .ant-pagination {
+    width: 100%;
+  }
+  .ant-pagination-prev a,
+  .ant-pagination-next a {
+    color: #a8aab7;
+  }
+  .ant-pagination.mini .ant-pagination-prev {
+    float: left;
+  }
+  .ant-pagination.mini .ant-pagination-next {
+    float: right;
+  }
+  .ant-pagination.mini .ant-pagination-simple-pager {
+    position: relative;
+    margin-left: 50%;
+    left: -45px;
+  }
+  .ant-pagination-simple .ant-pagination-simple-pager input {
+    color: rgb(18, 195, 45);
+    width: 50px;
+    margin-right: 4px;
+  }
+}

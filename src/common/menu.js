@@ -27,7 +27,7 @@ const menuData = [
     path: 'smartList/smartAll?type=4',
   },
   {
-    name: '账户',
+    name: '帐号',
     icon: 'user',
     path: 'user',
     authority: 'guest',

@@ -87,16 +87,10 @@ export default class SmartDetail extends Component {
     this.props.dispatch({
       type: 'user/getConfigGoto',
       callback: response => {
+        ipcRenderer.send('huaci-config', response);
         response.third.map((event, i) => {
           this.state.menu.map(item => {
-            if (
-              (item.resourceCode === 'baq_btn' && event.unique === 'baq') ||
-              (item.resourceCode === 'sjcw_btn' && event.unique === 'sacw') ||
-              (item.resourceCode === 'zhjq_btn' && event.unique === 'zhjq') ||
-              (item.resourceCode === 'zhag_btn' && event.unique === 'zhag') ||
-              (item.resourceCode === 'ajlc_btn' && event.unique === 'ajlc') ||
-              item.resourceCode === event.unique
-            ) {
+            if (item.resourceCode === event.unique) {
               this.state.xtly.push({ label: event.name, value: event.unique });
             }
           });
@@ -105,7 +99,6 @@ export default class SmartDetail extends Component {
     });
   }
   xmppQuery = (from, size, empty, scrollHeight, isTable, searchValue, payloads) => {
-    console.log('payloads====>', payloads);
     if (empty) {
       this.setState({
         detailList: [],
@@ -169,7 +162,6 @@ export default class SmartDetail extends Component {
           total: response.hits.total,
         });
         if (!isTable) {
-          console.log(response.hits.total === this.state.detailList.length,response.hits.total,this.state.detailList.length)
           if (response.hits.total === this.state.detailList.length || response.hits.total < this.state.detailList.length) {
             this.setState({
               loading: false,
@@ -179,9 +171,11 @@ export default class SmartDetail extends Component {
             if (scrollHeight) {
               this.refs.scroll.scrollTop = scrollHeight;
             } else {
-              setTimeout(() => {
-                this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
-              }, 100);
+              if(!this.state.isTable){
+                setTimeout(() => {
+                  this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
+                }, 100);
+              }
             }
             this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
           } else {
@@ -193,9 +187,11 @@ export default class SmartDetail extends Component {
             if (scrollHeight) {
               this.refs.scroll.scrollTop = scrollHeight;
             } else {
-              setTimeout(() => {
-                this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
-              }, 100);
+              if(!this.state.isTable){
+                setTimeout(() => {
+                  this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
+                }, 100);
+              }
             }
             this.refs.scroll.addEventListener('scroll', this.scrollHandler);
           }
@@ -204,7 +200,6 @@ export default class SmartDetail extends Component {
             loading: false,
           });
         }
-        console.log('this.state.detailList====', this.state.detailList);
       },
     });
   };
@@ -232,6 +227,9 @@ export default class SmartDetail extends Component {
             endLength: parseInt(this.state.endLength) + 1,
           });
           this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
+          if(this.state.payloadSer){
+            this.state.payloadSer.from = from;
+          }
           this.xmppQuery(
             from,
             this.state.pageCount,
@@ -270,7 +268,7 @@ export default class SmartDetail extends Component {
         this.props.Xmpp !== next.Xmpp
       ) {
         this.setState({
-          scrollHeight: this.refs.scroll.scrollHeight,
+          scrollHeight: this.state.isTable ? 0 : this.refs.scroll.scrollHeight,
           endLength: 1,
           empty: false,
           noSearch: true,
@@ -341,10 +339,10 @@ export default class SmartDetail extends Component {
       data: next.msgList.sort(this.compare('id')),
     });
   };
-  goWindow = path => {
+  goWindow = (path, notoken) => {
     // window.open(path)
     ipcRenderer.send('visit-page', {
-      url: path + JSON.parse(sessionStorage.getItem('user')).token,
+      url: path + notoken ? '' : JSON.parse(sessionStorage.getItem('user')).token,
       browser: 'chrome',
     });
   };
@@ -424,84 +422,89 @@ export default class SmartDetail extends Component {
   showDrawer = () => {
     this.setState({
       visible: true,
+    });
+  };
+  getEmpty = () => {
+    this.setState({
       xtValue: '',
       timeDate: '',
       arrSearch: [],
       searchTime: [],
       searchResult: [],
-    });
-    focus();
-  };
-
+    })
+  }
   onClose = () => {
     this.setState({
       visible: false,
     });
   };
   onSearchList = () => {
-    let ser = [];
-    this.state.arrSearch.map(item => {
-      item.value.map(e => {
-        ser.push({ match: { 'xxzt.msg': e } });
+    this.onClose();
+    setTimeout(()=>{
+      let ser = [];
+      this.state.arrSearch.map(item => {
+        item.value.map(e => {
+          ser.push({ match: { 'xxzt.msg': e } });
+        });
       });
-    });
-    let payload = {
-      query: {
-        bool: {
-          filter: {
-            bool: {
-              must: [
-                this.state.xtValue
-                  ? {
+      let payload = {
+        query: {
+          bool: {
+            filter: {
+              bool: {
+                must: [
+                  this.state.xtValue
+                    ? {
                       match: {
                         xtid: this.state.xtValue,
                       },
                     }
-                  : null,
-                {
-                  match: {
-                    nodeid: this.state.userItem.idCard,
-                  },
-                },
-                {
-                  range: {
-                    time: {
-                      gte: this.state.searchTime[0],
-                      lte: this.state.searchTime[1],
+                    : null,
+                  {
+                    match: {
+                      nodeid: this.state.userItem.idCard,
                     },
                   },
-                },
-                {
-                  query_string: {
-                    query: '*' + this.props.user.value + '*',
+                  {
+                    range: {
+                      time: {
+                        gte: this.state.searchTime[0],
+                        lte: this.state.searchTime[1],
+                      },
+                    },
                   },
-                },
-              ],
-              should: ser,
+                  {
+                    query_string: {
+                      query: '*' + this.props.user.value + '*',
+                    },
+                  },
+                ],
+                should: ser,
+              },
             },
           },
         },
-      },
-      from: 0,
-      size: this.state.isTable ? this.state.tableCount : this.state.pageCount,
-      sort: {
-        time: {
-          order: 'desc',
+        from: 0,
+        size: this.state.isTable ? this.state.tableCount : this.state.pageCount,
+        sort: {
+          time: {
+            order: 'desc',
+          },
         },
-      },
-    };
-    this.setState({
-      payloadSer: payload
-    })
-    this.xmppQuery(
-      0,
-      this.state.isTable ? this.state.tableCount : this.state.pageCount,
-      true,
-      null,
-      this.state.isTable,
-      this.props.user.value,
-      payload
-    );
+      };
+      this.setState({
+        payloadSer: payload
+      })
+      this.xmppQuery(
+        0,
+        this.state.isTable ? this.state.tableCount : this.state.pageCount,
+        true,
+        null,
+        this.state.isTable,
+        this.props.user.value,
+        payload
+      );
+    },300)
   };
   changeTable = () => {
     this.props.dispatch({
@@ -587,13 +590,11 @@ export default class SmartDetail extends Component {
     this.setState({
       arrSearch: this.state.arrSearch,
     });
-    console.log(this.state.arrSearch);
     this.setState({
       lxValue: value,
     });
   };
   onChangeTime = (time, t) => {
-    console.log('time=====>', time, t);
     this.setState({
       timeDate: time,
       searchTime: t,
@@ -633,7 +634,6 @@ export default class SmartDetail extends Component {
     });
   };
   render() {
-    let listType = '';
     let list = [];
     list = [];
     if (this.state.detailList.length > 0) {
@@ -654,7 +654,6 @@ export default class SmartDetail extends Component {
         });
         list.push(
           <SmartDetailItem
-            listType={listType}
             index={index}
             i={1}
             childItem={items}
@@ -740,6 +739,17 @@ export default class SmartDetail extends Component {
               mask={false}
               width={310}
             >
+              <div className={styles.titleBorderNone} style={{padding:'0 16px',overflow:'hidden'}}>
+                <div
+                  className={styles.floatR}
+                  style={{ fontSize: '15px', marginTop: '3px',cursor: 'pointer',color: '#1890ff' }}
+                  type="setting"
+                  theme="outlined"
+                  onClick={this.getEmpty}
+                >
+                  重置
+                </div>
+              </div>
               <div className={styles.boxTime} id="time">
                 <RangePicker
                   open={true}
@@ -763,7 +773,7 @@ export default class SmartDetail extends Component {
               </div>
               <div className={styles.tagScroll} style={{ height: this.state.height - 245 + 'px' }}>
                 <div>
-                  <div className={styles.titleBorderNone}>
+                  <div className={styles.titleBorderNone} style={{margin:'5px 0'}}>
                     <span>系统来源</span>
                     <Icon
                       className={styles.floatR}
@@ -796,10 +806,11 @@ export default class SmartDetail extends Component {
             count={this.state.tableCount}
             data={this.state.detailList.sort(this.compare1('itemid'))}
             loading={this.state.loading}
-            xmppQuery={(from, size, empty, scrollHeight, isTable, searchValue) =>
-              this.xmppQuery(from, size, empty, scrollHeight, isTable, searchValue)
+            xmppQuery={(from, size, empty, scrollHeight, isTable, searchValue, payload) =>
+              this.xmppQuery(from, size, empty, scrollHeight, isTable, searchValue, payload)
             }
             goWindow={path => this.goWindow(path)}
+            payloadSer={this.state.payloadSer ? this.state.payloadSer : null}
           />
         ) : (
           <div

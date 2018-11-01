@@ -117,6 +117,11 @@ export default class GlobalHeader extends PureComponent {
       });
     }
   };
+  onKeyDown = e => {
+    if (e.key === 'Enter') {
+      this.getFind(this.state.searchValue);
+    }
+  };
   render() {
     const { searchValue } = this.state;
     const suffix = searchValue ? <Icon type="close-circle" onClick={this.emitEmpty} /> : null;
@@ -155,6 +160,7 @@ export default class GlobalHeader extends PureComponent {
               // suffix={suffix}
               value={searchValue}
               onChange={this.onChangesearchValue}
+              onKeyDown={this.onKeyDown}
               ref={node => (this.searchValueInput = node)}
               onBlur={this.getBlur}
             />

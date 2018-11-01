@@ -711,6 +711,7 @@ class SmartItem extends Component {
               <SmartLink />
             </TabPane>
             <TabPane tab="工具集" key="2">
+              {' '}
               <SmartTool msgExe={this.props.msgExe} type={this.props.type} />
             </TabPane>
           </Tabs>

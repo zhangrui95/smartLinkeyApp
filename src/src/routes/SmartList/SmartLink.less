@@ -1,0 +1,125 @@
+.colStyle {
+  background: #fff;
+  border-radius: 4px;
+  margin: 20px 0 0;
+  height: 66px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px #dedede;
+  position: relative;
+  float: left;
+  width: 100%;
+  img {
+    float: left;
+  }
+  span {
+    font-size: 16px;
+    float: left;
+    line-height: 66px;
+    color: #343434;
+  }
+  &:hover {
+    background: #1d94ee;
+    span {
+      color: #fff !important;
+    }
+  }
+}
+.delBtn {
+  background: #ff9100 !important;
+  margin: 20px 0 0 0 !important;
+  -webkit-app-region: no-drag !important;
+}
+.addStyle {
+  border-radius: 4px;
+  margin: 20px 0 0;
+  background: transparent;
+  border: 1px solid #1d94ee;
+  color: #1d94ee;
+  line-height: 66px;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px #dedede;
+  -webkit-app-region: no-drag !important;
+  font-size: 18px;
+  height: 66px;
+  position: relative;
+  &:hover {
+    background: #1d94ee;
+    color: #fff;
+  }
+}
+.add {
+  font-size: 30px;
+  float: left;
+  line-height: 60px;
+}
+.name {
+  float: left;
+}
+.addBox {
+  position: absolute;
+  margin-left: 50%;
+  left: -28px;
+}
+.del {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+}
+.none {
+  display: none;
+}
+.ExeName {
+  width: 50%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dragDel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  height: 68px;
+  line-height: 68px;
+  font-size: 18px;
+  color: #f00;
+  background: url('../../../public/images/delete_bg.png');
+}
+.dragDelBox {
+  margin-top: 20px;
+  img {
+    margin-left: 50%;
+    position: absolute;
+    left: 23px;
+  }
+}
+.nullName {
+  line-height: 20px;
+  height: 20px;
+  color: #f00;
+  font-size: 12px;
+}
+.overScroll {
+  overflow-y: scroll;
+  &::-webkit-scrollbar {
+    /*滚动条整体样式*/
+    width: 8px; /*高宽分别对应横竖滚动条的尺寸*/
+  }
+  &::-webkit-scrollbar-thumb {
+    /*滚动条里面小方块*/
+    border-radius: 50px;
+    //-webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+    background: rgba(0, 0, 0, 0.2);
+  }
+  &::-webkit-scrollbar-track {
+    /*滚动条里面轨道*/
+    background: transparent;
+  }
+}
+:global {
+  .ant-tabs-vertical.ant-tabs-left > .ant-tabs-bar .ant-tabs-tab {
+    text-align: left;
+  }
+}

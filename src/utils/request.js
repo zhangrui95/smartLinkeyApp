@@ -1,14 +1,12 @@
 import fetch from 'dva/fetch';
-import { notification } from 'antd';
+import { notification, message } from 'antd';
 
 function checkStatus(response) {
   let checkResponse = response.clone();
   const res = checkResponse.json();
   const check = res.then(value => {
     if (value.reason) {
-      notification.error({
-        message: value.reason.text,
-      });
+      message.error(value.reason.text);
       return false;
     }
   });

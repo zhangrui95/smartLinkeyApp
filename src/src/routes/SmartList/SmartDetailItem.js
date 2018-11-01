@@ -13,13 +13,13 @@ export default class SmartDetailItem extends Component {
     return (
       <div
         className={styles.boxItem}
-        key={this.props.i.toString() + this.props.index}
+        key={this.props.listType + this.props.i.toString() + this.props.index}
       >
         <div className={styles.timeStyle}>{this.props.childItem.time}</div>
         <div>
           {this.props.childItem.xxtb.isvisible ? (
             <div className={styles.headerName}>
-              <img src={this.props.childItem.xxtb.msg.replace('uploadimages', 'uploadImages')} className={styles.headerImgSay} />
+              <img src={this.props.childItem.xxtb.msg} className={styles.headerImgSay} />
             </div>
           ) : (
             ''
@@ -80,7 +80,7 @@ export default class SmartDetailItem extends Component {
               style={{ width: 330 }}
               cover={
                 this.props.childItem.xxtp.isvisible ? (
-                  <img alt="example" src={this.props.childItem.xxtp.msg.replace('uploadimages', 'uploadImages')} />
+                  <img alt="example" src={this.props.childItem.xxtp.msg} />
                 ) : (
                   ''
                 )
@@ -90,7 +90,7 @@ export default class SmartDetailItem extends Component {
                   ? [
                       <div
                         style={{ fontSize: '14px' }}
-                        onClick={() => this.props.goWindow(event.act.replace(/[$]+/g,'&').replace('hcrfid', 'HCRFID'),this.props.childItem.xtid === '109003' ? true : false)}
+                        onClick={() => this.props.goWindow(event.act.replace(/[$]+/g,'&').replace('hcrfid', 'HCRFID').replace('uploadimages', 'uploadImages'))}
                       >
                         {event.msg}
                       </div>,
