@@ -162,7 +162,10 @@ export default class SmartDetail extends Component {
           total: response.hits.total,
         });
         if (!isTable) {
-          if (response.hits.total === this.state.detailList.length || response.hits.total < this.state.detailList.length) {
+          if (
+            response.hits.total === this.state.detailList.length ||
+            response.hits.total < this.state.detailList.length
+          ) {
             this.setState({
               loading: false,
               lookMore: false,
@@ -171,7 +174,7 @@ export default class SmartDetail extends Component {
             if (scrollHeight) {
               this.refs.scroll.scrollTop = scrollHeight;
             } else {
-              if(!this.state.isTable){
+              if (!this.state.isTable) {
                 setTimeout(() => {
                   this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
                 }, 100);
@@ -187,7 +190,7 @@ export default class SmartDetail extends Component {
             if (scrollHeight) {
               this.refs.scroll.scrollTop = scrollHeight;
             } else {
-              if(!this.state.isTable){
+              if (!this.state.isTable) {
                 setTimeout(() => {
                   this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
                 }, 100);
@@ -227,7 +230,7 @@ export default class SmartDetail extends Component {
             endLength: parseInt(this.state.endLength) + 1,
           });
           this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
-          if(this.state.payloadSer){
+          if (this.state.payloadSer) {
             this.state.payloadSer.from = from;
           }
           this.xmppQuery(
@@ -339,10 +342,10 @@ export default class SmartDetail extends Component {
       data: next.msgList.sort(this.compare('id')),
     });
   };
-  goWindow = (path, notoken) => {
+  goWindow = (path, id) => {
     // window.open(path)
     ipcRenderer.send('visit-page', {
-      url: path + notoken ? '' : JSON.parse(sessionStorage.getItem('user')).token,
+      url: path + (id === '109003' ? '' : JSON.parse(sessionStorage.getItem('user')).token),
       browser: 'chrome',
     });
   };
@@ -431,8 +434,8 @@ export default class SmartDetail extends Component {
       arrSearch: [],
       searchTime: [],
       searchResult: [],
-    })
-  }
+    });
+  };
   onClose = () => {
     this.setState({
       visible: false,
@@ -440,7 +443,7 @@ export default class SmartDetail extends Component {
   };
   onSearchList = () => {
     this.onClose();
-    setTimeout(()=>{
+    setTimeout(() => {
       let ser = [];
       this.state.arrSearch.map(item => {
         item.value.map(e => {
@@ -455,10 +458,10 @@ export default class SmartDetail extends Component {
                 must: [
                   this.state.xtValue
                     ? {
-                      match: {
-                        xtid: this.state.xtValue,
-                      },
-                    }
+                        match: {
+                          xtid: this.state.xtValue,
+                        },
+                      }
                     : null,
                   {
                     match: {
@@ -493,8 +496,8 @@ export default class SmartDetail extends Component {
         },
       };
       this.setState({
-        payloadSer: payload
-      })
+        payloadSer: payload,
+      });
       this.xmppQuery(
         0,
         this.state.isTable ? this.state.tableCount : this.state.pageCount,
@@ -504,7 +507,7 @@ export default class SmartDetail extends Component {
         this.props.user.value,
         payload
       );
-    },300)
+    }, 300);
   };
   changeTable = () => {
     this.props.dispatch({
@@ -658,7 +661,7 @@ export default class SmartDetail extends Component {
             i={1}
             childItem={items}
             code={this.props.code}
-            goWindow={path => this.goWindow(path)}
+            goWindow={(path, id) => this.goWindow(path, id)}
             k={k}
             getSave={(id, name, remark) => this.getSave(id, name, remark)}
             getCancelSave={id => this.getCancelSave(id)}
@@ -739,10 +742,18 @@ export default class SmartDetail extends Component {
               mask={false}
               width={310}
             >
-              <div className={styles.titleBorderNone} style={{padding:'0 16px',overflow:'hidden'}}>
+              <div
+                className={styles.titleBorderNone}
+                style={{ padding: '0 16px', overflow: 'hidden' }}
+              >
                 <div
                   className={styles.floatR}
-                  style={{ fontSize: '15px', marginTop: '3px',cursor: 'pointer',color: '#1890ff' }}
+                  style={{
+                    fontSize: '15px',
+                    marginTop: '3px',
+                    cursor: 'pointer',
+                    color: '#1890ff',
+                  }}
                   type="setting"
                   theme="outlined"
                   onClick={this.getEmpty}
@@ -773,7 +784,7 @@ export default class SmartDetail extends Component {
               </div>
               <div className={styles.tagScroll} style={{ height: this.state.height - 245 + 'px' }}>
                 <div>
-                  <div className={styles.titleBorderNone} style={{margin:'5px 0'}}>
+                  <div className={styles.titleBorderNone} style={{ margin: '5px 0' }}>
                     <span>系统来源</span>
                     <Icon
                       className={styles.floatR}
