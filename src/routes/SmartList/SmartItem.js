@@ -85,7 +85,7 @@ class SmartItem extends Component {
       if (arr.length > 0) {
         if (arr[0].nodeid === this.state.userItem.idCard && next.type == 0) {
           this.getTimeSaves(
-            arr[0].nodeid + ',smart_baq',
+            this.state.userItem.idCard + ',smart_baq',
             Date.parse(new Date()) + ',' + Date.parse(new Date())
           );
         }
@@ -102,6 +102,9 @@ class SmartItem extends Component {
           }
         });
       }
+    }
+    if (this.props.event !== next.event && next.type == 0) {
+      this.getTimeSaves(this.state.userItem.idCard, Date.parse(new Date()));
     }
     if (this.props.event !== next.event || this.props.type !== next.type) {
       this.setState({
@@ -409,12 +412,6 @@ class SmartItem extends Component {
                 this.num++;
               }
             }
-          } else if (
-            item.maxmessageid === 0 &&
-            !this.props.firstLogin &&
-            (this.props.code === '200001' || this.props.code === '200002')
-          ) {
-            this.num = 1;
           } else {
             if (msgItem.id > item.maxmessageid) {
               if (msgItem.messagecount > 1) {
@@ -681,7 +678,9 @@ class SmartItem extends Component {
               this.state.searTrue &&
               this.props.type == 0 ? (
                 <div style={{ width: '100%', textAlign: 'center', padding: '10px' }}>暂无数据</div>
-              ) : list}
+              ) : (
+                list
+              )}
             </div>
             <div style={{ float: 'left', width: '100%' }}>
               <SmartDetail

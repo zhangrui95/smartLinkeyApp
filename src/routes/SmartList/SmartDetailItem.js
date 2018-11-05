@@ -5,11 +5,13 @@ import styles from './SmartDetail.less';
 export default class SmartDetailItem extends Component {
   render() {
     let btn = [];
-    this.props.childItem.btn_ary.map(e => {
-      if (e.isvisible) {
-        btn.push(e);
-      }
-    });
+    if (this.props.childItem.btn_ary && this.props.childItem.btn_ary.length > 0) {
+      this.props.childItem.btn_ary.map(e => {
+        if (e.isvisible) {
+          btn.push(e);
+        }
+      });
+    }
     return (
       <div className={styles.boxItem} key={this.props.i.toString() + this.props.index}>
         <div className={styles.timeStyle}>{this.props.childItem.time}</div>
@@ -85,28 +87,40 @@ export default class SmartDetailItem extends Component {
                   ''
                 )
               }
-              actions={btn.map(event => {
-                return event.isvisible
-                  ? [
-                      <div
-                        style={{ fontSize: '14px' }}
-                        onClick={() =>
-                          this.props.goWindow(
-                            event.act.replace(/[$]+/g, '&'),
-                            this.props.childItem.xtid
-                          )
-                        }
-                      >
-                        {event.msg}
-                      </div>,
-                    ]
-                  : null;
-              })}
+              actions={
+                btn.length > 0
+                  ? btn.map(event => {
+                      return event.isvisible
+                        ? [
+                            <div
+                              style={{ fontSize: '14px' }}
+                              onClick={() =>
+                                this.props.goWindow(
+                                  event.act.replace(/[$]+/g, '&'),
+                                  this.props.childItem.xtid
+                                )
+                              }
+                            >
+                              {event.msg}
+                            </div>,
+                          ]
+                        : null;
+                    })
+                  : ''
+              }
             >
               <Meta
-                title={this.props.childItem.xxxs_ary.map(event => {
-                  return event.isvisible ? <div className={styles.nameStyle}>{event.msg}</div> : '';
-                })}
+                title={
+                  this.props.childItem.xxxs_ary.length > 0
+                    ? this.props.childItem.xxxs_ary.map(event => {
+                        return event.isvisible ? (
+                          <div className={styles.nameStyle}>{event.msg}</div>
+                        ) : (
+                          ''
+                        );
+                      })
+                    : ''
+                }
               />
             </Card>
           </div>
