@@ -154,15 +154,20 @@ export default class SmartDetail extends Component {
       type: 'user/xmppQuery',
       payload: payloads ? payloads : searchValue.length > 0 ? serchPayload : payload,
       callback: response => {
-        response.hits.hits.map(item => {
-          this.state.detailList.push(item._source);
-        });
+        if (response.hits && response.hits.hits.length > 0) {
+          response.hits.hits.map(item => {
+            this.state.detailList.push(item._source);
+          });
+        }
         this.setState({
           detailList: this.state.detailList,
           total: response.hits.total,
         });
         if (!isTable) {
-          if (response.hits.total === this.state.detailList.length || response.hits.total < this.state.detailList.length) {
+          if (
+            response.hits.total === this.state.detailList.length ||
+            response.hits.total < this.state.detailList.length
+          ) {
             this.setState({
               loading: false,
               lookMore: false,
@@ -171,13 +176,15 @@ export default class SmartDetail extends Component {
             if (scrollHeight) {
               this.refs.scroll.scrollTop = scrollHeight;
             } else {
-              if(!this.state.isTable){
+              if (!this.state.isTable) {
                 setTimeout(() => {
                   this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
                 }, 100);
               }
             }
-            this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
+            if (!this.state.isTable) {
+              this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
+            }
           } else {
             this.setState({
               loading: false,
@@ -187,7 +194,7 @@ export default class SmartDetail extends Component {
             if (scrollHeight) {
               this.refs.scroll.scrollTop = scrollHeight;
             } else {
-              if(!this.state.isTable){
+              if (!this.state.isTable) {
                 setTimeout(() => {
                   this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
                 }, 100);
@@ -226,8 +233,10 @@ export default class SmartDetail extends Component {
             load: true,
             endLength: parseInt(this.state.endLength) + 1,
           });
-          this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
-          if(this.state.payloadSer){
+          if (!this.state.isTable) {
+            this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
+          }
+          if (this.state.payloadSer) {
             this.state.payloadSer.from = from;
           }
           this.xmppQuery(
@@ -273,7 +282,9 @@ export default class SmartDetail extends Component {
           empty: false,
           noSearch: true,
         });
-        this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
+        if (!this.state.isTable) {
+          this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
+        }
         this.setState({
           loading: true,
         });
@@ -339,10 +350,10 @@ export default class SmartDetail extends Component {
       data: next.msgList.sort(this.compare('id')),
     });
   };
-  goWindow = (path, notoken) => {
+  goWindow = (path, id) => {
     // window.open(path)
     ipcRenderer.send('visit-page', {
-      url: path + notoken ? '' : JSON.parse(sessionStorage.getItem('user')).token,
+      url: path + (id === '109003' ? '' : JSON.parse(sessionStorage.getItem('user')).token),
       browser: 'chrome',
     });
   };
@@ -431,8 +442,8 @@ export default class SmartDetail extends Component {
       arrSearch: [],
       searchTime: [],
       searchResult: [],
-    })
-  }
+    });
+  };
   onClose = () => {
     this.setState({
       visible: false,
@@ -440,7 +451,7 @@ export default class SmartDetail extends Component {
   };
   onSearchList = () => {
     this.onClose();
-    setTimeout(()=>{
+    setTimeout(() => {
       let ser = [];
       this.state.arrSearch.map(item => {
         item.value.map(e => {
@@ -455,10 +466,10 @@ export default class SmartDetail extends Component {
                 must: [
                   this.state.xtValue
                     ? {
-                      match: {
-                        xtid: this.state.xtValue,
-                      },
-                    }
+                        match: {
+                          xtid: this.state.xtValue,
+                        },
+                      }
                     : null,
                   {
                     match: {
@@ -493,8 +504,8 @@ export default class SmartDetail extends Component {
         },
       };
       this.setState({
-        payloadSer: payload
-      })
+        payloadSer: payload,
+      });
       this.xmppQuery(
         0,
         this.state.isTable ? this.state.tableCount : this.state.pageCount,
@@ -504,7 +515,7 @@ export default class SmartDetail extends Component {
         this.props.user.value,
         payload
       );
-    },300)
+    }, 300);
   };
   changeTable = () => {
     this.props.dispatch({
@@ -522,13 +533,20 @@ export default class SmartDetail extends Component {
         loading: false,
         endLength: 1,
       });
+      if (this.state.payloadSer) {
+        this.state.payloadSer.from = 0;
+        this.state.payloadSer.size = this.state.isTable
+          ? this.state.tableCount
+          : this.state.pageCount;
+      }
       this.xmppQuery(
         0,
         this.state.isTable ? this.state.tableCount : this.state.pageCount,
         true,
         null,
         this.state.isTable,
-        this.props.user.value
+        this.props.user.value,
+        this.state.payloadSer ? this.state.payloadSer : null
       );
     }, 200);
   };
@@ -658,7 +676,7 @@ export default class SmartDetail extends Component {
             i={1}
             childItem={items}
             code={this.props.code}
-            goWindow={path => this.goWindow(path)}
+            goWindow={(path, id) => this.goWindow(path, id)}
             k={k}
             getSave={(id, name, remark) => this.getSave(id, name, remark)}
             getCancelSave={id => this.getCancelSave(id)}
@@ -694,30 +712,33 @@ export default class SmartDetail extends Component {
       <div>
         <div className={styles.headerTitle}>
           <span style={{ float: 'left' }}>消息</span>
-          <Icon
-            type="bars"
-            theme="outlined"
-            style={{
-              float: 'right',
-              marginTop: '10px',
-              fontSize: '28px',
-              cursor: 'pointer',
-              color: '#444',
-            }}
-            onClick={this.changeTable}
-          />
-          <Icon
-            type="appstore"
-            style={{
-              float: 'right',
-              margin: '10px',
-              fontSize: '28px',
-              cursor: 'pointer',
-              color: '#444',
-            }}
-            theme="outlined"
-            onClick={this.showDrawer}
-          />
+          <Tooltip placement="bottom" title="切换">
+            <span
+              style={{
+                float: 'right',
+                fontSize: '28px',
+                cursor: 'pointer',
+                color: '#444',
+                height: '36px',
+              }}
+            >
+              <Icon type="bars" theme="outlined" onClick={this.changeTable} />
+            </span>
+          </Tooltip>
+          <Tooltip placement="bottom" title="筛选">
+            <span
+              style={{
+                float: 'right',
+                fontSize: '28px',
+                cursor: 'pointer',
+                color: '#444',
+                marginRight: '8px',
+                height: '36px',
+              }}
+            >
+              <Icon type="appstore" theme="outlined" onClick={this.showDrawer} />
+            </span>
+          </Tooltip>
           <div>
             <Drawer
               title={
@@ -739,10 +760,18 @@ export default class SmartDetail extends Component {
               mask={false}
               width={310}
             >
-              <div className={styles.titleBorderNone} style={{padding:'0 16px',overflow:'hidden'}}>
+              <div
+                className={styles.titleBorderNone}
+                style={{ padding: '0 16px', overflow: 'hidden' }}
+              >
                 <div
                   className={styles.floatR}
-                  style={{ fontSize: '15px', marginTop: '3px',cursor: 'pointer',color: '#1890ff' }}
+                  style={{
+                    fontSize: '15px',
+                    marginTop: '3px',
+                    cursor: 'pointer',
+                    color: '#1890ff',
+                  }}
                   type="setting"
                   theme="outlined"
                   onClick={this.getEmpty}
@@ -771,9 +800,9 @@ export default class SmartDetail extends Component {
                   }}
                 />
               </div>
-              <div className={styles.tagScroll} style={{ height: this.state.height - 245 + 'px' }}>
+              <div className={styles.tagScroll} style={{ height: this.state.height - 290 + 'px' }}>
                 <div>
-                  <div className={styles.titleBorderNone} style={{margin:'5px 0'}}>
+                  <div className={styles.titleBorderNone} style={{ margin: '5px 0' }}>
                     <span>系统来源</span>
                     <Icon
                       className={styles.floatR}

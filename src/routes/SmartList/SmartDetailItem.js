@@ -4,22 +4,21 @@ const { Meta } = Card;
 import styles from './SmartDetail.less';
 export default class SmartDetailItem extends Component {
   render() {
-    let btn = []
-    this.props.childItem.btn_ary.map((e)=>{
-      if(e.isvisible){
-        btn.push(e);
-      }
-    })
+    let btn = [];
+    if (this.props.childItem.btn_ary && this.props.childItem.btn_ary.length > 0) {
+      this.props.childItem.btn_ary.map(e => {
+        if (e.isvisible) {
+          btn.push(e);
+        }
+      });
+    }
     return (
-      <div
-        className={styles.boxItem}
-        key={this.props.i.toString() + this.props.index}
-      >
+      <div className={styles.boxItem} key={this.props.i.toString() + this.props.index}>
         <div className={styles.timeStyle}>{this.props.childItem.time}</div>
         <div>
           {this.props.childItem.xxtb.isvisible ? (
             <div className={styles.headerName}>
-              <img src={this.props.childItem.xxtb.msg.replace('uploadimages', 'uploadImages')} className={styles.headerImgSay} />
+              <img src={this.props.childItem.xxtb.msg} className={styles.headerImgSay} />
             </div>
           ) : (
             ''
@@ -80,28 +79,48 @@ export default class SmartDetailItem extends Component {
               style={{ width: 330 }}
               cover={
                 this.props.childItem.xxtp.isvisible ? (
-                  <img alt="example" src={this.props.childItem.xxtp.msg.replace('uploadimages', 'uploadImages')} />
+                  <img
+                    alt="example"
+                    src={this.props.childItem.xxtp.msg.replace('uploadimages', 'uploadImages')}
+                  />
                 ) : (
                   ''
                 )
               }
-              actions={btn.map(event => {
-                return event.isvisible
-                  ? [
-                      <div
-                        style={{ fontSize: '14px' }}
-                        onClick={() => this.props.goWindow(event.act.replace(/[$]+/g,'&').replace('hcrfid', 'HCRFID'),this.props.childItem.xtid === '109003' ? true : false)}
-                      >
-                        {event.msg}
-                      </div>,
-                    ]
-                  : null;
-              })}
+              actions={
+                btn.length > 0
+                  ? btn.map(event => {
+                      return event.isvisible
+                        ? [
+                            <div
+                              style={{ fontSize: '14px' }}
+                              onClick={() =>
+                                this.props.goWindow(
+                                  event.act.replace(/[$]+/g, '&'),
+                                  this.props.childItem.xtid
+                                )
+                              }
+                            >
+                              {event.msg}
+                            </div>,
+                          ]
+                        : null;
+                    })
+                  : ''
+              }
             >
               <Meta
-                title={this.props.childItem.xxxs_ary.map(event => {
-                  return event.isvisible ? <div className={styles.nameStyle}>{event.msg}</div> : '';
-                })}
+                title={
+                  this.props.childItem.xxxs_ary.length > 0
+                    ? this.props.childItem.xxxs_ary.map(event => {
+                        return event.isvisible ? (
+                          <div className={styles.nameStyle}>{event.msg}</div>
+                        ) : (
+                          ''
+                        );
+                      })
+                    : ''
+                }
               />
             </Card>
           </div>
