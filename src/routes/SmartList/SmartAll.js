@@ -220,7 +220,7 @@ class SmartAll extends Component {
               let _this = this;
               let ip = response.data ? response.data.ip : '其他客户端';
               Modal.warning({
-                title: '用户已在' + ip + '登录，您将被强制下线！',
+                title: '您已被' + ip + '用户强制下线！',
                 content: null,
                 okText: '确定',
                 onOk() {
