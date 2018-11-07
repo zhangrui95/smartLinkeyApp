@@ -315,51 +315,53 @@ class SmartAll extends Component {
       ipcRenderer.send('start-flashing');
       console.log('闪烁--------------------->', event);
       this.refs.music.play();
-      let timeid = event[0].getElementsByTagName('item')[0].attributes[0].textContent;
-      let messagecontent = event[0].getElementsByTagName('messagecontent')[0].textContent;
-      let createtime = event[0].getElementsByTagName('createtime')[0].textContent;
-      let nodeid = event[0].getElementsByTagName('nodeid')[0].textContent;
-      let messagecount = event[0].getElementsByTagName('messagecount')[0].textContent;
       let xtid = event[0].getElementsByTagName('messagesource')[0].textContent;
-      let result = JSON.parse(messagecontent).result[0];
-      console.log('消息--------->', timeid, messagecontent, createtime, nodeid, messagecount, xtid);
-      let news = {
-        nodeid: this.state.userItem.idCard,
-        itemid: timeid,
-        xtid: xtid,
-        messagecount: messagecount,
-        time: createtime,
-        xxtb: result.xxtb,
-        xxbt: result.xxbt,
-        xxbj: result.xxbj,
-        xxmc: result.xxmc,
-        xxzt: result.xxzt,
-        xxtp: result.xxtp,
-        xxxs_ary: result.xxxs_ary,
-        btn_ary: result.btn_ary,
-      };
-      this.props.dispatch({
-        type: 'user/xmppSave',
-        payload: news,
-        callback: response => {
-          this.setState({
-            event: event,
-            firstLogin: false,
-            eventNew: !this.state.eventNew,
-          });
-          console.log('es库存储返回值--------->', response);
-        },
-      });
-      this.props.dispatch({
-        type: 'user/newsEvent',
-        payload: {
-          newEvent: this.state.eventNew,
-        },
-      });
-      if (this.state.code) {
-        this.msgListAll = [];
-        this.getSubscription(0, true);
-        this.getNodeList();
+      if(xtid && xtid !== 'baq'){
+        let timeid = event[0].getElementsByTagName('item')[0].attributes[0].textContent;
+        let messagecontent = event[0].getElementsByTagName('messagecontent')[0].textContent;
+        let createtime = event[0].getElementsByTagName('createtime')[0].textContent;
+        let nodeid = event[0].getElementsByTagName('nodeid')[0].textContent;
+        let messagecount = event[0].getElementsByTagName('messagecount')[0].textContent;
+        let result = JSON.parse(messagecontent).result[0];
+        console.log('消息--------->', timeid, messagecontent, createtime, nodeid, messagecount, xtid);
+        let news = {
+          nodeid: this.state.userItem.idCard,
+          itemid: timeid,
+          xtid: xtid,
+          messagecount: messagecount,
+          time: createtime,
+          xxtb: result.xxtb,
+          xxbt: result.xxbt,
+          xxbj: result.xxbj,
+          xxmc: result.xxmc,
+          xxzt: result.xxzt,
+          xxtp: result.xxtp,
+          xxxs_ary: result.xxxs_ary,
+          btn_ary: result.btn_ary,
+        };
+        this.props.dispatch({
+          type: 'user/xmppSave',
+          payload: news,
+          callback: response => {
+            this.setState({
+              event: event,
+              firstLogin: false,
+              eventNew: !this.state.eventNew,
+            });
+            console.log('es库存储返回值--------->', response);
+          },
+        });
+        this.props.dispatch({
+          type: 'user/newsEvent',
+          payload: {
+            newEvent: this.state.eventNew,
+          },
+        });
+        if (this.state.code) {
+          this.msgListAll = [];
+          this.getSubscription(0, true);
+          this.getNodeList();
+        }
       }
     }
     let item = msg.getElementsByTagName('item');
