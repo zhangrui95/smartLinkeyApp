@@ -84,19 +84,33 @@ class SmartAll extends Component {
         msgExe: msgExe,
       });
     });
-    ipcRenderer.on('update-info', (event, updateList) => {
-      updateList.map((update, i) => {
-        if (update.from === this.state.version && update.to !== this.state.version) {
-          // this.setState({
-          //   update: true,
-          // });
-          this.props.dispatch({
-            type: 'login/update',
-            payload: { update: true, desc: update.desc, updateItem: update },
-          });
-        }
-      });
+    this.props.dispatch({
+      type: 'user/getConfigGoto',
+      callback: response => {
+        ipcRenderer.send('huaci-config', response);
+        response.update.electron.map((event, i) => {
+          if (event.from === this.state.version && event.to !== this.state.version) {
+            this.props.dispatch({
+              type: 'login/update',
+              payload: { update: true, desc: event.desc, updateItem: event },
+            });
+          }
+        });
+      },
     });
+    // ipcRenderer.on('update-info', (event, updateList) => {
+    //   updateList.map((update, i) => {
+    //     if (update.from === this.state.version && update.to !== this.state.version) {
+    //       // this.setState({
+    //       //   update: true,
+    //       // });
+    //       this.props.dispatch({
+    //         type: 'login/update',
+    //         payload: { update: true, desc: update.desc, updateItem: update },
+    //       });
+    //     }
+    //   });
+    // });
     ipcRenderer.on('alert-update-notice', this.lintenUpdate);
   }
   componentWillReceiveProps(next) {
