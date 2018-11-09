@@ -23,6 +23,7 @@ export default class SmartQuestDetail extends Component {
       height: 525,
       keyIndex: [],
       list: [],
+      allList: [],
       enter: false,
     };
   }
@@ -42,7 +43,7 @@ export default class SmartQuestDetail extends Component {
     if (this.props.user.value !== next.user.value) {
       let lis = [];
       if (next.user.value !== '') {
-        this.state.list.map(event => {
+        this.state.allList.map(event => {
           if (event.title.indexOf(next.user.value) > -1) {
             lis.push(event);
           }
@@ -67,6 +68,7 @@ export default class SmartQuestDetail extends Component {
       callback: response => {
         this.setState({
           list: response.data,
+          allList: response.data,
         });
       },
     });
