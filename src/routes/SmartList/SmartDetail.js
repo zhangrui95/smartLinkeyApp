@@ -110,11 +110,18 @@ export default class SmartDetail extends Component {
     let payload = {
       query: {
         bool: {
-          must: {
-            match: {
-              nodeid: this.state.userItem.idCard,
+          must: [
+            {
+              match: {
+                source: 'pc',
+              },
             },
-          },
+            {
+              match: {
+                nodeid: this.state.userItem.idCard,
+              },
+            },
+          ],
         },
       },
       from: from,
@@ -132,6 +139,11 @@ export default class SmartDetail extends Component {
             {
               match: {
                 nodeid: this.state.userItem.idCard,
+              },
+            },
+            {
+              match: {
+                source: 'pc',
               },
             },
             {
@@ -477,6 +489,11 @@ export default class SmartDetail extends Component {
                     },
                   },
                   {
+                    match: {
+                      source: 'pc',
+                    },
+                  },
+                  {
                     range: {
                       time: {
                         gte: this.state.searchTime[0],
@@ -624,11 +641,18 @@ export default class SmartDetail extends Component {
         bool: {
           filter: {
             bool: {
-              must: {
-                match: {
-                  nodeid: this.state.userItem.idCard,
+              must: [
+                {
+                  match: {
+                    nodeid: this.state.userItem.idCard,
+                  },
                 },
-              },
+                {
+                  match: {
+                    source: 'pc',
+                  },
+                },
+              ],
             },
           },
         },

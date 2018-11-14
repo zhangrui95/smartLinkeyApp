@@ -51,6 +51,7 @@ class SmartAll extends Component {
       arrNodeList: [],
       queryList: [],
       arrList: [],
+      allNum: 0,
     };
     this.msgListAll = [];
   }
@@ -309,6 +310,11 @@ class SmartAll extends Component {
       return value1 - value2;
     };
   };
+  emptyAllNum = () => {
+    this.setState({
+      allNum: 0,
+    });
+  };
   onMessage = msg => {
     let event = msg.getElementsByTagName('event');
     if (event.length > 0) {
@@ -316,15 +322,27 @@ class SmartAll extends Component {
       console.log('闪烁--------------------->', event);
       this.refs.music.play();
       let xtid = event[0].getElementsByTagName('messagesource')[0].textContent;
-      if(xtid && xtid !== 'baq'){
+      if (xtid && xtid !== 'baq') {
+        this.setState({
+          allNum: this.state.allNum + 1,
+        });
         let timeid = event[0].getElementsByTagName('item')[0].attributes[0].textContent;
         let messagecontent = event[0].getElementsByTagName('messagecontent')[0].textContent;
         let createtime = event[0].getElementsByTagName('createtime')[0].textContent;
         let nodeid = event[0].getElementsByTagName('nodeid')[0].textContent;
         let messagecount = event[0].getElementsByTagName('messagecount')[0].textContent;
         let result = JSON.parse(messagecontent).result[0];
-        console.log('消息--------->', timeid, messagecontent, createtime, nodeid, messagecount, xtid);
+        console.log(
+          '消息--------->',
+          timeid,
+          messagecontent,
+          createtime,
+          nodeid,
+          messagecount,
+          xtid
+        );
         let news = {
+          source: 'pc',
           nodeid: this.state.userItem.idCard,
           itemid: timeid,
           xtid: xtid,
@@ -477,6 +495,8 @@ class SmartAll extends Component {
       this.state.userItem.job.map(jobs => {
         item = (
           <SmartItem
+            emptyAllNum={this.emptyAllNum}
+            allNum={this.state.allNum}
             firstLogin={this.state.firstLogin}
             code={jobs.code}
             getSubscription={(type, timeList) => this.getSubscription(type, timeList)}

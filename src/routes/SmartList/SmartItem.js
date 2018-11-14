@@ -61,6 +61,9 @@ class SmartItem extends Component {
     });
   }
   componentWillReceiveProps(next) {
+    if (this.props.event !== next.event && next.type == 0) {
+      this.getTimeSaves(this.state.userItem.idCard, new Date().getTime().toString());
+    }
     for (var i = 0; i < next.msgList.length - 1; i++) {
       for (var j = i + 1; j < next.msgList.length; j++) {
         if (
@@ -84,27 +87,9 @@ class SmartItem extends Component {
       });
       if (arr.length > 0) {
         if (arr[0].nodeid === this.state.userItem.idCard && next.type == 0) {
-          this.getTimeSaves(
-            this.state.userItem.idCard + ',smart_baq',
-            Date.parse(new Date()) + ',' + Date.parse(new Date())
-          );
+          this.getTimeSaves(this.state.userItem.idCard, new Date().getTime());
         }
       }
-    } else {
-      if (this.props.lastTime.id < next.lastTime.id) {
-        next.user.allList.map(res => {
-          if (res.nodeid === this.state.userItem.idCard) {
-            if (res.maxmessageid && res.maxmessageid > 0) {
-              if (next.lastTime.nodeid === this.state.userItem.idCard && next.type == 0) {
-                this.getTimeSaves(next.lastTime.nodeid, next.lastTime.id);
-              }
-            }
-          }
-        });
-      }
-    }
-    if (this.props.event !== next.event && next.type == 0) {
-      this.getTimeSaves(this.state.userItem.idCard, Date.parse(new Date()));
     }
     if (this.props.event !== next.event || this.props.type !== next.type) {
       this.setState({
@@ -124,7 +109,7 @@ class SmartItem extends Component {
     }
     if (
       this.props.msgList !== next.msgList ||
-      this.props.type !== next.type ||
+      // this.props.type !== next.type ||
       this.props.searchList !== next.searchList ||
       this.props.event !== next.event
     ) {
@@ -184,16 +169,7 @@ class SmartItem extends Component {
         ) {
           numData.push({
             name: item.name,
-            icon:
-              item.nodeid === 'smart_wtaj'
-                ? 'images/anjian.png'
-                : item.nodeid === 'smart_wtjq' || item.nodeid === 'smart_syrjq'
-                  ? 'images/weishoulijingqing.png'
-                  : item.nodeid === 'smart_wtwp'
-                    ? 'images/wentiwupin.png'
-                    : item.nodeid === this.state.userItem.idCard
-                      ? 'images/changsuo.png'
-                      : 'images/user.png',
+            icon: '',
             maxmessageid: item.maxmessageid ? item.maxmessageid : 0,
             nodeid: item.nodeid,
           });
@@ -321,15 +297,10 @@ class SmartItem extends Component {
     }
   };
   getListClick = (num, type) => {
-    if (num > 0) {
-      if (type == 0) {
-        let nodes = [this.state.userItem.idCard, 'smart_baq'];
-        let times = [Date.parse(new Date()), Date.parse(new Date())];
-        this.getTimeSaves(nodes.toString(), times.toString());
-      }
-      // else {
-      //   this.getTimeSaves(item.nodeid, maxTime);
-      // }
+    if (type == 0 && this.props.allNum > 0) {
+      let nodes = this.state.userItem.idCard;
+      let times = new Date().getTime();
+      this.getTimeSaves(nodes.toString(), times.toString());
     }
     this.setState({
       firstLogin: false,
@@ -337,6 +308,7 @@ class SmartItem extends Component {
   };
   //更新主题读取的时间点
   getTimeSaves = (node, msgId, save) => {
+    this.props.emptyAllNum();
     this.props.dispatch({
       type: 'user/dataSave',
       payload: {
@@ -430,9 +402,7 @@ class SmartItem extends Component {
   };
   getAll = () => {
     this.state.numData.map((item, index) => {
-      if (this.state.nodeId !== item.nodeid) {
-        this.numAll += parseInt(this.listNum(item, index));
-      }
+      this.numAll += parseInt(this.listNum(item, index));
     });
     sessionStorage.setItem('allNum', this.numAll);
     return this.numAll;
@@ -561,7 +531,7 @@ class SmartItem extends Component {
               if (msgItem.time) {
                 time = msgItem.time.slice(5, 10);
               } else {
-                time = getLocalTime(Date.parse(new Date())).slice(5, 10);
+                time = getLocalTime(new Date().getTime()).slice(5, 10);
               }
             }
           });
@@ -572,7 +542,7 @@ class SmartItem extends Component {
             if (msgItem.time) {
               time = msgItem.time.slice(5, 10);
             } else {
-              time = getLocalTime(Date.parse(new Date())).slice(5, 10);
+              time = getLocalTime(new Date().getTime()).slice(5, 10);
             }
           }
         });
@@ -704,7 +674,7 @@ class SmartItem extends Component {
           </div>
         </div>
         <div className={this.props.type == 1 ? '' : styles.none}>
-          <Badge count={this.props.type == 1 ? this.getAll() : ''} className={styles.allNum} />
+          <Badge count={this.props.type == 1 ? this.props.allNum : ''} className={styles.allNum} />
           <Tabs tabPosition="left" className={styles.tabsLeft}>
             <TabPane tab="系统快捷登录" key="1">
               <SmartLink />
@@ -715,11 +685,11 @@ class SmartItem extends Component {
           </Tabs>
         </div>
         <div className={this.props.type == 3 ? '' : styles.none}>
-          <Badge count={this.props.type == 3 ? this.getAll() : ''} className={styles.allNum} />
+          <Badge count={this.props.type == 3 ? this.props.allNum : ''} className={styles.allNum} />
           <SmartTool msgExe={this.props.msgExe} type={this.props.type} />
         </div>
         <div className={this.props.type == 4 ? '' : styles.none}>
-          <Badge count={this.props.type == 4 ? this.getAll() : ''} className={styles.allNum} />
+          <Badge count={this.props.type == 4 ? this.props.allNum : ''} className={styles.allNum} />
           <SmartQuestion />
         </div>
       </div>
