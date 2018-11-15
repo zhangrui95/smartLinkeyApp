@@ -454,6 +454,7 @@ export default class SmartDetail extends Component {
       arrSearch: [],
       searchTime: [],
       searchResult: [],
+      payloadSer: null,
     });
   };
   onClose = () => {
@@ -572,6 +573,8 @@ export default class SmartDetail extends Component {
       xtValue: checkedValues.target.value,
       searchResult: null,
       checkedList: null,
+      payloadSer: null,
+      arrSearch: [],
     });
     this.props.dispatch({
       type: 'user/getConfigGoto',
