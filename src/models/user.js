@@ -13,6 +13,7 @@ import {
   getSaveXmpp,
   getSearch,
   getSacwSearch,
+  getOnline,
 } from '../services/user';
 
 export default {
@@ -165,6 +166,10 @@ export default {
       if (response._shards.successful > 0) {
         callback(response);
       }
+    },
+    *getOnlines({ payload, callback }, { call, put }) {
+      const response = yield call(getOnline, payload);
+      callback(response);
     },
     *getJzSerach({ payload, callback }, { call, put }) {
       const response = yield call(getSearch, payload);

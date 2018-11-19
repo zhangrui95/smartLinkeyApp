@@ -44,7 +44,7 @@ export default class SmartDetail extends Component {
     });
     this.state = {
       // xmppList:[],
-      loading: false,
+      loading: true,
       load: false,
       height: 525,
       data: [],
@@ -99,11 +99,6 @@ export default class SmartDetail extends Component {
     });
   }
   xmppQuery = (from, size, empty, scrollHeight, isTable, searchValue, payloads) => {
-    if (empty) {
-      this.setState({
-        detailList: [],
-      });
-    }
     this.setState({
       loading: true,
     });
@@ -166,9 +161,20 @@ export default class SmartDetail extends Component {
       type: 'user/xmppQuery',
       payload: payloads ? payloads : searchValue.length > 0 ? serchPayload : payload,
       callback: response => {
+        let list = [];
         if (response.hits && response.hits.hits.length > 0) {
           response.hits.hits.map(item => {
-            this.state.detailList.push(item._source);
+            if (empty) {
+              list.push(item._source);
+              this.setState({
+                detailList: list,
+              });
+            } else {
+              this.state.detailList.push(item._source);
+              this.setState({
+                detailList: this.state.detailList,
+              });
+            }
           });
         }
         this.setState({

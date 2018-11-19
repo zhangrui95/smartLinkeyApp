@@ -20,6 +20,12 @@ export async function getSubQuery(params) {
     body: params,
   });
 }
+export async function getOnline(params) {
+  return request(`${configUrl.GMUrl}/datahandle/online`, {
+    method: 'POST',
+    body: params,
+  });
+}
 export async function getDataSave(params) {
   return request(`${configUrl.GMUrl}/datahandle/save `, {
     method: 'POST',

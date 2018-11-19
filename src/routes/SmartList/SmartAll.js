@@ -52,6 +52,7 @@ class SmartAll extends Component {
       queryList: [],
       arrList: [],
       allNum: 0,
+      appNews: null,
     };
     this.msgListAll = [];
   }
@@ -342,6 +343,7 @@ class SmartAll extends Component {
           xtid
         );
         let news = {
+          read: '0',
           source: 'pc',
           nodeid: this.state.userItem.idCard,
           itemid: timeid,
@@ -357,6 +359,9 @@ class SmartAll extends Component {
           xxxs_ary: result.xxxs_ary,
           btn_ary: result.btn_ary,
         };
+        this.setState({
+          appNews: news,
+        });
         this.props.dispatch({
           type: 'user/xmppSave',
           payload: news,
@@ -380,6 +385,7 @@ class SmartAll extends Component {
           this.getSubscription(0, true);
           this.getNodeList();
         }
+        this.getWindowsLogin();
       }
     }
     let item = msg.getElementsByTagName('item');
@@ -428,6 +434,30 @@ class SmartAll extends Component {
       }
     }
     return true;
+  };
+  getWindowsLogin = () => {
+    this.props.dispatch({
+      type: 'user/getOnlines',
+      payload: { userid: this.state.userItem.idCard },
+      callback: response => {
+        let app = false;
+        if (response.data && response.data.length > 0) {
+          response.data.map(event => {
+            if (`${this.state.userItem.idCard}@openfire/app` === event.sessionId) {
+              app = true;
+            }
+          });
+        }
+        if (!app) {
+          this.state.appNews.source = 'app';
+          this.props.dispatch({
+            type: 'user/xmppSave',
+            payload: this.state.appNews,
+            callback: response => {},
+          });
+        }
+      },
+    });
   };
   getNodeList = () => {
     let node = JSON.parse(sessionStorage.getItem('nodeList'));
