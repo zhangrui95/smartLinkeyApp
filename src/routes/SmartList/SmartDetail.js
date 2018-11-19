@@ -176,6 +176,10 @@ export default class SmartDetail extends Component {
               });
             }
           });
+        }else{
+          this.setState({
+            detailList: [],
+          });
         }
         this.setState({
           detailList: this.state.detailList,
