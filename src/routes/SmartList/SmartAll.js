@@ -100,19 +100,6 @@ class SmartAll extends Component {
         });
       },
     });
-    // ipcRenderer.on('update-info', (event, updateList) => {
-    //   updateList.map((update, i) => {
-    //     if (update.from === this.state.version && update.to !== this.state.version) {
-    //       // this.setState({
-    //       //   update: true,
-    //       // });
-    //       this.props.dispatch({
-    //         type: 'login/update',
-    //         payload: { update: true, desc: update.desc, updateItem: update },
-    //       });
-    //     }
-    //   });
-    // });
     ipcRenderer.on('alert-update-notice', this.lintenUpdate);
   }
   componentWillReceiveProps(next) {
@@ -454,6 +441,49 @@ class SmartAll extends Component {
             type: 'user/xmppSave',
             payload: this.state.appNews,
             callback: response => {},
+          });
+        } else {
+          this.props.dispatch({
+            type: 'user/xmppQuery',
+            payload: {
+              query: {
+                bool: {
+                  must: [
+                    {
+                      match: {
+                        nodeid: this.state.userItem.idCard,
+                      },
+                    },
+                    {
+                      match: {
+                        source: 'app',
+                      },
+                    },
+                  ],
+                },
+              },
+              from: 0,
+              size: 1,
+              sort: {
+                time: {
+                  order: 'desc',
+                },
+              },
+            },
+            callback: res => {
+              let source = res.hits.hits[0]._source;
+              if (
+                source.xxmc.msg !== this.state.appNews.xxmc.msg &&
+                source.time !== this.state.appNews.time
+              ) {
+                this.state.appNews.source = 'app';
+                this.props.dispatch({
+                  type: 'user/xmppSave',
+                  payload: this.state.appNews,
+                  callback: response => {},
+                });
+              }
+            },
           });
         }
       },
