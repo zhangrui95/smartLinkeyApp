@@ -443,48 +443,50 @@ class SmartAll extends Component {
             callback: response => {},
           });
         } else {
-          this.props.dispatch({
-            type: 'user/xmppQuery',
-            payload: {
-              query: {
-                bool: {
-                  must: [
-                    {
-                      match: {
-                        nodeid: this.state.userItem.idCard,
+          setTimeout(() => {
+            this.props.dispatch({
+              type: 'user/xmppQuery',
+              payload: {
+                query: {
+                  bool: {
+                    must: [
+                      {
+                        match: {
+                          nodeid: this.state.userItem.idCard,
+                        },
                       },
-                    },
-                    {
-                      match: {
-                        source: 'app',
+                      {
+                        match: {
+                          source: 'app',
+                        },
                       },
-                    },
-                  ],
+                    ],
+                  },
+                },
+                from: 0,
+                size: 1,
+                sort: {
+                  time: {
+                    order: 'desc',
+                  },
                 },
               },
-              from: 0,
-              size: 1,
-              sort: {
-                time: {
-                  order: 'desc',
-                },
+              callback: res => {
+                let source = res.hits.hits[0]._source;
+                if (
+                  source.xxmc.msg !== this.state.appNews.xxmc.msg &&
+                  source.time !== this.state.appNews.time
+                ) {
+                  this.state.appNews.source = 'app';
+                  this.props.dispatch({
+                    type: 'user/xmppSave',
+                    payload: this.state.appNews,
+                    callback: response => {},
+                  });
+                }
               },
-            },
-            callback: res => {
-              let source = res.hits.hits[0]._source;
-              if (
-                source.xxmc.msg !== this.state.appNews.xxmc.msg &&
-                source.time !== this.state.appNews.time
-              ) {
-                this.state.appNews.source = 'app';
-                this.props.dispatch({
-                  type: 'user/xmppSave',
-                  payload: this.state.appNews,
-                  callback: response => {},
-                });
-              }
-            },
-          });
+            });
+          }, 10000);
         }
       },
     });
