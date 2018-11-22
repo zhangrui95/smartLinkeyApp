@@ -209,7 +209,8 @@ class SmartAll extends Component {
               let _this = this;
               let ip = response.data ? response.data.ip : '其他客户端';
               Modal.warning({
-                title: '您已被' + ip + '用户强制下线！',
+                // title: '您已被' + ip + '用户强制下线！',
+                title: '您已被强制下线，请重新登录！',
                 content: null,
                 okText: '确定',
                 onOk() {
@@ -372,7 +373,7 @@ class SmartAll extends Component {
           this.getSubscription(0, true);
           this.getNodeList();
         }
-        this.getWindowsLogin();
+        this.getWindowsLogin(news);
       }
     }
     let item = msg.getElementsByTagName('item');
@@ -422,7 +423,7 @@ class SmartAll extends Component {
     }
     return true;
   };
-  getWindowsLogin = () => {
+  getWindowsLogin = news => {
     this.props.dispatch({
       type: 'user/getOnlines',
       payload: { userid: this.state.userItem.idCard },
@@ -436,10 +437,10 @@ class SmartAll extends Component {
           });
         }
         if (!app) {
-          this.state.appNews.source = 'app';
+          news.source = 'app';
           this.props.dispatch({
             type: 'user/xmppSave',
-            payload: this.state.appNews,
+            payload: news,
             callback: response => {},
           });
         } else {
@@ -473,20 +474,17 @@ class SmartAll extends Component {
               },
               callback: res => {
                 let source = res.hits.hits[0]._source;
-                if (
-                  source.xxmc.msg !== this.state.appNews.xxmc.msg &&
-                  source.time !== this.state.appNews.time
-                ) {
-                  this.state.appNews.source = 'app';
+                if (source.xxmc.msg !== news.xxmc.msg && source.time !== news.time) {
+                  news.source = 'app';
                   this.props.dispatch({
                     type: 'user/xmppSave',
-                    payload: this.state.appNews,
+                    payload: news,
                     callback: response => {},
                   });
                 }
               },
             });
-          }, 10000);
+          }, 12000);
         }
       },
     });
