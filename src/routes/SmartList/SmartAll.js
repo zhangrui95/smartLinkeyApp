@@ -377,8 +377,7 @@ class SmartAll extends Component {
             },
           },
           callback: res => {
-            let source = res.hits.hits[0]._source;
-            if (source.xxmc.msg !== news.xxmc.msg && source.time !== news.time) {
+            if (res.hits.hits.length === 0 || (res.hits.hits[0]._source.xxmc.msg !== news.xxmc.msg && res.hits.hits[0]._source.time !== news.time)) {
               this.refs.music.play();
               this.props.dispatch({
                 type: 'user/xmppSave',
@@ -506,8 +505,7 @@ class SmartAll extends Component {
                 },
               },
               callback: res => {
-                let source = res.hits.hits[0]._source;
-                if (source.xxmc.msg !== news.xxmc.msg && source.time !== news.time) {
+                if (res.hits.hits.length === 0 || (res.hits.hits[0]._source.xxmc.msg !== news.xxmc.msg && res.hits.hits[0]._source.time !== news.time)) {
                   news.source = 'app';
                   this.props.dispatch({
                     type: 'user/xmppSave',
