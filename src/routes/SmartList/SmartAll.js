@@ -309,7 +309,6 @@ class SmartAll extends Component {
     if (event.length > 0) {
       ipcRenderer.send('start-flashing');
       console.log('闪烁--------------------->', event);
-      this.refs.music.play();
       let xtid = event[0].getElementsByTagName('messagesource')[0].textContent;
       if (xtid && xtid !== 'baq') {
         this.setState({
@@ -351,29 +350,63 @@ class SmartAll extends Component {
           appNews: news,
         });
         this.props.dispatch({
-          type: 'user/xmppSave',
-          payload: news,
-          callback: response => {
-            this.setState({
-              event: event,
-              firstLogin: false,
-              eventNew: !this.state.eventNew,
-            });
-            console.log('es库存储返回值--------->', response);
-          },
-        });
-        this.props.dispatch({
-          type: 'user/newsEvent',
+          type: 'user/xmppQuery',
           payload: {
-            newEvent: this.state.eventNew,
+            query: {
+              bool: {
+                must: [
+                  {
+                    match: {
+                      nodeid: this.state.userItem.idCard,
+                    },
+                  },
+                  {
+                    match: {
+                      source: 'pc',
+                    },
+                  },
+                ],
+              },
+            },
+            from: 0,
+            size: 1,
+            sort: {
+              time: {
+                order: 'desc',
+              },
+            },
+          },
+          callback: res => {
+            let source = res.hits.hits[0]._source;
+            if (source.xxmc.msg !== news.xxmc.msg && source.time !== news.time) {
+              this.refs.music.play();
+              this.props.dispatch({
+                type: 'user/xmppSave',
+                payload: news,
+                callback: response => {
+                  this.setState({
+                    event: event,
+                    firstLogin: false,
+                    eventNew: !this.state.eventNew,
+                  });
+                  console.log('es库存储返回值--------->', response);
+                },
+              });
+              this.props.dispatch({
+                type: 'user/newsEvent',
+                payload: {
+                  newEvent: this.state.eventNew,
+                },
+              });
+              if (this.state.code) {
+                this.msgListAll = [];
+                this.getSubscription(0, true);
+                this.getNodeList();
+              }
+              this.getWindowsLogin(news);
+            }
           },
         });
-        if (this.state.code) {
-          this.msgListAll = [];
-          this.getSubscription(0, true);
-          this.getNodeList();
-        }
-        this.getWindowsLogin(news);
       }
     }
     let item = msg.getElementsByTagName('item');
@@ -484,7 +517,7 @@ class SmartAll extends Component {
                 }
               },
             });
-          }, 12000);
+          }, 10000);
         }
       },
     });
