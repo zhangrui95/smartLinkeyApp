@@ -270,7 +270,6 @@ export default {
       };
     },
     getXmppQuery(state, { payload }) {
-      console.log('payload=======>', payload);
       return {
         ...state,
         xmppList: payload,

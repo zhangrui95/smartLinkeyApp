@@ -256,14 +256,10 @@ class SmartAll extends Component {
         node.push(names[i].attributes[0].textContent);
         sessionStorage.setItem('nodeList', JSON.stringify(node));
         if (type === 0) {
-          if (!this.state.code) {
-            this.onNewMsg(
-              names[i].attributes[0].textContent,
-              names[i].attributes[0].textContent === this.state.userItem.idCard ? 20 : ''
-            );
-          } else {
-            this.onNewMsg(names[i].attributes[0].textContent, '');
-          }
+          this.onNewMsg(
+            names[i].attributes[0].textContent,
+            names[i].attributes[0].textContent === this.state.userItem.idCard ? 1 : 1
+          );
         }
       }
     }
@@ -310,7 +306,7 @@ class SmartAll extends Component {
       ipcRenderer.send('start-flashing');
       console.log('闪烁--------------------->', event);
       let xtid = event[0].getElementsByTagName('messagesource')[0].textContent;
-      if (xtid && xtid !== 'baq') {
+      if (xtid && xtid !== 'baq' && event !== this.state.event) {
         this.setState({
           allNum: this.state.allNum + 1,
         });
@@ -320,15 +316,6 @@ class SmartAll extends Component {
         let nodeid = event[0].getElementsByTagName('nodeid')[0].textContent;
         let messagecount = event[0].getElementsByTagName('messagecount')[0].textContent;
         let result = JSON.parse(messagecontent).result[0];
-        console.log(
-          '消息--------->',
-          timeid,
-          messagecontent,
-          createtime,
-          nodeid,
-          messagecount,
-          xtid
-        );
         let news = {
           read: '0',
           source: 'pc',
@@ -346,179 +333,111 @@ class SmartAll extends Component {
           xxxs_ary: result.xxxs_ary,
           btn_ary: result.btn_ary,
         };
-        this.setState({
-          appNews: news,
+        this.refs.music.play();
+        this.props.dispatch({
+          type: 'user/xmppSave',
+          payload: news,
+          callback: response => {
+            this.setState({
+              event: event,
+              firstLogin: false,
+              eventNew: !this.state.eventNew,
+            });
+            console.log('es库存储返回值--------->', response);
+          },
         });
         this.props.dispatch({
-          type: 'user/xmppQuery',
+          type: 'user/newsEvent',
           payload: {
-            query: {
-              bool: {
-                must: [
-                  {
-                    match: {
-                      nodeid: this.state.userItem.idCard,
-                    },
-                  },
-                  {
-                    match: {
-                      source: 'pc',
-                    },
-                  },
-                ],
-              },
-            },
-            from: 0,
-            size: 1,
-            sort: {
-              time: {
-                order: 'desc',
-              },
-            },
-          },
-          callback: res => {
-            if (res.hits.hits.length === 0 || (res.hits.hits[0]._source.xxmc.msg !== news.xxmc.msg && res.hits.hits[0]._source.time !== news.time)) {
-              this.refs.music.play();
-              this.props.dispatch({
-                type: 'user/xmppSave',
-                payload: news,
-                callback: response => {
-                  this.setState({
-                    event: event,
-                    firstLogin: false,
-                    eventNew: !this.state.eventNew,
-                  });
-                  console.log('es库存储返回值--------->', response);
-                },
-              });
-              this.props.dispatch({
-                type: 'user/newsEvent',
-                payload: {
-                  newEvent: this.state.eventNew,
-                },
-              });
-              if (this.state.code) {
-                this.msgListAll = [];
-                this.getSubscription(0, true);
-                this.getNodeList();
-              }
-              this.getWindowsLogin(news);
-            }
+            newEvent: this.state.eventNew,
           },
         });
-      }
-    }
-    let item = msg.getElementsByTagName('item');
-    if (item.length > 0) {
-      for (let i = 0; i < item.length; i++) {
-        let id = item[i].attributes[0].textContent;
-        let messagecontent = item[i].getElementsByTagName('messagecontent');
-        let createtime = item[i].getElementsByTagName('createtime');
-        let packagecount = item[i].getElementsByTagName('packagecount');
-        let nodeid = item[i].getElementsByTagName('nodeid');
-        let messagecount = item[i].getElementsByTagName('messagecount');
-        this.msgListAll.push({
-          messagecontent: messagecontent[0].textContent,
-          time: createtime[0].textContent,
-          nodeid: nodeid[0].textContent,
-          id: id,
-          messagecount: messagecount[0].textContent > 1 ? messagecount[0].textContent : 0,
-          packagecount: packagecount[0].textContent,
-        });
-        this.setState({
-          arrList: [],
-        });
-        let otherArr = [];
-        if (!this.state.code) {
-          if (this.state.queryList.length > 0) {
-            this.msgListAll.map(res => {
-              this.state.queryList.map(item => {
-                if (res.time > getLocalTime(item.subtime) && item.nodeid === res.nodeid) {
-                  otherArr.push(res);
-                }
-              });
-            });
-          } else {
-            otherArr = this.msgListAll;
-          }
-        } else {
-          otherArr = this.msgListAll;
+        if (this.state.code) {
+          this.msgListAll = [];
+          this.getSubscription(0, true);
+          this.getNodeList();
         }
-        this.setState({
-          msgList: this.state.queryList.length > 0 ? otherArr : this.msgListAll,
-        });
-        this.props.dispatch({
-          type: 'user/getMsgList',
-          payload: otherArr,
-        });
       }
     }
+    // else{
+    //   let item = msg.getElementsByTagName('item');
+    //   if (item.length > 0) {
+    //     for (let i = 0; i < item.length; i++) {
+    //       console.log('item===========>',item[i]);
+    //       let xtid = item[i].getElementsByTagName('messagesource')[0].textContent;
+    //       let timeid = item[i].attributes[0].textContent;
+    //       let messagecontent = item[i].getElementsByTagName('messagecontent')[0].textContent;
+    //       let createtime = item[i].getElementsByTagName('createtime')[0].textContent;
+    //       let nodeid = item[i].getElementsByTagName('nodeid')[0].textContent;
+    //       let messagecount = item[i].getElementsByTagName('messagecount')[0].textContent;
+    //       let result = JSON.parse(messagecontent).result[0];
+    //       let news = {
+    //         read: '0',
+    //         source: 'pc',
+    //         nodeid: this.state.userItem.idCard,
+    //         itemid: timeid,
+    //         xtid: xtid,
+    //         messagecount: messagecount,
+    //         time: createtime,
+    //         xxtb: result.xxtb,
+    //         xxbt: result.xxbt,
+    //         xxbj: result.xxbj,
+    //         xxmc: result.xxmc,
+    //         xxzt: result.xxzt,
+    //         xxtp: result.xxtp,
+    //         xxxs_ary: result.xxxs_ary,
+    //         btn_ary: result.btn_ary,
+    //       };
+    //       this.props.dispatch({
+    //         type: 'user/xmppQuery',
+    //         payload: {
+    //           query: {
+    //             bool: {
+    //               must: [
+    //                 {
+    //                   match: {
+    //                     nodeid: this.state.userItem.idCard,
+    //                   },
+    //                 },
+    //               ],
+    //             },
+    //           },
+    //           from: 0,
+    //           size: 1,
+    //           sort: {
+    //             time: {
+    //               order: 'desc',
+    //             },
+    //           },
+    //         },
+    //         callback: res => {
+    //           if (res.hits.hits.length === 0 || (res.hits.hits[0]._source.xxmc.msg !== result.xxmc.msg && res.hits.hits[0]._source.time !== createtime)) {
+    //             console.log('执行=====>',res.hits.hits[0]._source.xxmc.msg,result.xxmc.msg,i)
+    //             this.props.dispatch({
+    //               type: 'user/xmppSave',
+    //               payload: news,
+    //               callback: response => {
+    //                 this.setState({
+    //                   event: event,
+    //                   firstLogin: false,
+    //                   eventNew: !this.state.eventNew,
+    //                 });
+    //                 console.log('es库存储返回值--------->', response);
+    //               },
+    //             });
+    //             this.props.dispatch({
+    //               type: 'user/newsEvent',
+    //               payload: {
+    //                 newEvent: this.state.eventNew,
+    //               },
+    //             });
+    //           }
+    //         }
+    //       });
+    //     }
+    //   }
+    // }
     return true;
-  };
-  getWindowsLogin = news => {
-    this.props.dispatch({
-      type: 'user/getOnlines',
-      payload: { userid: this.state.userItem.idCard },
-      callback: response => {
-        let app = false;
-        if (response.data && response.data.length > 0) {
-          response.data.map(event => {
-            if (`${this.state.userItem.idCard}@openfire/app` === event.sessionId) {
-              app = true;
-            }
-          });
-        }
-        if (!app) {
-          news.source = 'app';
-          this.props.dispatch({
-            type: 'user/xmppSave',
-            payload: news,
-            callback: response => {},
-          });
-        } else {
-          setTimeout(() => {
-            this.props.dispatch({
-              type: 'user/xmppQuery',
-              payload: {
-                query: {
-                  bool: {
-                    must: [
-                      {
-                        match: {
-                          nodeid: this.state.userItem.idCard,
-                        },
-                      },
-                      {
-                        match: {
-                          source: 'app',
-                        },
-                      },
-                    ],
-                  },
-                },
-                from: 0,
-                size: 1,
-                sort: {
-                  time: {
-                    order: 'desc',
-                  },
-                },
-              },
-              callback: res => {
-                if (res.hits.hits.length === 0 || (res.hits.hits[0]._source.xxmc.msg !== news.xxmc.msg && res.hits.hits[0]._source.time !== news.time)) {
-                  news.source = 'app';
-                  this.props.dispatch({
-                    type: 'user/xmppSave',
-                    payload: news,
-                    callback: response => {},
-                  });
-                }
-              },
-            });
-          }, 10000);
-        }
-      },
-    });
   };
   getNodeList = () => {
     let node = JSON.parse(sessionStorage.getItem('nodeList'));

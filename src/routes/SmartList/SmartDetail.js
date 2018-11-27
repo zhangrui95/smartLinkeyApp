@@ -76,6 +76,7 @@ export default class SmartDetail extends Component {
       menu: JSON.parse(user).menu,
       xtly: [{ label: '全部', value: '' }],
       payloadSer: null,
+      dateLoading: true,
       // oldList:[],
     };
   }
@@ -106,11 +107,11 @@ export default class SmartDetail extends Component {
       query: {
         bool: {
           must: [
-            {
-              match: {
-                source: 'pc',
-              },
-            },
+            // {
+            //   match: {
+            //     source: 'pc',
+            //   },
+            // },
             {
               match: {
                 nodeid: this.state.userItem.idCard,
@@ -136,11 +137,11 @@ export default class SmartDetail extends Component {
                 nodeid: this.state.userItem.idCard,
               },
             },
-            {
-              match: {
-                source: 'pc',
-              },
-            },
+            // {
+            //   match: {
+            //     source: 'pc',
+            //   },
+            // },
             {
               query_string: {
                 query: '*' + searchValue + '*',
@@ -176,11 +177,12 @@ export default class SmartDetail extends Component {
               });
             }
           });
-        }else{
+        } else {
           this.setState({
             detailList: [],
           });
         }
+        this.getCommentList(this.state.detailList);
         this.setState({
           detailList: this.state.detailList,
           total: response.hits.total,
@@ -319,7 +321,6 @@ export default class SmartDetail extends Component {
             this.state.isTable,
             this.props.user.value
           );
-          this.getTimeList();
         }, this.props.event !== next.event ? 1000 : 0);
       } else if (this.props.user.value !== next.user.value) {
         //(搜索框)
@@ -365,12 +366,6 @@ export default class SmartDetail extends Component {
       var value2 = b[property];
       return value2 - value1;
     };
-  };
-  getListNew = next => {
-    let list = [];
-    this.setState({
-      data: next.msgList.sort(this.compare('id')),
-    });
   };
   goWindow = (path, id) => {
     // window.open(path)
@@ -442,6 +437,18 @@ export default class SmartDetail extends Component {
       },
     });
   };
+  getCommentList = list => {
+    if (list.length > 0) {
+      for (var i = 0; i < list.length - 1; i++) {
+        for (var j = i + 1; j < list.length; j++) {
+          if (list[i].xxmc.msg == list[j].xxmc.msg && list[i].time == list[j].time) {
+            list.splice(j, 1);
+            j--;
+          }
+        }
+      }
+    }
+  };
   getMouseEnter = () => {
     this.setState({
       enter: true,
@@ -455,7 +462,9 @@ export default class SmartDetail extends Component {
   showDrawer = () => {
     this.setState({
       visible: true,
+      dateLoading: true,
     });
+    this.getTimeList();
   };
   getEmpty = () => {
     this.setState({
@@ -499,11 +508,11 @@ export default class SmartDetail extends Component {
                       nodeid: this.state.userItem.idCard,
                     },
                   },
-                  {
-                    match: {
-                      source: 'pc',
-                    },
-                  },
+                  // {
+                  //   match: {
+                  //     source: 'pc',
+                  //   },
+                  // },
                   {
                     range: {
                       time: {
@@ -652,41 +661,49 @@ export default class SmartDetail extends Component {
     let payload = {
       query: {
         bool: {
-          filter: {
-            bool: {
-              must: [
-                {
-                  match: {
-                    nodeid: this.state.userItem.idCard,
-                  },
-                },
-                {
-                  match: {
-                    source: 'pc',
-                  },
-                },
-              ],
+          must: [
+            // {
+            //   match: {
+            //     source: 'pc',
+            //   },
+            // },
+            {
+              match: {
+                nodeid: this.state.userItem.idCard,
+              },
             },
-          },
+          ],
         },
       },
       from: 0,
-      size: 9999,
-      sort: {
-        time: {
-          order: 'desc',
-        },
-      },
+      size: 999,
     };
-    this.props.dispatch({
-      type: 'user/xmppQuery',
-      payload: payload,
-      callback: response => {
-        response.hits.hits.map(event => {
-          this.state.timeList.push({ time: event._source.time });
-        });
-      },
-    });
+    if (this.state.timeList.length === 0) {
+      this.props.dispatch({
+        type: 'user/xmppQuery',
+        payload: payload,
+        callback: response => {
+          response.hits.hits.map(event => {
+            this.state.timeList.push({ time: event._source.time });
+          });
+          this.setState({
+            dateLoading: false,
+          });
+        },
+      });
+      for (var i = 0; i < this.state.timeList.length - 1; i++) {
+        for (var j = i + 1; j < this.state.timeList.length; j++) {
+          if (this.state.timeList[i] == this.state.timeList[j]) {
+            this.state.timeList.splice(j, 1);
+            j--;
+          }
+        }
+      }
+    } else {
+      this.setState({
+        dateLoading: false,
+      });
+    }
   };
   render() {
     let list = [];
@@ -817,25 +834,35 @@ export default class SmartDetail extends Component {
                 </div>
               </div>
               <div className={styles.boxTime} id="time">
-                <RangePicker
-                  open={true}
-                  getCalendarContainer={() => document.getElementById('time')}
-                  onChange={this.onChangeTime}
-                  value={this.state.timeDate}
-                  dateRender={(current, today) => {
-                    const style = {};
-                    this.state.timeList.map(event => {
-                      if (event.time.substring(0, 10) === moment(current).format('YYYY-MM-DD')) {
-                        style.background = '#e0d394';
-                      }
-                    });
-                    return (
-                      <div className="ant-calendar-date" style={style}>
-                        {current.date()}
-                      </div>
-                    );
+                <Spin
+                  style={{
+                    zIndex: '9999',
+                    height: '270px',
+                    lineHeight: '270px',
+                    background: 'transparent',
                   }}
-                />
+                  spinning={this.state.dateLoading}
+                >
+                  <RangePicker
+                    open={true}
+                    getCalendarContainer={() => document.getElementById('time')}
+                    onChange={this.onChangeTime}
+                    value={this.state.timeDate}
+                    dateRender={(current, today) => {
+                      const style = {};
+                      this.state.timeList.map(event => {
+                        if (event.time.substring(0, 10) === moment(current).format('YYYY-MM-DD')) {
+                          style.background = '#e0d394';
+                        }
+                      });
+                      return (
+                        <div className="ant-calendar-date" style={style}>
+                          {current.date()}
+                        </div>
+                      );
+                    }}
+                  />
+                </Spin>
               </div>
               <div className={styles.tagScroll} style={{ height: this.state.height - 290 + 'px' }}>
                 <div>
