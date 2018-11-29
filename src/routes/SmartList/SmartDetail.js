@@ -94,7 +94,7 @@ export default class SmartDetail extends Component {
       timeEnd: '',
       contain: this.state.searchValue,
       systemId: '',
-      massageStatus: [],
+      messageStatus: [],
     };
     this.getSocketList(true, null, payloads);
     this.props.dispatch({
@@ -345,10 +345,13 @@ export default class SmartDetail extends Component {
             timeEnd: '',
             contain: this.state.searchValue,
             systemId: '',
-            massageStatus: [],
+            messageStatus: [],
           };
           if (this.state.payloadSer) {
             this.state.payloadSer.page = this.state.endLength;
+            this.state.payloadSer.size = this.state.isTable
+              ? this.state.tableCount
+              : this.state.pageCount;
           }
           this.getSocketList(
             false,
@@ -389,10 +392,13 @@ export default class SmartDetail extends Component {
         timeEnd: '',
         contain: next.user.value,
         systemId: '',
-        massageStatus: [],
+        messageStatus: [],
       };
       if (this.state.payloadSer) {
         this.state.payloadSer.page = 0;
+        this.state.payloadSer.size = this.state.isTable
+          ? this.state.tableCount
+          : this.state.pageCount;
       }
       this.getSocketList(true, null, this.state.payloadSer ? this.state.payloadSer : payloads);
     }
@@ -602,7 +608,7 @@ export default class SmartDetail extends Component {
         timeEnd: this.state.searchTime[1] ? this.state.searchTime[1] : '',
         contain: this.state.searchValue,
         systemId: this.state.xtValue,
-        massageStatus: ser,
+        messageStatus: ser,
       };
       this.setState({
         payloadSer: payloads,
@@ -696,10 +702,13 @@ export default class SmartDetail extends Component {
         timeEnd: '',
         contain: this.state.searchValue,
         systemId: '',
-        massageStatus: [],
+        messageStatus: [],
       };
       if (this.state.payloadSer) {
         this.state.payloadSer.page = 0;
+        this.state.payloadSer.size = this.state.isTable
+          ? this.state.tableCount
+          : this.state.pageCount;
       }
       this.getSocketList(true, null, this.state.payloadSer ? this.state.payloadSer : payloads);
       //   if (this.state.payloadSer) {
@@ -798,7 +807,7 @@ export default class SmartDetail extends Component {
       timeEnd: '',
       contain: '',
       systemId: '',
-      massageStatus: [],
+      messageStatus: [],
     };
     console.log('this.state.timeList', this.state.timeList);
     if (this.state.timeList.length === 0) {

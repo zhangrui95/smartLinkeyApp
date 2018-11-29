@@ -31,10 +31,11 @@ export default class TableDetail extends Component {
       timeEnd: '',
       contain: this.props.searchValue,
       systemId: '',
-      massageStatus: [],
+      messageStatus: [],
     };
     if (this.props.payloadSer) {
       this.props.payloadSer.page = e - 1;
+      this.props.payloadSer.size = this.props.count;
     }
     this.props.getSocketList(true, null, this.props.payloadSer ? this.props.payloadSer : payloads);
   };
