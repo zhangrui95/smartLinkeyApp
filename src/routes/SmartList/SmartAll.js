@@ -5,8 +5,6 @@ import TokenLogin from '../User/TokenLogin';
 import SmartLink from './SmartLink';
 import { Badge, message, Modal, Form, Row, Col, Input, Button, Icon, Spin } from 'antd';
 const confirm = Modal.confirm;
-import { Strophe, $pres } from 'strophe.js';
-import { getSubscriptions } from '../../utils/strophe.pubsub';
 import { getQueryString, getLocalTime } from '../../utils/utils';
 import styles from './SmartDetail.less';
 import { ipcRenderer } from 'electron';
@@ -54,6 +52,7 @@ class SmartAll extends Component {
       arrList: [],
       allNum: 0,
       appNews: null,
+      newMsg: false,
     };
     this.msgListAll = [];
   }
@@ -248,7 +247,14 @@ class SmartAll extends Component {
       }
     });
     socket.on('pub-message', function(data) {
-      console.log('pub-message', JSON.stringify(data));
+      if (JSON.stringify(data)) {
+        ipcRenderer.send('start-flashing');
+        that.refs.music.play();
+        that.setState({
+          newMsg: !that.state.newMsg,
+          allNum: that.state.allNum + data.count,
+        });
+      }
     });
   };
   compare = property => {
@@ -299,10 +305,10 @@ class SmartAll extends Component {
             allNum={this.state.allNum}
             firstLogin={this.state.firstLogin}
             code={jobs.code}
-            getSubscription={(type, timeList) => this.getSubscription(type, timeList)}
             xmppUser={this.state.xmppUser}
             msgList={this.state.msgList}
             nodeList={this.state.nodeList}
+            newMsg={this.state.newMsg}
             searchList={this.state.searchList}
             getXmpp={() => this.getXmpp()}
             loading={this.state.loading}
@@ -351,13 +357,6 @@ class SmartAll extends Component {
         <audio src="music.mp3" controls="controls" hidden="true" ref="music" />
         <TokenLogin />
         {item}
-        <div
-          className={this.state.rightBox ? styles.rightList : styles.none}
-          style={{ left: this.state.left + 'px', top: this.state.top + 'px' }}
-        >
-          <div onClick={this.getCopyWord}>复制</div>
-          <div onClick={() => this.SearchWord()}>查询</div>
-        </div>
         <Modal
           title="取词查询"
           visible={this.state.qcVisible}

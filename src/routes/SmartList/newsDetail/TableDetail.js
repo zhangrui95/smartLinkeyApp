@@ -23,6 +23,20 @@ export default class TableDetail extends Component {
     //   this.props.user.value,
     //   this.props.payloadSer
     // );
+    let payloads = {
+      idcard: this.props.idCard,
+      size: this.props.count,
+      page: e - 1,
+      timeStart: '',
+      timeEnd: '',
+      contain: this.props.searchValue,
+      systemId: '',
+      massageStatus: [],
+    };
+    if (this.props.payloadSer) {
+      this.props.payloadSer.page = e - 1;
+    }
+    this.props.getSocketList(true, null, this.props.payloadSer ? this.props.payloadSer : payloads);
   };
   render() {
     let result = '';

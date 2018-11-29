@@ -51,7 +51,7 @@ export default class SmartDetail extends Component {
       scrollHeight: 0,
       sHight: 0,
       startLength: 0,
-      endLength: 1,
+      endLength: 0,
       pageCount: 5,
       tableCount: 8,
       total: 0,
@@ -71,12 +71,13 @@ export default class SmartDetail extends Component {
       xtValue: '',
       arrSearch: [],
       timeList: [],
-      searchTime: '',
+      searchTime: [],
       timeDate: '',
       menu: JSON.parse(user).menu,
       xtly: [{ label: '全部', value: '' }],
       payloadSer: null,
       dateLoading: true,
+      searchValue: '',
       // oldList:[],
     };
   }
@@ -87,15 +88,15 @@ export default class SmartDetail extends Component {
     });
     let payloads = {
       idcard: this.state.userItem.idCard,
-      size: 2,
+      size: this.state.isTable ? this.state.tableCount : this.state.pageCount,
       page: 0,
-      timeStart: '2011-11-27 01:22:00',
-      timeEnd: '2019-11-27 23:12:00',
-      contain: '',
+      timeStart: '',
+      timeEnd: '',
+      contain: this.state.searchValue,
       systemId: '',
       massageStatus: [],
     };
-    this.getSocketList(true, '', payloads);
+    this.getSocketList(true, null, payloads);
     this.props.dispatch({
       type: 'user/getConfigGoto',
       callback: response => {
@@ -118,27 +119,60 @@ export default class SmartDetail extends Component {
         console.log('detailList------>', response);
         this.setState({
           loading: false,
+          total: response.total,
         });
         let list = [];
-        response.map((item, i) => {
-          if (empty) {
-            list.push(item);
-            this.setState({
-              detailList: list,
-            });
-          } else {
-            this.state.detailList.push(item);
-            this.setState({
-              detailList: this.state.detailList,
-            });
-          }
-          if (!this.state.isTable) {
-            setTimeout(() => {
-              this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
-            }, 100);
-          }
-          this.refs.scroll.addEventListener('scroll', this.scrollHandler);
-        });
+        if (response.data.length > 0) {
+          response.data.map((item, i) => {
+            if (this.state.isTable) {
+              if (empty) {
+                list.push(item);
+                this.setState({
+                  detailList: list,
+                });
+              } else {
+                this.state.detailList.push(item);
+                this.setState({
+                  detailList: this.state.detailList,
+                });
+              }
+            } else {
+              if (empty) {
+                list.unshift(item);
+                this.setState({
+                  detailList: list,
+                });
+              } else {
+                this.state.detailList.unshift(item);
+                this.setState({
+                  detailList: this.state.detailList,
+                });
+              }
+              setTimeout(() => {
+                if (scrollHeight) {
+                  this.refs.scroll.scrollTop = scrollHeight;
+                } else {
+                  this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
+                }
+              }, 100);
+              if (
+                response.total < this.state.pageCount * (this.state.endLength + 1) ||
+                response.total === this.state.pageCount * (this.state.endLength + 1)
+              ) {
+                this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
+                this.setState({
+                  lookMore: false,
+                });
+              } else {
+                this.refs.scroll.addEventListener('scroll', this.scrollHandler);
+              }
+            }
+          });
+        } else {
+          this.setState({
+            detailList: [],
+          });
+        }
       },
     });
   };
@@ -303,20 +337,24 @@ export default class SmartDetail extends Component {
           if (!this.state.isTable) {
             this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
           }
-          if (this.state.payloadSer) {
-            this.state.payloadSer.from = from;
-          }
           let payloads = {
             idcard: this.state.userItem.idCard,
-            size: this.state.pageCount,
-            page: from,
-            timeStart: '2011-11-27 01:22:00',
-            timeEnd: '2019-11-27 23:12:00',
-            contain: '',
+            size: this.state.isTable ? this.state.tableCount : this.state.pageCount,
+            page: this.state.endLength,
+            timeStart: '',
+            timeEnd: '',
+            contain: this.state.searchValue,
             systemId: '',
             massageStatus: [],
           };
-          this.getSocketList(false, '', payloads);
+          if (this.state.payloadSer) {
+            this.state.payloadSer.page = this.state.endLength;
+          }
+          this.getSocketList(
+            false,
+            this.state.pageCount * 473,
+            this.state.payloadSer ? this.state.payloadSer : payloads
+          );
           // this.xmppQuery(
           //   from,
           //   this.state.pageCount,
@@ -338,6 +376,26 @@ export default class SmartDetail extends Component {
     this._handleScroll(scrollTop);
   }
   componentWillReceiveProps(next) {
+    if (this.props.newMsg !== next.newMsg || this.props.user.value !== next.user.value) {
+      this.setState({
+        endLength: 0,
+        searchValue: next.user.value,
+      });
+      let payloads = {
+        idcard: this.state.userItem.idCard,
+        size: this.state.isTable ? this.state.tableCount : this.state.pageCount,
+        page: 0,
+        timeStart: '',
+        timeEnd: '',
+        contain: next.user.value,
+        systemId: '',
+        massageStatus: [],
+      };
+      if (this.state.payloadSer) {
+        this.state.payloadSer.page = 0;
+      }
+      this.getSocketList(true, null, this.state.payloadSer ? this.state.payloadSer : payloads);
+    }
     // if (this.props.gzList === next.gzList) {
     //   let gzArr = [];
     //   next.gzList['myFollow'].map(e => {
@@ -414,13 +472,6 @@ export default class SmartDetail extends Component {
       return value1 - value2;
     };
   };
-  compare1 = property => {
-    return function(a, b) {
-      var value1 = a[property];
-      var value2 = b[property];
-      return value2 - value1;
-    };
-  };
   goWindow = (path, id) => {
     // window.open(path)
     ipcRenderer.send('visit-page', {
@@ -486,7 +537,6 @@ export default class SmartDetail extends Component {
       callback: response => {
         if (response.data) {
           message.success('提示:关注成功!');
-          this.props.getSubscription(1, true);
         }
       },
     });
@@ -537,76 +587,90 @@ export default class SmartDetail extends Component {
   };
   onSearchList = () => {
     this.onClose();
-    // setTimeout(() => {
-    //   let ser = [];
-    //   this.state.arrSearch.map(item => {
-    //     item.value.map(e => {
-    //       ser.push({ match: { 'xxzt.msg': e } });
-    //     });
-    //   });
-    //   let payload = {
-    //     query: {
-    //       bool: {
-    //         filter: {
-    //           bool: {
-    //             must: [
-    //               this.state.xtValue
-    //                 ? {
-    //                     match: {
-    //                       xtid: this.state.xtValue,
-    //                     },
-    //                   }
-    //                 : null,
-    //               {
-    //                 match: {
-    //                   nodeid: this.state.userItem.idCard,
-    //                 },
-    //               },
-    //               // {
-    //               //   match: {
-    //               //     source: 'pc',
-    //               //   },
-    //               // },
-    //               {
-    //                 range: {
-    //                   time: {
-    //                     gte: this.state.searchTime[0],
-    //                     lte: this.state.searchTime[1],
-    //                   },
-    //                 },
-    //               },
-    //               {
-    //                 query_string: {
-    //                   query: '*' + this.props.user.value + '*',
-    //                 },
-    //               },
-    //             ],
-    //             should: ser,
-    //           },
-    //         },
-    //       },
-    //     },
-    //     from: 0,
-    //     size: this.state.isTable ? this.state.tableCount : this.state.pageCount,
-    //     sort: {
-    //       time: {
-    //         order: 'desc',
-    //       },
-    //     },
-    //   };
-    //   this.setState({
-    //     payloadSer: payload,
-    //   });
-    //   this.xmppQuery(
-    //     0,
-    //     this.state.isTable ? this.state.tableCount : this.state.pageCount,
-    //     true,
-    //     null,
-    //     this.state.isTable,
-    //     this.props.user.value,
-    //     payload
-    //   );
-    // }, 300);
+    setTimeout(() => {
+      let ser = [];
+      this.state.arrSearch.map(item => {
+        item.value.map(e => {
+          ser.push(e);
+        });
+      });
+      let payloads = {
+        idcard: this.state.userItem.idCard,
+        size: this.state.isTable ? this.state.tableCount : this.state.pageCount,
+        page: 0,
+        timeStart: this.state.searchTime[0] ? this.state.searchTime[0] : '',
+        timeEnd: this.state.searchTime[1] ? this.state.searchTime[1] : '',
+        contain: this.state.searchValue,
+        systemId: this.state.xtValue,
+        massageStatus: ser,
+      };
+      this.setState({
+        payloadSer: payloads,
+      });
+      this.getSocketList(true, null, payloads);
+      //   let payload = {
+      //     query: {
+      //       bool: {
+      //         filter: {
+      //           bool: {
+      //             must: [
+      //               this.state.xtValue
+      //                 ? {
+      //                     match: {
+      //                       xtid: this.state.xtValue,
+      //                     },
+      //                   }
+      //                 : null,
+      //               {
+      //                 match: {
+      //                   nodeid: this.state.userItem.idCard,
+      //                 },
+      //               },
+      //               // {
+      //               //   match: {
+      //               //     source: 'pc',
+      //               //   },
+      //               // },
+      //               {
+      //                 range: {
+      //                   time: {
+      //                     gte: this.state.searchTime[0],
+      //                     lte: this.state.searchTime[1],
+      //                   },
+      //                 },
+      //               },
+      //               {
+      //                 query_string: {
+      //                   query: '*' + this.props.user.value + '*',
+      //                 },
+      //               },
+      //             ],
+      //             should: ser,
+      //           },
+      //         },
+      //       },
+      //     },
+      //     from: 0,
+      //     size: this.state.isTable ? this.state.tableCount : this.state.pageCount,
+      //     sort: {
+      //       time: {
+      //         order: 'desc',
+      //       },
+      //     },
+      //   };
+      //   this.setState({
+      //     payloadSer: payload,
+      //   });
+      //   this.xmppQuery(
+      //     0,
+      //     this.state.isTable ? this.state.tableCount : this.state.pageCount,
+      //     true,
+      //     null,
+      //     this.state.isTable,
+      //     this.props.user.value,
+      //     payload
+      //   );
+    }, 300);
   };
   changeTable = () => {
     this.props.dispatch({
@@ -622,8 +686,22 @@ export default class SmartDetail extends Component {
     setTimeout(() => {
       this.setState({
         loading: false,
-        endLength: 1,
+        endLength: 0,
       });
+      let payloads = {
+        idcard: this.state.userItem.idCard,
+        size: this.state.isTable ? this.state.tableCount : this.state.pageCount,
+        page: 0,
+        timeStart: '',
+        timeEnd: '',
+        contain: this.state.searchValue,
+        systemId: '',
+        massageStatus: [],
+      };
+      if (this.state.payloadSer) {
+        this.state.payloadSer.page = 0;
+      }
+      this.getSocketList(true, null, this.state.payloadSer ? this.state.payloadSer : payloads);
       //   if (this.state.payloadSer) {
       //     this.state.payloadSer.from = 0;
       //     this.state.payloadSer.size = this.state.isTable
@@ -712,39 +790,30 @@ export default class SmartDetail extends Component {
     });
   };
   getTimeList = () => {
-    let payload = {
-      query: {
-        bool: {
-          must: [
-            // {
-            //   match: {
-            //     source: 'pc',
-            //   },
-            // },
-            {
-              match: {
-                nodeid: this.state.userItem.idCard,
-              },
-            },
-          ],
-        },
-      },
-      from: 0,
+    let payloads = {
+      idcard: this.state.userItem.idCard,
       size: 999,
+      page: 0,
+      timeStart: '',
+      timeEnd: '',
+      contain: '',
+      systemId: '',
+      massageStatus: [],
     };
+    console.log('this.state.timeList', this.state.timeList);
     if (this.state.timeList.length === 0) {
-      // this.props.dispatch({
-      //   type: 'user/xmppQuery',
-      //   payload: payload,
-      //   callback: response => {
-      //     response.hits.hits.map(event => {
-      //       this.state.timeList.push({ time: event._source.time });
-      //     });
-      //     this.setState({
-      //       dateLoading: false,
-      //     });
-      //   },
-      // });
+      this.props.dispatch({
+        type: 'user/SocketQuery',
+        payload: payloads,
+        callback: response => {
+          response.data.map(event => {
+            this.state.timeList.push({ time: event.time });
+          });
+          this.setState({
+            dateLoading: false,
+          });
+        },
+      });
       for (var i = 0; i < this.state.timeList.length - 1; i++) {
         for (var j = i + 1; j < this.state.timeList.length; j++) {
           if (this.state.timeList[i] == this.state.timeList[j]) {
@@ -765,7 +834,7 @@ export default class SmartDetail extends Component {
     if (this.state.detailList.length > 0) {
       let k = -1;
       let data = this.state.detailList;
-      data.sort(this.compare('itemid')).map((items, index) => {
+      data.sort(this.compare('time')).map((items, index) => {
         this.state.saveList.map((e, i) => {
           if (e.id === '/' + items.xxbj.id) {
             k = 1;
@@ -773,7 +842,7 @@ export default class SmartDetail extends Component {
             k = -1;
           }
         });
-        this.props.gzList['myFollow'].map((e, i) => {
+        this.props.gzList.map((e, i) => {
           if (e.id === '/' + items.xxbj.id) {
             k = 1;
           }
@@ -951,11 +1020,13 @@ export default class SmartDetail extends Component {
             height={this.state.height}
             total={this.state.total}
             count={this.state.tableCount}
-            data={this.state.detailList.sort(this.compare1('itemid'))}
+            data={this.state.detailList}
             loading={this.state.loading}
-            // xmppQuery={(from, size, empty, scrollHeight, isTable, searchValue, payload) =>
-            //   this.xmppQuery(from, size, empty, scrollHeight, isTable, searchValue, payload)
-            // }
+            searchValue={this.state.searchValue}
+            idCard={this.state.userItem.idCard}
+            getSocketList={(empty, scrollHeight, payloads) =>
+              this.getSocketList(empty, scrollHeight, payloads)
+            }
             goWindow={path => this.goWindow(path)}
             payloadSer={this.state.payloadSer ? this.state.payloadSer : null}
           />
