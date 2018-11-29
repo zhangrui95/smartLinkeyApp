@@ -85,6 +85,17 @@ export default class SmartDetail extends Component {
     window.addEventListener('resize', () => {
       this.updateSize();
     });
+    let payloads = {
+      idcard: this.state.userItem.idCard,
+      size: 2,
+      page: 0,
+      timeStart: '2011-11-27 01:22:00',
+      timeEnd: '2019-11-27 23:12:00',
+      contain: '',
+      systemId: '',
+      massageStatus: [],
+    };
+    this.getSocketList(true, '', payloads);
     this.props.dispatch({
       type: 'user/getConfigGoto',
       callback: response => {
@@ -99,141 +110,173 @@ export default class SmartDetail extends Component {
       },
     });
   }
-  xmppQuery = (from, size, empty, scrollHeight, isTable, searchValue, payloads) => {
-    this.setState({
-      loading: true,
-    });
-    let payload = {
-      query: {
-        bool: {
-          must: [
-            // {
-            //   match: {
-            //     source: 'pc',
-            //   },
-            // },
-            {
-              match: {
-                nodeid: this.state.userItem.idCard,
-              },
-            },
-          ],
-        },
-      },
-      from: from,
-      size: size,
-      sort: {
-        time: {
-          order: 'desc',
-        },
-      },
-    };
-    let serchPayload = {
-      query: {
-        bool: {
-          must: [
-            {
-              match: {
-                nodeid: this.state.userItem.idCard,
-              },
-            },
-            // {
-            //   match: {
-            //     source: 'pc',
-            //   },
-            // },
-            {
-              query_string: {
-                query: '*' + searchValue + '*',
-              },
-            },
-          ],
-        },
-      },
-      from: from,
-      size: size,
-      sort: {
-        time: {
-          order: 'desc',
-        },
-      },
-    };
+  getSocketList = (empty, scrollHeight, payloads) => {
     this.props.dispatch({
-      type: 'user/xmppQuery',
-      payload: payloads ? payloads : searchValue.length > 0 ? serchPayload : payload,
+      type: 'user/SocketQuery',
+      payload: payloads,
       callback: response => {
-        let list = [];
-        if (response.hits && response.hits.hits.length > 0) {
-          response.hits.hits.map(item => {
-            if (empty) {
-              list.push(item._source);
-              this.setState({
-                detailList: list,
-              });
-            } else {
-              this.state.detailList.push(item._source);
-              this.setState({
-                detailList: this.state.detailList,
-              });
-            }
-          });
-        } else {
-          this.setState({
-            detailList: [],
-          });
-        }
-        this.getCommentList(this.state.detailList);
+        console.log('detailList------>', response);
         this.setState({
-          detailList: this.state.detailList,
-          total: response.hits.total,
+          loading: false,
         });
-        if (!isTable) {
-          if (
-            response.hits.total === this.state.detailList.length ||
-            response.hits.total < this.state.detailList.length
-          ) {
+        let list = [];
+        response.map((item, i) => {
+          if (empty) {
+            list.push(item);
             this.setState({
-              loading: false,
-              lookMore: false,
-              load: false,
+              detailList: list,
             });
-            if (scrollHeight) {
-              this.refs.scroll.scrollTop = scrollHeight;
-            } else {
-              if (!this.state.isTable) {
-                setTimeout(() => {
-                  this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
-                }, 100);
-              }
-            }
-            if (!this.state.isTable) {
-              this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
-            }
           } else {
+            this.state.detailList.push(item);
             this.setState({
-              loading: false,
-              lookMore: false,
-              load: false,
+              detailList: this.state.detailList,
             });
-            if (scrollHeight) {
-              this.refs.scroll.scrollTop = scrollHeight;
-            } else {
-              if (!this.state.isTable) {
-                setTimeout(() => {
-                  this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
-                }, 100);
-              }
-            }
-            this.refs.scroll.addEventListener('scroll', this.scrollHandler);
           }
-        } else {
-          this.setState({
-            loading: false,
-          });
-        }
+          if (!this.state.isTable) {
+            setTimeout(() => {
+              this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
+            }, 100);
+          }
+          this.refs.scroll.addEventListener('scroll', this.scrollHandler);
+        });
       },
     });
   };
+  // xmppQuery = (from, size, empty, scrollHeight, isTable, searchValue, payloads) => {
+  //   this.setState({
+  //     loading: true,
+  //   });
+  //   let payload = {
+  //     query: {
+  //       bool: {
+  //         must: [
+  //           // {
+  //           //   match: {
+  //           //     source: 'pc',
+  //           //   },
+  //           // },
+  //           {
+  //             match: {
+  //               nodeid: this.state.userItem.idCard,
+  //             },
+  //           },
+  //         ],
+  //       },
+  //     },
+  //     from: from,
+  //     size: size,
+  //     sort: {
+  //       time: {
+  //         order: 'desc',
+  //       },
+  //     },
+  //   };
+  //   let serchPayload = {
+  //     query: {
+  //       bool: {
+  //         must: [
+  //           {
+  //             match: {
+  //               nodeid: this.state.userItem.idCard,
+  //             },
+  //           },
+  //           // {
+  //           //   match: {
+  //           //     source: 'pc',
+  //           //   },
+  //           // },
+  //           {
+  //             query_string: {
+  //               query: '*' + searchValue + '*',
+  //             },
+  //           },
+  //         ],
+  //       },
+  //     },
+  //     from: from,
+  //     size: size,
+  //     sort: {
+  //       time: {
+  //         order: 'desc',
+  //       },
+  //     },
+  //   };
+  //   this.props.dispatch({
+  //     type: 'user/xmppQuery',
+  //     payload: payloads ? payloads : searchValue.length > 0 ? serchPayload : payload,
+  //     callback: response => {
+  //       let list = [];
+  //       if (response.hits && response.hits.hits.length > 0) {
+  //         response.hits.hits.map(item => {
+  //           if (empty) {
+  //             list.push(item._source);
+  //             this.setState({
+  //               detailList: list,
+  //             });
+  //           } else {
+  //             this.state.detailList.push(item._source);
+  //             this.setState({
+  //               detailList: this.state.detailList,
+  //             });
+  //           }
+  //         });
+  //       } else {
+  //         this.setState({
+  //           detailList: [],
+  //         });
+  //       }
+  //       this.getCommentList(this.state.detailList);
+  //       this.setState({
+  //         detailList: this.state.detailList,
+  //         total: response.hits.total,
+  //       });
+  //       if (!isTable) {
+  //         if (
+  //           response.hits.total === this.state.detailList.length ||
+  //           response.hits.total < this.state.detailList.length
+  //         ) {
+  //           this.setState({
+  //             loading: false,
+  //             lookMore: false,
+  //             load: false,
+  //           });
+  //           if (scrollHeight) {
+  //             this.refs.scroll.scrollTop = scrollHeight;
+  //           } else {
+  //             if (!this.state.isTable) {
+  //               setTimeout(() => {
+  //                 this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
+  //               }, 100);
+  //             }
+  //           }
+  //           if (!this.state.isTable) {
+  //             this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
+  //           }
+  //         } else {
+  //           this.setState({
+  //             loading: false,
+  //             lookMore: false,
+  //             load: false,
+  //           });
+  //           if (scrollHeight) {
+  //             this.refs.scroll.scrollTop = scrollHeight;
+  //           } else {
+  //             if (!this.state.isTable) {
+  //               setTimeout(() => {
+  //                 this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
+  //               }, 100);
+  //             }
+  //           }
+  //           this.refs.scroll.addEventListener('scroll', this.scrollHandler);
+  //         }
+  //       } else {
+  //         this.setState({
+  //           loading: false,
+  //         });
+  //       }
+  //     },
+  //   });
+  // };
   updateSize() {
     this.setState({
       height: autoheight() < 700 ? autoheight() - 115 : autoheight() - 104,
@@ -263,15 +306,26 @@ export default class SmartDetail extends Component {
           if (this.state.payloadSer) {
             this.state.payloadSer.from = from;
           }
-          this.xmppQuery(
-            from,
-            this.state.pageCount,
-            false,
-            this.state.pageCount * 473,
-            this.state.isTable,
-            this.props.user.value,
-            this.state.payloadSer ? this.state.payloadSer : null
-          );
+          let payloads = {
+            idcard: this.state.userItem.idCard,
+            size: this.state.pageCount,
+            page: from,
+            timeStart: '2011-11-27 01:22:00',
+            timeEnd: '2019-11-27 23:12:00',
+            contain: '',
+            systemId: '',
+            massageStatus: [],
+          };
+          this.getSocketList(false, '', payloads);
+          // this.xmppQuery(
+          //   from,
+          //   this.state.pageCount,
+          //   false,
+          //   this.state.pageCount * 473,
+          //   this.state.isTable,
+          //   this.props.user.value,
+          //   this.state.payloadSer ? this.state.payloadSer : null
+          // );
         }
       }
     }
@@ -284,74 +338,74 @@ export default class SmartDetail extends Component {
     this._handleScroll(scrollTop);
   }
   componentWillReceiveProps(next) {
-    if (this.props.gzList === next.gzList) {
-      let gzArr = [];
-      next.gzList['myFollow'].map(e => {
-        gzArr.push({ id: e.id });
-      });
-      this.setState({
-        saveList: gzArr,
-      });
-    }
-    if (next.login.loginStatus) {
-      if (
-        this.props.user.nodeId !== next.user.nodeId ||
-        this.props.nodeId !== next.nodeId ||
-        this.props.event !== next.event ||
-        this.props.Xmpp !== next.Xmpp
-      ) {
-        this.setState({
-          scrollHeight: this.state.isTable ? 0 : this.refs.scroll.scrollHeight,
-          endLength: 1,
-          empty: false,
-          noSearch: true,
-        });
-        if (!this.state.isTable) {
-          this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
-        }
-        this.setState({
-          loading: true,
-        });
-        setTimeout(() => {
-          this.xmppQuery(
-            0,
-            this.state.isTable ? this.state.tableCount : this.state.pageCount,
-            true,
-            null,
-            this.state.isTable,
-            this.props.user.value
-          );
-        }, this.props.event !== next.event ? 1000 : 0);
-      } else if (this.props.user.value !== next.user.value) {
-        //(搜索框)
-        this.xmppQuery(
-          0,
-          this.state.isTable ? this.state.tableCount : this.state.pageCount,
-          true,
-          null,
-          this.state.isTable,
-          next.user.value
-        );
-        // let search = [];
-        // next.user.xmppList.hits.hits.map(item => {
-        //   search.push(item._source);
-        // });
-        // if(next.user.xmppList.hits.hits.length > 0){
-        //   this.setState({
-        //     detailList: search
-        //   })
-        // }else{
-        //   this.setState({
-        //     empty: true
-        //   })
-        // }
-      }
-      if (this.props.type !== next.type) {
-        this.setState({
-          lookMore: false,
-        });
-      }
-    }
+    // if (this.props.gzList === next.gzList) {
+    //   let gzArr = [];
+    //   next.gzList['myFollow'].map(e => {
+    //     gzArr.push({ id: e.id });
+    //   });
+    //   this.setState({
+    //     saveList: gzArr,
+    //   });
+    // }
+    // if (next.login.loginStatus) {
+    //   if (
+    //     this.props.user.nodeId !== next.user.nodeId ||
+    //     this.props.nodeId !== next.nodeId ||
+    //     this.props.event !== next.event ||
+    //     this.props.Xmpp !== next.Xmpp
+    //   ) {
+    //     this.setState({
+    //       scrollHeight: this.state.isTable ? 0 : this.refs.scroll.scrollHeight,
+    //       endLength: 1,
+    //       empty: false,
+    //       noSearch: true,
+    //     });
+    //     if (!this.state.isTable) {
+    //       this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
+    //     }
+    //     this.setState({
+    //       loading: true,
+    //     });
+    //     // setTimeout(() => {
+    //     //   this.xmppQuery(
+    //     //     0,
+    //     //     this.state.isTable ? this.state.tableCount : this.state.pageCount,
+    //     //     true,
+    //     //     null,
+    //     //     this.state.isTable,
+    //     //     this.props.user.value
+    //     //   );
+    //     // }, this.props.event !== next.event ? 1000 : 0);
+    //   } else if (this.props.user.value !== next.user.value) {
+    //     //(搜索框)
+    //     this.xmppQuery(
+    //       0,
+    //       this.state.isTable ? this.state.tableCount : this.state.pageCount,
+    //       true,
+    //       null,
+    //       this.state.isTable,
+    //       next.user.value
+    //     );
+    //     // let search = [];
+    //     // next.user.xmppList.hits.hits.map(item => {
+    //     //   search.push(item._source);
+    //     // });
+    //     // if(next.user.xmppList.hits.hits.length > 0){
+    //     //   this.setState({
+    //     //     detailList: search
+    //     //   })
+    //     // }else{
+    //     //   this.setState({
+    //     //     empty: true
+    //     //   })
+    //     // }
+    //   }
+    //   if (this.props.type !== next.type) {
+    //     this.setState({
+    //       lookMore: false,
+    //     });
+    //   }
+    // }
   }
   compare = property => {
     return function(a, b) {
@@ -483,76 +537,76 @@ export default class SmartDetail extends Component {
   };
   onSearchList = () => {
     this.onClose();
-    setTimeout(() => {
-      let ser = [];
-      this.state.arrSearch.map(item => {
-        item.value.map(e => {
-          ser.push({ match: { 'xxzt.msg': e } });
-        });
-      });
-      let payload = {
-        query: {
-          bool: {
-            filter: {
-              bool: {
-                must: [
-                  this.state.xtValue
-                    ? {
-                        match: {
-                          xtid: this.state.xtValue,
-                        },
-                      }
-                    : null,
-                  {
-                    match: {
-                      nodeid: this.state.userItem.idCard,
-                    },
-                  },
-                  // {
-                  //   match: {
-                  //     source: 'pc',
-                  //   },
-                  // },
-                  {
-                    range: {
-                      time: {
-                        gte: this.state.searchTime[0],
-                        lte: this.state.searchTime[1],
-                      },
-                    },
-                  },
-                  {
-                    query_string: {
-                      query: '*' + this.props.user.value + '*',
-                    },
-                  },
-                ],
-                should: ser,
-              },
-            },
-          },
-        },
-        from: 0,
-        size: this.state.isTable ? this.state.tableCount : this.state.pageCount,
-        sort: {
-          time: {
-            order: 'desc',
-          },
-        },
-      };
-      this.setState({
-        payloadSer: payload,
-      });
-      this.xmppQuery(
-        0,
-        this.state.isTable ? this.state.tableCount : this.state.pageCount,
-        true,
-        null,
-        this.state.isTable,
-        this.props.user.value,
-        payload
-      );
-    }, 300);
+    // setTimeout(() => {
+    //   let ser = [];
+    //   this.state.arrSearch.map(item => {
+    //     item.value.map(e => {
+    //       ser.push({ match: { 'xxzt.msg': e } });
+    //     });
+    //   });
+    //   let payload = {
+    //     query: {
+    //       bool: {
+    //         filter: {
+    //           bool: {
+    //             must: [
+    //               this.state.xtValue
+    //                 ? {
+    //                     match: {
+    //                       xtid: this.state.xtValue,
+    //                     },
+    //                   }
+    //                 : null,
+    //               {
+    //                 match: {
+    //                   nodeid: this.state.userItem.idCard,
+    //                 },
+    //               },
+    //               // {
+    //               //   match: {
+    //               //     source: 'pc',
+    //               //   },
+    //               // },
+    //               {
+    //                 range: {
+    //                   time: {
+    //                     gte: this.state.searchTime[0],
+    //                     lte: this.state.searchTime[1],
+    //                   },
+    //                 },
+    //               },
+    //               {
+    //                 query_string: {
+    //                   query: '*' + this.props.user.value + '*',
+    //                 },
+    //               },
+    //             ],
+    //             should: ser,
+    //           },
+    //         },
+    //       },
+    //     },
+    //     from: 0,
+    //     size: this.state.isTable ? this.state.tableCount : this.state.pageCount,
+    //     sort: {
+    //       time: {
+    //         order: 'desc',
+    //       },
+    //     },
+    //   };
+    //   this.setState({
+    //     payloadSer: payload,
+    //   });
+    //   this.xmppQuery(
+    //     0,
+    //     this.state.isTable ? this.state.tableCount : this.state.pageCount,
+    //     true,
+    //     null,
+    //     this.state.isTable,
+    //     this.props.user.value,
+    //     payload
+    //   );
+    // }, 300);
   };
   changeTable = () => {
     this.props.dispatch({
@@ -570,21 +624,21 @@ export default class SmartDetail extends Component {
         loading: false,
         endLength: 1,
       });
-      if (this.state.payloadSer) {
-        this.state.payloadSer.from = 0;
-        this.state.payloadSer.size = this.state.isTable
-          ? this.state.tableCount
-          : this.state.pageCount;
-      }
-      this.xmppQuery(
-        0,
-        this.state.isTable ? this.state.tableCount : this.state.pageCount,
-        true,
-        null,
-        this.state.isTable,
-        this.props.user.value,
-        this.state.payloadSer ? this.state.payloadSer : null
-      );
+      //   if (this.state.payloadSer) {
+      //     this.state.payloadSer.from = 0;
+      //     this.state.payloadSer.size = this.state.isTable
+      //       ? this.state.tableCount
+      //       : this.state.pageCount;
+      //   }
+      //   this.xmppQuery(
+      //     0,
+      //     this.state.isTable ? this.state.tableCount : this.state.pageCount,
+      //     true,
+      //     null,
+      //     this.state.isTable,
+      //     this.props.user.value,
+      //     this.state.payloadSer ? this.state.payloadSer : null
+      //   );
     }, 200);
   };
   onChange = checkedValues => {
@@ -679,18 +733,18 @@ export default class SmartDetail extends Component {
       size: 999,
     };
     if (this.state.timeList.length === 0) {
-      this.props.dispatch({
-        type: 'user/xmppQuery',
-        payload: payload,
-        callback: response => {
-          response.hits.hits.map(event => {
-            this.state.timeList.push({ time: event._source.time });
-          });
-          this.setState({
-            dateLoading: false,
-          });
-        },
-      });
+      // this.props.dispatch({
+      //   type: 'user/xmppQuery',
+      //   payload: payload,
+      //   callback: response => {
+      //     response.hits.hits.map(event => {
+      //       this.state.timeList.push({ time: event._source.time });
+      //     });
+      //     this.setState({
+      //       dateLoading: false,
+      //     });
+      //   },
+      // });
       for (var i = 0; i < this.state.timeList.length - 1; i++) {
         for (var j = i + 1; j < this.state.timeList.length; j++) {
           if (this.state.timeList[i] == this.state.timeList[j]) {
@@ -899,9 +953,9 @@ export default class SmartDetail extends Component {
             count={this.state.tableCount}
             data={this.state.detailList.sort(this.compare1('itemid'))}
             loading={this.state.loading}
-            xmppQuery={(from, size, empty, scrollHeight, isTable, searchValue, payload) =>
-              this.xmppQuery(from, size, empty, scrollHeight, isTable, searchValue, payload)
-            }
+            // xmppQuery={(from, size, empty, scrollHeight, isTable, searchValue, payload) =>
+            //   this.xmppQuery(from, size, empty, scrollHeight, isTable, searchValue, payload)
+            // }
             goWindow={path => this.goWindow(path)}
             payloadSer={this.state.payloadSer ? this.state.payloadSer : null}
           />

@@ -57,6 +57,12 @@ export async function getXmppList(params) {
     body: params,
   });
 }
+export async function getSocketList(params) {
+  return request('http://192.168.3.230:8720/message/query', {
+    method: 'POST',
+    body: params,
+  });
+}
 export async function getSaveXmpp(params) {
   return request(`${configUrl.xmpp_save}`, {
     method: 'POST',

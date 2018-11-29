@@ -27,6 +27,7 @@ import MD5 from 'md5-es';
 import { Strophe, $pres } from 'strophe.js';
 import { ipcRenderer } from 'electron';
 import { WaterWave } from 'components/Charts';
+import io from 'socket.io-client';
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -326,10 +327,10 @@ class SiderMenu extends PureComponent {
         _this.props.dispatch({
           type: 'login/getLogout',
         });
-        let connection = new Strophe.Connection(
-          'http://' + `${configUrl.fwName}` + ':7070/http-bind/'
-        );
-        connection.disconnect('');
+        let socket = io('http://192.168.3.230:8720', {
+          query: 'idcard=' + JSON.parse(sessionStorage.getItem('user')).user.idCard + '&device=pc',
+        });
+        socket.disconnect();
         ipcRenderer.send('logout');
       },
       onCancel() {
@@ -394,6 +395,11 @@ class SiderMenu extends PureComponent {
               this.props.dispatch({
                 type: 'login/getLogout',
               });
+              let socket = io('http://192.168.3.230:8720', {
+                query:
+                  'idcard=' + JSON.parse(sessionStorage.getItem('user')).user.idCard + '&device=pc',
+              });
+              socket.disconnect();
               ipcRenderer.send('logout');
             }
           },

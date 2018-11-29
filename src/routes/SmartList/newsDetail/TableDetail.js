@@ -11,18 +11,18 @@ export default class TableDetail extends Component {
     super(props);
   }
   changePage = e => {
-    if(this.props.payloadSer){
-      this.props.payloadSer.from = (e - 1) * this.props.count
+    if (this.props.payloadSer) {
+      this.props.payloadSer.from = (e - 1) * this.props.count;
     }
-    this.props.xmppQuery(
-      (e - 1) * this.props.count,
-      this.props.count,
-      true,
-      null,
-      true,
-      this.props.user.value,
-      this.props.payloadSer
-    );
+    // this.props.xmppQuery(
+    //   (e - 1) * this.props.count,
+    //   this.props.count,
+    //   true,
+    //   null,
+    //   true,
+    //   this.props.user.value,
+    //   this.props.payloadSer
+    // );
   };
   render() {
     let result = '';
@@ -61,7 +61,7 @@ export default class TableDetail extends Component {
                 <a
                   className={event.isvisible ? '' : styles.none}
                   style={{ color: '#12c32d' }}
-                  onClick={() => this.props.goWindow(event.act.replace(/[$]+/g,'&'))}
+                  onClick={() => this.props.goWindow(event.act.replace(/[$]+/g, '&'))}
                 >
                   {event.msg}
                 </a>

@@ -3,6 +3,7 @@ import { connect } from 'dva';
 import { hex_md5 } from '../../md5';
 import { Strophe, $pres } from 'strophe.js';
 import { ipcRenderer } from 'electron';
+import io from 'socket.io-client';
 @connect(({ login, loading, user }) => ({
   login,
   user,
@@ -15,8 +16,10 @@ export default class TokenLogin extends Component {
     this.props.dispatch({
       type: 'login/getLogout',
     });
-    let connection = new Strophe.Connection('http://' + `${configUrl.fwName}` + ':7070/http-bind/');
-    connection.disconnect('');
+    let socket = io('http://192.168.3.230:8720', {
+      query: 'idcard=' + JSON.parse(sessionStorage.getItem('user')).user.idCard + '&device=pc',
+    });
+    socket.disconnect();
     ipcRenderer.send('logout');
     this.props.dispatch({
       type: 'login/loginToken',

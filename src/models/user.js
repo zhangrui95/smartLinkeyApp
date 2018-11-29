@@ -10,6 +10,7 @@ import {
   getConfig,
   getIcons,
   getXmppList,
+  getSocketList,
   getSaveXmpp,
   getSearch,
   getSacwSearch,
@@ -161,6 +162,11 @@ export default {
       });
       callback(response);
     },
+    *SocketQuery({ payload, callback }, { call, put }) {
+      const response = yield call(getSocketList, payload);
+      callback(response);
+    },
+
     *xmppSave({ payload, callback }, { call, put }) {
       const response = yield call(getSaveXmpp, payload);
       if (response._shards.successful > 0) {
