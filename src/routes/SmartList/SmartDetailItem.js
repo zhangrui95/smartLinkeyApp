@@ -32,13 +32,13 @@ export default class SmartDetailItem extends Component {
               title={
                 <div>
                   {this.props.childItem.xxbj.isvisible ? (
-                    this.props.childItem.xxbj.actiontype === '0' ? (
+                    this.props.childItem.xxbj.actiontype === 0 ? (
                       this.props.k > 0 ? (
                         <Tooltip placement="top" title="取消关注">
                           <img
                             className={styles.saveIcon}
                             src="images/tjguanzhu.png"
-                            onClick={() => this.props.getCancelSave(this.props.childItem.xxbj.id)}
+                            onClick={() => this.props.getCancelSave(this.props.childItem.id)}
                           />
                         </Tooltip>
                       ) : (
@@ -47,7 +47,7 @@ export default class SmartDetailItem extends Component {
                             className={styles.saveIcon}
                             src="images/qxguanzhu.png"
                             onClick={() =>
-                              this.props.getSave(this.props.childItem.xxbj.id, '关注', 'myFollow')
+                              this.props.getSave(this.props.childItem.id, '关注', 'myFollow')
                             }
                           />
                         </Tooltip>

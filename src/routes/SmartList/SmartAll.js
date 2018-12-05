@@ -91,6 +91,7 @@ class SmartAll extends Component {
   componentWillReceiveProps(next) {
     if (this.props.login.loginStatus !== next.login.loginStatus) {
       if (!next.login.loginStatus) {
+        socket.send({ signal: 'logout' });
         this.setState({
           loginState: false,
         });
@@ -177,6 +178,9 @@ class SmartAll extends Component {
     socket.on('connect', function() {
       console.log('socket登录成功');
     });
+    socket.on('disconnect', function() {
+      console.log('socket退出!!!');
+    });
     socket.on('message', function(res) {
       console.log('data:', res);
       if (res.signal === 'disconn' && res.code === 0) {
@@ -189,7 +193,7 @@ class SmartAll extends Component {
             that.props.dispatch({
               type: 'login/logout',
             });
-            socket.disconnect();
+            socket.send({ signal: 'logout' });
             ipcRenderer.send('logout');
           },
         });
@@ -208,7 +212,7 @@ class SmartAll extends Component {
                 that.props.dispatch({
                   type: 'login/logout',
                 });
-                socket.disconnect();
+                socket.send({ signal: 'logout' });
                 ipcRenderer.send('logout');
               },
             });
@@ -229,7 +233,7 @@ class SmartAll extends Component {
                 that.props.dispatch({
                   type: 'login/logout',
                 });
-                socket.disconnect();
+                socket.send({ signal: 'logout' });
                 ipcRenderer.send('logout');
               },
             });
@@ -275,7 +279,7 @@ class SmartAll extends Component {
     });
   }
   getOut = () => {
-    socket.disconnect();
+    socket.send({ signal: 'logout' });
   };
 
   handleCancel = () => {

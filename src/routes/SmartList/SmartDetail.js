@@ -362,7 +362,7 @@ export default class SmartDetail extends Component {
           //   from,
           //   this.state.pageCount,
           //   false,
-          //   this.state.pageCount * 473,
+          //   this.state.pageCount * 473
           //   this.state.isTable,
           //   this.props.user.value,
           //   this.state.payloadSer ? this.state.payloadSer : null
