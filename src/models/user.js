@@ -15,6 +15,8 @@ import {
   getSearch,
   getSacwSearch,
   getOnline,
+  getfkForm,
+  questionStatus,
 } from '../services/user';
 
 export default {
@@ -181,8 +183,16 @@ export default {
       const response = yield call(getSearch, payload);
       callback(response);
     },
+    *getQuestionStatus({ payload, callback }, { call, put }) {
+      const response = yield call(questionStatus, payload);
+      callback(response);
+    },
     *getSacwSerach({ payload, callback }, { call, put }) {
       const response = yield call(getSacwSearch, payload);
+      callback(response);
+    },
+    *getFkForm({ payload, callback }, { call, put }) {
+      const response = yield call(getfkForm, payload);
       callback(response);
     },
   },

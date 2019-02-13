@@ -66,23 +66,34 @@ export default class TableDetail extends Component {
         title: '操作',
         key: 'action',
         render: (text, record) =>
-          record.action.map((event, i) => {
-            return (
-              <span>
-                <Divider
-                  className={i !== 0 && event.isvisible ? '' : styles.none}
-                  type="vertical"
-                />
-                <a
-                  className={event.isvisible ? '' : styles.none}
-                  style={{ color: '#12c32d' }}
-                  onClick={() => this.props.goWindow(event.act.replace(/[$]+/g, '&'))}
-                >
-                  {event.msg}
-                </a>
-              </span>
-            );
-          }),
+          record.action.length > 0 ? (
+            record.action.map((event, i) => {
+              return (
+                <span>
+                  <Divider
+                    className={i !== 0 && event.btns.isvisible ? '' : styles.none}
+                    type="vertical"
+                  />
+                  <a
+                    className={event.btns.isvisible ? '' : styles.none}
+                    style={{ color: '#12c32d' }}
+                    onClick={() =>
+                      this.props.goWindow(event.btns.act.replace(/[$]+/g, '&'), event.items)
+                    }
+                  >
+                    {event.btns.msg}
+                  </a>
+                </span>
+              );
+            })
+          ) : (
+            <a
+              style={{ color: '#12c32d' }}
+              onClick={() => this.props.goWindow('', record.items, true)}
+            >
+              查看详情
+            </a>
+          ),
       },
     ];
     let tableData = [];
@@ -90,7 +101,7 @@ export default class TableDetail extends Component {
       let arrBtn = [];
       items.btn_ary.map(e => {
         if (e.isvisible) {
-          arrBtn.push(e);
+          arrBtn.push({ btns: e, items: items });
         }
       });
       tableData.push({
@@ -100,6 +111,7 @@ export default class TableDetail extends Component {
         status: items.xxzt.msg,
         time: items.time,
         action: arrBtn,
+        items: items,
       });
     });
     const page = {

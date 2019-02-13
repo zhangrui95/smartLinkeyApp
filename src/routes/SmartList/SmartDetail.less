@@ -328,6 +328,7 @@
   font-size: 14px;
   line-height: 24px;
   color: #666;
+  white-space: normal;
 }
 .headerImgSay {
   width: 100%;
@@ -440,5 +441,20 @@
   }
   &::-webkit-scrollbar-track {
     background: transparent;
+  }
+}
+.htmlBox {
+  input,
+  textarea {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 6px 8px;
+    outline: none;
+    margin: 8px 0;
+    &:hover,
+    &:focus {
+      border: 1px solid #1a83d4;
+    }
   }
 }

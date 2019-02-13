@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import SmartItem from './SmartItem';
 import TokenLogin from '../User/TokenLogin';
+import moment from 'moment';
 import SmartLink from './SmartLink';
 import { Badge, message, Modal, Form, Row, Col, Input, Button, Icon, Spin } from 'antd';
 const confirm = Modal.confirm;
@@ -287,6 +288,97 @@ class SmartAll extends Component {
       qcVisible: false,
     });
   };
+  getFk = (item, detail, nodeId) => {
+    console.log(
+      '反馈Item---------->',
+      item,
+      detail,
+      moment().format('YYYY-MM-DD HH:mm:ss'),
+      nodeId
+    );
+    let msg = [
+      {
+        read: 0,
+        read_m: 0,
+        nodeid: nodeId,
+        systemid: this.state.userItem.idCard,
+        time: moment().format('YYYY-MM-DD HH:mm:ss'),
+        id: 'Z111111111',
+        xxtb: {
+          type: 1,
+          isvisible: true,
+          msg: 'images/user.png',
+          act: '点击图标触发的动作',
+          comment: '备注',
+        },
+        xxbt: {
+          type: 0,
+          isvisible: true,
+          msg: this.state.userItem.name,
+          act: '点击图标触发的动作',
+          comment: '备注',
+        },
+        xxbj: {
+          type: 1,
+          isvisible: false,
+          msg: '',
+          actiontype: 0,
+          act: '点击图标触发的动作',
+          comment: '备注',
+        },
+        xxmc: {
+          type: 0,
+          isvisible: true,
+          msg: `${detail.xxmc.msg}`,
+          act: '点击图标触发的动作',
+          comment: '备注',
+        },
+        xxzt: {
+          type: 0,
+          isvisible: true,
+          msg: '反馈消息',
+          act: '点击图标触发的动作',
+          comment: '备注',
+        },
+        xxtp: {
+          type: 1,
+          isvisible: false,
+          msg: 'images/chatu1.png',
+          act: '点击图标触发的动作',
+          comment: '备注',
+        },
+        xxxs_ary: [
+          {
+            type: 0,
+            isvisible: true,
+            msg: `发起人：${this.state.userItem.name}`,
+            act: '点击图标触发的动作',
+            comment: '备注',
+          },
+        ],
+        btn_ary: [
+          {
+            type: 2,
+            isvisible: false,
+            msg: '',
+            act: '',
+            comment: '备注',
+          },
+        ],
+      },
+    ];
+    item.map(event => {
+      msg[0].xxxs_ary.push({
+        type: 0,
+        isvisible: true,
+        msg: event,
+        act: '点击图标触发的动作',
+        comment: '备注',
+      });
+    });
+    console.log(JSON.stringify(msg));
+    socket.emit('pub-message', JSON.stringify(msg));
+  };
   render() {
     let type = getQueryString(this.props.location.search, 'type');
     const { getFieldDecorator } = this.props.form;
@@ -321,6 +413,7 @@ class SmartAll extends Component {
             event={this.state.event}
             msgExe={this.state.msgExe}
             Xmpp={this.state.Xmpp}
+            getFk={(item, detail, nodeId) => this.getFk(item, detail, nodeId)}
             lastTime={
               this.state.msgList.sort(this.compare('id')).length > 0 && this.state.event.length > 0
                 ? {
@@ -338,20 +431,18 @@ class SmartAll extends Component {
       });
     }
     let children = [];
-    let name, sex, cardId, mz;
-    let events = '';
+    let events = null;
     if (this.state.wordSerList && this.state.wordSerList.length > 0) {
+      events =
+        this.state.wordSerList[0].tags[0].data && this.state.wordSerList[0].tags[0].data.length > 0
+          ? this.state.wordSerList[0].tags[0].data[0]
+          : null;
       this.state.wordSerList.map((e, i) => {
         e.tags.map((item, idx) => {
           if (item.haveData) {
             if (item.name !== '人口基本信息') {
               children.push(item.name);
-            } else {
-              children.push('正常');
             }
-            item.data.map((event, index) => {
-              events = event;
-            });
           }
         });
       });
@@ -366,7 +457,7 @@ class SmartAll extends Component {
           visible={this.state.qcVisible}
           onCancel={this.handleCancel}
           maskClosable={false}
-          width={800}
+          width={850}
           footer={null}
           style={{ position: 'relative' }}
         >
@@ -375,16 +466,16 @@ class SmartAll extends Component {
           ) : this.state.wordSerList && this.state.wordSerList.length > 0 ? (
             <Form className="ant-advanced-search-form" style={{ paddingRight: '40px' }}>
               <Row gutter={24}>
-                <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
+                <Col span={12} style={{ lineHeight: '40px', height: '40px' }}>
                   <FormItem {...formItemLayout} label="人员背景">
                     {children.length > 0 ? children.toString() : '暂无'}
                   </FormItem>
                 </Col>
-                {configUrl.personList.map(e => {
+                {configUrls.personList.map(e => {
                   return (
-                    <Col span={8} style={{ lineHeight: '40px', height: '40px' }}>
+                    <Col span={12} style={{ lineHeight: '40px', height: '40px' }}>
                       <FormItem {...formItemLayout} label={e}>
-                        {events[e] ? events[e] : ''}
+                        {events && events[e] ? events[e] : ''}
                       </FormItem>
                     </Col>
                   );

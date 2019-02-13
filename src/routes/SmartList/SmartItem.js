@@ -86,6 +86,7 @@ export default class SmartItem extends Component {
                 gzList={this.state.gzList}
                 Xmpp={this.props.Xmpp}
                 newMsg={this.props.newMsg}
+                getFk={(item, detail, nodeId) => this.props.getFk(item, detail, nodeId)}
               />
             </div>
           </div>

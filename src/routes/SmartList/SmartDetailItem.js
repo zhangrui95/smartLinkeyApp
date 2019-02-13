@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Card, Icon, Avatar, Tag, Spin, Tooltip, message } from 'antd';
+import { Card, Icon, Avatar, Tag, Spin, Tooltip } from 'antd';
 const { Meta } = Card;
 import styles from './SmartDetail.less';
 export default class SmartDetailItem extends Component {
@@ -97,7 +97,7 @@ export default class SmartDetailItem extends Component {
                               onClick={() =>
                                 this.props.goWindow(
                                   event.act.replace(/[$]+/g, '&'),
-                                  this.props.childItem.xtid
+                                  this.props.childItem
                                 )
                               }
                             >

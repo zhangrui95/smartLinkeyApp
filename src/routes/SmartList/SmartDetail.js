@@ -14,10 +14,17 @@ import {
   Checkbox,
   DatePicker,
   Radio,
+  Modal,
+  Row,
+  Col,
+  Input,
+  Form,
 } from 'antd';
 const { MonthPicker, RangePicker, WeekPicker } = DatePicker;
 const CheckboxGroup = Checkbox.Group;
 const RadioGroup = Radio.Group;
+const { TextArea } = Input;
+const FormItem = Form.Item;
 import TagSelect from 'ant-design-pro/lib/TagSelect';
 const { Meta } = Card;
 import styles from './SmartDetail.less';
@@ -25,6 +32,7 @@ import { getLocalTime, autoheight } from '../../utils/utils';
 import { ipcRenderer } from 'electron';
 import SmartDetailItem from './SmartDetailItem';
 import TableDetail from './newsDetail/TableDetail';
+@Form.create()
 @connect(({ user, login, save }) => ({
   user,
   login,
@@ -78,6 +86,11 @@ export default class SmartDetail extends Component {
       payloadSer: null,
       dateLoading: true,
       searchValue: '',
+      dbVisable: false,
+      detailVisable: false,
+      dbDetail: null,
+      connent: '',
+      third: [],
       // oldList:[],
     };
   }
@@ -98,8 +111,19 @@ export default class SmartDetail extends Component {
     };
     this.getSocketList(true, null, payloads);
     this.props.dispatch({
+      type: 'user/getFkForm',
+      callback: response => {
+        this.setState({
+          form: response,
+        });
+      },
+    });
+    this.props.dispatch({
       type: 'user/getConfigGoto',
       callback: response => {
+        this.setState({
+          third: response.third,
+        });
         ipcRenderer.send('huaci-config', response);
         response.third.map((event, i) => {
           this.state.menu.map(item => {
@@ -111,18 +135,62 @@ export default class SmartDetail extends Component {
       },
     });
   }
+  handleOk = () => {
+    // console.log(document.getElementById('fid8720').value)
+    // let sugList = [];
+    // this.state.form&&this.state.form['tid01']&&this.state.form['tid01'].field.map((item)=>{
+    //   sugList.push(item.name+'：'+document.getElementById(item.id).value);
+    // })
+    this.props.getFk(
+      ['反馈意见：' + this.state.connent],
+      this.state.dbDetail,
+      '230183199201111283'
+    );
+    console.log('this.state.dbDetail=======>', this.state.dbDetail);
+    this.state.third.map((event, i) => {
+      if (event.unique === '109005') {
+        if (event.api !== '') {
+          window.configUrl.questionStatus = event.api;
+          this.props.dispatch({
+            type: 'user/getQuestionStatus',
+            payload: {
+              id: this.state.dbDetail.id,
+              sfzh: this.state.userItem.idCard,
+              name: this.state.userItem.name,
+              fkr_fkyj: this.state.connent,
+            },
+            callback: response => {
+              if (!response.error) {
+                message.success('操作成功');
+              } else {
+                message.error(response.error.text);
+              }
+            },
+          });
+        }
+      }
+    });
+    this.setState({
+      dbVisable: false,
+    });
+  };
+  handleCancel = () => {
+    this.setState({
+      dbVisable: false,
+      detailVisable: false,
+    });
+  };
   getSocketList = (empty, scrollHeight, payloads) => {
     this.props.dispatch({
       type: 'user/SocketQuery',
       payload: payloads,
       callback: response => {
-        console.log('detailList------>', response);
         this.setState({
           loading: false,
           total: response.total,
         });
         let list = [];
-        if (response.data.length > 0) {
+        if (response.data && response.data.length > 0) {
           response.data.map((item, i) => {
             if (this.state.isTable) {
               if (empty) {
@@ -149,8 +217,9 @@ export default class SmartDetail extends Component {
                 });
               }
               setTimeout(() => {
+                let sHeight = this.refs.scroll.scrollHeight;
                 if (scrollHeight) {
-                  this.refs.scroll.scrollTop = scrollHeight;
+                  this.refs.scroll.scrollTop = sHeight - scrollHeight;
                 } else {
                   this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
                 }
@@ -176,141 +245,6 @@ export default class SmartDetail extends Component {
       },
     });
   };
-  // xmppQuery = (from, size, empty, scrollHeight, isTable, searchValue, payloads) => {
-  //   this.setState({
-  //     loading: true,
-  //   });
-  //   let payload = {
-  //     query: {
-  //       bool: {
-  //         must: [
-  //           // {
-  //           //   match: {
-  //           //     source: 'pc',
-  //           //   },
-  //           // },
-  //           {
-  //             match: {
-  //               nodeid: this.state.userItem.idCard,
-  //             },
-  //           },
-  //         ],
-  //       },
-  //     },
-  //     from: from,
-  //     size: size,
-  //     sort: {
-  //       time: {
-  //         order: 'desc',
-  //       },
-  //     },
-  //   };
-  //   let serchPayload = {
-  //     query: {
-  //       bool: {
-  //         must: [
-  //           {
-  //             match: {
-  //               nodeid: this.state.userItem.idCard,
-  //             },
-  //           },
-  //           // {
-  //           //   match: {
-  //           //     source: 'pc',
-  //           //   },
-  //           // },
-  //           {
-  //             query_string: {
-  //               query: '*' + searchValue + '*',
-  //             },
-  //           },
-  //         ],
-  //       },
-  //     },
-  //     from: from,
-  //     size: size,
-  //     sort: {
-  //       time: {
-  //         order: 'desc',
-  //       },
-  //     },
-  //   };
-  //   this.props.dispatch({
-  //     type: 'user/xmppQuery',
-  //     payload: payloads ? payloads : searchValue.length > 0 ? serchPayload : payload,
-  //     callback: response => {
-  //       let list = [];
-  //       if (response.hits && response.hits.hits.length > 0) {
-  //         response.hits.hits.map(item => {
-  //           if (empty) {
-  //             list.push(item._source);
-  //             this.setState({
-  //               detailList: list,
-  //             });
-  //           } else {
-  //             this.state.detailList.push(item._source);
-  //             this.setState({
-  //               detailList: this.state.detailList,
-  //             });
-  //           }
-  //         });
-  //       } else {
-  //         this.setState({
-  //           detailList: [],
-  //         });
-  //       }
-  //       this.getCommentList(this.state.detailList);
-  //       this.setState({
-  //         detailList: this.state.detailList,
-  //         total: response.hits.total,
-  //       });
-  //       if (!isTable) {
-  //         if (
-  //           response.hits.total === this.state.detailList.length ||
-  //           response.hits.total < this.state.detailList.length
-  //         ) {
-  //           this.setState({
-  //             loading: false,
-  //             lookMore: false,
-  //             load: false,
-  //           });
-  //           if (scrollHeight) {
-  //             this.refs.scroll.scrollTop = scrollHeight;
-  //           } else {
-  //             if (!this.state.isTable) {
-  //               setTimeout(() => {
-  //                 this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
-  //               }, 100);
-  //             }
-  //           }
-  //           if (!this.state.isTable) {
-  //             this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
-  //           }
-  //         } else {
-  //           this.setState({
-  //             loading: false,
-  //             lookMore: false,
-  //             load: false,
-  //           });
-  //           if (scrollHeight) {
-  //             this.refs.scroll.scrollTop = scrollHeight;
-  //           } else {
-  //             if (!this.state.isTable) {
-  //               setTimeout(() => {
-  //                 this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
-  //               }, 100);
-  //             }
-  //           }
-  //           this.refs.scroll.addEventListener('scroll', this.scrollHandler);
-  //         }
-  //       } else {
-  //         this.setState({
-  //           loading: false,
-  //         });
-  //       }
-  //     },
-  //   });
-  // };
   updateSize() {
     this.setState({
       height: autoheight() < 700 ? autoheight() - 115 : autoheight() - 104,
@@ -318,56 +252,50 @@ export default class SmartDetail extends Component {
   }
   _handleScroll(scrollTop) {
     if (scrollTop === 0) {
+      if (!this.state.isTable) {
+        this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
+      }
       let _length = 0;
       if (!this.state.lookMore) {
         this.setState({
           lookMore: true,
         });
         this.refs.scroll.scrollTop = 10;
+        this.refs.scroll.addEventListener('scroll', this.scrollHandler);
       } else {
         this.setState({
           lookMore: false,
         });
-        if (this.props.code) {
-          let from = parseInt(this.state.endLength) * this.state.pageCount;
-          this.setState({
-            load: true,
-            endLength: parseInt(this.state.endLength) + 1,
-          });
-          if (!this.state.isTable) {
-            this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
-          }
-          let payloads = {
-            idcard: this.state.userItem.idCard,
-            size: this.state.isTable ? this.state.tableCount : this.state.pageCount,
-            page: this.state.endLength,
-            timeStart: '',
-            timeEnd: '',
-            contain: this.state.searchValue,
-            systemId: '',
-            messageStatus: [],
-          };
-          if (this.state.payloadSer) {
-            this.state.payloadSer.page = this.state.endLength;
-            this.state.payloadSer.size = this.state.isTable
-              ? this.state.tableCount
-              : this.state.pageCount;
-          }
-          this.getSocketList(
-            false,
-            this.state.pageCount * 473,
-            this.state.payloadSer ? this.state.payloadSer : payloads
-          );
-          // this.xmppQuery(
-          //   from,
-          //   this.state.pageCount,
-          //   false,
-          //   this.state.pageCount * 473
-          //   this.state.isTable,
-          //   this.props.user.value,
-          //   this.state.payloadSer ? this.state.payloadSer : null
-          // );
+        let from = parseInt(this.state.endLength) * this.state.pageCount;
+        this.setState({
+          load: true,
+          endLength: parseInt(this.state.endLength) + 1,
+        });
+        // if (!this.state.isTable) {
+        //   this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
+        // }
+        let payloads = {
+          idcard: this.state.userItem.idCard,
+          size: this.state.isTable ? this.state.tableCount : this.state.pageCount,
+          page: this.state.endLength,
+          timeStart: '',
+          timeEnd: '',
+          contain: this.state.searchValue,
+          systemId: '',
+          messageStatus: [],
+        };
+        if (this.state.payloadSer) {
+          this.state.payloadSer.page = this.state.endLength;
+          this.state.payloadSer.size = this.state.isTable
+            ? this.state.tableCount
+            : this.state.pageCount;
         }
+        let scrollHeight = this.refs.scroll.scrollHeight ? this.refs.scroll.scrollHeight : 0;
+        this.getSocketList(
+          false,
+          scrollHeight,
+          this.state.payloadSer ? this.state.payloadSer : payloads
+        );
       }
     }
   }
@@ -402,88 +330,29 @@ export default class SmartDetail extends Component {
       }
       this.getSocketList(true, null, this.state.payloadSer ? this.state.payloadSer : payloads);
     }
-    // if (this.props.gzList === next.gzList) {
-    //   let gzArr = [];
-    //   next.gzList['myFollow'].map(e => {
-    //     gzArr.push({ id: e.id });
-    //   });
-    //   this.setState({
-    //     saveList: gzArr,
-    //   });
-    // }
-    // if (next.login.loginStatus) {
-    //   if (
-    //     this.props.user.nodeId !== next.user.nodeId ||
-    //     this.props.nodeId !== next.nodeId ||
-    //     this.props.event !== next.event ||
-    //     this.props.Xmpp !== next.Xmpp
-    //   ) {
-    //     this.setState({
-    //       scrollHeight: this.state.isTable ? 0 : this.refs.scroll.scrollHeight,
-    //       endLength: 1,
-    //       empty: false,
-    //       noSearch: true,
-    //     });
-    //     if (!this.state.isTable) {
-    //       this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
-    //     }
-    //     this.setState({
-    //       loading: true,
-    //     });
-    //     // setTimeout(() => {
-    //     //   this.xmppQuery(
-    //     //     0,
-    //     //     this.state.isTable ? this.state.tableCount : this.state.pageCount,
-    //     //     true,
-    //     //     null,
-    //     //     this.state.isTable,
-    //     //     this.props.user.value
-    //     //   );
-    //     // }, this.props.event !== next.event ? 1000 : 0);
-    //   } else if (this.props.user.value !== next.user.value) {
-    //     //(搜索框)
-    //     this.xmppQuery(
-    //       0,
-    //       this.state.isTable ? this.state.tableCount : this.state.pageCount,
-    //       true,
-    //       null,
-    //       this.state.isTable,
-    //       next.user.value
-    //     );
-    //     // let search = [];
-    //     // next.user.xmppList.hits.hits.map(item => {
-    //     //   search.push(item._source);
-    //     // });
-    //     // if(next.user.xmppList.hits.hits.length > 0){
-    //     //   this.setState({
-    //     //     detailList: search
-    //     //   })
-    //     // }else{
-    //     //   this.setState({
-    //     //     empty: true
-    //     //   })
-    //     // }
-    //   }
-    //   if (this.props.type !== next.type) {
-    //     this.setState({
-    //       lookMore: false,
-    //     });
-    //   }
-    // }
   }
-  compare = property => {
-    return function(a, b) {
-      var value1 = a[property];
-      var value2 = b[property];
-      return value1 - value2;
-    };
-  };
-  goWindow = (path, id) => {
+  goWindow = (path, item, isread) => {
     // window.open(path)
-    ipcRenderer.send('visit-page', {
-      url: path + (id === '109003' ? '' : JSON.parse(sessionStorage.getItem('user')).token),
-      browser: 'chrome',
-    });
+    if (path) {
+      ipcRenderer.send('visit-page', {
+        url:
+          path + (item.xtid === '109003' ? '' : JSON.parse(sessionStorage.getItem('user')).token),
+        browser: 'chrome',
+      });
+    } else {
+      if (isread) {
+        this.setState({
+          detailVisable: true,
+          dbDetail: item,
+        });
+      } else {
+        this.setState({
+          connent: '',
+          dbVisable: true,
+          dbDetail: item,
+        });
+      }
+    }
   };
   createXml = str => {
     if (document.all) {
@@ -614,68 +483,6 @@ export default class SmartDetail extends Component {
         payloadSer: payloads,
       });
       this.getSocketList(true, null, payloads);
-      //   let payload = {
-      //     query: {
-      //       bool: {
-      //         filter: {
-      //           bool: {
-      //             must: [
-      //               this.state.xtValue
-      //                 ? {
-      //                     match: {
-      //                       xtid: this.state.xtValue,
-      //                     },
-      //                   }
-      //                 : null,
-      //               {
-      //                 match: {
-      //                   nodeid: this.state.userItem.idCard,
-      //                 },
-      //               },
-      //               // {
-      //               //   match: {
-      //               //     source: 'pc',
-      //               //   },
-      //               // },
-      //               {
-      //                 range: {
-      //                   time: {
-      //                     gte: this.state.searchTime[0],
-      //                     lte: this.state.searchTime[1],
-      //                   },
-      //                 },
-      //               },
-      //               {
-      //                 query_string: {
-      //                   query: '*' + this.props.user.value + '*',
-      //                 },
-      //               },
-      //             ],
-      //             should: ser,
-      //           },
-      //         },
-      //       },
-      //     },
-      //     from: 0,
-      //     size: this.state.isTable ? this.state.tableCount : this.state.pageCount,
-      //     sort: {
-      //       time: {
-      //         order: 'desc',
-      //       },
-      //     },
-      //   };
-      //   this.setState({
-      //     payloadSer: payload,
-      //   });
-      //   this.xmppQuery(
-      //     0,
-      //     this.state.isTable ? this.state.tableCount : this.state.pageCount,
-      //     true,
-      //     null,
-      //     this.state.isTable,
-      //     this.props.user.value,
-      //     payload
-      //   );
     }, 300);
   };
   changeTable = () => {
@@ -711,21 +518,6 @@ export default class SmartDetail extends Component {
           : this.state.pageCount;
       }
       this.getSocketList(true, null, this.state.payloadSer ? this.state.payloadSer : payloads);
-      //   if (this.state.payloadSer) {
-      //     this.state.payloadSer.from = 0;
-      //     this.state.payloadSer.size = this.state.isTable
-      //       ? this.state.tableCount
-      //       : this.state.pageCount;
-      //   }
-      //   this.xmppQuery(
-      //     0,
-      //     this.state.isTable ? this.state.tableCount : this.state.pageCount,
-      //     true,
-      //     null,
-      //     this.state.isTable,
-      //     this.props.user.value,
-      //     this.state.payloadSer ? this.state.payloadSer : null
-      //   );
     }, 200);
   };
   onChange = checkedValues => {
@@ -809,7 +601,6 @@ export default class SmartDetail extends Component {
       systemId: '',
       messageStatus: [],
     };
-    console.log('this.state.timeList', this.state.timeList);
     if (this.state.timeList.length === 0) {
       this.props.dispatch({
         type: 'user/SocketQuery',
@@ -837,13 +628,19 @@ export default class SmartDetail extends Component {
       });
     }
   };
+  getConnent = e => {
+    this.setState({
+      connent: e.target.value,
+    });
+  };
   render() {
+    const { getFieldDecorator } = this.props.form;
     let list = [];
     list = [];
     if (this.state.detailList.length > 0) {
       let k = -1;
       let data = this.state.detailList;
-      data.sort(this.compare('time')).map((items, index) => {
+      data.map((items, index) => {
         this.state.saveList.map((e, i) => {
           if (e.id === '/' + items.xxbj.id) {
             k = 1;
@@ -862,7 +659,7 @@ export default class SmartDetail extends Component {
             i={1}
             childItem={items}
             code={this.props.code}
-            goWindow={(path, id) => this.goWindow(path, id)}
+            goWindow={(path, id, isread) => this.goWindow(path, id, isread)}
             k={k}
             getSave={(id, name, remark) => this.getSave(id, name, remark)}
             getCancelSave={id => this.getCancelSave(id)}
@@ -894,6 +691,16 @@ export default class SmartDetail extends Component {
         );
       });
     }
+    let btnName;
+    this.state.dbDetail &&
+      this.state.dbDetail.btn_ary &&
+      this.state.dbDetail.btn_ary.map(btn => {
+        if (btn.msg.indexOf('详情') > -1) {
+          return false;
+        } else {
+          btnName = btn.msg;
+        }
+      });
     return (
       <div>
         <div className={styles.headerTitle}>
@@ -1036,7 +843,7 @@ export default class SmartDetail extends Component {
             getSocketList={(empty, scrollHeight, payloads) =>
               this.getSocketList(empty, scrollHeight, payloads)
             }
-            goWindow={path => this.goWindow(path)}
+            goWindow={(path, item, isread) => this.goWindow(path, item, isread)}
             payloadSer={this.state.payloadSer ? this.state.payloadSer : null}
           />
         ) : (
@@ -1084,6 +891,86 @@ export default class SmartDetail extends Component {
             </div>
           </div>
         )}
+        <Modal
+          title={
+            this.state.dbDetail && this.state.dbDetail.xxmc && this.state.dbDetail.xxmc.msg
+              ? this.state.dbDetail.xxmc.msg
+              : '操作'
+          }
+          visible={this.state.dbVisable}
+          onOk={this.handleOk}
+          okText={btnName ? btnName : null}
+          onCancel={this.handleCancel}
+          maskClosable={false}
+          width={600}
+        >
+          <Row gutter={8}>
+            {this.state.dbDetail &&
+            this.state.dbDetail.xxxs_ary &&
+            this.state.dbDetail.xxxs_ary.length > 0
+              ? this.state.dbDetail.xxxs_ary.map(event => {
+                  return (
+                    <Col span={8} style={{ margin: '5px 0' }}>
+                      <div>{event.msg}</div>
+                    </Col>
+                  );
+                })
+              : ''}
+          </Row>
+          {/*<div className={styles.htmlBox} dangerouslySetInnerHTML={{ __html: this.state.form&&this.state.form['tid01']&&this.state.form['tid01'].html ? this.state.form['tid01'].html.replace('@@@', btnName&& btnName.length > 2 ? btnName.substring(btnName.length - 2, btnName.length)+'意见：':''):'' }} ></div>*/}
+          <Row>
+            <Col span={24} style={{ margin: '5px 0' }}>
+              {btnName && btnName.length > 2
+                ? btnName.substring(btnName.length - 2, btnName.length)
+                : ''}意见：
+            </Col>
+            <Col span={24} style={{ margin: '5px 0' }}>
+              <TextArea rows={4} value={this.state.connent} onChange={this.getConnent} />
+            </Col>
+          </Row>
+        </Modal>
+        <Modal
+          title={
+            this.state.dbDetail && this.state.dbDetail.xxmc && this.state.dbDetail.xxmc.msg
+              ? this.state.dbDetail.xxmc.msg
+              : '详情'
+          }
+          visible={this.state.detailVisable}
+          footer={null}
+          onCancel={this.handleCancel}
+          maskClosable={false}
+          width={600}
+        >
+          <Row gutter={8}>
+            <Col span={24} style={{ margin: '5px 0' }}>
+              <div>
+                时间：{this.state.dbDetail && this.state.dbDetail.time
+                  ? this.state.dbDetail.time
+                  : ''}
+              </div>
+            </Col>
+            <Col span={24} style={{ margin: '5px 0' }}>
+              <div>
+                业务状态：{this.state.dbDetail &&
+                this.state.dbDetail.xxzt &&
+                this.state.dbDetail.xxzt.msg
+                  ? this.state.dbDetail.xxzt.msg
+                  : ''}
+              </div>
+            </Col>
+            {this.state.dbDetail &&
+            this.state.dbDetail.xxxs_ary &&
+            this.state.dbDetail.xxxs_ary.length > 0
+              ? this.state.dbDetail.xxxs_ary.map(event => {
+                  return (
+                    <Col span={24} style={{ margin: '5px 0' }}>
+                      <div>{event.msg}</div>
+                    </Col>
+                  );
+                })
+              : ''}
+          </Row>
+        </Modal>
       </div>
     );
   }

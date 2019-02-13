@@ -58,7 +58,7 @@ export async function getXmppList(params) {
   });
 }
 export async function getSocketList(params) {
-  return request('http://192.168.3.230:8720/message/query', {
+  return request(`${configUrls.SocketListServe}/message/query`, {
     method: 'POST',
     body: params,
   });
@@ -89,5 +89,16 @@ export async function getConfig() {
 export async function getIcons() {
   return request(`${configUrls.serve}/api/icon`, {
     method: 'GET',
+  });
+}
+export async function getfkForm() {
+  return request(`${configUrls.mouldServe}/api/reply-layout`, {
+    method: 'GET',
+  });
+}
+export async function questionStatus(params) {
+  return request(`${configUrl.questionStatus}/questionDbfk`, {
+    method: 'POST',
+    body: params,
   });
 }
