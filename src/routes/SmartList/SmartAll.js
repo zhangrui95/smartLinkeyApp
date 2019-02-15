@@ -300,6 +300,7 @@ class SmartAll extends Component {
       {
         read: 0,
         read_m: 0,
+        active: 0,
         nodeid: nodeId,
         systemid: this.state.userItem.idCard,
         time: moment().format('YYYY-MM-DD HH:mm:ss'),

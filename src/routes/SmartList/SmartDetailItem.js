@@ -7,7 +7,10 @@ export default class SmartDetailItem extends Component {
     let btn = [];
     if (this.props.childItem.btn_ary && this.props.childItem.btn_ary.length > 0) {
       this.props.childItem.btn_ary.map(e => {
-        if (e.isvisible) {
+        if (
+          (e.isvisible && this.props.childItem.active === 0) ||
+          (e.isvisible && this.props.childItem.active === 1 && e.act)
+        ) {
           btn.push(e);
         }
       });
@@ -76,7 +79,7 @@ export default class SmartDetailItem extends Component {
                   )}
                 </div>
               }
-              style={{ width: 330 }}
+              style={{ width: 330, marginLeft: '20px' }}
               cover={
                 this.props.childItem.xxtp.isvisible ? (
                   <img
@@ -97,7 +100,9 @@ export default class SmartDetailItem extends Component {
                               onClick={() =>
                                 this.props.goWindow(
                                   event.act.replace(/[$]+/g, '&'),
-                                  this.props.childItem
+                                  this.props.childItem,
+                                  false,
+                                  event.comment
                                 )
                               }
                             >

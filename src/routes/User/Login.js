@@ -36,7 +36,10 @@ class LoginPage extends Component {
       autoLogin: true,
       login_way: '700003',
       isMobile: isMobile,
-      isMob: navigator.userAgent.match(/(iPad).*OS\s([\d_]+)/) || navigator.userAgent.match(/(iPhone\sOS)\s([\d_]+)/) || navigator.userAgent.match(/(Android)\s+([\d.]+)/),
+      isMob:
+        navigator.userAgent.match(/(iPad).*OS\s([\d_]+)/) ||
+        navigator.userAgent.match(/(iPhone\sOS)\s([\d_]+)/) ||
+        navigator.userAgent.match(/(Android)\s+([\d.]+)/),
     };
   }
   componentWillMount() {
@@ -61,7 +64,8 @@ class LoginPage extends Component {
           rybjxx: response.system.huaci.huaci_list[1].api, //人员背景核查系统
           personList: ['姓名', '公民身份号码', '性别', '民族'], //人员背景核查信息
           xmpp_save: response.system.xmpp_save,
-          xmpp_query: response.system.xmpp_query
+          xmpp_query: response.system.xmpp_query,
+          socket_server: response.system.socket_server,
         };
         this.props.dispatch({
           type: 'login/getLoginSetting',
@@ -74,18 +78,6 @@ class LoginPage extends Component {
         });
       },
     });
-    // window.configUrl = {
-    //   sysName: 'Smartlinkey', //项目名称
-    //   ywzxUrl: 'http://192.168.3.201:7400', //运维中心
-    //   testUrl: 'http://192.168.3.201:8100', //安全中心登陆接口
-    //   GMUrl: 'http://192.168.3.201:8500', //XMPP接口
-    //   fwName: '192.168.3.201', //XMPP服务名称,
-    //   pcName: '/pc',
-    //   rybjxx: 'http://192.168.3.201:7100', //人员背景核查系统
-    //   personList: ['姓名', '公民身份号码', '性别', '民族'], //人员背景核查信息
-    //   xmpp_save: 'http://192.168.3.202:9200/index_smart1013/my_type/',
-    //   xmpp_query: 'http://192.168.3.202:9200/index_smart1013/_search',
-    // };
   }
   onTabChange = type => {
     this.setState({ type });
@@ -95,8 +87,6 @@ class LoginPage extends Component {
   }
   handleSubmit = (err, values) => {
     const { cookies } = this.props;
-    // cookies.set('name', values.userName);
-    // cookies.set('pwd', values.password);
     const { type } = this.state;
     if (!err) {
       this.props.dispatch({
@@ -135,7 +125,14 @@ class LoginPage extends Component {
       this.state.login_way === '700001' ? (
         ''
       ) : (
-        <Tab key="PKI" tab={<div className={this.state.isMobile&&this.state.isMob ? styles.none : ''}>PKI登录</div>} >
+        <Tab
+          key="PKI"
+          tab={
+            <div className={this.state.isMobile && this.state.isMob ? styles.none : ''}>
+              PKI登录
+            </div>
+          }
+        >
           <img style={{ width: '80%', margin: '20px 10% 0' }} src="images/pki.png" alt="" />
           <div
             style={{ fontSize: '20px', marginTop: '24px', textAlign: 'center' }}
@@ -147,9 +144,9 @@ class LoginPage extends Component {
       );
     return (
       <div className={styles.main}>
-        <TokenLogin/>
+        <TokenLogin />
         <div
-          className={this.state.isMobile&&this.state.isMob ? styles.none : styles.loginHeader}
+          className={this.state.isMobile && this.state.isMob ? styles.none : styles.loginHeader}
           style={{
             height: '40px',
             background: '#232c3d',
@@ -164,7 +161,11 @@ class LoginPage extends Component {
             <Icon type="close" className={styles.iconWindows} onClick={this.CloseWindow} />
           </span>
         </div>
-        <img src="images/logo.png" className={styles.logoLogin} style={{marginTop:this.state.isMobile&&this.state.isMob ? "50px":"15px"}}/>
+        <img
+          src="images/logo.png"
+          className={styles.logoLogin}
+          style={{ marginTop: this.state.isMobile && this.state.isMob ? '50px' : '15px' }}
+        />
         <img src="images/smartlinkey.png" className={styles.smartIcon} />
         <Login
           defaultActiveKey={type}
@@ -175,7 +176,10 @@ class LoginPage extends Component {
           <Tab
             key="account"
             tab={
-              <div style={{ borderRight: '2px solid #ff3366', paddingRight: '26px' }}  className={this.state.isMobile&&this.state.isMob ? styles.none : ''}>
+              <div
+                style={{ borderRight: '2px solid #ff3366', paddingRight: '26px' }}
+                className={this.state.isMobile && this.state.isMob ? styles.none : ''}
+              >
                 帐号密码登录
               </div>
             }

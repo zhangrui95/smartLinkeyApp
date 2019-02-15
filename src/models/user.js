@@ -17,6 +17,7 @@ import {
   getOnline,
   getfkForm,
   questionStatus,
+  getiNactive,
 } from '../services/user';
 
 export default {
@@ -193,6 +194,10 @@ export default {
     },
     *getFkForm({ payload, callback }, { call, put }) {
       const response = yield call(getfkForm, payload);
+      callback(response);
+    },
+    *getNactive({ payload, callback }, { call, put }) {
+      const response = yield call(getiNactive, payload);
       callback(response);
     },
   },

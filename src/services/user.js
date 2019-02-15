@@ -58,7 +58,7 @@ export async function getXmppList(params) {
   });
 }
 export async function getSocketList(params) {
-  return request(`${configUrls.SocketListServe}/message/query`, {
+  return request(`${configUrl.socket_server}/message/query`, {
     method: 'POST',
     body: params,
   });
@@ -92,12 +92,18 @@ export async function getIcons() {
   });
 }
 export async function getfkForm() {
-  return request(`${configUrls.mouldServe}/api/reply-layout`, {
+  return request(`${configUrls.serve}/api/reply-layout`, {
     method: 'GET',
   });
 }
 export async function questionStatus(params) {
   return request(`${configUrl.questionStatus}/questionDbfk`, {
+    method: 'POST',
+    body: params,
+  });
+}
+export async function getiNactive(params) {
+  return request(`${configUrl.socket_server}/message/update/inactive`, {
     method: 'POST',
     body: params,
   });

@@ -110,14 +110,14 @@ export default class SmartDetail extends Component {
       messageStatus: [],
     };
     this.getSocketList(true, null, payloads);
-    this.props.dispatch({
-      type: 'user/getFkForm',
-      callback: response => {
-        this.setState({
-          form: response,
-        });
-      },
-    });
+    // this.props.dispatch({
+    //   type: 'user/getFkForm',
+    //   callback: response => {
+    //     this.setState({
+    //       form: response,
+    //     });
+    //   },
+    // });
     this.props.dispatch({
       type: 'user/getConfigGoto',
       callback: response => {
@@ -141,11 +141,7 @@ export default class SmartDetail extends Component {
     // this.state.form&&this.state.form['tid01']&&this.state.form['tid01'].field.map((item)=>{
     //   sugList.push(item.name+'：'+document.getElementById(item.id).value);
     // })
-    this.props.getFk(
-      ['反馈意见：' + this.state.connent],
-      this.state.dbDetail,
-      '230183199201111283'
-    );
+    this.props.getFk(['反馈意见：' + this.state.connent], this.state.dbDetail, this.state.cardTo);
     console.log('this.state.dbDetail=======>', this.state.dbDetail);
     this.state.third.map((event, i) => {
       if (event.unique === '109005') {
@@ -162,6 +158,27 @@ export default class SmartDetail extends Component {
             callback: response => {
               if (!response.error) {
                 message.success('操作成功');
+                this.props.dispatch({
+                  type: 'user/getNactive',
+                  payload: {
+                    uuid: this.state.dbDetail.uuid,
+                  },
+                  callback: response => {
+                    if (!response.error) {
+                      let payloads = {
+                        idcard: this.state.userItem.idCard,
+                        size: this.state.isTable ? this.state.tableCount : this.state.pageCount,
+                        page: 0,
+                        timeStart: '',
+                        timeEnd: '',
+                        contain: this.state.searchValue,
+                        systemId: '',
+                        messageStatus: [],
+                      };
+                      this.getSocketList(true, null, payloads);
+                    }
+                  },
+                });
               } else {
                 message.error(response.error.text);
               }
@@ -331,7 +348,7 @@ export default class SmartDetail extends Component {
       this.getSocketList(true, null, this.state.payloadSer ? this.state.payloadSer : payloads);
     }
   }
-  goWindow = (path, item, isread) => {
+  goWindow = (path, item, isread, cardTo) => {
     // window.open(path)
     if (path) {
       ipcRenderer.send('visit-page', {
@@ -350,6 +367,7 @@ export default class SmartDetail extends Component {
           connent: '',
           dbVisable: true,
           dbDetail: item,
+          cardTo: cardTo,
         });
       }
     }
@@ -473,8 +491,8 @@ export default class SmartDetail extends Component {
         idcard: this.state.userItem.idCard,
         size: this.state.isTable ? this.state.tableCount : this.state.pageCount,
         page: 0,
-        timeStart: this.state.searchTime[0] ? this.state.searchTime[0] : '',
-        timeEnd: this.state.searchTime[1] ? this.state.searchTime[1] : '',
+        timeStart: this.state.searchTime[0] ? this.state.searchTime[0] + ' 00:00:00' : '',
+        timeEnd: this.state.searchTime[1] ? this.state.searchTime[1] + ' 23:59:59' : '',
         contain: this.state.searchValue,
         systemId: this.state.xtValue,
         messageStatus: ser,
@@ -659,7 +677,7 @@ export default class SmartDetail extends Component {
             i={1}
             childItem={items}
             code={this.props.code}
-            goWindow={(path, id, isread) => this.goWindow(path, id, isread)}
+            goWindow={(path, id, isread, cardTo) => this.goWindow(path, id, isread, cardTo)}
             k={k}
             getSave={(id, name, remark) => this.getSave(id, name, remark)}
             getCancelSave={id => this.getCancelSave(id)}
@@ -843,7 +861,7 @@ export default class SmartDetail extends Component {
             getSocketList={(empty, scrollHeight, payloads) =>
               this.getSocketList(empty, scrollHeight, payloads)
             }
-            goWindow={(path, item, isread) => this.goWindow(path, item, isread)}
+            goWindow={(path, item, isread, cardTo) => this.goWindow(path, item, isread, cardTo)}
             payloadSer={this.state.payloadSer ? this.state.payloadSer : null}
           />
         ) : (
@@ -876,7 +894,7 @@ export default class SmartDetail extends Component {
                 color: '#1d94ee',
               }}
             >
-              查看更多消息
+              {this.state.detailList.length > 0 ? '查看更多消息' : '暂无消息'}
             </div>
             <div className={this.state.loading ? styles.none : ''}>
               {this.state.empty ? (
@@ -910,7 +928,7 @@ export default class SmartDetail extends Component {
             this.state.dbDetail.xxxs_ary.length > 0
               ? this.state.dbDetail.xxxs_ary.map(event => {
                   return (
-                    <Col span={8} style={{ margin: '5px 0' }}>
+                    <Col span={event.msg.length > 15 ? 24 : 8} style={{ margin: '5px 0' }}>
                       <div>{event.msg}</div>
                     </Col>
                   );

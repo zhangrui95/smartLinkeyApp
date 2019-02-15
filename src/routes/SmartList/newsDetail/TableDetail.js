@@ -78,7 +78,12 @@ export default class TableDetail extends Component {
                     className={event.btns.isvisible ? '' : styles.none}
                     style={{ color: '#12c32d' }}
                     onClick={() =>
-                      this.props.goWindow(event.btns.act.replace(/[$]+/g, '&'), event.items)
+                      this.props.goWindow(
+                        event.btns.act.replace(/[$]+/g, '&'),
+                        event.items,
+                        false,
+                        event.btns.comment
+                      )
                     }
                   >
                     {event.btns.msg}
@@ -100,7 +105,7 @@ export default class TableDetail extends Component {
     this.props.data.map((items, index) => {
       let arrBtn = [];
       items.btn_ary.map(e => {
-        if (e.isvisible) {
+        if ((e.isvisible && items.active === 0) || (e.isvisible && items.active === 1 && e.act)) {
           arrBtn.push({ btns: e, items: items });
         }
       });
