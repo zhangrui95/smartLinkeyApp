@@ -173,7 +173,7 @@ class SmartAll extends Component {
   };
   getXmpp = () => {
     let that = this;
-    socket = io('http://192.168.3.230:8720', {
+    socket = io(`${configUrl.socket_server}`, {
       query: 'idcard=' + this.state.xmppUser + '&device=pc',
     });
     socket.on('connect', function() {

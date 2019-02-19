@@ -142,7 +142,6 @@ export default class SmartDetail extends Component {
     //   sugList.push(item.name+'：'+document.getElementById(item.id).value);
     // })
     this.props.getFk(['反馈意见：' + this.state.connent], this.state.dbDetail, this.state.cardTo);
-    console.log('this.state.dbDetail=======>', this.state.dbDetail);
     this.state.third.map((event, i) => {
       if (event.unique === '109005') {
         if (event.api !== '') {
@@ -306,6 +305,7 @@ export default class SmartDetail extends Component {
           this.state.payloadSer.size = this.state.isTable
             ? this.state.tableCount
             : this.state.pageCount;
+          this.state.payloadSer.contain = this.props.user.value;
         }
         let scrollHeight = this.refs.scroll.scrollHeight ? this.refs.scroll.scrollHeight : 0;
         this.getSocketList(
@@ -344,6 +344,7 @@ export default class SmartDetail extends Component {
         this.state.payloadSer.size = this.state.isTable
           ? this.state.tableCount
           : this.state.pageCount;
+        this.state.payloadSer.contain = next.user.value;
       }
       this.getSocketList(true, null, this.state.payloadSer ? this.state.payloadSer : payloads);
     }
@@ -534,6 +535,7 @@ export default class SmartDetail extends Component {
         this.state.payloadSer.size = this.state.isTable
           ? this.state.tableCount
           : this.state.pageCount;
+        this.state.payloadSer.contain = this.props.user.value;
       }
       this.getSocketList(true, null, this.state.payloadSer ? this.state.payloadSer : payloads);
     }, 200);
@@ -884,7 +886,7 @@ export default class SmartDetail extends Component {
             />
             <Spin size="large" className={this.state.loading ? '' : styles.none} />
             <div
-              className={this.state.lookMore && !this.state.loading ? '' : styles.none}
+              className={this.state.lookMore && !this.state.loading&&this.state.detailList.length > 0 ? '' : styles.none}
               style={{
                 width: '100%',
                 textAlign: 'center',
@@ -894,7 +896,7 @@ export default class SmartDetail extends Component {
                 color: '#1d94ee',
               }}
             >
-              {this.state.detailList.length > 0 ? '查看更多消息' : '暂无消息'}
+              查看更多消息
             </div>
             <div className={this.state.loading ? styles.none : ''}>
               {this.state.empty ? (
