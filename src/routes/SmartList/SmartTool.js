@@ -44,6 +44,7 @@ class SmartTool extends Component {
       exeName: '',
       exePath: '',
       MKey: 0,
+      messageLen:0,
     };
     this.listenDbExe();
   }
@@ -78,6 +79,7 @@ class SmartTool extends Component {
     });
     this.setState({
       message: msg,
+      messageLen: msg.length,
     });
   }
   getAllTool = () => {
@@ -141,7 +143,7 @@ class SmartTool extends Component {
     return false;
   };
   getIcon = (e, baseImg) => {
-    if (this.state.message.length > 0) {
+    if ((this.state.messageLen||this.state.messageLen===0) && (this.state.message.length > this.state.messageLen)) {
       this.state.message[this.state.message.length - 1].icon = baseImg;
       this.props.msgExe[this.props.msgExe.length - 1].icon = baseImg;
       if (this.props.user.value.length > 0) {
@@ -189,6 +191,7 @@ class SmartTool extends Component {
       dragIndex: index,
       dragNum: num,
       delshow: true,
+      drag:e,
     });
   };
   dragEnd = e => {
@@ -201,9 +204,9 @@ class SmartTool extends Component {
   };
   allowDrop = event => {
     event.preventDefault();
-    this.del(this.state.dragIndex, this.state.dragNum);
+    this.del(this.state.dragIndex, this.state.dragNum,this.state.drag);
   };
-  del = (idx, num) => {
+  del = (idx, num, event) => {
     let _this = this;
     confirm({
       title: '是否确定移除该工具?',
@@ -219,7 +222,7 @@ class SmartTool extends Component {
           }
         });
         _this.props.msgExe.map((item, index) => {
-          if (index === idx && item.idCard === _this.state.idCard) {
+          if (event===item && item.idCard === _this.state.idCard) {
             _this.props.msgExe.splice(index, 1);
           }
         });
@@ -283,6 +286,9 @@ class SmartTool extends Component {
     ipcRenderer.on('link-not-found', this.alertWarn);
   };
   handleOk = () => {
+    this.setState({
+      messageLen: this.state.message.length,
+    })
     if (this.state.exeName.length > 0) {
       this.state.message.push({
         name: this.state.exeName,
@@ -348,7 +354,7 @@ class SmartTool extends Component {
                 {e.name}
               </span>
               <img
-                onClick={() => this.del(index)}
+                onClick={() => this.del(index,null,e)}
                 className={this.state.delete ? styles.del : styles.none}
                 src="images/del.png"
               />
@@ -377,7 +383,7 @@ class SmartTool extends Component {
                 {e.name}
               </span>
               <img
-                onClick={() => this.del(e.index, index)}
+                onClick={() => this.del(e.index, index,e)}
                 className={this.state.delete ? styles.del : styles.none}
                 src="images/del.png"
               />

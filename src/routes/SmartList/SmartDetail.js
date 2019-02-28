@@ -77,6 +77,8 @@ export default class SmartDetail extends Component {
       checkedList: null,
       searchResult: null,
       xtValue: '',
+      sxValue:null,
+      xzValue: [],
       arrSearch: [],
       timeList: [],
       searchTime: [],
@@ -467,6 +469,7 @@ export default class SmartDetail extends Component {
   getEmpty = () => {
     this.setState({
       xtValue: '',
+      sxValue:null,
       timeDate: '',
       arrSearch: [],
       searchTime: [],
@@ -540,6 +543,13 @@ export default class SmartDetail extends Component {
       this.getSocketList(true, null, this.state.payloadSer ? this.state.payloadSer : payloads);
     }, 200);
   };
+  onSxChange = checkedValues => {
+    this.setState({
+      sxValue: checkedValues.target.value,
+      arrSearch: [],
+      xzValue:[],
+    });
+  }
   onChange = checkedValues => {
     this.setState({
       xtValue: checkedValues.target.value,
@@ -563,12 +573,19 @@ export default class SmartDetail extends Component {
                     this.setState({ searchResult: response.TermInfo });
                   },
                 });
-              } else {
+              } else if(checkedValues.target.value === '109006') {
                 this.props.dispatch({
                   type: 'user/getJzSerach',
                   payload: {},
                   callback: response => {
                     this.setState({ searchResult: response.result.TermInfo });
+                  },
+                });
+              }else if(checkedValues.target.value === '109005') {
+                this.props.dispatch({
+                  type: 'user/getAgSerachs',
+                  callback: response => {
+                    this.setState({ searchResult: JSON.parse(response.data).TermInfo,sxValue:null });
                   },
                 });
               }
@@ -582,7 +599,10 @@ export default class SmartDetail extends Component {
     let arr = [];
     let t = true;
     let idx = 0;
-    if (this.state.arrSearch.length > 0) {
+    this.setState({
+      xzValue: value
+    })
+    if (this.state.arrSearch&&this.state.arrSearch.length > 0) {
       this.state.arrSearch.map((item, index) => {
         if (item.type === type) {
           t = false;
@@ -599,8 +619,6 @@ export default class SmartDetail extends Component {
     }
     this.setState({
       arrSearch: this.state.arrSearch,
-    });
-    this.setState({
       lxValue: value,
     });
   };
@@ -689,27 +707,36 @@ export default class SmartDetail extends Component {
       });
     }
     const search = [];
+    const searchs = [];
     if (this.state.searchResult) {
+      this.state.searchResult.map(item => {
+        searchs.push(item.Text);
+      });
+    }
+    if(this.state.sxValue&&this.state.searchResult){
       this.state.searchResult.map(item => {
         let serList = [];
         item.Term.map(e => {
           serList.push(e.Text);
         });
-        search.push(
-          <div>
-            <div className={styles.titleTop}>
-              <span>{item.Text}</span>
-            </div>
+        if(item.Text === this.state.sxValue){
+          search.push(
             <div>
-              <CheckboxGroup
-                options={serList}
-                onChange={e => this.onChangeChecks(e, item.Text)}
-                className={styles.checkedTag}
-              />
+              <div className={styles.titleTop}>
+                <span>{item.Text}</span>
+              </div>
+              <div>
+                <CheckboxGroup
+                  value={this.state.xzValue}
+                  options={serList}
+                  onChange={e => this.onChangeChecks(e, item.Text)}
+                  className={styles.checkedTag}
+                />
+              </div>
             </div>
-          </div>
-        );
-      });
+          );
+        }
+      })
     }
     let btnName;
     this.state.dbDetail &&
@@ -729,27 +756,27 @@ export default class SmartDetail extends Component {
             <span
               style={{
                 float: 'right',
-                fontSize: '28px',
                 cursor: 'pointer',
                 color: '#444',
                 height: '36px',
               }}
             >
-              <Icon type="bars" theme="outlined" onClick={this.changeTable} />
+              {/*<Icon type="bars" theme="outlined" onClick={this.changeTable} />*/}
+              <img src="images/listChange.png" onClick={this.changeTable}/>
             </span>
           </Tooltip>
           <Tooltip placement="bottom" title="筛选">
             <span
               style={{
                 float: 'right',
-                fontSize: '28px',
                 cursor: 'pointer',
                 color: '#444',
-                marginRight: '8px',
                 height: '36px',
+                marginRight: '10px',
               }}
             >
-              <Icon type="appstore" theme="outlined" onClick={this.showDrawer} />
+              {/*<Icon type="appstore" theme="outlined" onClick={this.showDrawer} />*/}
+              <img src="images/search0.png" onClick={this.showDrawer}/>
             </span>
           </Tooltip>
           <div>
@@ -843,7 +870,21 @@ export default class SmartDetail extends Component {
                     />
                   </div>
                 </div>
-                {this.state.searchResult && this.state.searchResult.length > 0 ? search : ''}
+                {this.state.searchResult && this.state.searchResult.length > 0 ?
+                  <div>
+                    <div className={styles.titleTop}>
+                      <span>查询事项</span>
+                    </div>
+                    <div>
+                      <RadioGroup
+                      value={this.state.sxValue}
+                      options={searchs}
+                      onChange={this.onSxChange}
+                      className={styles.checkedTag}
+                    />
+                      </div></div>
+                  : ''}
+                {search&&search.length > 0 ? search : ''}
               </div>
               <Button className={styles.btnTag} onClick={this.onSearchList} type="primary">
                 确定

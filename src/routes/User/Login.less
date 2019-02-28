@@ -119,6 +119,26 @@
   margin-left: 50%;
   left: -50px;
 }
-.none{
+.none {
   display: none;
+}
+.szBtn{
+  z-index: 1000;
+  font-size: 24px;
+  top: 60px;
+  position: absolute;
+  right: 20px;
+  color: rgb(255, 255, 255);
+  -webkit-app-region: no-drag !important;
+  cursor: pointer;
+}
+.modalBox{
+  :global{
+    .ant-form-item{
+      margin-bottom: 0!important;
+    }
+    .ant-modal-content{
+      margin: 20px;
+    }
+  }
 }

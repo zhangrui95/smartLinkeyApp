@@ -3,7 +3,7 @@ import { connect } from 'dva';
 import { Link } from 'dva/router';
 import { instanceOf } from 'prop-types';
 import { routerRedux } from 'dva/router';
-import { Checkbox, Alert, Icon, Divider } from 'antd';
+import { Checkbox, Alert, Icon, Divider,Modal,Form,Input,Button,message } from 'antd';
 import Login from 'components/Login';
 import styles from './Login.less';
 import { withCookies, Cookies } from 'react-cookie';
@@ -12,11 +12,12 @@ import { ipcRenderer } from 'electron';
 import { enquireScreen, unenquireScreen } from 'enquire-js';
 import TokenLogin from './TokenLogin';
 const { Tab, UserName, Password, Mobile, Captcha, Submit } = Login;
+const FormItem = Form.Item;
 let isMobile;
 enquireScreen(b => {
   isMobile = b;
 });
-
+@Form.create()
 @connect(({ login, loading, user }) => ({
   login,
   user,
@@ -31,11 +32,14 @@ class LoginPage extends Component {
     super(props);
     const { cookies } = props;
     this.state = {
+      mainClass: styles.main,
       name: cookies.get('name') || '',
       type: 'account',
       autoLogin: true,
       login_way: '700003',
       isMobile: isMobile,
+      url:window.configUrls.serve.substring(7),
+      setUp: false,
       isMob:
         navigator.userAgent.match(/(iPad).*OS\s([\d_]+)/) ||
         navigator.userAgent.match(/(iPhone\sOS)\s([\d_]+)/) ||
@@ -51,6 +55,9 @@ class LoginPage extends Component {
         isMobile: mobile,
       });
     });
+    this.getConfig();
+  }
+  getConfig = () =>{
     this.props.dispatch({
       type: 'user/getConfigGoto',
       callback: response => {
@@ -103,6 +110,9 @@ class LoginPage extends Component {
           response.data.password = hex_md5(values.password);
           let userJson = JSON.stringify(response.data);
           sessionStorage.setItem('user', userJson);
+          this.setState({
+            mainClass: styles.bounceOutLeft,
+          })
           ipcRenderer.send('login-success');
         },
       });
@@ -118,9 +128,50 @@ class LoginPage extends Component {
   CloseWindow = () => {
     window.close();
   };
+  setUpShow = () => {
+    this.props.form.resetFields();
+    this.setState({
+      setUp: true,
+    });
+  };
+  handleCancel = () => {
+    this.setState({
+      setUp: false,
+    });
+  };
+  handleOks = () => {
+    this.props.form.validateFields((err, values) => {
+      let reg = /^(?:(?:2[0-4][0-9]\.)|(?:25[0-5]\.)|(?:1[0-9][0-9]\.)|(?:[1-9][0-9]\.)|(?:[0-9]\.)){3}(?:(?:2[0-4][0-9])|(?:25[0-5])|(?:1[0-9][0-9])|(?:[1-9][0-9])|(?:[0-9]))$/;
+      let regs = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\:([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-5]{2}[0-3][0-5])$/;
+      if(values.setupIp&&(reg.test(values.setupIp) || regs.test(values.setupIp))){
+        localStorage.setItem('ip', 'http://' + values.setupIp);
+        window.configUrls.serve = 'http://' + values.setupIp;
+        this.setState({
+          url:values.setupIp,
+        })
+        this.getConfig();
+        message.success('操作成功');
+        this.setState({
+          setUp: false,
+          success: true
+        })
+      }
+    });
+  };
+  getIp = (rule, value, callback) => {
+    let reg = /^(?:(?:2[0-4][0-9]\.)|(?:25[0-5]\.)|(?:1[0-9][0-9]\.)|(?:[1-9][0-9]\.)|(?:[0-9]\.)){3}(?:(?:2[0-4][0-9])|(?:25[0-5])|(?:1[0-9][0-9])|(?:[1-9][0-9])|(?:[0-9]))$/;
+    let regs = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\:([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-5]{2}[0-3][0-5])$/;
+    if (value && !reg.test(value) && !regs.test(value)) {
+      callback('请输入合理的IP地址', '');
+      return;
+    }
+    callback();
+    return;
+  };
   render() {
     const { login, submitting } = this.props;
     const { type } = this.state;
+    const { getFieldDecorator } = this.props.form;
     let PKI =
       this.state.login_way === '700001' ? (
         ''
@@ -143,8 +194,36 @@ class LoginPage extends Component {
         </Tab>
       );
     return (
-      <div className={styles.main}>
+      <div className={this.state.mainClass}>
         <TokenLogin />
+        <Icon className={styles.szBtn} type="setting" theme="outlined"  onClick={this.setUpShow}/>
+        <Modal
+          title="设置服务地址"
+          visible={this.state.setUp}
+          maskClosable={false}
+          onCancel={this.handleCancel}
+          className={styles.modalBox}
+          footer={
+            <Button type="primary" onClick={this.handleOks}>确定</Button>
+          }
+        >
+          <Form>
+            <FormItem>
+              {getFieldDecorator('setupIp', {
+                initialValue:this.state.url,
+                rules: [
+                  {
+                    validator: this.getIp,
+                  },
+                  {
+                    required: true,
+                    message: '请输入服务器地址',
+                  },
+                ],
+              })(<Input type="text" placeholder="请输入服务器地址" />)}
+            </FormItem>
+          </Form>
+        </Modal>
         <div
           className={this.state.isMobile && this.state.isMob ? styles.none : styles.loginHeader}
           style={{

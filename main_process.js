@@ -13,7 +13,7 @@ const request = require('request');
 const md5File = require('md5-file');
 const electronLocalshortcut = require('electron-localshortcut');
 const setupPug = require('electron-pug');
-const mouse = require('win-mouse')();
+// const mouse = require('win-mouse')(); "win-mouse": "^1.2.0",
 const bunyan = require('bunyan');
 const execa = require('execa');
 const arch = require('arch');
@@ -85,6 +85,12 @@ let already_login = false; // 登录前/后状态
 let appTray = null; // 托盘
 let willQuitApp = false; // 点击关闭时是否真的退出应用
 let huaci_running = false; // 划词当前是否在运行
+// let huaci_config = null;
+let huaci_config = { status: false, huaci_list: [{ showtext: '复制', cid: 101 }] }; // 默认有复制功能
+
+let desktop_width; // 桌面宽
+let desktop_height; // 桌面高
+let noticeWindowBox; // 消息通知盒子窗口
 
 // 初始化发送获取工具图标的程序
 const iconProcess = startIconProcess(execDir_poxis);
@@ -99,7 +105,7 @@ const adapter = new FileSync(path.join(execDir, 'db.json'));
 const db = low(adapter);
 
 // 取词功能区列表
-const quci_list = config.quci_list;
+// const quci_list = config.quci_list;
 
 /**
  * 创建托盘图标及功能
@@ -243,18 +249,14 @@ function createSouWindow(x, y) {
  * 创建划词搜索页面
  */
 async function createHuaci() {
-  // 数据类型
-  // huaci_states = {
-  //   data: [
-  //     "<a onclick='send_event(101)'>复制选中项</a>",
-  //     "<a onclick='send_event(102)'>维汉翻译</a>",
-  //     "<a onclick='send_event(103)'>查询身份证</a>"
-  //   ]
-  // }
+  // quci_list = [{ cid: 101, showtext: '复制' }, { cid: 102, showtext: '核查背景信息' }]
+
   huaci_states = {
-    data: quci_list,
+    data: huaci_config.huaci_list,
   };
   console.log('================>');
+  console.log(huaci_config);
+
   console.log(huaci_states);
   try {
     let pug = await setupPug({ pretty: true }, huaci_states);
@@ -264,6 +266,7 @@ async function createHuaci() {
     console.log("Could not initiate 'electron-pug'");
     // Could not initiate 'electron-pug'
   }
+  // height: huaci_states.data.length * 30 + 30,
 
   huaci_win = new BrowserWindow({
     width: 150,
@@ -295,6 +298,11 @@ async function createHuaci() {
 app.on('ready', () => {
   log.info('app start standalone');
 
+  var electronScreen = electron.screen;
+  var size = electronScreen.getPrimaryDisplay().workAreaSize;
+  desktop_width = size.width;
+  desktop_height = size.height;
+
   createTray();
   createWindow();
 });
@@ -324,7 +332,7 @@ function package_is_ok() {
 function if_start_huaci() {
   let huaci = db.get('huaci').value();
   if (huaci === undefined) {
-    huaci = config.huaci;
+    huaci = huaci_config.status;
     db.set('huaci', huaci).write();
   }
   if (huaci) {
@@ -406,12 +414,21 @@ function doSomeThingAfterLoginSuccess() {
 ipcMain.on('login-success', () => {
   already_login = true;
 
-  // mainWindow.setMinimumSize(config.main_page_width, config.main_page_height)
-  mainWindow.setSize(config.main_page_width, config.main_page_height);
+  // mainWindow.setSize(config.main_page_width, config.main_page_height);
+  // mainWindow.center();
+
+  wsize = config.main_page_width
+  hsize = config.main_page_height
+  mainWindow.setBounds({width: wsize, height: hsize, x: desktop_width / 2 - wsize / 2, y: desktop_height / 2 - hsize / 2});
+  mainWindow.hide();
+
+  setTimeout(() => {
+    mainWindow.show();
+  }, 300);
+
   // mainWindow.setResizable(true);
 
   mainWindow.webContents.send('windows-now', { code: 0, desc: 'become normal size' });
-  mainWindow.center();
 
   doSomeThingAfterLoginSuccess();
 });
@@ -708,6 +725,15 @@ function create_huaci_card() {
   createHuaci();
 }
 /**
+ * 接收划词配置
+ */
+ipcMain.on('huaci-config', (event, config) => {
+  console.log('---------------------');
+  // console.log("huaci-config: ", config.system.huaci)
+  huaci_config = config.system.huaci;
+});
+
+/**
  * 接收打开选择框的事件
  */
 ipcMain.on('open-select-card', () => {
@@ -732,25 +758,32 @@ function process_huaci(message) {
 // 接收来自DLL的数据
 function huaci_receiver(data, x, y) {
   console.log(data, x, y);
-  let message = { data: data, x: x, y: y };
-  if (already_login && huaci_running) {
-    process_huaci(message);
+  if (data === '') {
+    console.log('close_sou_or_select_page');
+    close_sou_or_select_page();
+  } else {
+    console.log('close_sou_or_select_page123123 ');
+    let message = { data: data, x: x, y: y };
+    if (already_login && huaci_running) {
+      process_huaci(message);
+    }
   }
 }
 
 // 鼠标移动时接收光标位置, 当光标距离划词弹窗距离超过阈值后关闭划词窗口
-mouse.on('move', function(x, y) {
-  if (sou_win || huaci_win) {
-    if (
-      x < huaci_x - huaci_threshold ||
-      x > huaci_x + huaci_threshold ||
-      y < huaci_y - huaci_threshold ||
-      y > huaci_y + huaci_threshold
-    ) {
-      close_sou_or_select_page();
-    }
-  }
-});
+// mouse.on('move', function(x, y) {
+//   // console.log("move", x, y)
+//   if (sou_win || huaci_win) {
+//     if (
+//       x < huaci_x - huaci_threshold ||
+//       x > huaci_x + huaci_threshold ||
+//       y < huaci_y - huaci_threshold ||
+//       y > huaci_y + huaci_threshold
+//     ) {
+//       close_sou_or_select_page();
+//     }
+//   }
+// });
 
 // Binaries from: https://github.com/sindresorhus/win-clipboard
 const winBinPath =
@@ -797,6 +830,50 @@ ipcMain.on('setting-huaci', (event, huaci_status) => {
   }
 });
 
+function createNoticeBox() {
+  // Create the browser window
+
+  noticeWindowBox = new BrowserWindow({
+    width: 280,
+    height: 400,
+    autoHideMenuBar: false,
+    frame: false,
+    useContentSize: true,
+    resizable: false,
+    transparent: true,
+    // backgroundColor: '#5986b4',
+    // backgroundColor: '#de7ce7',
+    skipTaskbar: true,
+    show: false,
+    alwaysOnTop: true,
+    x: desktop_width - 280 - 20,
+    y: desktop_height - 400 - 10,
+  });
+  // and load the index.html of the app.
+  noticeWindowBox.loadURL(`file://${__dirname}/${fetd}/for-electron/templates/noticebox.html`);
+
+  noticeWindowBox.on('ready-to-show', () => {
+    noticeWindowBox.show();
+  });
+
+  noticeWindowBox.on('close', e => {
+    noticeWindowBox = null;
+  });
+}
+
+ipcMain.on('notice-box-message', function(event, msg) {
+  console.log('notice-box-message');
+  if (noticeWindowBox) {
+    noticeWindowBox.webContents.send('new', msg);
+  } else {
+    createNoticeBox();
+    setTimeout(() => {
+      noticeWindowBox.webContents.send('new', msg);
+    }, 300);
+  }
+  console.log(noticeWindowBox);
+});
+
 // 保证只有一个实例在运行
 const isSecondInstance = app.makeSingleInstance((commandLine, workingDirectory) => {
   if (mainWindow) {
@@ -841,9 +918,65 @@ if (isSecondInstance) {
 //   }, 3000);
 // })();
 
-(function() {
-  // setTimeout(() => {
-  //   execa('start', ['', 'C:/Users/Public/Desktop/Google Chrome.lnk']);
-  // }, 3000);
-})();
-//1231231321
+const msg_list = [
+  {
+    system: '案管',
+    desc: '案件处理超期',
+    datetime: '19:23',
+    color: 'bg-blue',
+    btns: [
+      {
+        text: '督办',
+        url: 'http://www.baidu.com/',
+      },
+      {
+        text: '详情',
+        url: 'http://www.baidu.com/',
+      },
+    ],
+  },
+  {
+    system: '办案区',
+    desc: '流程告警',
+    datetime: '23:23',
+    color: 'bg-green',
+    btns: [
+      {
+        text: '处置',
+        url: 'http://www.baidu.com/',
+      },
+      {
+        text: '告警',
+        url: 'http://www.baidu.com/',
+      },
+    ],
+  },
+  {
+    system: '卷宗',
+    desc: '分类调整提醒',
+    datetime: '17:20',
+    color: 'bg-yellow',
+    btns: [
+      {
+        text: '核查',
+        url: 'http://www.baidu.com/',
+      },
+      {
+        text: '详情',
+        url: 'http://www.baidu.com/',
+      },
+    ],
+  },
+];
+
+//setInterval(() => {
+//  let idx = Math.floor(Math.random() * 3);
+//  if (noticeWindowBox) {
+//    noticeWindowBox.webContents.send('new', msg_list[idx]);
+//  } else {
+//    createNoticeBox();
+//    setTimeout(() => {
+//      noticeWindowBox.webContents.send('new', msg_list[idx]);
+//    }, 300);
+//  }
+//}, 6000);

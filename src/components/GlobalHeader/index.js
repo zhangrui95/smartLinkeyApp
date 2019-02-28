@@ -52,8 +52,8 @@ export default class GlobalHeader extends PureComponent {
     if (
       this.props.user.type !== next.user.type ||
       this.props.user.newEvent !== next.user.newEvent ||
-      (this.props.user.value !== next.user.value && next.user.value === '') ||
-      this.props.user.isTables !== next.user.isTables
+      (this.props.user.value !== next.user.value && next.user.value === '')
+      // this.props.user.isTables !== next.user.isTables
     ) {
       this.setState({ searchValue: '' });
       sessionStorage.setItem('search', '');

@@ -18,6 +18,7 @@ import {
   getfkForm,
   questionStatus,
   getiNactive,
+  getAgSerach
 } from '../services/user';
 
 export default {
@@ -151,6 +152,10 @@ export default {
     },
     *getConfigGoto({ callback }, { call }) {
       const response = yield call(getConfig);
+      callback(response);
+    },
+    *getAgSerachs({ callback }, { call }) {
+      const response = yield call(getAgSerach);
       callback(response);
     },
     *getIcon({ callback }, { call }) {

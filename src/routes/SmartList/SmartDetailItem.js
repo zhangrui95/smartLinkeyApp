@@ -119,7 +119,7 @@ export default class SmartDetailItem extends Component {
                   this.props.childItem.xxxs_ary.length > 0
                     ? this.props.childItem.xxxs_ary.map(event => {
                         return event.isvisible ? (
-                          <div className={styles.nameStyle}>{event.msg}</div>
+                          <div className={styles.nameStyle} title={event.msg}>{event.msg}</div>
                         ) : (
                           ''
                         );

@@ -24,7 +24,7 @@ class SmartAll extends Component {
     const user = sessionStorage.getItem('user');
     const userNew = JSON.parse(user).user;
     this.state = {
-      xmppUser: userNew.idCard.toLowerCase(),
+      xmppUser: userNew.idCard,
       nodeList: '',
       userItem: userNew,
       user: user,

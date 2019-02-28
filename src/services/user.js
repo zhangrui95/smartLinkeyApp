@@ -41,7 +41,7 @@ export async function getFind(params) {
 export async function getWord01(params) {
   // return request('https://www.easy-mock.com/mock/5b2de5fd3bd2c939a1040679/getWord01', {
   return request(`${configUrl.rybjxx}/getDataInfo`, {
-    method: 'POST',
+    method: 'Post',
     body: params,
   });
 }
@@ -84,6 +84,11 @@ export async function getSacwSearch(params) {
 export async function getConfig() {
   return request(`${configUrls.serve}/api/config`, {
     method: 'GET',
+  });
+}
+export async function getAgSerach() {
+  return request(`${configUrl.jz_search}/information`, {
+    method: 'get',
   });
 }
 export async function getIcons() {

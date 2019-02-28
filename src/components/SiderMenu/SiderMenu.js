@@ -114,6 +114,11 @@ class SiderMenu extends PureComponent {
     ipcRenderer.removeListener('package-damaged', this.getPackageDamaged);
   }
   componentWillReceiveProps(nextProps) {
+    if(this.props.user.status !== nextProps.user.status){
+      this.setState({
+        searchWord: nextProps.user.status,
+      })
+    }
     if (nextProps.location.pathname !== this.props.location.pathname) {
       this.setState({
         openKeys: this.getDefaultCollapsedSubMenus(nextProps),

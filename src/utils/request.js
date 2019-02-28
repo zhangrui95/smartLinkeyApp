@@ -45,6 +45,19 @@ export default function request(url, options) {
         sessionStorage.getItem('user') === undefined || sessionStorage.getItem('user') === null
           ? ''
           : JSON.parse(sessionStorage.getItem('user')).token,
+      ...newOptions.headers,
+    };
+    newOptions.body = JSON.stringify(newOptions.body);
+  }else if(newOptions.method === 'get'){
+    newOptions.headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json; charset=utf-8',
+    };
+    newOptions.body = JSON.stringify(newOptions.body);
+  } else if(newOptions.method === 'Post'){
+    newOptions.headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json; charset=utf-8',
       token:
         sessionStorage.getItem('user') === undefined || sessionStorage.getItem('user') === null
           ? ''

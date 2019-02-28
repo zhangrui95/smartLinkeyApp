@@ -55,6 +55,9 @@ export default class SmartItem extends Component {
       this.props.emptyAllNum();
     }
     if (this.props.type !== next.type) {
+      if(next.type == 0){
+        this.props.emptyAllNum();
+      }
       this.props.dispatch({
         type: 'user/type',
         payload: {
