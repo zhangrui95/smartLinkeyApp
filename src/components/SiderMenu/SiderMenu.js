@@ -717,7 +717,7 @@ class SiderMenu extends PureComponent {
                 <div>
                   <Popover content={<DatePicker />} />
                   <Dropdown overlay={menuLists}>
-                    <Button style={{ border: '1px solid #19b5d0', color: '#19b5d0' }}>
+                    <Button style={{ border: '1px solid #1d94ee', color: '#1d94ee' }}>
                       定时更新 <Icon type="down" />
                     </Button>
                   </Dropdown>

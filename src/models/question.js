@@ -17,7 +17,7 @@ export default {
     },
     *QuestionName({ payload, callback }, { call, put }) {
       const response = yield call(getQuestionName, payload);
-      if (response.error === null) {
+      if (response&&response.data) {
         callback(response);
       } else {
         // message.warning('提示：' + response.reason.text);

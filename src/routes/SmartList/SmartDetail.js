@@ -143,54 +143,58 @@ export default class SmartDetail extends Component {
     // this.state.form&&this.state.form['tid01']&&this.state.form['tid01'].field.map((item)=>{
     //   sugList.push(item.name+'：'+document.getElementById(item.id).value);
     // })
-    this.props.getFk(['反馈意见：' + this.state.connent], this.state.dbDetail, this.state.cardTo);
-    this.state.third.map((event, i) => {
-      if (event.unique === '109005') {
-        if (event.api !== '') {
-          window.configUrl.questionStatus = event.api;
-          this.props.dispatch({
-            type: 'user/getQuestionStatus',
-            payload: {
-              id: this.state.dbDetail.id,
-              sfzh: this.state.userItem.idCard,
-              name: this.state.userItem.name,
-              fkr_fkyj: this.state.connent,
-            },
-            callback: response => {
-              if (!response.error) {
-                message.success('操作成功');
-                this.props.dispatch({
-                  type: 'user/getNactive',
-                  payload: {
-                    uuid: this.state.dbDetail.uuid,
-                  },
-                  callback: response => {
-                    if (!response.error) {
-                      let payloads = {
-                        idcard: this.state.userItem.idCard,
-                        size: this.state.isTable ? this.state.tableCount : this.state.pageCount,
-                        page: 0,
-                        timeStart: '',
-                        timeEnd: '',
-                        contain: this.state.searchValue,
-                        systemId: '',
-                        messageStatus: [],
-                      };
-                      this.getSocketList(true, null, payloads);
-                    }
-                  },
-                });
-              } else {
-                message.error(response.error.text);
-              }
-            },
-          });
+    if(this.state.connent.length < 500){
+      this.props.getFk(['反馈意见：' + this.state.connent], this.state.dbDetail, this.state.cardTo);
+      this.state.third.map((event, i) => {
+        if (event.unique === '109005') {
+          if (event.api !== '') {
+            window.configUrl.questionStatus = event.api;
+            this.props.dispatch({
+              type: 'user/getQuestionStatus',
+              payload: {
+                id: this.state.dbDetail.id,
+                sfzh: this.state.userItem.idCard,
+                name: this.state.userItem.name,
+                fkr_fkyj: this.state.connent,
+              },
+              callback: response => {
+                if (!response.error) {
+                  message.success('操作成功');
+                  this.props.dispatch({
+                    type: 'user/getNactive',
+                    payload: {
+                      uuid: this.state.dbDetail.uuid,
+                    },
+                    callback: response => {
+                      if (!response.error) {
+                        let payloads = {
+                          idcard: this.state.userItem.idCard,
+                          size: this.state.isTable ? this.state.tableCount : this.state.pageCount,
+                          page: 0,
+                          timeStart: '',
+                          timeEnd: '',
+                          contain: this.state.searchValue,
+                          systemId: '',
+                          messageStatus: [],
+                        };
+                        this.getSocketList(true, null, payloads);
+                      }
+                    },
+                  });
+                } else {
+                  message.error(response.error.text);
+                }
+              },
+            });
+          }
         }
-      }
-    });
-    this.setState({
-      dbVisable: false,
-    });
+      });
+      this.setState({
+        dbVisable: false,
+      });
+    }else{
+      message.warn('意见不能超出500字，请重新输入')
+    }
   };
   handleCancel = () => {
     this.setState({
@@ -570,7 +574,9 @@ export default class SmartDetail extends Component {
                   type: 'user/getSacwSerach',
                   payload: {},
                   callback: response => {
-                    this.setState({ searchResult: response.TermInfo });
+                    if(response.TermInfo){
+                      this.setState({ searchResult: response.TermInfo });
+                    }
                   },
                 });
               } else if(checkedValues.target.value === '109006') {
@@ -585,7 +591,9 @@ export default class SmartDetail extends Component {
                 this.props.dispatch({
                   type: 'user/getAgSerachs',
                   callback: response => {
-                    this.setState({ searchResult: JSON.parse(response.data).TermInfo,sxValue:null });
+                    if(response.data){
+                      this.setState({ searchResult: JSON.parse(response.data).TermInfo,sxValue:null });
+                    }
                   },
                 });
               }

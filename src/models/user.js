@@ -62,11 +62,15 @@ export default {
         type: 'getAllList',
         payload: response,
       });
-      callback(response);
+      if(callback&&response){
+        callback(response);
+      }
     },
     *subQuery({ payload, callback }, { call, put }) {
       const response = yield call(getSubQuery, payload);
-      callback(response);
+      if(callback&&response){
+        callback(response);
+      }
     },
     *dataSave({ payload, callback }, { call, put }) {
       const response = yield call(getDataSave, payload);
@@ -74,7 +78,9 @@ export default {
         type: 'getAllNum',
         payload: sessionStorage.getItem('allNum'),
       });
-      callback(response);
+      if(callback&&response){
+        callback(response);
+      }
     },
     *allNum({}, { put }) {
       yield put({
@@ -138,11 +144,15 @@ export default {
         type: 'getWordList',
         payload: response,
       });
-      callback(response);
+      if(callback&&response){
+        callback(response);
+      }
     },
     *loginIp({ payload, callback }, { call, put }) {
       const response = yield call(getLoginIp, payload);
-      callback(response);
+      if(callback&&response){
+        callback(response);
+      }
     },
     *huaciStatus({ payload }, { put }) {
       yield put({
@@ -152,15 +162,21 @@ export default {
     },
     *getConfigGoto({ callback }, { call }) {
       const response = yield call(getConfig);
-      callback(response);
+      if(callback&&response){
+        callback(response);
+      }
     },
     *getAgSerachs({ callback }, { call }) {
       const response = yield call(getAgSerach);
-      callback(response);
+      if(callback&&response){
+        callback(response);
+      }
     },
     *getIcon({ callback }, { call }) {
       const response = yield call(getIcons);
-      callback(response);
+      if(callback&&response){
+        callback(response);
+      }
     },
     *xmppQuery({ payload, callback }, { call, put }) {
       const response = yield call(getXmppList, payload);
@@ -168,42 +184,60 @@ export default {
         type: 'getXmppQuery',
         payload: response,
       });
-      callback(response);
+      if(callback&&response){
+        callback(response);
+      }
     },
     *SocketQuery({ payload, callback }, { call, put }) {
       const response = yield call(getSocketList, payload);
-      callback(response);
+      if(callback&&response){
+        callback(response);
+      }
     },
 
     *xmppSave({ payload, callback }, { call, put }) {
       const response = yield call(getSaveXmpp, payload);
       if (response._shards.successful > 0) {
-        callback(response);
+        if(callback&&response){
+          callback(response);
+        }
       }
     },
     *getOnlines({ payload, callback }, { call, put }) {
       const response = yield call(getOnline, payload);
-      callback(response);
+      if(callback&&response){
+        callback(response);
+      }
     },
     *getJzSerach({ payload, callback }, { call, put }) {
       const response = yield call(getSearch, payload);
-      callback(response);
+      if(callback && response && response.result){
+        callback(response);
+      }
     },
     *getQuestionStatus({ payload, callback }, { call, put }) {
       const response = yield call(questionStatus, payload);
-      callback(response);
+      if(callback&&response){
+        callback(response);
+      }
     },
     *getSacwSerach({ payload, callback }, { call, put }) {
       const response = yield call(getSacwSearch, payload);
-      callback(response);
+      if(callback&&response){
+        callback(response);
+      }
     },
     *getFkForm({ payload, callback }, { call, put }) {
       const response = yield call(getfkForm, payload);
-      callback(response);
+      if(callback&&response){
+        callback(response);
+      }
     },
     *getNactive({ payload, callback }, { call, put }) {
       const response = yield call(getiNactive, payload);
-      callback(response);
+      if(callback&&response){
+        callback(response);
+      }
     },
   },
 

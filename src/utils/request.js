@@ -71,18 +71,7 @@ export default function request(url, options) {
     .then(checkStatus)
     .then(response => response.json())
     .catch(error => {
-      if (error.code) {
-        notification.error({
-          message: error.name,
-          description: error.message,
-        });
-      }
-      if ('stack' in error && 'message' in error) {
-        /*         notification.error({
-                  message: `请求错误: ${url}`,
-                  description: error.message,
-                }); */
-      }
+      console.log('error------------------->',error)
       return error;
     });
 }

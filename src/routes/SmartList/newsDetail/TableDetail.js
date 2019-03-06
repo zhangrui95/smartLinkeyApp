@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'dva';
 import { Table, Divider } from 'antd';
 import styles from './TableDetail.less';
+import Ellipsis from 'ant-design-pro/lib/Ellipsis';
 
 @connect(({ user }) => ({
   user,
@@ -46,6 +47,7 @@ export default class TableDetail extends Component {
         title: '消息名称',
         dataIndex: 'name',
         key: 'name',
+        render: (text) => ( <Ellipsis length={30} tooltip>{text}</Ellipsis>)
       },
       {
         title: '消息来源',
@@ -61,6 +63,7 @@ export default class TableDetail extends Component {
         title: '业务状态',
         dataIndex: 'status',
         key: 'status',
+        render:(text)=>(<Ellipsis length={10} tooltip>{text}</Ellipsis>)
       },
       {
         title: '操作',

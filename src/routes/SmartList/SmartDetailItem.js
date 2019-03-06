@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Card, Icon, Avatar, Tag, Spin, Tooltip } from 'antd';
 const { Meta } = Card;
+import Ellipsis from 'ant-design-pro/lib/Ellipsis';
 import styles from './SmartDetail.less';
 export default class SmartDetailItem extends Component {
   render() {
@@ -61,19 +62,18 @@ export default class SmartDetailItem extends Component {
                   ) : (
                     ''
                   )}
-                  <span
-                    className={styles.overText}
-                    title={this.props.childItem.xxmc.isvisible ? this.props.childItem.xxmc.msg : ''}
-                    style={
-                      this.props.childItem.xxbj.isvisible
-                        ? { paddingLeft: '24px' }
-                        : { paddingLeft: '0' }
-                    }
-                  >
-                    {this.props.childItem.xxmc.isvisible ? this.props.childItem.xxmc.msg : ''}
+                    <span
+                      className={styles.overText}
+                      style={
+                        this.props.childItem.xxbj.isvisible
+                          ? { paddingLeft: '24px' }
+                          : { paddingLeft: '0' }
+                      }
+                    >
+                      <Tooltip placement="topLeft" title={this.props.childItem.xxmc.isvisible ? this.props.childItem.xxmc.msg : ''}>{this.props.childItem.xxmc.isvisible ? this.props.childItem.xxmc.msg : ''}</Tooltip>
                   </span>
                   {this.props.childItem.xxzt.isvisible ? (
-                    <Tag className={styles.tagStyle}>{this.props.childItem.xxzt.msg}</Tag>
+                    <Tag className={styles.tagStyle}><Ellipsis length={6} tooltip>{this.props.childItem.xxzt.msg}</Ellipsis></Tag>
                   ) : (
                     ''
                   )}
@@ -119,7 +119,7 @@ export default class SmartDetailItem extends Component {
                   this.props.childItem.xxxs_ary.length > 0
                     ? this.props.childItem.xxxs_ary.map(event => {
                         return event.isvisible ? (
-                          <div className={styles.nameStyle} title={event.msg}>{event.msg}</div>
+                          <div className={styles.nameStyle}><Tooltip placement="topLeft" title={event.msg}>{event.msg}</Tooltip></div>
                         ) : (
                           ''
                         );
