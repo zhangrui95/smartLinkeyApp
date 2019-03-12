@@ -55,7 +55,7 @@ export default class SmartItem extends Component {
       this.props.emptyAllNum();
     }
     if (this.props.type !== next.type) {
-      if(next.type == 0){
+      if (next.type == 0) {
         this.props.emptyAllNum();
       }
       this.props.dispatch({
@@ -90,6 +90,8 @@ export default class SmartItem extends Component {
                 Xmpp={this.props.Xmpp}
                 newMsg={this.props.newMsg}
                 getFk={(item, detail, nodeId) => this.props.getFk(item, detail, nodeId)}
+                msg_key_str={this.props.msg_key_str}
+                auth_key={this.props.auth_key}
               />
             </div>
           </div>

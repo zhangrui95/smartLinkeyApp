@@ -10,6 +10,8 @@ import { getQueryString, getLocalTime } from '../../utils/utils';
 import styles from './SmartDetail.less';
 import { ipcRenderer } from 'electron';
 import io from 'socket.io-client';
+import { Base64 } from '../../utils/encode';
+import { decrypt_public, aes_encrypt, aes_decrypt } from '../../utils/encrypt';
 
 let socket = '';
 const FormItem = Form.Item;
@@ -252,6 +254,7 @@ class SmartAll extends Component {
       }
     });
     socket.on('pub-message', function(data) {
+      console.log(JSON.stringify(data));
       if (JSON.stringify(data)) {
         ipcRenderer.send('start-flashing');
         that.refs.music.play();
@@ -260,6 +263,20 @@ class SmartAll extends Component {
           allNum: that.state.allNum + data.count,
         });
       }
+    });
+    socket.on('aes-key', function(data) {
+      console.log('aes-key-encode:', data);
+      let encrypt_msg = Base64.decode(data);
+      console.log('aes-key:', encrypt_msg);
+      let receive_info = decrypt_public(encrypt_msg);
+      console.log(receive_info);
+      // let msg_key = JSON.parse(receive_info).msg_key_str.split(',').map((item) => parseInt(item));
+      let msg_key_str = JSON.parse(receive_info).msg_key;
+      let auth_key = JSON.parse(receive_info).auth_key;
+      that.setState({
+        msg_key_str: msg_key_str,
+        auth_key: auth_key,
+      });
     });
   };
   compare = property => {
@@ -378,7 +395,12 @@ class SmartAll extends Component {
       });
     });
     console.log(JSON.stringify(msg));
-    socket.emit('pub-message', JSON.stringify(msg));
+    let key = this.state.msg_key_str
+      ? this.state.msg_key_str.split(',').map(item => parseInt(item))
+      : [];
+    let newMsg = aes_encrypt(key, JSON.stringify(msg));
+    console.log('newMsg-------->', newMsg);
+    socket.emit('pub-message', newMsg);
   };
   render() {
     let type = getQueryString(this.props.location.search, 'type');
@@ -415,6 +437,8 @@ class SmartAll extends Component {
             msgExe={this.state.msgExe}
             Xmpp={this.state.Xmpp}
             getFk={(item, detail, nodeId) => this.getFk(item, detail, nodeId)}
+            msg_key_str={this.state.msg_key_str}
+            auth_key={this.state.auth_key}
             lastTime={
               this.state.msgList.sort(this.compare('id')).length > 0 && this.state.event.length > 0
                 ? {

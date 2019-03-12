@@ -20,6 +20,7 @@ import {
   Input,
   Form,
 } from 'antd';
+import { aes_decrypt } from '../../utils/encrypt';
 const { MonthPicker, RangePicker, WeekPicker } = DatePicker;
 const CheckboxGroup = Checkbox.Group;
 const RadioGroup = Radio.Group;
@@ -32,6 +33,7 @@ import { getLocalTime, autoheight } from '../../utils/utils';
 import { ipcRenderer } from 'electron';
 import SmartDetailItem from './SmartDetailItem';
 import TableDetail from './newsDetail/TableDetail';
+import SmartItem from './SmartItem';
 @Form.create()
 @connect(({ user, login, save }) => ({
   user,
@@ -77,7 +79,7 @@ export default class SmartDetail extends Component {
       checkedList: null,
       searchResult: null,
       xtValue: '',
-      sxValue:null,
+      sxValue: null,
       xzValue: [],
       arrSearch: [],
       timeList: [],
@@ -143,7 +145,7 @@ export default class SmartDetail extends Component {
     // this.state.form&&this.state.form['tid01']&&this.state.form['tid01'].field.map((item)=>{
     //   sugList.push(item.name+'：'+document.getElementById(item.id).value);
     // })
-    if(this.state.connent.length < 500){
+    if (this.state.connent.length < 500) {
       this.props.getFk(['反馈意见：' + this.state.connent], this.state.dbDetail, this.state.cardTo);
       this.state.third.map((event, i) => {
         if (event.unique === '109005') {
@@ -192,8 +194,8 @@ export default class SmartDetail extends Component {
       this.setState({
         dbVisable: false,
       });
-    }else{
-      message.warn('意见不能超出500字，请重新输入')
+    } else {
+      message.warn('意见不能超出500字，请重新输入');
     }
   };
   handleCancel = () => {
@@ -206,7 +208,10 @@ export default class SmartDetail extends Component {
     this.props.dispatch({
       type: 'user/SocketQuery',
       payload: payloads,
-      callback: response => {
+      callback: res => {
+        let key = this.props.msg_key_str.split(',').map(item => parseInt(item));
+        let response = JSON.parse(aes_decrypt(key, res.cipher));
+        console.log('response---------->', response);
         this.setState({
           loading: false,
           total: response.total,
@@ -473,7 +478,7 @@ export default class SmartDetail extends Component {
   getEmpty = () => {
     this.setState({
       xtValue: '',
-      sxValue:null,
+      sxValue: null,
       timeDate: '',
       arrSearch: [],
       searchTime: [],
@@ -551,9 +556,9 @@ export default class SmartDetail extends Component {
     this.setState({
       sxValue: checkedValues.target.value,
       arrSearch: [],
-      xzValue:[],
+      xzValue: [],
     });
-  }
+  };
   onChange = checkedValues => {
     this.setState({
       xtValue: checkedValues.target.value,
@@ -574,12 +579,12 @@ export default class SmartDetail extends Component {
                   type: 'user/getSacwSerach',
                   payload: {},
                   callback: response => {
-                    if(response.TermInfo){
+                    if (response.TermInfo) {
                       this.setState({ searchResult: response.TermInfo });
                     }
                   },
                 });
-              } else if(checkedValues.target.value === '109006') {
+              } else if (checkedValues.target.value === '109006') {
                 this.props.dispatch({
                   type: 'user/getJzSerach',
                   payload: {},
@@ -587,12 +592,15 @@ export default class SmartDetail extends Component {
                     this.setState({ searchResult: response.result.TermInfo });
                   },
                 });
-              }else if(checkedValues.target.value === '109005') {
+              } else if (checkedValues.target.value === '109005') {
                 this.props.dispatch({
                   type: 'user/getAgSerachs',
                   callback: response => {
-                    if(response.data){
-                      this.setState({ searchResult: JSON.parse(response.data).TermInfo,sxValue:null });
+                    if (response.data) {
+                      this.setState({
+                        searchResult: JSON.parse(response.data).TermInfo,
+                        sxValue: null,
+                      });
                     }
                   },
                 });
@@ -608,9 +616,9 @@ export default class SmartDetail extends Component {
     let t = true;
     let idx = 0;
     this.setState({
-      xzValue: value
-    })
-    if (this.state.arrSearch&&this.state.arrSearch.length > 0) {
+      xzValue: value,
+    });
+    if (this.state.arrSearch && this.state.arrSearch.length > 0) {
       this.state.arrSearch.map((item, index) => {
         if (item.type === type) {
           t = false;
@@ -652,12 +660,14 @@ export default class SmartDetail extends Component {
         type: 'user/SocketQuery',
         payload: payloads,
         callback: response => {
-          response.data.map(event => {
-            this.state.timeList.push({ time: event.time });
-          });
           this.setState({
             dateLoading: false,
           });
+          if (response.data && response.data.length > 0) {
+            response.data.map(event => {
+              this.state.timeList.push({ time: event.time });
+            });
+          }
         },
       });
       for (var i = 0; i < this.state.timeList.length - 1; i++) {
@@ -721,13 +731,13 @@ export default class SmartDetail extends Component {
         searchs.push(item.Text);
       });
     }
-    if(this.state.sxValue&&this.state.searchResult){
+    if (this.state.sxValue && this.state.searchResult) {
       this.state.searchResult.map(item => {
         let serList = [];
         item.Term.map(e => {
           serList.push(e.Text);
         });
-        if(item.Text === this.state.sxValue){
+        if (item.Text === this.state.sxValue) {
           search.push(
             <div>
               <div className={styles.titleTop}>
@@ -744,7 +754,7 @@ export default class SmartDetail extends Component {
             </div>
           );
         }
-      })
+      });
     }
     let btnName;
     this.state.dbDetail &&
@@ -770,7 +780,7 @@ export default class SmartDetail extends Component {
               }}
             >
               {/*<Icon type="bars" theme="outlined" onClick={this.changeTable} />*/}
-              <img src="images/listChange.png" onClick={this.changeTable}/>
+              <img src="images/listChange.png" onClick={this.changeTable} />
             </span>
           </Tooltip>
           <Tooltip placement="bottom" title="筛选">
@@ -784,7 +794,7 @@ export default class SmartDetail extends Component {
               }}
             >
               {/*<Icon type="appstore" theme="outlined" onClick={this.showDrawer} />*/}
-              <img src="images/search0.png" onClick={this.showDrawer}/>
+              <img src="images/search0.png" onClick={this.showDrawer} />
             </span>
           </Tooltip>
           <div>
@@ -878,21 +888,24 @@ export default class SmartDetail extends Component {
                     />
                   </div>
                 </div>
-                {this.state.searchResult && this.state.searchResult.length > 0 ?
+                {this.state.searchResult && this.state.searchResult.length > 0 ? (
                   <div>
                     <div className={styles.titleTop}>
                       <span>查询事项</span>
                     </div>
                     <div>
                       <RadioGroup
-                      value={this.state.sxValue}
-                      options={searchs}
-                      onChange={this.onSxChange}
-                      className={styles.checkedTag}
-                    />
-                      </div></div>
-                  : ''}
-                {search&&search.length > 0 ? search : ''}
+                        value={this.state.sxValue}
+                        options={searchs}
+                        onChange={this.onSxChange}
+                        className={styles.checkedTag}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  ''
+                )}
+                {search && search.length > 0 ? search : ''}
               </div>
               <Button className={styles.btnTag} onClick={this.onSearchList} type="primary">
                 确定
@@ -935,7 +948,11 @@ export default class SmartDetail extends Component {
             />
             <Spin size="large" className={this.state.loading ? '' : styles.none} />
             <div
-              className={this.state.lookMore && !this.state.loading&&this.state.detailList.length > 0 ? '' : styles.none}
+              className={
+                this.state.lookMore && !this.state.loading && this.state.detailList.length > 0
+                  ? ''
+                  : styles.none
+              }
               style={{
                 width: '100%',
                 textAlign: 'center',

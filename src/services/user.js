@@ -59,7 +59,7 @@ export async function getXmppList(params) {
 }
 export async function getSocketList(params) {
   return request(`${configUrl.socket_server}/message/query`, {
-    method: 'POST',
+    method: 'POst',
     body: params,
   });
 }

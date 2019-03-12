@@ -62,18 +62,24 @@ export default class SmartDetailItem extends Component {
                   ) : (
                     ''
                   )}
-                    <span
-                      className={styles.overText}
-                      style={
-                        this.props.childItem.xxbj.isvisible
-                          ? { paddingLeft: '24px' }
-                          : { paddingLeft: '0' }
-                      }
-                    >
-                      <Tooltip placement="topLeft" title={this.props.childItem.xxmc.isvisible ? this.props.childItem.xxmc.msg : ''}>{this.props.childItem.xxmc.isvisible ? this.props.childItem.xxmc.msg : ''}</Tooltip>
+                  <span
+                    className={styles.overText}
+                    style={
+                      this.props.childItem.xxbj.isvisible
+                        ? { paddingLeft: '24px' }
+                        : { paddingLeft: '0' }
+                    }
+                  >
+                    <Ellipsis length={15} tooltip>
+                      {this.props.childItem.xxmc.isvisible ? this.props.childItem.xxmc.msg : ''}
+                    </Ellipsis>
                   </span>
                   {this.props.childItem.xxzt.isvisible ? (
-                    <Tag className={styles.tagStyle}><Ellipsis length={6} tooltip>{this.props.childItem.xxzt.msg}</Ellipsis></Tag>
+                    <Tag className={styles.tagStyle}>
+                      <Ellipsis length={6} tooltip>
+                        {this.props.childItem.xxzt.msg}
+                      </Ellipsis>
+                    </Tag>
                   ) : (
                     ''
                   )}
@@ -119,7 +125,11 @@ export default class SmartDetailItem extends Component {
                   this.props.childItem.xxxs_ary.length > 0
                     ? this.props.childItem.xxxs_ary.map(event => {
                         return event.isvisible ? (
-                          <div className={styles.nameStyle}><Tooltip placement="topLeft" title={event.msg}>{event.msg}</Tooltip></div>
+                          <div className={styles.nameStyle}>
+                            <Ellipsis lines={1} tooltip>
+                              {event.msg}
+                            </Ellipsis>
+                          </div>
                         ) : (
                           ''
                         );

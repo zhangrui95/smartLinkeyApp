@@ -11,7 +11,7 @@ function checkStatus(response) {
     }
   });
 
-  if ((response.status >= 200 && response.status <= 401)) {
+  if (response.status >= 200 && response.status <= 401) {
     return response;
   }
 
@@ -48,13 +48,13 @@ export default function request(url, options) {
       ...newOptions.headers,
     };
     newOptions.body = JSON.stringify(newOptions.body);
-  }else if(newOptions.method === 'get'){
+  } else if (newOptions.method === 'get') {
     newOptions.headers = {
       Accept: 'application/json',
       'Content-Type': 'application/json; charset=utf-8',
     };
     newOptions.body = JSON.stringify(newOptions.body);
-  } else if(newOptions.method === 'Post'){
+  } else if (newOptions.method === 'Post') {
     newOptions.headers = {
       Accept: 'application/json',
       'Content-Type': 'application/json; charset=utf-8',
@@ -65,13 +65,24 @@ export default function request(url, options) {
       ...newOptions.headers,
     };
     newOptions.body = JSON.stringify(newOptions.body);
+  } else if (newOptions.method === 'POst') {
+    newOptions.headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json; charset=utf-8',
+      idcard:
+        sessionStorage.getItem('user') === undefined || sessionStorage.getItem('user') === null
+          ? ''
+          : JSON.parse(sessionStorage.getItem('user')).user.idCard,
+      ...newOptions.headers,
+    };
+    newOptions.body = JSON.stringify(newOptions.body);
   }
 
   return fetch(url, newOptions)
     .then(checkStatus)
     .then(response => response.json())
     .catch(error => {
-      console.log('error------------------->',error)
+      console.log('error------------------->', error);
       return error;
     });
 }
