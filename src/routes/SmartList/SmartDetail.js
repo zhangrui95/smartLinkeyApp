@@ -103,30 +103,12 @@ export default class SmartDetail extends Component {
     window.addEventListener('resize', () => {
       this.updateSize();
     });
-    let payloads = {
-      idcard: this.state.userItem.idCard,
-      size: this.state.isTable ? this.state.tableCount : this.state.pageCount,
-      page: 0,
-      timeStart: '',
-      timeEnd: '',
-      contain: this.state.searchValue,
-      systemId: '',
-      messageStatus: [],
-    };
-    this.getSocketList(true, null, payloads);
-    // this.props.dispatch({
-    //   type: 'user/getFkForm',
-    //   callback: response => {
-    //     this.setState({
-    //       form: response,
-    //     });
-    //   },
-    // });
     this.props.dispatch({
       type: 'user/getConfigGoto',
       callback: response => {
         this.setState({
           third: response.third,
+          configSys: response.system
         });
         ipcRenderer.send('huaci-config', response);
         response.third.map((event, i) => {
@@ -140,17 +122,16 @@ export default class SmartDetail extends Component {
     });
   }
   handleOk = () => {
-    // console.log(document.getElementById('fid8720').value)
-    // let sugList = [];
-    // this.state.form&&this.state.form['tid01']&&this.state.form['tid01'].field.map((item)=>{
-    //   sugList.push(item.name+'：'+document.getElementById(item.id).value);
-    // })
     if (this.state.connent.length < 500) {
       this.props.getFk(['反馈意见：' + this.state.connent], this.state.dbDetail, this.state.cardTo);
       this.state.third.map((event, i) => {
         if (event.unique === '109005') {
           if (event.api !== '') {
-            window.configUrl.questionStatus = event.api;
+            if(this.state.configSys&&this.state.configSys.use_proxy){
+              window.configUrl.questionStatus = `${window.configUrls.serve}/t${event.unique}`;
+            }else{
+              window.configUrl.questionStatus = event.api;
+            }
             this.props.dispatch({
               type: 'user/getQuestionStatus',
               payload: {
@@ -209,7 +190,8 @@ export default class SmartDetail extends Component {
       type: 'user/SocketQuery',
       payload: payloads,
       callback: res => {
-        let key = this.props.msg_key_str.split(',').map(item => parseInt(item));
+        console.log('this.props.msg_key_str ----------- ',this.props.msg_key_str)
+        let key = this.props.msg_key_str ? this.props.msg_key_str.split(',').map(item => parseInt(item)) : '';
         let response = JSON.parse(aes_decrypt(key, res.cipher));
         console.log('response---------->', response);
         this.setState({
@@ -243,14 +225,14 @@ export default class SmartDetail extends Component {
                   detailList: this.state.detailList,
                 });
               }
-              setTimeout(() => {
-                let sHeight = this.refs.scroll.scrollHeight;
-                if (scrollHeight) {
-                  this.refs.scroll.scrollTop = sHeight - scrollHeight;
-                } else {
-                  this.refs.scroll.scrollTop = this.refs.scroll.scrollHeight;
-                }
-              }, 100);
+              let sHeight = this.refs.scroll.scrollHeight;
+              if (scrollHeight) {
+                this.refs.scroll.scrollTop = sHeight - scrollHeight;
+              } else {
+                setTimeout(()=>{
+                  this.refs.scroll.scrollTop = 100000;
+                },100);
+              }
               if (
                 response.total < this.state.pageCount * (this.state.endLength + 1) ||
                 response.total === this.state.pageCount * (this.state.endLength + 1)
@@ -335,7 +317,7 @@ export default class SmartDetail extends Component {
     this._handleScroll(scrollTop);
   }
   componentWillReceiveProps(next) {
-    if (this.props.newMsg !== next.newMsg || this.props.user.value !== next.user.value) {
+    if (this.props.newMsg !== next.newMsg || this.props.user.value !== next.user.value || next.msg_key_str&&this.props.msg_key_str !== next.msg_key_str) {
       this.setState({
         endLength: 0,
         searchValue: next.user.value,
@@ -550,7 +532,7 @@ export default class SmartDetail extends Component {
         this.state.payloadSer.contain = this.props.user.value;
       }
       this.getSocketList(true, null, this.state.payloadSer ? this.state.payloadSer : payloads);
-    }, 200);
+    }, 300);
   };
   onSxChange = checkedValues => {
     this.setState({
@@ -573,14 +555,18 @@ export default class SmartDetail extends Component {
         response.third.map((event, i) => {
           if (event.unique === checkedValues.target.value) {
             if (event.api !== '') {
-              window.configUrl.jz_search = event.api;
+              if(response.system.use_proxy){
+                window.configUrl.jz_search = `${window.configUrls.serve}/t${event.unique}`;
+              }else{
+                window.configUrl.jz_search = event.api;
+              }
               if (checkedValues.target.value === '109003') {
                 this.props.dispatch({
                   type: 'user/getSacwSerach',
                   payload: {},
-                  callback: response => {
-                    if (response.TermInfo) {
-                      this.setState({ searchResult: response.TermInfo });
+                  callback: res => {
+                    if (res.TermInfo) {
+                      this.setState({ searchResult: res.TermInfo });
                     }
                   },
                 });
@@ -588,17 +574,17 @@ export default class SmartDetail extends Component {
                 this.props.dispatch({
                   type: 'user/getJzSerach',
                   payload: {},
-                  callback: response => {
-                    this.setState({ searchResult: response.result.TermInfo });
+                  callback: res => {
+                    this.setState({ searchResult: res.result.TermInfo });
                   },
                 });
               } else if (checkedValues.target.value === '109005') {
                 this.props.dispatch({
                   type: 'user/getAgSerachs',
-                  callback: response => {
-                    if (response.data) {
+                  callback: res => {
+                    if (res.data) {
                       this.setState({
-                        searchResult: JSON.parse(response.data).TermInfo,
+                        searchResult: JSON.parse(res.data).TermInfo,
                         sxValue: null,
                       });
                     }
@@ -659,15 +645,17 @@ export default class SmartDetail extends Component {
       this.props.dispatch({
         type: 'user/SocketQuery',
         payload: payloads,
-        callback: response => {
-          this.setState({
-            dateLoading: false,
-          });
+        callback: res => {
+          let key = this.props.msg_key_str ? this.props.msg_key_str.split(',').map(item => parseInt(item)) : '';
+          let response = JSON.parse(aes_decrypt(key, res.cipher));
           if (response.data && response.data.length > 0) {
             response.data.map(event => {
               this.state.timeList.push({ time: event.time });
             });
           }
+          this.setState({
+            dateLoading: false,
+          });
         },
       });
       for (var i = 0; i < this.state.timeList.length - 1; i++) {

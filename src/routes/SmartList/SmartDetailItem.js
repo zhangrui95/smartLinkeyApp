@@ -70,7 +70,7 @@ export default class SmartDetailItem extends Component {
                         : { paddingLeft: '0' }
                     }
                   >
-                    <Ellipsis length={15} tooltip>
+                    <Ellipsis length={18} tooltip fullWidthRecognition={true}>
                       {this.props.childItem.xxmc.isvisible ? this.props.childItem.xxmc.msg : ''}
                     </Ellipsis>
                   </span>
@@ -126,7 +126,7 @@ export default class SmartDetailItem extends Component {
                     ? this.props.childItem.xxxs_ary.map(event => {
                         return event.isvisible ? (
                           <div className={styles.nameStyle}>
-                            <Ellipsis lines={1} tooltip>
+                            <Ellipsis length={40} fullWidthRecognition={true} tooltip>
                               {event.msg}
                             </Ellipsis>
                           </div>

@@ -180,10 +180,12 @@ class SmartAll extends Component {
     });
     socket.on('connect', function() {
       console.log('socket登录成功');
+      ipcRenderer.send('socketio-status', true);
     });
     socket.on('disconnect', function() {
       console.log('socket退出!!!');
-    });
+      ipcRenderer.send('socketio-status', false);
+      });
     socket.on('message', function(res) {
       console.log('data:', res);
       if (res.signal === 'disconn' && res.code === 0) {

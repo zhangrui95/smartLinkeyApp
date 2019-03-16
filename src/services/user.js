@@ -8,36 +8,6 @@ export async function queryCurrent() {
   // return request('/api/currentUser');
 }
 
-export async function getQuery(params) {
-  return request(`${configUrl.GMUrl}/datahandle/query `, {
-    method: 'POST',
-    body: params,
-  });
-}
-export async function getSubQuery(params) {
-  return request(`${configUrl.GMUrl}/datahandle/sublogquery `, {
-    method: 'POST',
-    body: params,
-  });
-}
-export async function getOnline(params) {
-  return request(`${configUrl.GMUrl}/datahandle/online`, {
-    method: 'POST',
-    body: params,
-  });
-}
-export async function getDataSave(params) {
-  return request(`${configUrl.GMUrl}/datahandle/save `, {
-    method: 'POST',
-    body: params,
-  });
-}
-export async function getFind(params) {
-  return request(`${configUrl.GMUrl}/datahandle/find `, {
-    method: 'POST',
-    body: params,
-  });
-}
 export async function getWord01(params) {
   // return request('https://www.easy-mock.com/mock/5b2de5fd3bd2c939a1040679/getWord01', {
   return request(`${configUrl.rybjxx}/getDataInfo`, {
@@ -51,21 +21,9 @@ export async function getLoginIp(params) {
     body: params,
   });
 }
-export async function getXmppList(params) {
-  return request(`${configUrl.xmpp_query}`, {
-    method: 'POST',
-    body: params,
-  });
-}
 export async function getSocketList(params) {
-  return request(`${configUrl.socket_server}/message/query`, {
+  return request(`${configUrl.slkMessage}/message/query`, {
     method: 'POst',
-    body: params,
-  });
-}
-export async function getSaveXmpp(params) {
-  return request(`${configUrl.xmpp_save}`, {
-    method: 'POST',
     body: params,
   });
 }
@@ -108,7 +66,7 @@ export async function questionStatus(params) {
   });
 }
 export async function getiNactive(params) {
-  return request(`${configUrl.socket_server}/message/update/inactive`, {
+  return request(`${configUrl.slkMessage}/message/update/inactive`, {
     method: 'POST',
     body: params,
   });

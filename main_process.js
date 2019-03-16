@@ -55,6 +55,7 @@ if (config.auto_launch) {
   var auto_launch = require(`./${fetd}/for-electron/crates/launch`).auto_launch;
 }
 const icon_path = path.join(__dirname, `./${fetd}/for-electron/source/logo.ico`);
+const icon_gray = path.join(__dirname, `./${fetd}/for-electron/source/gray.ico`);
 const icon_none_path = path.join(__dirname, `./${fetd}/for-electron/source/none.ico`);
 const upgrade_tmp_dir = path.join(execDir, 'downloads');
 const upgrade_tmp_file = path.join(upgrade_tmp_dir, 'package.zip');
@@ -111,7 +112,7 @@ const db = low(adapter);
  * 创建托盘图标及功能
  */
 function createTray() {
-  appTray = new Tray(icon_path);
+  appTray = new Tray(icon_gray);
   const contextMenu = Menu.buildFromTemplate([
     {
       label: '退出',
@@ -872,6 +873,14 @@ ipcMain.on('notice-box-message', function(event, msg) {
     }, 300);
   }
   console.log(noticeWindowBox);
+});
+
+ipcMain.on('socketio-status', function(event, flag) {
+  if (flag) {
+    appTray.setImage(icon_path);
+  } else {
+    appTray.setImage(icon_gray);
+  }
 });
 
 // 保证只有一个实例在运行

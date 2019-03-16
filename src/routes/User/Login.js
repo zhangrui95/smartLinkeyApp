@@ -62,19 +62,27 @@ class LoginPage extends Component {
       type: 'user/getConfigGoto',
       callback: response => {
         if(response.system){
-          window.configUrl = {
-            sysName: 'Smartlinkey', //项目名称
-            ywzxUrl: response.system.ywzx, //运维中心
-            testUrl: response.system.login_server, //安全中心登陆接口
-            GMUrl: response.system.xmpp_api, //XMPP接口
-            fwName: response.system.xmpp_server, //XMPP服务名称,
-            pcName: '/pc',
-            rybjxx: response.system.huaci.huaci_list[1].api, //人员背景核查系统
-            personList: ['姓名', '公民身份号码', '性别', '民族'], //人员背景核查信息
-            xmpp_save: response.system.xmpp_save,
-            xmpp_query: response.system.xmpp_query,
-            socket_server: response.system.socket_server,
-          };
+          if(response.system.use_proxy){
+            window.configUrl = {
+              sysName: 'Smartlinkey', //项目名称
+              ywzxUrl: `${window.configUrls.serve}/ywzx`, //运维中心
+              testUrl: `${window.configUrls.serve}/aqzx`, //安全中心登陆接口
+              rybjxx: `${window.configUrls.serve}/cid${response.system.huaci.huaci_list[1].cid}`, //人员背景核查系统
+              personList: ['姓名', '公民身份号码', '性别', '民族'], //人员背景核查信息
+              socket_server: `${window.configUrls.serve}`,
+              slkMessage:`${window.configUrls.serve}/slk-message`,
+            };
+          }else{
+            window.configUrl = {
+              sysName: 'Smartlinkey', //项目名称
+              ywzxUrl: response.system.ywzx, //运维中心
+              testUrl: response.system.login_server, //安全中心登陆接口
+              rybjxx: response.system.huaci.huaci_list[1].api, //人员背景核查系统
+              personList: ['姓名', '公民身份号码', '性别', '民族'], //人员背景核查信息
+              socket_server: response.system.socket_server,
+              slkMessage:response.system.socket_server,
+            };
+          }
         }
         this.props.dispatch({
           type: 'login/getLoginSetting',
