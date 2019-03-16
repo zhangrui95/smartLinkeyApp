@@ -12,9 +12,8 @@ const customPanelStyle = {
   overflow: 'hidden',
 };
 
-@connect(({ question, user }) => ({
+@connect(({ question }) => ({
   question,
-  user,
 }))
 export default class SmartQuestDetail extends Component {
   constructor(props) {
@@ -23,7 +22,6 @@ export default class SmartQuestDetail extends Component {
       height: 525,
       keyIndex: [],
       list: [],
-      allList: [],
       enter: false,
     };
   }
@@ -40,24 +38,6 @@ export default class SmartQuestDetail extends Component {
         keyIndex: [],
       });
     }
-    if (this.props.user.value !== next.user.value) {
-      let lis = [];
-      if (next.user.value !== '') {
-        this.state.allList.map(event => {
-          if (event.title.indexOf(next.user.value) > -1) {
-            lis.push(event);
-          }
-        });
-        this.setState({
-          list: lis,
-        });
-      } else {
-        this.getQuestList(next.typeId);
-        this.setState({
-          keyIndex: [],
-        });
-      }
-    }
   }
   getQuestList = typeId => {
     this.props.dispatch({
@@ -68,7 +48,6 @@ export default class SmartQuestDetail extends Component {
       callback: response => {
         this.setState({
           list: response.data,
-          allList: response.data,
         });
       },
     });

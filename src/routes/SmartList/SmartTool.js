@@ -7,8 +7,8 @@ import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import { autoheight } from '../../utils/utils';
 const confirm = Modal.confirm;
-import electron, { ipcRenderer } from 'electron';
-const dialog = electron.remote.dialog;
+// import electron, { ipcRenderer } from 'electron';
+// const dialog = electron.remote.dialog;
 const formItemLayout = {
   labelCol: {
     xs: { span: 6 },
@@ -44,7 +44,6 @@ class SmartTool extends Component {
       exeName: '',
       exePath: '',
       MKey: 0,
-      messageLen:0,
     };
     this.listenDbExe();
   }
@@ -52,8 +51,7 @@ class SmartTool extends Component {
     window.addEventListener('resize', () => {
       this.updateSize();
     });
-    ipcRenderer.on('tool-icon', this.getIcon);
-    this.getMsg(this.props.msgExe);
+    // ipcRenderer.on('tool-icon', this.getIcon);
   }
   componentWillReceiveProps(next) {
     if (this.props.user.value !== next.user.value) {
@@ -63,24 +61,16 @@ class SmartTool extends Component {
       this.getAllTool();
     }
     if (this.props.msgExe !== next.msgExe) {
-     this.getMsg(next.msgExe);
+      let msg = [];
+      next.msgExe.map((e, i) => {
+        if (e.idCard === this.state.idCard) {
+          msg.push(e);
+        }
+      });
+      this.setState({
+        message: msg,
+      });
     }
-  }
-  componentWillUnmount() {
-    ipcRenderer.removeListener('link-not-found', this.alertWarn);
-    ipcRenderer.removeListener('tool-icon', this.getIcon);
-  }
-  getMsg = (msgExe) => {
-    let msg = [];
-    msgExe.map((e, i) => {
-      if (e.idCard === this.state.idCard) {
-        msg.push(e);
-      }
-    });
-    this.setState({
-      message: msg,
-      messageLen: msg.length,
-    });
   }
   getAllTool = () => {
     this.props.dispatch({
@@ -143,7 +133,7 @@ class SmartTool extends Component {
     return false;
   };
   getIcon = (e, baseImg) => {
-    if ((this.state.messageLen||this.state.messageLen===0) && (this.state.message.length > this.state.messageLen)) {
+    if (this.state.message.length > 0) {
       this.state.message[this.state.message.length - 1].icon = baseImg;
       this.props.msgExe[this.props.msgExe.length - 1].icon = baseImg;
       if (this.props.user.value.length > 0) {
@@ -153,7 +143,7 @@ class SmartTool extends Component {
         message: this.state.message,
         messageSearch: this.state.messageSearch,
       });
-      ipcRenderer.send('save-tools-info', this.props.msgExe);
+      // ipcRenderer.send('save-tools-info', this.props.msgExe);
     }
   };
   showOpenDialogHandler = () => {
@@ -191,7 +181,6 @@ class SmartTool extends Component {
       dragIndex: index,
       dragNum: num,
       delshow: true,
-      drag:e,
     });
   };
   dragEnd = e => {
@@ -204,9 +193,9 @@ class SmartTool extends Component {
   };
   allowDrop = event => {
     event.preventDefault();
-    this.del(this.state.dragIndex, this.state.dragNum,this.state.drag);
+    this.del(this.state.dragIndex, this.state.dragNum);
   };
-  del = (idx, num, event) => {
+  del = (idx, num) => {
     let _this = this;
     confirm({
       title: '是否确定移除该工具?',
@@ -222,7 +211,7 @@ class SmartTool extends Component {
           }
         });
         _this.props.msgExe.map((item, index) => {
-          if (event===item && item.idCard === _this.state.idCard) {
+          if (index === idx && item.idCard === _this.state.idCard) {
             _this.props.msgExe.splice(index, 1);
           }
         });
@@ -231,7 +220,7 @@ class SmartTool extends Component {
           messageSearch: _this.state.messageSearch,
         });
         _this.getSearchList(_this.props);
-        ipcRenderer.send('save-tools-info', _this.props.msgExe);
+        // ipcRenderer.send('save-tools-info', _this.props.msgExe);
         if (_this.state.message.length === 0) {
           _this.setState({
             delete: false,
@@ -239,12 +228,12 @@ class SmartTool extends Component {
         }
       },
       onCancel() {
-        console.log('Cancel');
+
       },
     });
   };
   dbExe = path => {
-    ipcRenderer.send('open-link', path);
+    // ipcRenderer.send('open-link', path);
     this.setState({
       path: path,
     });
@@ -275,20 +264,17 @@ class SmartTool extends Component {
         _this.setState({
           message: _this.state.message,
         });
-        ipcRenderer.send('save-tools-info', _this.props.msgExe);
+        // ipcRenderer.send('save-tools-info', _this.props.msgExe);
       },
       onCancel() {
-        console.log('Cancel');
+
       },
     });
   };
   listenDbExe = () => {
-    ipcRenderer.on('link-not-found', this.alertWarn);
+    // ipcRenderer.on('link-not-found', this.alertWarn);
   };
   handleOk = () => {
-    this.setState({
-      messageLen: this.state.message.length,
-    })
     if (this.state.exeName.length > 0) {
       this.state.message.push({
         name: this.state.exeName,
@@ -309,7 +295,7 @@ class SmartTool extends Component {
         });
         this.getAllTool();
       }
-      ipcRenderer.send('get-tool-icon', this.state.exePath);
+      // ipcRenderer.send('get-tool-icon', this.state.exePath);
       this.setState({
         visible: false,
       });
@@ -354,7 +340,7 @@ class SmartTool extends Component {
                 {e.name}
               </span>
               <img
-                onClick={() => this.del(index,null,e)}
+                onClick={() => this.del(index)}
                 className={this.state.delete ? styles.del : styles.none}
                 src="images/del.png"
               />
@@ -383,7 +369,7 @@ class SmartTool extends Component {
                 {e.name}
               </span>
               <img
-                onClick={() => this.del(e.index, index,e)}
+                onClick={() => this.del(e.index, index)}
                 className={this.state.delete ? styles.del : styles.none}
                 src="images/del.png"
               />

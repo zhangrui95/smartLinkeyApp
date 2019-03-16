@@ -8,43 +8,13 @@ const menuData = [
   },
   {
     name: '系统功能',
-    icon: 'images/system2.png',
-    path: 'smartList/smartAll?type=1',
-  },
-  // {
-  //   name: '关注',
-  //   icon: 'images/guanzhu2.png',
-  //   path: 'smartList/smartAll?type=2',
-  // },
-  // {
-  //   name: '工具集',
-  //   icon: 'images/gongju2.png',
-  //   path: 'smartList/smartAll?type=3',
-  // },
-  {
-    name: '帮助中心',
-    icon: 'images/bangzhu2.png',
-    path: 'smartList/smartAll?type=4',
+    icon: 'images/xt2.png',
+    path: 'smartList/smartAll?type=5',
   },
   {
-    name: '帐号',
-    icon: 'user',
-    path: 'user',
-    authority: 'guest',
-    children: [
-      {
-        name: '登录',
-        path: 'login',
-      },
-      {
-        name: '注册',
-        path: 'register',
-      },
-      {
-        name: '注册结果',
-        path: 'register-result',
-      },
-    ],
+    name: '我的',
+    icon: 'images/my2.png',
+    path: 'smartList/smartAll?type=6',
   },
 ];
 

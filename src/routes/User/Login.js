@@ -3,12 +3,13 @@ import { connect } from 'dva';
 import { Link } from 'dva/router';
 import { instanceOf } from 'prop-types';
 import { routerRedux } from 'dva/router';
-import { Checkbox, Alert, Icon, Divider,Modal,Form,Input,Button,message } from 'antd';
+import { Checkbox, Alert, Icon, Divider, message,Modal,Form,Input } from 'antd';
 import Login from 'components/Login';
 import styles from './Login.less';
-import { withCookies, Cookies } from 'react-cookie';
 import { hex_md5 } from '../../md5';
-import { ipcRenderer } from 'electron';
+import { keyShow,autoheight } from '../../utils/utils';
+import style from './../SmartList/App/MySmart.less';
+// import { ipcRenderer } from 'electron';
 import { enquireScreen, unenquireScreen } from 'enquire-js';
 import TokenLogin from './TokenLogin';
 const { Tab, UserName, Password, Mobile, Captcha, Submit } = Login;
@@ -17,7 +18,7 @@ let isMobile;
 enquireScreen(b => {
   isMobile = b;
 });
-@Form.create()
+
 @connect(({ login, loading, user }) => ({
   login,
   user,
@@ -25,26 +26,23 @@ enquireScreen(b => {
   // submitting: loading.effects['login/login'],
 }))
 class LoginPage extends Component {
-  static propTypes = {
-    cookies: instanceOf(Cookies).isRequired,
-  };
   constructor(props) {
     super(props);
-    const { cookies } = props;
     this.state = {
-      mainClass: styles.main,
-      name: cookies.get('name') || '',
       type: 'account',
       autoLogin: true,
       login_way: '700003',
       isMobile: isMobile,
-      url:window.configUrls.serve.substring(7),
       setUp: false,
+      success:false,
+      local: '',
       isMob:
         navigator.userAgent.match(/(iPad).*OS\s([\d_]+)/) ||
         navigator.userAgent.match(/(iPhone\sOS)\s([\d_]+)/) ||
         navigator.userAgent.match(/(Android)\s+([\d.]+)/),
+      url:window.configUrls.serve.substring(7),
     };
+    this.goOutTime = -1;
   }
   componentWillMount() {
     sessionStorage.clear();
@@ -55,7 +53,10 @@ class LoginPage extends Component {
         isMobile: mobile,
       });
     });
+    keyShow(this.refs.scrollLogin);
     this.getConfig();
+    window.removeEventListener('popstate', this.callBack);
+    window.addEventListener('popstate', this.callBack);
   }
   getConfig = () =>{
     this.props.dispatch({
@@ -98,16 +99,44 @@ class LoginPage extends Component {
       },
     });
   }
+  callBack = (event) => {
+    history.pushState(null, null, location.href );
+    if(this.state.setUp){
+      this.setState({
+        setUp: false
+      })
+    }else {
+      if(event.currentTarget.location.href === this.state.local){
+        this.goOutTime++;
+        if (this.goOutTime > 0) {
+          webview.close();
+        } else if (this.goOutTime === 0) {
+          message.destroy();
+          message.warning('再按一次退出应用');
+        }
+        let _this = this
+        setTimeout(function () {
+          _this.goOutTime = -1
+        }, 2000);
+        return false;
+      }
+    }
+    this.setState({
+      local:location.href
+    })
+  }
   onTabChange = type => {
     this.setState({ type });
   };
   componentWillUnmount() {
     unenquireScreen(this.enquireHandler);
+    window.removeEventListener('popstate', this.callBack);
   }
   handleSubmit = (err, values) => {
-    const { cookies } = this.props;
     const { type } = this.state;
     if (!err) {
+      window.removeEventListener('popstate', this.callBack);
+      message.destroy();
       this.props.dispatch({
         type: 'login/login',
         payload: {
@@ -118,14 +147,10 @@ class LoginPage extends Component {
           // type,
         },
         callback: response => {
-          cookies.set('token', response.data.token);
           response.data.password = hex_md5(values.password);
           let userJson = JSON.stringify(response.data);
           sessionStorage.setItem('user', userJson);
-          this.setState({
-            mainClass: styles.bounceOutLeft,
-          })
-          ipcRenderer.send('login-success');
+          // ipcRenderer.send('login-success');
         },
       });
       this.props.dispatch({
@@ -151,6 +176,9 @@ class LoginPage extends Component {
       setUp: false,
     });
   };
+  handleGoOut = () => {
+    webview.close();
+  }
   handleOks = () => {
     this.props.form.validateFields((err, values) => {
       let reg = /^(?:(?:2[0-4][0-9]\.)|(?:25[0-5]\.)|(?:1[0-9][0-9]\.)|(?:[1-9][0-9]\.)|(?:[0-9]\.)){3}(?:(?:2[0-4][0-9])|(?:25[0-5])|(?:1[0-9][0-9])|(?:[1-9][0-9])|(?:[0-9]))$/;
@@ -165,8 +193,9 @@ class LoginPage extends Component {
         message.success('操作成功');
         this.setState({
           setUp: false,
-          success: true
+          // success: true
         })
+
       }
     });
   };
@@ -183,7 +212,6 @@ class LoginPage extends Component {
   render() {
     const { login, submitting } = this.props;
     const { type } = this.state;
-    const { getFieldDecorator } = this.props.form;
     let PKI =
       this.state.login_way === '700001' ? (
         ''
@@ -205,19 +233,31 @@ class LoginPage extends Component {
           </div>
         </Tab>
       );
+    const { getFieldDecorator } = this.props.form;
     return (
-      <div className={this.state.mainClass}>
-        <TokenLogin />
+      <div className={styles.main} style={{height:autoheight()+'px'}} ref="scrollLogin">
         <Icon className={styles.szBtn} type="setting" theme="outlined"  onClick={this.setUpShow}/>
         <Modal
-          title="设置服务地址"
+          title={
+            <div>
+              <Icon
+                type="arrow-left"
+                className={style.hideModle}
+                theme="outlined"
+                onClick={this.handleCancel}
+              />
+              <span>设置服务地址</span>
+            </div>
+          }
           visible={this.state.setUp}
           maskClosable={false}
-          onCancel={this.handleCancel}
-          className={styles.modalBox}
+          closable={false}
           footer={
-            <Button type="primary" onClick={this.handleOks}>确定</Button>
+            <div className={style.onOk} onClick={this.handleOks}>
+              确定
+            </div>
           }
+          className={style.modalBox}
         >
           <Form>
             <FormItem>
@@ -236,6 +276,22 @@ class LoginPage extends Component {
             </FormItem>
           </Form>
         </Modal>
+        <Modal
+          title={<div><span>提示</span></div>}
+          visible={this.state.success}
+          maskClosable={false}
+          closable={false}
+          footer={
+            <div className={style.onOk} onClick={this.handleGoOut}>
+              确定
+            </div>
+          }
+          className={style.modalBox}
+          style={{textAlign: 'center'}}
+        >
+          服务器地址修改成功，请退出重启！
+        </Modal>
+        <TokenLogin />
         <div
           className={this.state.isMobile && this.state.isMob ? styles.none : styles.loginHeader}
           style={{
@@ -255,7 +311,7 @@ class LoginPage extends Component {
         <img
           src="images/logo.png"
           className={styles.logoLogin}
-          style={{ marginTop: this.state.isMobile && this.state.isMob ? '50px' : '15px' }}
+          style={{ marginTop: this.state.isMobile && this.state.isMob ? '75px' : '15px' }}
         />
         <img src="images/smartlinkey.png" className={styles.smartIcon} />
         <Login
@@ -271,7 +327,7 @@ class LoginPage extends Component {
                 style={{ borderRight: '2px solid #ff3366', paddingRight: '26px' }}
                 className={this.state.isMobile && this.state.isMob ? styles.none : ''}
               >
-                帐号密码登录
+                账户密码登录
               </div>
             }
             style={{ marginRight: '0!important' }}
@@ -280,8 +336,8 @@ class LoginPage extends Component {
             {login.status === 'error' &&
               login.type === 'account' &&
               !submitting &&
-              this.renderMessage('帐号或密码错误')}
-            <UserName name="username" placeholder="请输入用户名" />
+              this.renderMessage('账户或密码错误')}
+            <UserName name="username" placeholder="请输入用户名"/>
             <Password name="password" placeholder="请输入密码" />
             <Submit loading={submitting} className={styles.btnBg}>
               登录
@@ -293,4 +349,4 @@ class LoginPage extends Component {
     );
   }
 }
-export default withCookies(LoginPage);
+export default Form.create()(LoginPage);

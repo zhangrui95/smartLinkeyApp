@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import styles from './index.less';
 import { Icon, Input } from 'antd';
 const Search = Input.Search;
-import { ipcRenderer } from 'electron';
+// import { ipcRenderer } from 'electron';
 // import { Electron } from 'electron';
 // const ipc = require('electron').ipcRenderer;
 import { connect } from 'dva';
@@ -18,17 +18,17 @@ export default class GlobalHeader extends PureComponent {
       icon: 'border',
       codes: false,
     };
-    ipcRenderer.on('windows-now', (event, info) => {
-      if (info.code == 0) {
-        this.setState({
-          icon: 'border',
-        });
-      } else {
-        this.setState({
-          icon: 'block',
-        });
-      }
-    });
+    // ipcRenderer.on('windows-now', (event, info) => {
+    //   if (info.code == 0) {
+    //     this.setState({
+    //       icon: 'border',
+    //     });
+    //   } else {
+    //     this.setState({
+    //       icon: 'block',
+    //     });
+    //   }
+    // });
   }
   componentWillReceiveProps(next) {
     if (this.props.user.nodeId !== next.user.nodeId) {
@@ -52,8 +52,8 @@ export default class GlobalHeader extends PureComponent {
     if (
       this.props.user.type !== next.user.type ||
       this.props.user.newEvent !== next.user.newEvent ||
-      (this.props.user.value !== next.user.value && next.user.value === '')
-      // this.props.user.isTables !== next.user.isTables
+      (this.props.user.value !== next.user.value && next.user.value === '') ||
+      this.props.user.isTables !== next.user.isTables
     ) {
       this.setState({ searchValue: '' });
       sessionStorage.setItem('search', '');
@@ -67,7 +67,7 @@ export default class GlobalHeader extends PureComponent {
     this.getFind('');
   };
   onChangesearchValue = e => {
-    let testVal = /^[A-Za-z0-9\u4e00-\u9fa5-,，.:：;"“、]+$/;
+    let testVal = /^[A-Za-z0-9\u4e00-\u9fa5-，：；“]+$/;
     if (testVal.test(e.target.value) || e.target.value === '') {
       this.setState({
         searchValue: e.target.value,
@@ -89,23 +89,28 @@ export default class GlobalHeader extends PureComponent {
     console.log('searchValue=============>', val);
   };
   minWindows = () => {
-    ipcRenderer.send('window-min');
+    // ipcRenderer.send('window-min');
   };
   maxWindows = () => {
     if (this.state.icon === 'border') {
       this.setState({
         icon: 'block',
       });
-      ipcRenderer.send('window-max');
+      // ipcRenderer.send('window-max');
     } else {
       this.setState({
         icon: 'border',
       });
-      ipcRenderer.send('window-normal');
+      // ipcRenderer.send('window-normal');
     }
   };
   CloseWindow = () => {
-    ipcRenderer.send('put-in-tray');
+    // ipcRenderer.send('put-in-tray');
+  };
+  onKeyDown = e => {
+    if (e.key === 'Enter') {
+      this.getFind(this.state.searchValue);
+    }
   };
   getBlur = () => {
     if (!this.state.searchValue) {
@@ -117,36 +122,15 @@ export default class GlobalHeader extends PureComponent {
       });
     }
   };
-  onKeyDown = e => {
-    if (e.key === 'Enter') {
-      this.getFind(this.state.searchValue);
-    }
-  };
   render() {
     const { searchValue } = this.state;
     const suffix = searchValue ? <Icon type="close-circle" onClick={this.emitEmpty} /> : null;
     return (
       <div className={styles.header} id="header">
-        <div className={styles.headerRight}>
-          <Icon type="minus" className={styles.iconWindows} onClick={this.minWindows} />
-          {/*<img*/}
-          {/*src={this.state.icon}*/}
-          {/*className={styles.iconWindows}*/}
-          {/*style={{ marginTop: '-5px' }}*/}
-          {/*onClick={this.maxWindows}*/}
-          {/*/>*/}
-          <Icon
-            type={this.state.icon}
-            className={styles.iconWindows}
-            theme="outlined"
-            onClick={this.maxWindows}
-          />
-          {/*<Icon type= theme="outlined" />*/}
-          <Icon type="close" className={styles.iconWindows} onClick={this.CloseWindow} />
-        </div>
+        SmartLinkey
         <div className={styles.headerLeft}>
           {this.props.pathItem !== '/smartList/smartAll?type=1' &&
-          this.props.pathItem !== '/smartList/smartAll?type=5' ? (
+          this.props.pathItem !== '/smartList/smartAll?type=4' ? (
             <Input
               placeholder="请输入需要搜索的内容"
               suffix={

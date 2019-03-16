@@ -5,7 +5,7 @@ import styles from './SmartLink.less';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import { autoheight } from '../../utils/utils';
-import { ipcRenderer } from 'electron';
+// import { ipcRenderer } from 'electron';
 
 @connect(({ user }) => ({
   user,
@@ -31,22 +31,20 @@ class SmartLink extends Component {
     window.addEventListener('resize', () => {
       this.updateSize();
     });
-    this.props.dispatch({
-      type: 'user/getConfigGoto',
-      callback: response => {
-        response.third.map((event, i) => {
-          this.state.menu.map(item => {
-            if (item.resourceCode === event.unique) {
-              this.state.listMenu.push({
-                name: event.name,
-                link: event.unique === '109003' ? event.goto : event.goto + this.state.token,
-                icon: event.icon,
-                img: '',
-              });
-            }
+    this.props.user.config.third.map((event, i) => {
+      this.state.menu.map(item => {
+        if (item.resourceCode === event.unique) {
+          this.state.listMenu.push({
+            name: event.name,
+            link:
+              event.unique === 'sacw'
+                ? event.goto + this.state.userNew.idCard
+                : event.goto + this.state.token,
+            icon: event.icon,
+            img: '',
           });
-        });
-      },
+        }
+      });
     });
     setTimeout(() => {
       this.props.dispatch({
@@ -69,10 +67,10 @@ class SmartLink extends Component {
     });
   }
   goLink = path => {
-    ipcRenderer.send('visit-page', {
-      url: path,
-      browser: 'chrome',
-    });
+    // ipcRenderer.send('visit-page', {
+    //   url: path,
+    //   browser: 'chrome',
+    // });
     // window.open(path);
   };
   render() {
@@ -90,7 +88,7 @@ class SmartLink extends Component {
                 >
                   <div className={styles.colStyle}>
                     <img src={items.img} style={{ margin: '12px 14px', width: '42px' }} />
-                    <span title={items.name} className={styles.ExeName}>{items.name}</span>
+                    <span>{items.name}</span>
                   </div>
                 </Col>
               );

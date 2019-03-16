@@ -1,5 +1,5 @@
 import fetch from 'dva/fetch';
-import { notification, message } from 'antd';
+import { notification,message } from 'antd';
 
 function checkStatus(response) {
   let checkResponse = response.clone();
@@ -48,10 +48,10 @@ export default function request(url, options) {
       ...newOptions.headers,
     };
     newOptions.body = JSON.stringify(newOptions.body);
-  } else if (newOptions.method === 'get') {
+  } else if (newOptions.method === 'post'||newOptions.method === 'get') {
     newOptions.headers = {
       Accept: 'application/json',
-      'Content-Type': 'application/json; charset=utf-8',
+      'Content-Type': 'application/json;',
     };
     newOptions.body = JSON.stringify(newOptions.body);
   } else if (newOptions.method === 'Post') {
@@ -82,7 +82,18 @@ export default function request(url, options) {
     .then(checkStatus)
     .then(response => response.json())
     .catch(error => {
-      console.log('error------------------->', error);
+      if (error.code) {
+        notification.error({
+          message: error.name,
+          description: error.message,
+        });
+      }
+      if ('stack' in error && 'message' in error) {
+        /*         notification.error({
+                  message: `请求错误: ${url}`,
+                  description: error.message,
+                }); */
+      }
       return error;
     });
 }

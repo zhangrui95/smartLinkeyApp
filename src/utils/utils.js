@@ -145,39 +145,48 @@ export function isUrl(path) {
 //获取当前的日期时间 格式“yyyy-MM-dd HH:MM:SS”
 export function getNowFormatDate() {
   var date = new Date();
-  var seperator1 = "-";
-  var seperator2 = ":";
+  var seperator1 = '-';
+  var seperator2 = ':';
   var month = date.getMonth() + 1;
   var strDate = date.getDate();
   if (month >= 1 && month <= 9) {
-    month = "0" + month;
+    month = '0' + month;
   }
   if (strDate >= 0 && strDate <= 9) {
-    strDate = "0" + strDate;
+    strDate = '0' + strDate;
   }
-  var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
-    + " " + date.getHours() + seperator2 + date.getMinutes()
-    + seperator2 + date.getSeconds();
+  var currentdate =
+    date.getFullYear() +
+    seperator1 +
+    month +
+    seperator1 +
+    strDate +
+    ' ' +
+    date.getHours() +
+    seperator2 +
+    date.getMinutes() +
+    seperator2 +
+    date.getSeconds();
   return currentdate;
 }
 //时间戳转换
 export function getLocalTime(nS) {
-  if(nS==null){
+  if (nS == null) {
     return '';
   }
   var date = new Date(nS);
-  var month = date.getMonth()+1;
+  var month = date.getMonth() + 1;
   var day = date.getDate();
   var hours = date.getHours();
   var min = date.getMinutes();
   var second = date.getSeconds();
-  month = month<10?('0'+month):month;
-  day = day<10?('0'+day):day;
-  hours = hours<10?('0'+hours):hours;
-  min = min<10?('0'+min):min;
-  second = second<10?('0'+second):second;
-  return date.getFullYear()+'-'+month+'-'+day + ' '+hours+':'+min+':'+second
-};
+  month = month < 10 ? '0' + month : month;
+  day = day < 10 ? '0' + day : day;
+  hours = hours < 10 ? '0' + hours : hours;
+  min = min < 10 ? '0' + min : min;
+  second = second < 10 ? '0' + second : second;
+  return date.getFullYear() + '-' + month + '-' + day + ' ' + hours + ':' + min + ':' + second;
+}
 //时间转时间戳
 export function getTime(strtime) {
   let date = new Date(strtime.replace(/-/g, '/'));
@@ -186,19 +195,51 @@ export function getTime(strtime) {
 }
 //获取地址
 export function getQueryString(path, name) {
-  var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+  var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)');
   var r = path.substr(1).match(reg);
   if (r != null) return unescape(r[2]);
   return null;
 }
 //自适应浏览器高度
-export function autoheight(){
-  var winHeight=0;
-  if (window.innerHeight)
-    winHeight = window.innerHeight;
-  else if ((document.body) && (document.body.clientHeight))
-    winHeight = document.body.clientHeight;
+export function autoheight() {
+  var winHeight = 0;
+  if (window.innerHeight) winHeight = window.innerHeight;
+  else if (document.body && document.body.clientHeight) winHeight = document.body.clientHeight;
   if (document.documentElement && document.documentElement.clientHeight)
     winHeight = document.documentElement.clientHeight;
-    return winHeight;
+  return winHeight;
+}
+//键盘弹出
+export function keyShow(id) {
+  window.onresize = function(){
+    let scrollHeight = id.scrollHeight?id.scrollHeight : 0;
+    setTimeout(()=>{
+      id.scrollTop = scrollHeight;
+      console.log(id.scrollTop)
+    },100)
+  }
+}
+//验证身份证号码
+export function getCard(value) {
+  var ex = /^((1[1-5])|(2[1-3])|(3[1-7])|(4[1-6])|(5[0-4])|(6[1-5])|71|(8[12])|91)\d{4}(19|2[0-9])((\d{2}(0[13-9]|1[012])(0[1-9]|[12]\d|30))|(\d{2}(0[13578]|1[02])31)|(\d{2}02(0[1-9]|1\d|2[0-8]))|(([13579][26]|[2468][048]|0[48])0229))\d{3}(\d|X|x)?$/;
+  var pattern = new RegExp(ex);
+  if (!pattern.test(value)) {
+    return false;
+  }
+  var params = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
+  var checks = [1, 0, 10, 9, 8, 7, 6, 5, 4, 3, 2];
+  var id = value;
+  var sum = 0;
+  for (var i = 0; i < 17; i++) {
+    var tmp = id.charAt(i);
+    sum += params[i] * tmp;
+  }
+  sum %= 11;
+  var check;
+  if (id.charAt(17) == 'x' || id.charAt(17) == 'X') {
+    check = 10;
+  } else {
+    check = id.charAt(17);
+  }
+  return check == checks[sum];
 }

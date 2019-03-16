@@ -25,29 +25,24 @@ export default class SmartQuestion extends Component {
     window.addEventListener('resize', () => {
       this.updateSize();
     });
-    this.props.dispatch({
-      type: 'user/getConfigGoto',
-      callback: response => {
-        response.third.map((event, i) => {
-          this.state.menu.map(item => {
-            if (item.resourceCode === event.unique) {
-              this.state.data.push({
-                name: item.name,
-                code: item.resourceCode,
-                icon: event.icon,
-                iconurl: '',
-              });
-              this.setState({
-                data: this.state.data,
-                typeId: this.state.data[0].code,
-                title: this.state.data[0].name,
-              });
-            }
+    this.props.user.config.third.map((event, i) => {
+      this.state.menu.map(item => {
+        if (item.resourceCode === event.unique) {
+          this.state.data.push({
+            name: item.name,
+            code: item.resourceCode,
+            icon: event.icon,
+            iconurl: '',
           });
-        });
-      },
+          this.setState({
+            data: this.state.data,
+            typeId: this.state.data[0].code,
+            title: this.state.data[0].name,
+          });
+        }
+      });
     });
-    setTimeout(()=>{
+    setTimeout(() => {
       this.props.dispatch({
         type: 'user/getIcon',
         callback: response => {
@@ -60,7 +55,7 @@ export default class SmartQuestion extends Component {
           });
         },
       });
-    },1000);
+    }, 1000);
     // this.props.dispatch({
     //   type: 'question/getQuestion',
     //   payload: {

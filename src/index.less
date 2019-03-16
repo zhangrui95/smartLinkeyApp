@@ -1,9 +1,20 @@
+@font-family :'myFirstFont';
+@font-face
+{
+  font-family: myFirstFont;
+  src: url('../public/smartFont.ttf');
+}
 html,
 body,
 :global(#root) {
   height: 100%;
   -webkit-app-region: drag !important;
-  box-shadow: 0 0 5px rgba(0, 21, 41, 0.4);
+  //box-shadow: 0 0 5px rgba(0, 21, 41, 0.4);
+  background: #0195ff;
+  font-family: myFirstFont!important;
+}
+body{
+  font-family:myFirstFont!important;
 }
 body {
   background: transparent !important;
@@ -12,16 +23,16 @@ body {
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
   -webkit-app-region: drag !important;
+  background: #0195ff;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1000px) and (min-width: 768px) {
   body {
     padding: 5px !important;
   }
 }
 
 :global(#root) {
-  border-radius: 3px;
   overflow: hidden;
 }
 
@@ -51,14 +62,22 @@ img {
 
 // temp fix for https://github.com/ant-design/ant-design/commit/a1fafb5b727b62cb0be29ce6e9eca8f579d4f8b7
 :global {
-  @media (max-width: 1000px) {
-    .ant-modal-mask {
-      height: calc(~'100% - 10px') !important;
-      top: 5px !important;
-      left: 5px !important;
-      right: 5px !important;
-      border-radius: 3px !important;
-    }
+  //@media (max-width: 1000px) {
+  //  .ant-modal-mask {
+  //    height: calc(~'100% - 10px') !important;
+  //    top: 5px !important;
+  //    left: 5px !important;
+  //    right: 5px !important;
+  //  }
+  //}
+  @font-face
+  {
+    font-family: myFirstFont;
+    src: url('../public/smartFont.ttf');
+  }
+  @font-family :'myFirstFont';
+  .ant-radio-wrapper,.ant-modal,.ant-input,.ant-calendar-picker-container,.ant-form-item{
+    font-family: myFirstFont!important;
   }
   .ant-input-suffix {
     color: #fff !important;
@@ -89,7 +108,7 @@ img {
   }
   .ant-input-affix-wrapper {
     width: 235px !important;
-    margin-left: 23px !important;
+    margin-left: 30px !important;
   }
   .ant-btn {
     &:hover {
@@ -126,7 +145,7 @@ img {
     }
   }
   .ant-layout-content {
-    margin: 1px 0 0 0 !important;
+    margin: 0 !important;
     -webkit-app-region: no-drag !important;
   }
   .ant-avatar {
@@ -170,14 +189,10 @@ img {
     background: #1d94ee !important;
     border-color: #1d94ee !important;
   }
-  .ant-drawer-right .ant-drawer-content-wrapper {
-    height: ~'calc(100% - 10px)!important';
-    top: 5px !important;
-    right: 0px !important;
-  }
   .ant-drawer-open {
     .ant-drawer-content-wrapper {
-      right: 5px !important;
+      //right: 5px !important;
+      width: 100% !important;
     }
   }
   //.ant-tag {

@@ -8,10 +8,49 @@
   <title>Smartlinkey</title>
   <link rel="icon" href="/favicon.png" type="image/x-icon">
   <script src="configUrl.js"></script>
-<link href="./index.css" rel="stylesheet"></head>
+  <link href="./index.css" rel="stylesheet">
+  <style>
+    @font-face
+    {
+      font-family: myFirstFont;
+      src: url('smartFont.ttf');
+    }
+    body,#root{
+      font-family:myFirstFont!important;
+    }
+  </style>
+</head>
 
 <body>
   <div id="root"></div>
+  <script>
+    var webview;
+    var plusRun;
+    var webHide = false;
+    var plusGallery;
+    document.addEventListener('plusready', function() {
+//		plus.runtime.setBadgeNumber(8)
+      webview = plus.webview.currentWebview();
+      plusRun = plus.push;
+      plusGallery = plus.gallery
+      plus.key.addEventListener('backbutton', function() {
+        webview.canBack(function(e) {
+          if(e.canBack) {
+            webview.back();
+          } else {
+            webview.close(); //hide,quit
+            //plus.runtime.quit();
+          }
+        })
+      });
+    });
+    document.addEventListener("resume", function() {
+      webHide = false;
+    }, false);
+    document.addEventListener("pause", function() {
+      webHide = true;
+    }, false);
+  </script>
 <script type="text/javascript" src="./index.js"></script></body>
 
 </html>

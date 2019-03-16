@@ -25,7 +25,7 @@ import { urlToList, countDown } from '../_utils/pathTools';
 import { connect } from 'dva';
 import MD5 from 'md5-es';
 import { Strophe, $pres } from 'strophe.js';
-import { ipcRenderer } from 'electron';
+// import { ipcRenderer } from 'electron';
 import { WaterWave } from 'components/Charts';
 
 const { Sider } = Layout;
@@ -105,20 +105,7 @@ class SiderMenu extends PureComponent {
       nowUpdate: false,
     };
   }
-  componentDidMount() {
-    ipcRenderer.on('progress', this.getPro);
-    ipcRenderer.on('package-damaged', this.getPackageDamaged);
-  }
-  componentWillUnmount() {
-    ipcRenderer.removeListener('progress', this.getPro);
-    ipcRenderer.removeListener('package-damaged', this.getPackageDamaged);
-  }
   componentWillReceiveProps(nextProps) {
-    if(this.props.user.status !== nextProps.user.status){
-      this.setState({
-        searchWord: nextProps.user.status,
-      })
-    }
     if (nextProps.location.pathname !== this.props.location.pathname) {
       this.setState({
         openKeys: this.getDefaultCollapsedSubMenus(nextProps),
@@ -331,7 +318,6 @@ class SiderMenu extends PureComponent {
         _this.props.dispatch({
           type: 'login/getLogout',
         });
-        ipcRenderer.send('logout');
       },
       onCancel() {
         console.log('Cancel');
@@ -340,7 +326,7 @@ class SiderMenu extends PureComponent {
   };
   handleOks = () => {
     this.props.form.validateFields((err, values) => {
-      ipcRenderer.send('setting-huaci', values['search_word']);
+      // ipcRenderer.send('setting-huaci', values['search_word']);
       this.setState({
         word: values['search_word'],
       });
@@ -395,7 +381,7 @@ class SiderMenu extends PureComponent {
               this.props.dispatch({
                 type: 'login/getLogout',
               });
-              ipcRenderer.send('logout');
+              // ipcRenderer.send('logout');
             }
           },
         });
@@ -434,17 +420,17 @@ class SiderMenu extends PureComponent {
         jcvisible: false,
       });
       message.success('提示：操作成功');
-      ipcRenderer.send('download-package', this.state.updateItem);
-      ipcRenderer.send('update-relaunch', 'next-launch');
+      // ipcRenderer.send('download-package', this.state.updateItem);
+      // ipcRenderer.send('update-relaunch', 'next-launch');
     } else {
       this.setState({
         jcvisible: false,
       });
       message.success('提示：操作成功');
-      ipcRenderer.send('download-package', this.state.updateItem);
+      // ipcRenderer.send('download-package', this.state.updateItem);
       countDown(time);
       setTimeout(() => {
-        ipcRenderer.send('update-relaunch', 'now');
+        // ipcRenderer.send('update-relaunch', 'now');
       }, time);
     }
   };
@@ -462,7 +448,7 @@ class SiderMenu extends PureComponent {
   };
   getGX = () => {
     if (this.state.percent === 0 || this.state.percent === 100) {
-      ipcRenderer.send('download-package', this.state.updateItem);
+      // ipcRenderer.send('download-package', this.state.updateItem);
     }
     this.setState({
       newsLoading: true,
@@ -507,7 +493,7 @@ class SiderMenu extends PureComponent {
     message.warn('文件包已损坏，更新失败');
   };
   getUpdate = () => {
-    ipcRenderer.send('update-relaunch', 'now');
+    // ipcRenderer.send('update-relaunch', 'now');
   };
   onWordChange = checked => {
     this.setState({
@@ -717,7 +703,7 @@ class SiderMenu extends PureComponent {
                 <div>
                   <Popover content={<DatePicker />} />
                   <Dropdown overlay={menuLists}>
-                    <Button style={{ border: '1px solid #1d94ee', color: '#1d94ee' }}>
+                    <Button style={{ border: '1px solid #19b5d0', color: '#19b5d0' }}>
                       定时更新 <Icon type="down" />
                     </Button>
                   </Dropdown>

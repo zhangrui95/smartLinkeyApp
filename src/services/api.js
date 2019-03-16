@@ -75,7 +75,6 @@ export async function getTokenLogin(params) {
   });
 }
 
-
 export async function getUpdatePassword(params) {
   // return request(`${configUrl.testUrl}/login/updatePassword`, {
   return request(`${configUrl.testUrl}/login/updatePassword`, {
@@ -119,6 +118,19 @@ export async function getQuestionList(params) {
 
 export async function getQuestionName(params) {
   return request(`${configUrl.ywzxUrl}/getSysHelpByTypeId`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+export async function getSaveList(params) {
+  return request(`${configUrl.GMUrl}/datahandle/createpubsubnode`, {
+    method: 'POST',
+    body: params,
+  });
+}
+export async function getCancelCollection(params) {
+  return request(`${configUrl.GMUrl}/datahandle/unSubscribe`, {
     method: 'POST',
     body: params,
   });

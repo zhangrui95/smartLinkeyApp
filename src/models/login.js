@@ -4,7 +4,7 @@ import {
   getUpdatePassword,
   getUpdateLoginSetting,
   getLoginSetting,
-  getTokenLogin
+  getTokenLogin,
 } from '../services/api';
 import { setAuthority } from '../utils/authority';
 import { reloadAuthorized } from '../utils/Authorized';
@@ -28,11 +28,12 @@ export default {
         type: 'changeLoginStatus',
         payload: response,
       });
-      if (!response.error) {
+      if (response && response.error === null) {
         callback(response);
         yield put(routerRedux.push('/smartList/smartAll?type=0'));
       } else {
-        message.warning(response.error.text ?  response.error.text : '服务器请求失败');
+        message.destroy();
+        message.warning('提示：' + response.error.text);
       }
     },
     *loginToken({ payload, callback }, { call, put }) {
@@ -45,6 +46,7 @@ export default {
         callback(response);
         yield put(routerRedux.push('/smartList/smartAll?type=0'));
       } else {
+        message.destroy();
         message.warning('提示：' + response.error.text);
       }
     },

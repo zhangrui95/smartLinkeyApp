@@ -15,7 +15,7 @@ class UserLayout extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-       height: autoheight(),
+      height: autoheight(),
     };
   }
   componentDidMount() {
@@ -41,7 +41,7 @@ class UserLayout extends React.PureComponent {
     const { routerData, match } = this.props;
     return (
       <DocumentTitle title={this.getPageTitle()}>
-        <div className={styles.container} style={{height:this.state.height + 'px'}}>
+        <div className={styles.container} style={{ height: this.state.height + 'px' }}>
           <div className={styles.content}>
             <div className={styles.top}>
               {/*<div className={styles.header}>*/}

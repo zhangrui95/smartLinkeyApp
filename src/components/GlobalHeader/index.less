@@ -77,10 +77,13 @@ i.trigger {
 .header {
   height: 54px;
   padding: 0 12px 0 0;
-  background: #1d94ee;
+  background: #283345;
   box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
   position: relative;
-  -webkit-app-region: drag;
+  //-webkit-app-region: drag;
+  text-align: center;
+  color: #fff;
+  font-size: 18px;
   //-webkit-user-select: none;
   :global {
     .ant-layout {
@@ -91,17 +94,18 @@ i.trigger {
       border-color: #1d94ee;
     }
     .ant-input-affix-wrapper {
-      width: 290px !important;
-      margin-left: 0 !important;
+      width: 100% !important;
     }
     .ant-input {
-      background: #1f8fe5;
-      //border-radius: 16px;
-      border: 1px solid #1a83d4;
-      width: 290px;
+      background: #0d8de6;
+      border: 1px solid #0b82d6;
+      width: 100%;
       padding: 0 28px 0 16px !important;
       outline: none;
       color: #fff;
+      height: 40px !important;
+      line-height: 40px !important;
+      font-size: 16px;
       &:focus {
         box-shadow: none;
         border: 1px solid #1a83d4;
@@ -150,6 +154,11 @@ i.trigger {
 .headerLeft {
   float: left;
   -webkit-app-region: no-drag;
+  position: absolute;
+  top: 56px;
+  left: -10px;
+  width: 76%;
+  z-index: 999;
 }
 .headerRight {
   float: right;

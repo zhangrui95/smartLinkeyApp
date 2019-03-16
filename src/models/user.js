@@ -10,14 +10,17 @@ import {
   getConfig,
   getIcons,
   getXmppList,
-  getSocketList,
   getSaveXmpp,
   getSearch,
-  getSacwSearch,
+  getConfigUrl,
   getOnline,
+  getClosepc,
+  getSocketList,
+  getRead,
   getfkForm,
   questionStatus,
   getiNactive,
+  getSacwSearch,
   getAgSerach
 } from '../services/user';
 
@@ -39,6 +42,8 @@ export default {
     status: null,
     xmppList: '',
     isTables: false,
+    severUrl: null,
+    config: null,
   },
 
   effects: {
@@ -62,13 +67,25 @@ export default {
         type: 'getAllList',
         payload: response,
       });
-      if(callback&&response){
+      if(callback&&response) {
+        callback(response);
+      }
+    },
+    *SocketQuery({ payload, callback }, { call, put }) {
+      const response = yield call(getSocketList, payload);
+      if(callback&&response) {
+        callback(response);
+      }
+    },
+    *SocketRead({ payload, callback }, { call, put }) {
+      const response = yield call(getRead, payload);
+      if(callback&&response) {
         callback(response);
       }
     },
     *subQuery({ payload, callback }, { call, put }) {
       const response = yield call(getSubQuery, payload);
-      if(callback&&response){
+      if(callback&&response) {
         callback(response);
       }
     },
@@ -78,7 +95,7 @@ export default {
         type: 'getAllNum',
         payload: sessionStorage.getItem('allNum'),
       });
-      if(callback&&response){
+      if(callback&&response) {
         callback(response);
       }
     },
@@ -144,13 +161,13 @@ export default {
         type: 'getWordList',
         payload: response,
       });
-      if(callback&&response){
+      if(callback&&response) {
         callback(response);
       }
     },
     *loginIp({ payload, callback }, { call, put }) {
       const response = yield call(getLoginIp, payload);
-      if(callback&&response){
+      if(callback&&response) {
         callback(response);
       }
     },
@@ -160,21 +177,19 @@ export default {
         payload: payload,
       });
     },
-    *getConfigGoto({ callback }, { call }) {
+    *getConfigGoto({ callback }, { call, put }) {
       const response = yield call(getConfig);
-      if(callback&&response){
-        callback(response);
-      }
-    },
-    *getAgSerachs({ callback }, { call }) {
-      const response = yield call(getAgSerach);
-      if(callback&&response){
+      yield put({
+        type: 'getConfigs',
+        payload: response,
+      });
+      if(callback&&response) {
         callback(response);
       }
     },
     *getIcon({ callback }, { call }) {
       const response = yield call(getIcons);
-      if(callback&&response){
+      if(callback&&response) {
         callback(response);
       }
     },
@@ -184,58 +199,73 @@ export default {
         type: 'getXmppQuery',
         payload: response,
       });
-      if(callback&&response){
+      if(callback&&response) {
         callback(response);
       }
     },
-    *SocketQuery({ payload, callback }, { call, put }) {
-      const response = yield call(getSocketList, payload);
-      if(callback&&response){
-        callback(response);
-      }
-    },
-
     *xmppSave({ payload, callback }, { call, put }) {
       const response = yield call(getSaveXmpp, payload);
       if (response._shards.successful > 0) {
-        if(callback&&response){
-          callback(response);
-        }
-      }
-    },
-    *getOnlines({ payload, callback }, { call, put }) {
-      const response = yield call(getOnline, payload);
-      if(callback&&response){
         callback(response);
       }
     },
     *getJzSerach({ payload, callback }, { call, put }) {
       const response = yield call(getSearch, payload);
-      if(callback && response && response.result){
+      if(response&&callback){
         callback(response);
-      }
-    },
-    *getQuestionStatus({ payload, callback }, { call, put }) {
-      const response = yield call(questionStatus, payload);
-      if(callback&&response){
-        callback(response);
+      }else{
+        return false;
       }
     },
     *getSacwSerach({ payload, callback }, { call, put }) {
       const response = yield call(getSacwSearch, payload);
-      if(callback&&response){
+      if(callback&&response) {
+        callback(response);
+      }
+    },
+    *getAgSerachs({ callback }, { call }) {
+      const response = yield call(getAgSerach);
+      if(callback&&response) {
+        callback(response);
+      }
+    },
+    *getUrl({ payload, callback }, { call, put }) {
+      const response = yield call(getConfigUrl, payload);
+      yield put({
+        type: 'getChangeUrl',
+        payload: response,
+      });
+      if(callback&&response) {
+        callback(response);
+      }
+    },
+    *getOnlines({ payload, callback }, { call, put }) {
+      const response = yield call(getOnline, payload);
+      if(callback&&response) {
+        callback(response);
+      }
+    },
+    *getClosepcs({ payload, callback }, { call, put }) {
+      const response = yield call(getClosepc, payload);
+      if(callback&&response) {
         callback(response);
       }
     },
     *getFkForm({ payload, callback }, { call, put }) {
       const response = yield call(getfkForm, payload);
-      if(callback&&response){
+      if(callback&&response) {
+        callback(response);
+      }
+    },
+    *getQuestionStatus({ payload, callback }, { call, put }) {
+      const response = yield call(questionStatus, payload);
+      if(callback&&response) {
         callback(response);
       }
     },
     *getNactive({ payload, callback }, { call, put }) {
       const response = yield call(getiNactive, payload);
-      if(callback&&response){
+      if(callback&&response) {
         callback(response);
       }
     },
@@ -333,6 +363,18 @@ export default {
       return {
         ...state,
         xmppList: payload,
+      };
+    },
+    getChangeUrl(state, { payload }) {
+      return {
+        ...state,
+        severUrl: payload,
+      };
+    },
+    getConfigs(state, { payload }) {
+      return {
+        ...state,
+        config: payload,
       };
     },
   },

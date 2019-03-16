@@ -2,6 +2,9 @@
 .main {
   width: 100% !important;
   margin: 0 auto;
+  position: relative;
+  overflow-y: scroll;
+  overflow-x: hidden;
   @media screen and (max-width: @screen-sm) {
     width: 95%;
   }
@@ -29,48 +32,60 @@
   }
 }
 .loginAllStyle {
-  width: 70% !important;
+  width: 74% !important;
   position: absolute;
-  left: 15%;
-  top: 200px;
-  :global{
-    .ant-input-affix-wrapper{
-      width: 100%!important;
-      margin-left: 0!important;
+  left: 13%;
+  top: 300px;
+  :global {
+    .ant-input-affix-wrapper {
+      width: 100% !important;
+      margin-left: 0 !important;
+    }
+    .ant-input-lg {
+      height: 46px !important;
+      font-size: 16px !important;
+    }
+    .ant-tabs-nav-wrap {
+      display: none;
     }
   }
+  .prefixIcon {
+    font-size: 16px !important;
+  }
 }
-@media only screen  and (max-width: 350px){
+@media only screen and (max-width: 350px) {
   .loginAllStyle {
     width: 90% !important;
     position: absolute;
     left: 5%;
-    top: 200px;
-    :global{
-      .ant-input-affix-wrapper{
-        width: 86%!important;
-        margin-left: 7%!important;
+    top: 270px;
+    :global {
+      .ant-input-affix-wrapper {
+        width: 86% !important;
+        margin-left: 7% !important;
       }
     }
   }
 }
 
 .btnBg {
-  width: 100%!important;
+  width: 100% !important;
   background: linear-gradient(right, #ff3366, #ff9966) !important;
   border-radius: 50px !important;
-  height: 36px !important;
-  margin-left: 0px!important;
-  margin-top: 10px!important;
+  height: 46px !important;
+  margin-left: 0px !important;
+  margin-top: 10px !important;
+  font-size: 18px !important;
 }
-@media only screen  and (max-width: 350px){
+@media only screen and (max-width: 350px) {
   .btnBg {
     background: linear-gradient(right, #ff3366, #ff9966) !important;
     border-radius: 50px !important;
-    height: 36px !important;
-    margin-left: 7%!important;
-    margin-top: 10px!important;
-    width: 86%!important;
+    height: 46px !important;
+    margin-left: 7% !important;
+    margin-top: 10px !important;
+    width: 86% !important;
+    font-size: 16px !important;
   }
 }
 :global {
@@ -80,10 +95,6 @@
   .ant-tabs-nav-wrap {
     margin-top: 22px !important;
     margin-left: -16px !important;
-  }
-  .ant-input-lg {
-    height: 36px !important;
-    font-size: 14px !important;
   }
 }
 .none {
@@ -103,8 +114,8 @@
 .logoLogin {
   margin: 15px 0 0 50%;
   position: absolute;
-  left: -72px;
-  width: 200px;
+  left: -78px;
+  width: 220px;
 }
 .fontColor {
   background-image: -webkit-linear-gradient(right, #ff3366, #ff9966);
@@ -114,31 +125,18 @@
 }
 .smartIcon {
   position: absolute;
-  width: 100px;
-  top: 205px;
+  width: 120px;
+  top: 240px;
   margin-left: 50%;
-  left: -50px;
+  left: -60px;
 }
 .none {
   display: none;
 }
 .szBtn{
-  z-index: 1000;
   font-size: 24px;
-  top: 60px;
+  top: 15px;
   position: absolute;
-  right: 20px;
+  right: 15px;
   color: rgb(255, 255, 255);
-  -webkit-app-region: no-drag !important;
-  cursor: pointer;
-}
-.modalBox{
-  :global{
-    .ant-form-item{
-      margin-bottom: 0!important;
-    }
-    .ant-modal-content{
-      margin: 20px;
-    }
-  }
 }

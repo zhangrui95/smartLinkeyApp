@@ -1,143 +1,67 @@
 import React, { Component, Fragment } from 'react';
-import { Card, Icon, Avatar, Tag, Spin, Tooltip } from 'antd';
+import { Card, Icon, Avatar, Tag, Spin, Tooltip, message } from 'antd';
 const { Meta } = Card;
 import Ellipsis from 'ant-design-pro/lib/Ellipsis';
 import styles from './SmartDetail.less';
+import moment from 'moment';
 export default class SmartDetailItem extends Component {
   render() {
+    let date = new Date();
     let btn = [];
-    if (this.props.childItem.btn_ary && this.props.childItem.btn_ary.length > 0) {
-      this.props.childItem.btn_ary.map(e => {
-        if (
-          (e.isvisible && this.props.childItem.active === 0) ||
-          (e.isvisible && this.props.childItem.active === 1 && e.act)
-        ) {
-          btn.push(e);
-        }
-      });
-    }
+    this.props.childItem.btn_ary.map(e => {
+      if (e.isvisible) {
+        btn.push(e);
+      }
+    });
     return (
-      <div className={styles.boxItem} key={this.props.i.toString() + this.props.index}>
-        <div className={styles.timeStyle}>{this.props.childItem.time}</div>
-        <div>
-          {this.props.childItem.xxtb.isvisible ? (
-            <div className={styles.headerName}>
-              <img src={this.props.childItem.xxtb.msg} className={styles.headerImgSay} />
+      <div className={styles.appList} onClick={() => this.props.goLinkDetail(this.props.childItem)}>
+        <div style={{ width: 'calc(100% + ' + 70 * btn.length + 'px)' }}>
+          <div
+            className={styles.listLeftBox}
+            style={{ width: 'calc(100% - ' + 70 * btn.length + 'px)' }}
+          >
+            {this.props.childItem.xxtb.isvisible ? (
+              <img src={this.props.childItem.xxtb.msg} className={styles.headerName} /> //{this.props.childItem.xxtb.msg}
+            ) : (
+              ''
+            )}
+            <div className={this.props.childItem.read_m === 0 ? styles.redbox : styles.none} />
+            <div className={styles.applistLeft}>
+              {this.props.childItem.xxmc.isvisible ? (
+                <div className={styles.listName}>{this.props.childItem.xxmc.msg}</div>
+              ) : (
+                ''
+              )}
+              {this.props.childItem.xxbt.isvisible ? (
+                <div>{this.props.childItem.xxbt.msg}</div>
+              ) : (
+                ''
+              )}
             </div>
-          ) : (
-            ''
-          )}
-          <div className={styles.cardBox}>
-            {this.props.childItem.xxbt.isvisible
-              ? ''
-              : //<div className={styles.newsTitle}>{this.props.childItem.xxbt.msg}</div>
-                ''}
-            <Card
-              title={
-                <div>
-                  {this.props.childItem.xxbj.isvisible ? (
-                    this.props.childItem.xxbj.actiontype === 0 ? (
-                      this.props.k > 0 ? (
-                        <Tooltip placement="top" title="取消关注">
-                          <img
-                            className={styles.saveIcon}
-                            src="images/tjguanzhu.png"
-                            onClick={() => this.props.getCancelSave(this.props.childItem.id)}
-                          />
-                        </Tooltip>
-                      ) : (
-                        <Tooltip placement="top" title="关注">
-                          <img
-                            className={styles.saveIcon}
-                            src="images/qxguanzhu.png"
-                            onClick={() =>
-                              this.props.getSave(this.props.childItem.id, '关注', 'myFollow')
-                            }
-                          />
-                        </Tooltip>
-                      )
-                    ) : (
-                      <img className={styles.lookIcon} src={this.props.childItem.xxbj.msg} />
-                    )
-                  ) : (
-                    ''
-                  )}
-                  <span
-                    className={styles.overText}
-                    style={
-                      this.props.childItem.xxbj.isvisible
-                        ? { paddingLeft: '24px' }
-                        : { paddingLeft: '0' }
-                    }
-                  >
-                    <Ellipsis length={18} tooltip fullWidthRecognition={true}>
-                      {this.props.childItem.xxmc.isvisible ? this.props.childItem.xxmc.msg : ''}
-                    </Ellipsis>
-                  </span>
-                  {this.props.childItem.xxzt.isvisible ? (
-                    <Tag className={styles.tagStyle}>
-                      <Ellipsis length={6} tooltip>
-                        {this.props.childItem.xxzt.msg}
-                      </Ellipsis>
-                    </Tag>
-                  ) : (
-                    ''
-                  )}
+            <div className={styles.applistRight}>
+              <div className={styles.listTime}>
+                {this.props.childItem.time.substring(0, 10) === moment(date).format('YYYY-MM-DD')
+                  ? this.props.childItem.time.substring(11, 16)
+                  : this.props.childItem.time.substring(0, 10)}
+              </div>
+              {this.props.childItem.xxzt.isvisible ? (
+                <div className={styles.listStute}><Ellipsis length={6}>{this.props.childItem.xxzt.msg}</Ellipsis></div>
+              ) : (
+                ''
+              )}
+            </div>
+          </div>
+          <div className={styles.listRightBox} style={{ width: 70 * btn.length + 'px' }}>
+            {btn.map(event => {
+              return (
+                <div
+                  className={styles.listBtn}
+                  style={{ padding: event.msg.length > 2 ? '5px' : '13px 5px' }}
+                >
+                  {event.msg}
                 </div>
-              }
-              style={{ width: 330, marginLeft: '20px' }}
-              cover={
-                this.props.childItem.xxtp.isvisible ? (
-                  <img
-                    alt="example"
-                    src={this.props.childItem.xxtp.msg.replace('uploadimages', 'uploadImages')}
-                  />
-                ) : (
-                  ''
-                )
-              }
-              actions={
-                btn.length > 0
-                  ? btn.map(event => {
-                      return event.isvisible
-                        ? [
-                            <div
-                              style={{ fontSize: '14px' }}
-                              onClick={() =>
-                                this.props.goWindow(
-                                  event.act.replace(/[$]+/g, '&'),
-                                  this.props.childItem,
-                                  false,
-                                  event.comment
-                                )
-                              }
-                            >
-                              {event.msg}
-                            </div>,
-                          ]
-                        : null;
-                    })
-                  : ''
-              }
-            >
-              <Meta
-                title={
-                  this.props.childItem.xxxs_ary.length > 0
-                    ? this.props.childItem.xxxs_ary.map(event => {
-                        return event.isvisible ? (
-                          <div className={styles.nameStyle}>
-                            <Ellipsis length={40} fullWidthRecognition={true} tooltip>
-                              {event.msg}
-                            </Ellipsis>
-                          </div>
-                        ) : (
-                          ''
-                        );
-                      })
-                    : ''
-                }
-              />
-            </Card>
+              );
+            })}
           </div>
         </div>
       </div>

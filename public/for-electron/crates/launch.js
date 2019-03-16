@@ -1,0 +1,87 @@
+var _0x63f0 = [
+  'replace',
+  'gtFeX',
+  'log',
+  'HKEY',
+  'HKEY_LOCAL_MACHINE',
+  'KEY_ACCESS',
+  'KEY_QUERY_VALUE',
+  'GQOrW',
+  'vRmFN',
+  '\x5cSmartLinkey.exe',
+  'aVcaF',
+  'enable',
+  'isEnabled',
+  'then',
+  'auto_launch',
+  'auto-launch',
+  'Key',
+  'utf-8',
+  'SOFTWARE\x5c',
+  '=================',
+  'smartlinkey',
+  'jiqhb',
+  'sgLxd',
+  'AFSVP',
+];
+(function(_0x3de74d, _0x2b0193) {
+  var _0x299e03 = function(_0x1850ef) {
+    while (--_0x1850ef) {
+      _0x3de74d['push'](_0x3de74d['shift']());
+    }
+  };
+  _0x299e03(++_0x2b0193);
+})(_0x63f0, 0x147);
+var _0x173f = function(_0x432fa6, _0x4e49b1) {
+  _0x432fa6 = _0x432fa6 - 0x0;
+  var _0x37464c = _0x63f0[_0x432fa6];
+  return _0x37464c;
+};
+const AutoLaunch = require(_0x173f('0x0'));
+const Key = require('windows-registry')[_0x173f('0x1')];
+const windef = require('windows-registry')['windef'];
+const fs = require('fs');
+function auto_launch(_0x4b8888) {
+  var _0xdba904 = {
+    jiqhb: function(_0x12083c, _0x30424c) {
+      return _0x12083c + _0x30424c;
+    },
+    sgLxd: '/guid.txt',
+    AFSVP: _0x173f('0x2'),
+    gtFeX: _0x173f('0x3'),
+    mghEZ: _0x173f('0x4'),
+    GQOrW: 'InstallLocation',
+    vRmFN: function(_0x4371e9, _0x1e240d) {
+      return _0x4371e9 + _0x1e240d;
+    },
+    aVcaF: _0x173f('0x5'),
+  };
+  let _0x423a7d = fs['readFileSync'](
+    _0xdba904[_0x173f('0x6')](_0x4b8888, _0xdba904[_0x173f('0x7')]),
+    _0xdba904[_0x173f('0x8')]
+  );
+  _0x423a7d = _0x423a7d[_0x173f('0x9')](/[\r\n]/g, '');
+  const _0x1b5bf0 = _0xdba904[_0x173f('0x6')](_0xdba904[_0x173f('0xa')], _0x423a7d);
+  console['log'](_0xdba904['mghEZ']);
+  console[_0x173f('0xb')](_0x423a7d);
+  console[_0x173f('0xb')](_0x1b5bf0);
+  var _0x2754b5 = new Key(
+    windef[_0x173f('0xc')][_0x173f('0xd')],
+    _0x1b5bf0,
+    windef[_0x173f('0xe')][_0x173f('0xf')]
+  );
+  var _0x4e0583 = _0x2754b5['getValue'](_0xdba904[_0x173f('0x10')]);
+  let _0x8141e = _0xdba904[_0x173f('0x11')](_0x4e0583, _0x173f('0x12'));
+  console[_0x173f('0xb')](_0x8141e);
+  var _0x67060a = new AutoLaunch({ name: _0xdba904[_0x173f('0x13')], path: _0x8141e });
+  _0x67060a[_0x173f('0x14')]();
+  _0x67060a[_0x173f('0x15')]()
+    [_0x173f('0x16')](function(_0x56f408) {
+      if (_0x56f408) {
+        return;
+      }
+      _0x67060a['enable']();
+    })
+    ['catch'](function(_0x193225) {});
+}
+exports[_0x173f('0x17')] = auto_launch;

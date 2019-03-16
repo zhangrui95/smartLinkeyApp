@@ -8,6 +8,7 @@ const map = {
     props: {
       size: 'large',
       prefix: <Icon type="user" className={styles.prefixIcon} />,
+      // suffix: <Icon type="close-circle"  style={{color:'#d9d9d9',fontSize:'16px'}}/>,
       placeholder: 'admin',
     },
     rules: [
@@ -22,6 +23,7 @@ const map = {
     props: {
       size: 'large',
       prefix: <Icon type="lock" className={styles.prefixIcon} />,
+      // suffix: <Icon type="close-circle"  style={{color:'#d9d9d9',fontSize:'16px'}}/>,
       type: 'password',
       placeholder: '888888',
     },

@@ -31,10 +31,16 @@
 .sider {
   //min-height: 100vh;
   //box-shadow: 2px 0 6px rgba(0, 21, 41, 0.35);
-  position: relative;
+  position: fixed;
   z-index: 10;
-  background: url('../../../public/images/bg.png') no-repeat #232c3d;
+  background: #fff;
   background-size: cover;
+  left: 0;
+  bottom: 0;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 56px !important;
+  overflow: hidden;
   &.ligth {
     background-color: white;
     .logo {
@@ -47,9 +53,11 @@
 }
 
 .icon {
-  width: 32px;
-  margin-right: 10px;
+  width: 36px;
   cursor: pointer;
+  position: absolute;
+  left: -20px;
+  margin-left: 50%;
 }
 
 :global {
@@ -77,6 +85,11 @@
   }
   .ant-menu-dark {
     background: transparent;
+    border-top: 1px solid #eee;
+  }
+  .ant-menu-dark.ant-menu-inline .ant-menu-item {
+    width: 33.3% !important;
+    float: left !important;
   }
   .ant-menu-item {
     padding-left: 20px !important;

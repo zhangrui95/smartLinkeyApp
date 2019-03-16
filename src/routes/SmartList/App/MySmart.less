@@ -1,0 +1,138 @@
+.myBox {
+  background: #f9f9f9;
+  position: relative;
+  z-index: 999;
+}
+.modalBox {
+  :global {
+    .ant-input {
+      height: 36px;
+    }
+  }
+}
+:global {
+  .ant-modal-header {
+    background: #283345;
+    color: #fff;
+  }
+  .ant-modal-title {
+    color: #fff;
+    text-align: center;
+  }
+  .ant-modal-footer {
+    border-top: 0;
+  }
+  .ant-form-item-label {
+    margin-top: 10px !important;
+  }
+  .ant-modal-body {
+    padding: 24px 24px 0;
+  }
+  .ant-modal-footer {
+    padding: 0 16px 10px;
+  }
+  @media (max-width: 767px) {
+    .ant-modal {
+      width: auto !important;
+      margin: 24px;
+    }
+  }
+}
+.boxHeader {
+  height: 140px;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+  font-size: 18px;
+  line-height: 40px;
+  padding-top: 26px;
+  img {
+    width: 60px;
+    height: 60px;
+    border-radius: 100px;
+  }
+}
+.appHeader {
+  height: 60px;
+  background: #fff;
+  margin-top: 10px;
+  :global {
+    .anticon {
+      margin-top: 6px !important;
+    }
+  }
+  .leftIcon {
+    float: left;
+    color: #fff;
+    width: 30px;
+    height: 30px;
+    border-radius: 50px;
+    background: #0195ff;
+    margin: 15px 15px 10px 20px;
+    text-align: center;
+    //line-height: 30px;
+    font-size: 18px;
+  }
+  .appHeaderTilte {
+    float: left;
+    font-size: 18px;
+    line-height: 60px;
+    color: #000032;
+  }
+}
+.goOut {
+  width: 100%;
+  text-align: center;
+  height: 50px;
+  line-height: 50px;
+  background: #fff;
+  font-size: 18px;
+  margin-top: 10px;
+}
+.onOk {
+  height: 40px !important;
+  line-height: 40px;
+  border-radius: 50px;
+  color: #fff;
+  text-align: center;
+  margin: 10px 3% !important;
+  padding: 0;
+  width: 94%;
+  background: linear-gradient(right, #ff3366, #ff9966) !important;
+  font-size: 18px;
+}
+.hideModle {
+  position: absolute;
+  left: 20px;
+  top: 17px;
+  font-size: 20px;
+}
+.aboutBox {
+  text-align: center;
+  .aboutImg {
+    width: 15%;
+  }
+  .logoImg {
+    width: 75%;
+  }
+  :global {
+    .ant-modal-body {
+      padding: 24px;
+    }
+  }
+  .vesText {
+    margin: 20px 0;
+    font-size: 16px;
+    line-height: 30px;
+    .blueText {
+      color: #0066ff;
+    }
+  }
+}
+.modalSearchBox {
+  :global {
+    .ant-modal-body {
+      padding: 24px;
+    }
+  }
+}
