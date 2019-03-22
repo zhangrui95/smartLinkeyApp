@@ -28,12 +28,14 @@ export default {
         type: 'changeLoginStatus',
         payload: response,
       });
-      if (response && response.error === null) {
+      if (response.data && !response.error) {
         callback(response);
         yield put(routerRedux.push('/smartList/smartAll?type=0'));
       } else {
         message.destroy();
-        message.warning('提示：' + response.error.text);
+        message.warning(
+          response.error && response.error.text ? response.error.text : '服务器请求失败'
+        );
       }
     },
     *loginToken({ payload, callback }, { call, put }) {
