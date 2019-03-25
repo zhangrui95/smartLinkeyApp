@@ -3,15 +3,7 @@ import { connect } from 'dva';
 import moment from 'moment';
 import { routerRedux } from 'dva/router';
 import AppDetail from './App/AppDetail';
-import {
-  Card,
-  Icon,
-  Spin,
-  Button,
-  Checkbox,
-  DatePicker,
-  Radio,
-} from 'antd';
+import { Card, Icon, Spin, Button, Checkbox, DatePicker, Radio } from 'antd';
 import 'moment/locale/zh-cn';
 moment.locale('zh-cn');
 const { MonthPicker, RangePicker, WeekPicker } = DatePicker;
@@ -66,7 +58,7 @@ export default class SmartDetail extends Component {
       enter: false,
       userItem: userNew,
       agxt: agxt,
-      sxValue:null,
+      sxValue: null,
       xzValue: [],
       visible: false,
       isTable: false,
@@ -116,8 +108,8 @@ export default class SmartDetail extends Component {
       type: 'user/getFkForm',
       callback: response => {
         this.setState({
-          form: response
-        })
+          form: response,
+        });
       },
     });
   }
@@ -151,9 +143,10 @@ export default class SmartDetail extends Component {
       type: 'user/SocketQuery',
       payload: payloads,
       callback: res => {
-        let key = this.props.msg_key_str ? this.props.msg_key_str.split(',').map(item => parseInt(item)) : '';
+        let key = this.props.msg_key_str
+          ? this.props.msg_key_str.split(',').map(item => parseInt(item))
+          : '';
         let response = JSON.parse(aes_decrypt(key, res.cipher));
-        console.log('response---------->', response);
         this.setState({
           loading: false,
           total: response.total,
@@ -227,9 +220,13 @@ export default class SmartDetail extends Component {
   _handleScroll(scrollTop) {
     let scrollHeight = this.refs.scroll.scrollHeight;
     let windowHeight = this.refs.scroll.clientHeight;
-    if(this.state.total > 0 && (this.state.total === this.state.pageCount * (this.state.endLength + 1)||this.state.total < this.state.pageCount * (this.state.endLength + 1))){
+    if (
+      this.state.total > 0 &&
+      (this.state.total === this.state.pageCount * (this.state.endLength + 1) ||
+        this.state.total < this.state.pageCount * (this.state.endLength + 1))
+    ) {
       return false;
-    }else{
+    } else {
       if (scrollTop + windowHeight === scrollHeight) {
         this.refs.scroll.removeEventListener('scroll', this.scrollHandler);
         let from = parseInt(this.state.endLength) * this.state.pageCount;
@@ -268,7 +265,11 @@ export default class SmartDetail extends Component {
     this._handleScroll(scrollTop);
   }
   componentWillReceiveProps(next) {
-    if (this.props.newMsg !== next.newMsg || this.props.user.value !== next.user.value || next.msg_key_str&&this.props.msg_key_str !== next.msg_key_str) {
+    if (
+      this.props.newMsg !== next.newMsg ||
+      this.props.user.value !== next.user.value ||
+      (next.msg_key_str && this.props.msg_key_str !== next.msg_key_str)
+    ) {
       this.setState({
         endLength: 0,
         searchValue: next.user.value,
@@ -324,9 +325,9 @@ export default class SmartDetail extends Component {
       visible: false,
     });
     window.addEventListener('popstate', this.props.callAllBack);
-    setTimeout(()=>{
+    setTimeout(() => {
       this.refs.scroll.addEventListener('scroll', this.scrollHandler);
-    },10);
+    }, 10);
   };
   onSearchList = () => {
     this.onClose();
@@ -345,8 +346,8 @@ export default class SmartDetail extends Component {
         idcard: this.state.userItem.idCard,
         size: this.state.pageCount,
         page: 0,
-        timeStart: this.state.searchTime[0] ? this.state.searchTime[0]+' 00:00:00' : '',
-        timeEnd: this.state.searchTime[1] ? this.state.searchTime[1]+' 23:59:59' : '',
+        timeStart: this.state.searchTime[0] ? this.state.searchTime[0] + ' 00:00:00' : '',
+        timeEnd: this.state.searchTime[1] ? this.state.searchTime[1] + ' 23:59:59' : '',
         contain: this.state.searchValue,
         systemId: this.state.xtValue,
         messageStatus: ser,
@@ -361,9 +362,9 @@ export default class SmartDetail extends Component {
     this.setState({
       sxValue: checkedValues.target.value,
       arrSearch: [],
-      xzValue:[],
+      xzValue: [],
     });
-  }
+  };
   onChange = checkedValues => {
     this.setState({
       xtValue: checkedValues.target.value,
@@ -374,9 +375,9 @@ export default class SmartDetail extends Component {
     this.props.user.config.third.map((event, i) => {
       if (event.unique === checkedValues.target.value) {
         if (event.api !== '') {
-          if(this.props.user.config.system.use_proxy){
+          if (this.props.user.config.system.use_proxy) {
             window.configUrl.jz_search = `${window.configUrls.serve}/t${event.unique}`;
-          }else{
+          } else {
             window.configUrl.jz_search = event.api;
           }
           if (checkedValues.target.value === '109003') {
@@ -384,27 +385,30 @@ export default class SmartDetail extends Component {
               type: 'user/getSacwSerach',
               payload: {},
               callback: response => {
-                if(response.TermInfo){
+                if (response.TermInfo) {
                   this.setState({ searchResult: response.TermInfo });
                 }
               },
             });
-          } else if(checkedValues.target.value === '109006') {
+          } else if (checkedValues.target.value === '109006') {
             this.props.dispatch({
               type: 'user/getJzSerach',
               payload: {},
               callback: response => {
-                if(response.result){
+                if (response.result) {
                   this.setState({ searchResult: response.result.TermInfo });
                 }
               },
             });
-          }else if(checkedValues.target.value === '109005') {
+          } else if (checkedValues.target.value === '109005') {
             this.props.dispatch({
               type: 'user/getAgSerachs',
               callback: response => {
-                if(response.data){
-                  this.setState({ searchResult: JSON.parse(response.data).TermInfo,sxValue:null });
+                if (response.data) {
+                  this.setState({
+                    searchResult: JSON.parse(response.data).TermInfo,
+                    sxValue: null,
+                  });
                 }
               },
             });
@@ -418,9 +422,9 @@ export default class SmartDetail extends Component {
     let t = true;
     let idx = 0;
     this.setState({
-      xzValue: value
-    })
-    if (this.state.arrSearch&&this.state.arrSearch.length > 0) {
+      xzValue: value,
+    });
+    if (this.state.arrSearch && this.state.arrSearch.length > 0) {
       this.state.arrSearch.map((item, index) => {
         if (item.type === type) {
           t = false;
@@ -469,9 +473,11 @@ export default class SmartDetail extends Component {
           this.setState({
             dateLoading: false,
           });
-          let key = this.props.msg_key_str ? this.props.msg_key_str.split(',').map(item => parseInt(item)) : '';
+          let key = this.props.msg_key_str
+            ? this.props.msg_key_str.split(',').map(item => parseInt(item))
+            : '';
           let response = JSON.parse(aes_decrypt(key, res.cipher));
-          if(response.data&&response.data.length > 0){
+          if (response.data && response.data.length > 0) {
             response.data.map(event => {
               this.state.timeList.push({ time: event.time });
             });
@@ -493,11 +499,11 @@ export default class SmartDetail extends Component {
     }
   };
   changeOpen = () => {
-    if(this.state.timeList.length > 0){
+    if (this.state.timeList.length > 0) {
       this.setState({
         dateLoading: false,
       });
-    }else{
+    } else {
       if (!this.state.open) {
         this.setState({
           dateLoading: true,
@@ -538,9 +544,9 @@ export default class SmartDetail extends Component {
       visible: false,
     });
     window.addEventListener('popstate', this.props.callAllBack);
-    setTimeout(()=>{
+    setTimeout(() => {
       this.refs.scroll.addEventListener('scroll', this.scrollHandler);
-    },10);
+    }, 10);
   };
   showPc = () => {
     this.setState({
@@ -553,9 +559,9 @@ export default class SmartDetail extends Component {
       PcLogin: false,
     });
     window.addEventListener('popstate', this.props.callAllBack);
-    setTimeout(()=>{
+    setTimeout(() => {
       this.refs.scroll.addEventListener('scroll', this.scrollHandler);
-    },10);
+    }, 10);
   };
   goBackWins = () => {
     this.props.goOutPc();
@@ -568,7 +574,7 @@ export default class SmartDetail extends Component {
       xtValue: '',
       timeDate: '',
       arrSearch: [],
-      sxValue:null,
+      sxValue: null,
       searchTime: [],
       searchResult: [],
     });
@@ -681,32 +687,32 @@ export default class SmartDetail extends Component {
         searchs.push(item.Text);
       });
     }
-    if(this.state.sxValue&&this.state.searchResult){
+    if (this.state.sxValue && this.state.searchResult) {
       this.state.searchResult.map(item => {
         let serList = [];
         item.Term.map(e => {
           serList.push(e.Text);
         });
-        if(item.Text === this.state.sxValue) {
+        if (item.Text === this.state.sxValue) {
           search.push(
             <div>
-            <div className={styles.appHeader}>
-              <div className={styles.leftIcon}>
-                <Icon type="ellipsis" theme="outlined" />
-              </div>
-              <div className={styles.appHeaderTilte}>{item.Text}</div>
+              <div className={styles.appHeader}>
+                <div className={styles.leftIcon}>
+                  <Icon type="ellipsis" theme="outlined" />
+                </div>
+                <div className={styles.appHeaderTilte}>{item.Text}</div>
               </div>
               <div>
-              <TagSelect
-                hideCheckAll={true}
+                <TagSelect
+                  hideCheckAll={true}
                   onChange={e => this.onChangeChecks(e, item.Text)}
                   className={styles.checkedTag}
-                value={this.state.xzValue}
-              >
-                {serList.map(event => {
-                  return <TagSelect.Option value={event}>{event}</TagSelect.Option>;
-                })}
-              </TagSelect>
+                  value={this.state.xzValue}
+                >
+                  {serList.map(event => {
+                    return <TagSelect.Option value={event}>{event}</TagSelect.Option>;
+                  })}
+                </TagSelect>
               </div>
             </div>
           );
@@ -760,29 +766,32 @@ export default class SmartDetail extends Component {
                     }}
                     spinning={this.state.dateLoading}
                   >
-                      <RangePicker
-                        open={true}
-                        onChange={this.onChangeTime}
-                        defaultValue={[moment(moment().format('YYYY-MM-DD'), 'YYYY-MM-DD'), moment(moment().format('YYYY-MM-DD'), 'YYYY-MM-DD')]}
-                        value={this.state.timeDate}
-                        onCalendarChange={this.onClickTime}
-                        getCalendarContainer={() => document.getElementById('time')}
-                        dateRender={current => {
-                          const style = {};
-                          this.state.timeList.map(event => {
-                            if (
-                              event.time.substring(0, 10) === moment(current).format('YYYY-MM-DD')
-                            ) {
-                              style.background = '#e0d394';
-                            }
-                          });
-                          return (
-                            <div className="ant-calendar-date" style={style}>
-                              {current.date()}
-                            </div>
-                          );
-                        }}
-                      />
+                    <RangePicker
+                      open={true}
+                      onChange={this.onChangeTime}
+                      defaultValue={[
+                        moment(moment().format('YYYY-MM-DD'), 'YYYY-MM-DD'),
+                        moment(moment().format('YYYY-MM-DD'), 'YYYY-MM-DD'),
+                      ]}
+                      value={this.state.timeDate}
+                      onCalendarChange={this.onClickTime}
+                      getCalendarContainer={() => document.getElementById('time')}
+                      dateRender={current => {
+                        const style = {};
+                        this.state.timeList.map(event => {
+                          if (
+                            event.time.substring(0, 10) === moment(current).format('YYYY-MM-DD')
+                          ) {
+                            style.background = '#e0d394';
+                          }
+                        });
+                        return (
+                          <div className="ant-calendar-date" style={style}>
+                            {current.date()}
+                          </div>
+                        );
+                      }}
+                    />
                   </Spin>
                 </div>
                 <div>
@@ -805,7 +814,7 @@ export default class SmartDetail extends Component {
                     ''
                   )}
                 </div>
-                {this.state.searchResult && this.state.searchResult.length > 0 ?
+                {this.state.searchResult && this.state.searchResult.length > 0 ? (
                   <div>
                     <div className={styles.appHeader}>
                       <div className={styles.leftIcon}>
@@ -820,9 +829,12 @@ export default class SmartDetail extends Component {
                         onChange={this.onSxChange}
                         className={styles.checkedTag}
                       />
-                    </div></div>
-                  : ''}
-                {search&&search.length > 0 ? search : ''}
+                    </div>
+                  </div>
+                ) : (
+                  ''
+                )}
+                {search && search.length > 0 ? search : ''}
               </div>
               <div className={styles.tagBtnBox}>
                 <Button className={styles.btnTag} onClick={this.onSearchList} type="primary">
@@ -835,23 +847,39 @@ export default class SmartDetail extends Component {
         {this.state.PcLogin ? (
           <PcLogin hidePc={this.hidePc} goBackWins={this.goBackWins} />
         ) : this.state.detailShow ? (
-          <AppDetail {...this.props} searchValue={this.state.searchValue} pageCount={this.state.pageCount} getSocketList={(empty, payloads, unload, noscroll) =>this.getSocketList(empty, payloads, unload, noscroll)} detail={this.state.clickDetail} goback={this.goback} getFk={(item,detail,nodeId)=>this.props.getFk(item,detail,nodeId)} form={this.state.form} userItem={this.state.userItem}/>
+          <AppDetail
+            {...this.props}
+            searchValue={this.state.searchValue}
+            pageCount={this.state.pageCount}
+            getSocketList={(empty, payloads, unload, noscroll) =>
+              this.getSocketList(empty, payloads, unload, noscroll)
+            }
+            detail={this.state.clickDetail}
+            goback={this.goback}
+            getFk={(item, detail, nodeId) => this.props.getFk(item, detail, nodeId)}
+            form={this.state.form}
+            userItem={this.state.userItem}
+          />
         ) : (
           <div>
             <div className={styles.headerTitle}>
               {/*<Icon*/}
-                {/*type="appstore"*/}
-                {/*style={{*/}
-                  {/*float: 'right',*/}
-                  {/*margin: '13px 0px',*/}
-                  {/*fontSize: '34px',*/}
-                  {/*cursor: 'pointer',*/}
-                  {/*color: '#fff',*/}
-                {/*}}*/}
-                {/*theme="outlined"*/}
-                {/*onClick={this.showDrawer}*/}
+              {/*type="appstore"*/}
+              {/*style={{*/}
+              {/*float: 'right',*/}
+              {/*margin: '13px 0px',*/}
+              {/*fontSize: '34px',*/}
+              {/*cursor: 'pointer',*/}
+              {/*color: '#fff',*/}
+              {/*}}*/}
+              {/*theme="outlined"*/}
+              {/*onClick={this.showDrawer}*/}
               {/*/>*/}
-              <img src="images/search01.png" onClick={this.showDrawer} style={{position: 'absolute',right: '14px',top: '14px'}}/>
+              <img
+                src="images/search01.png"
+                onClick={this.showDrawer}
+                style={{ position: 'absolute', right: '14px', top: '14px' }}
+              />
             </div>
             {this.props.PcOnline ? (
               <div className={styles.pcLogin} onClick={this.showPc}>
@@ -926,7 +954,7 @@ export default class SmartDetail extends Component {
                 ) : (
                   list
                 )}
-                {this.state.lookMore&&this.state.detailList.length > 0 ? (
+                {this.state.lookMore && this.state.detailList.length > 0 ? (
                   <div
                     style={{
                       width: '100%',

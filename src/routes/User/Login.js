@@ -3,11 +3,11 @@ import { connect } from 'dva';
 import { Link } from 'dva/router';
 import { instanceOf } from 'prop-types';
 import { routerRedux } from 'dva/router';
-import { Checkbox, Alert, Icon, Divider, message,Modal,Form,Input } from 'antd';
+import { Checkbox, Alert, Icon, Divider, message, Modal, Form, Input } from 'antd';
 import Login from 'components/Login';
 import styles from './Login.less';
 import { hex_md5 } from '../../md5';
-import { keyShow,autoheight } from '../../utils/utils';
+import { keyShow, autoheight } from '../../utils/utils';
 import style from './../SmartList/App/MySmart.less';
 // import { ipcRenderer } from 'electron';
 import { enquireScreen, unenquireScreen } from 'enquire-js';
@@ -34,13 +34,13 @@ class LoginPage extends Component {
       login_way: '700003',
       isMobile: isMobile,
       setUp: false,
-      success:false,
+      success: false,
       local: '',
       isMob:
         navigator.userAgent.match(/(iPad).*OS\s([\d_]+)/) ||
         navigator.userAgent.match(/(iPhone\sOS)\s([\d_]+)/) ||
         navigator.userAgent.match(/(Android)\s+([\d.]+)/),
-      url:window.configUrls.serve.substring(7),
+      url: window.configUrls.serve.substring(7),
     };
     this.goOutTime = -1;
   }
@@ -55,15 +55,21 @@ class LoginPage extends Component {
     });
     keyShow(this.refs.scrollLogin);
     this.getConfig();
+    this.props.dispatch({
+      type: 'user/findTool',
+      payload: {
+        value: '',
+      },
+    });
     window.removeEventListener('popstate', this.callBack);
     window.addEventListener('popstate', this.callBack);
   }
-  getConfig = () =>{
+  getConfig = () => {
     this.props.dispatch({
       type: 'user/getConfigGoto',
       callback: response => {
-        if(response.system){
-          if(response.system.use_proxy){
+        if (response.system) {
+          if (response.system.use_proxy) {
             window.configUrl = {
               sysName: 'Smartlinkey', //项目名称
               ywzxUrl: `${window.configUrls.serve}/ywzx`, //运维中心
@@ -71,9 +77,9 @@ class LoginPage extends Component {
               rybjxx: `${window.configUrls.serve}/cid${response.system.huaci.huaci_list[1].cid}`, //人员背景核查系统
               personList: ['姓名', '公民身份号码', '性别', '民族'], //人员背景核查信息
               socket_server: `${window.configUrls.serve}`,
-              slkMessage:`${window.configUrls.serve}/slk-message`,
+              slkMessage: `${window.configUrls.serve}/slk-message`,
             };
-          }else{
+          } else {
             window.configUrl = {
               sysName: 'Smartlinkey', //项目名称
               ywzxUrl: response.system.ywzx, //运维中心
@@ -81,7 +87,7 @@ class LoginPage extends Component {
               rybjxx: response.system.huaci.huaci_list[1].api, //人员背景核查系统
               personList: ['姓名', '公民身份号码', '性别', '民族'], //人员背景核查信息
               socket_server: response.system.socket_server,
-              slkMessage:response.system.socket_server,
+              slkMessage: response.system.socket_server,
             };
           }
         }
@@ -89,7 +95,7 @@ class LoginPage extends Component {
           type: 'login/getLoginSetting',
           payload: {},
           callback: response => {
-            if(response && response.result){
+            if (response && response.result) {
               this.setState({
                 login_way: response.result.login_way,
               });
@@ -98,15 +104,15 @@ class LoginPage extends Component {
         });
       },
     });
-  }
-  callBack = (event) => {
-    history.pushState(null, null, location.href );
-    if(this.state.setUp){
+  };
+  callBack = event => {
+    history.pushState(null, null, location.href);
+    if (this.state.setUp) {
       this.setState({
-        setUp: false
-      })
-    }else {
-      if(event.currentTarget.location.href === this.state.local){
+        setUp: false,
+      });
+    } else {
+      if (event.currentTarget.location.href === this.state.local) {
         this.goOutTime++;
         if (this.goOutTime > 0) {
           webview.close();
@@ -114,17 +120,17 @@ class LoginPage extends Component {
           message.destroy();
           message.warning('再按一次退出应用');
         }
-        let _this = this
-        setTimeout(function () {
-          _this.goOutTime = -1
+        let _this = this;
+        setTimeout(function() {
+          _this.goOutTime = -1;
         }, 2000);
         return false;
       }
     }
     this.setState({
-      local:location.href
-    })
-  }
+      local: location.href,
+    });
+  };
   onTabChange = type => {
     this.setState({ type });
   };
@@ -178,24 +184,23 @@ class LoginPage extends Component {
   };
   handleGoOut = () => {
     webview.close();
-  }
+  };
   handleOks = () => {
     this.props.form.validateFields((err, values) => {
       let reg = /^(?:(?:2[0-4][0-9]\.)|(?:25[0-5]\.)|(?:1[0-9][0-9]\.)|(?:[1-9][0-9]\.)|(?:[0-9]\.)){3}(?:(?:2[0-4][0-9])|(?:25[0-5])|(?:1[0-9][0-9])|(?:[1-9][0-9])|(?:[0-9]))$/;
       let regs = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\:([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-5]{2}[0-3][0-5])$/;
-      if(values.setupIp&&(reg.test(values.setupIp) || regs.test(values.setupIp))){
+      if (values.setupIp && (reg.test(values.setupIp) || regs.test(values.setupIp))) {
         localStorage.setItem('ip', 'http://' + values.setupIp);
         window.configUrls.serve = 'http://' + values.setupIp;
         this.setState({
-          url:values.setupIp,
-        })
+          url: values.setupIp,
+        });
         this.getConfig();
         message.success('操作成功');
         this.setState({
           setUp: false,
           // success: true
-        })
-
+        });
       }
     });
   };
@@ -235,8 +240,8 @@ class LoginPage extends Component {
       );
     const { getFieldDecorator } = this.props.form;
     return (
-      <div className={styles.main} style={{height:autoheight()+'px'}} ref="scrollLogin">
-        <Icon className={styles.szBtn} type="setting" theme="outlined"  onClick={this.setUpShow}/>
+      <div className={styles.main} style={{ height: autoheight() + 'px' }} ref="scrollLogin">
+        <Icon className={styles.szBtn} type="setting" theme="outlined" onClick={this.setUpShow} />
         <Modal
           title={
             <div>
@@ -262,7 +267,7 @@ class LoginPage extends Component {
           <Form>
             <FormItem>
               {getFieldDecorator('setupIp', {
-                initialValue:this.state.url,
+                initialValue: this.state.url,
                 rules: [
                   {
                     validator: this.getIp,
@@ -277,7 +282,11 @@ class LoginPage extends Component {
           </Form>
         </Modal>
         <Modal
-          title={<div><span>提示</span></div>}
+          title={
+            <div>
+              <span>提示</span>
+            </div>
+          }
           visible={this.state.success}
           maskClosable={false}
           closable={false}
@@ -287,7 +296,7 @@ class LoginPage extends Component {
             </div>
           }
           className={style.modalBox}
-          style={{textAlign: 'center'}}
+          style={{ textAlign: 'center' }}
         >
           服务器地址修改成功，请退出重启！
         </Modal>
@@ -337,7 +346,7 @@ class LoginPage extends Component {
               login.type === 'account' &&
               !submitting &&
               this.renderMessage('账户或密码错误')}
-            <UserName name="username" placeholder="请输入用户名"/>
+            <UserName name="username" placeholder="请输入用户名" />
             <Password name="password" placeholder="请输入密码" />
             <Submit loading={submitting} className={styles.btnBg}>
               登录

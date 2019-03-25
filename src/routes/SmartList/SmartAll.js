@@ -54,7 +54,7 @@ class SmartAll extends Component {
       pcNews: null,
       newMsg: false,
       PcOnline: false,
-      images:''
+      images: '',
     };
     this.msgListAll = [];
   }
@@ -106,7 +106,6 @@ class SmartAll extends Component {
       console.log('socket退出!!!');
     });
     socket.on('message', function(res) {
-      console.log('data:', res);
       if (res.signal === 'disconn' && res.code === 0) {
         console.log('被手机端强制下线');
         Modal.warning({
@@ -173,14 +172,14 @@ class SmartAll extends Component {
     socket.on('file-message', function(data) {
       if (JSON.stringify(data)) {
         that.setState({
-          images: data
+          images: data,
         });
       }
-    })
+    });
     socket.on('pub-message', function(data) {
       if (JSON.stringify(data)) {
         that.refs.music.play();
-        if(webHide){
+        if (webHide) {
           that.props.dispatch({
             type: 'user/SocketQuery',
             payload: {
@@ -194,10 +193,13 @@ class SmartAll extends Component {
               messageStatus: [],
             },
             callback: response => {
-              response.data.map((item)=>{
-                plusRun.createMessage(item.xxmc.msg+' ('+item.xxzt.msg+')', "", {cover:false,title:item.xxbt.msg});//通知栏
-              })
-            }
+              response.data.map(item => {
+                plusRun.createMessage(item.xxmc.msg + ' (' + item.xxzt.msg + ')', '', {
+                  cover: false,
+                  title: item.xxbt.msg,
+                }); //通知栏
+              });
+            },
           });
         }
         that.setState({
@@ -207,11 +209,8 @@ class SmartAll extends Component {
       }
     });
     socket.on('aes-key', function(data) {
-      console.log('aes-key-encode:', data);
       let encrypt_msg = Base64.decode(data);
-      console.log('aes-key:', encrypt_msg);
       let receive_info = decrypt_public(encrypt_msg);
-      console.log(receive_info);
       // let msg_key = JSON.parse(receive_info).msg_key_str.split(',').map((item) => parseInt(item));
       let msg_key_str = JSON.parse(receive_info).msg_key;
       let auth_key = JSON.parse(receive_info).auth_key;
@@ -244,13 +243,6 @@ class SmartAll extends Component {
     socket.send({ signal: 'disconn' });
   };
   getFk = (item, detail, nodeId) => {
-    console.log(
-      '反馈Item---------->',
-      item,
-      detail,
-      moment().format('YYYY-MM-DD HH:mm:ss'),
-      nodeId
-    );
     let msg = [
       {
         read: 0,
@@ -336,7 +328,6 @@ class SmartAll extends Component {
       ? this.state.msg_key_str.split(',').map(item => parseInt(item))
       : [];
     let newMsg = aes_encrypt(key, JSON.stringify(msg));
-    console.log('newMsg-------->', newMsg);
     socket.emit('pub-message', newMsg);
   };
   render() {
@@ -374,7 +365,7 @@ class SmartAll extends Component {
             Xmpp={this.state.Xmpp}
             getOut={this.getOut}
             newMsg={this.state.newMsg}
-            getFk={(item,detail,nodeId)=>this.getFk(item,detail,nodeId)}
+            getFk={(item, detail, nodeId) => this.getFk(item, detail, nodeId)}
             images={this.state.images}
             msg_key_str={this.state.msg_key_str}
             auth_key={this.state.auth_key}

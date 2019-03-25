@@ -34,7 +34,7 @@ export default {
       } else {
         message.destroy();
         message.warning(
-          response.error && response.error.text ? response.error.text : '服务器请求失败'
+          response.error && response.error.text ? response.error.text : '登录失败，请重试'
         );
       }
     },
