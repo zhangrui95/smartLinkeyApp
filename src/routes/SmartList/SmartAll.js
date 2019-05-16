@@ -96,8 +96,22 @@ class SmartAll extends Component {
   };
   getXmpp = () => {
     let that = this;
+    let job = this.state.userItem.job;
+    let query;
+    if (JSON.stringify(job).includes('200002')) {
+      query = {
+        idcard: this.state.xmppUser,
+        device: 'mobile',
+        org: this.state.userItem.department,
+      };
+    } else {
+      query = {
+        idcard: this.state.xmppUser,
+        device: 'mobile',
+      };
+    }
     socket = io(`${configUrl.socket_server}`, {
-      query: 'idcard=' + this.state.xmppUser + '&device=mobile',
+      query: query,
     });
     socket.on('connect', function() {
       console.log('socket登录成功');

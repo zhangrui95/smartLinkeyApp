@@ -86,11 +86,21 @@ export default class SmartDetail extends Component {
       zIndex: -1,
       loadName: '',
       iconSpin: false,
+      jobGl: [],
       // oldList:[],
     };
   }
   scrollHandler = this.handleScroll.bind(this);
   componentDidMount() {
+    let job = this.state.userItem.job;
+    let jobGl = [];
+    if (JSON.stringify(job).includes('200002')) {
+      jobGl.push(this.state.userItem.department);
+    }
+    jobGl.push(this.state.userItem.idCard);
+    this.setState({
+      jobGl: jobGl,
+    });
     this.callBack();
     window.removeEventListener('popstate', this.callBack);
     window.addEventListener('popstate', this.callBack);
@@ -235,7 +245,7 @@ export default class SmartDetail extends Component {
           endLength: parseInt(this.state.endLength) + 1,
         });
         let payloads = {
-          idcard: this.state.userItem.idCard,
+          idcard: this.state.jobGl,
           size: this.state.pageCount,
           page: this.state.endLength,
           timeStart: '',
@@ -275,7 +285,7 @@ export default class SmartDetail extends Component {
         searchValue: next.user.value,
       });
       let payloads = {
-        idcard: this.state.userItem.idCard,
+        idcard: this.state.jobGl,
         size: this.state.pageCount,
         page: 0,
         timeStart: '',
@@ -343,7 +353,7 @@ export default class SmartDetail extends Component {
         });
       });
       let payloads = {
-        idcard: this.state.userItem.idCard,
+        idcard: this.state.jobGl,
         size: this.state.pageCount,
         page: 0,
         timeStart: this.state.searchTime[0] ? this.state.searchTime[0] + ' 00:00:00' : '',
@@ -456,8 +466,8 @@ export default class SmartDetail extends Component {
   };
   getTimeList = () => {
     let payloads = {
-      idcard: this.state.userItem.idCard,
-      size: 999,
+      idcard: this.state.jobGl,
+      size: 100,
       page: 0,
       timeStart: '',
       timeEnd: '',
@@ -466,6 +476,7 @@ export default class SmartDetail extends Component {
       messageStatus: [],
     };
     if (this.state.timeList.length === 0) {
+      let timeList = [];
       this.props.dispatch({
         type: 'user/SocketQuery',
         payload: payloads,
@@ -479,19 +490,15 @@ export default class SmartDetail extends Component {
           let response = JSON.parse(aes_decrypt(key, res.cipher));
           if (response.data && response.data.length > 0) {
             response.data.map(event => {
-              this.state.timeList.push({ time: event.time });
+              timeList.push({ time: event.time });
             });
           }
         },
       });
-      for (var i = 0; i < this.state.timeList.length - 1; i++) {
-        for (var j = i + 1; j < this.state.timeList.length; j++) {
-          if (this.state.timeList[i] == this.state.timeList[j]) {
-            this.state.timeList.splice(j, 1);
-            j--;
-          }
-        }
-      }
+      timeList = Array.from(new Set(timeList));
+      this.setState({
+        timeList,
+      });
     } else {
       this.setState({
         dateLoading: false,
@@ -621,7 +628,7 @@ export default class SmartDetail extends Component {
         endLength: 0,
       });
       let payloads = {
-        idcard: this.state.userItem.idCard,
+        idcard: this.state.jobGl,
         size: this.state.pageCount,
         page: 0,
         timeStart: '',
