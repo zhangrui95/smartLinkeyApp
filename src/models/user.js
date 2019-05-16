@@ -21,7 +21,8 @@ import {
   questionStatus,
   getiNactive,
   getSacwSearch,
-  getAgSerach
+  getDateLists,
+  getAgSerach,
 } from '../services/user';
 
 export default {
@@ -67,25 +68,25 @@ export default {
         type: 'getAllList',
         payload: response,
       });
-      if(callback&&response) {
+      if (callback && response) {
         callback(response);
       }
     },
     *SocketQuery({ payload, callback }, { call, put }) {
       const response = yield call(getSocketList, payload);
-      if(callback&&response) {
+      if (callback && response) {
         callback(response);
       }
     },
     *SocketRead({ payload, callback }, { call, put }) {
       const response = yield call(getRead, payload);
-      if(callback&&response) {
+      if (callback && response) {
         callback(response);
       }
     },
     *subQuery({ payload, callback }, { call, put }) {
       const response = yield call(getSubQuery, payload);
-      if(callback&&response) {
+      if (callback && response) {
         callback(response);
       }
     },
@@ -95,7 +96,7 @@ export default {
         type: 'getAllNum',
         payload: sessionStorage.getItem('allNum'),
       });
-      if(callback&&response) {
+      if (callback && response) {
         callback(response);
       }
     },
@@ -161,13 +162,13 @@ export default {
         type: 'getWordList',
         payload: response,
       });
-      if(callback&&response) {
+      if (callback && response) {
         callback(response);
       }
     },
     *loginIp({ payload, callback }, { call, put }) {
       const response = yield call(getLoginIp, payload);
-      if(callback&&response) {
+      if (callback && response) {
         callback(response);
       }
     },
@@ -183,13 +184,13 @@ export default {
         type: 'getConfigs',
         payload: response,
       });
-      if(callback&&response) {
+      if (callback && response) {
         callback(response);
       }
     },
     *getIcon({ callback }, { call }) {
       const response = yield call(getIcons);
-      if(callback&&response) {
+      if (callback && response) {
         callback(response);
       }
     },
@@ -199,7 +200,7 @@ export default {
         type: 'getXmppQuery',
         payload: response,
       });
-      if(callback&&response) {
+      if (callback && response) {
         callback(response);
       }
     },
@@ -211,21 +212,21 @@ export default {
     },
     *getJzSerach({ payload, callback }, { call, put }) {
       const response = yield call(getSearch, payload);
-      if(response&&callback){
+      if (response && callback) {
         callback(response);
-      }else{
+      } else {
         return false;
       }
     },
     *getSacwSerach({ payload, callback }, { call, put }) {
       const response = yield call(getSacwSearch, payload);
-      if(callback&&response) {
+      if (callback && response) {
         callback(response);
       }
     },
     *getAgSerachs({ callback }, { call }) {
       const response = yield call(getAgSerach);
-      if(callback&&response) {
+      if (callback && response) {
         callback(response);
       }
     },
@@ -235,37 +236,43 @@ export default {
         type: 'getChangeUrl',
         payload: response,
       });
-      if(callback&&response) {
+      if (callback && response) {
         callback(response);
       }
     },
     *getOnlines({ payload, callback }, { call, put }) {
       const response = yield call(getOnline, payload);
-      if(callback&&response) {
+      if (callback && response) {
         callback(response);
       }
     },
     *getClosepcs({ payload, callback }, { call, put }) {
       const response = yield call(getClosepc, payload);
-      if(callback&&response) {
+      if (callback && response) {
         callback(response);
       }
     },
     *getFkForm({ payload, callback }, { call, put }) {
       const response = yield call(getfkForm, payload);
-      if(callback&&response) {
+      if (callback && response) {
         callback(response);
       }
     },
     *getQuestionStatus({ payload, callback }, { call, put }) {
       const response = yield call(questionStatus, payload);
-      if(callback&&response) {
+      if (callback && response) {
         callback(response);
       }
     },
     *getNactive({ payload, callback }, { call, put }) {
       const response = yield call(getiNactive, payload);
-      if(callback&&response) {
+      if (callback && response) {
+        callback(response);
+      }
+    },
+    *getDateList({ payload, callback }, { call, put }) {
+      const response = yield call(getDateLists, payload);
+      if (callback && response) {
         callback(response);
       }
     },

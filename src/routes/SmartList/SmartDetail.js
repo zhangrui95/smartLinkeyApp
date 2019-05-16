@@ -467,37 +467,17 @@ export default class SmartDetail extends Component {
   getTimeList = () => {
     let payloads = {
       idcard: this.state.jobGl,
-      size: 100,
-      page: 0,
-      timeStart: '',
-      timeEnd: '',
-      contain: '',
-      systemId: '',
-      messageStatus: [],
     };
     if (this.state.timeList.length === 0) {
-      let timeList = [];
       this.props.dispatch({
-        type: 'user/SocketQuery',
+        type: 'user/getDateList',
         payload: payloads,
         callback: res => {
           this.setState({
+            timeList: res.datelist,
             dateLoading: false,
           });
-          let key = this.props.msg_key_str
-            ? this.props.msg_key_str.split(',').map(item => parseInt(item))
-            : '';
-          let response = JSON.parse(aes_decrypt(key, res.cipher));
-          if (response.data && response.data.length > 0) {
-            response.data.map(event => {
-              timeList.push({ time: event.time });
-            });
-          }
         },
-      });
-      timeList = Array.from(new Set(timeList));
-      this.setState({
-        timeList,
       });
     } else {
       this.setState({
@@ -785,13 +765,12 @@ export default class SmartDetail extends Component {
                       getCalendarContainer={() => document.getElementById('time')}
                       dateRender={current => {
                         const style = {};
-                        this.state.timeList.map(event => {
-                          if (
-                            event.time.substring(0, 10) === moment(current).format('YYYY-MM-DD')
-                          ) {
-                            style.background = '#e0d394';
-                          }
-                        });
+                        this.state.timeList &&
+                          this.state.timeList.map(event => {
+                            if (event.time === moment(current).format('YYYY-MM-DD')) {
+                              style.background = '#e0d394';
+                            }
+                          });
                         return (
                           <div className="ant-calendar-date" style={style}>
                             {current.date()}

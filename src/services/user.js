@@ -129,3 +129,9 @@ export async function getAgSerach() {
     method: 'get',
   });
 }
+export async function getDateLists(params) {
+  return request(`${configUrl.slkMessage}/user/message/datelist`, {
+    method: 'POST',
+    body: params,
+  });
+}
