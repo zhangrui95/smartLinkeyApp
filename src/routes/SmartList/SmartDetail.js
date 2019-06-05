@@ -99,7 +99,7 @@ export default class SmartDetail extends Component {
     }
     jobGl.push(this.state.userItem.idCard);
     this.setState({
-      jobGl: jobGl,
+      jobGl: JSON.stringify(job).includes('200008') ? [] : jobGl,
     });
     this.callBack();
     window.removeEventListener('popstate', this.callBack);

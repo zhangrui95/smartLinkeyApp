@@ -98,7 +98,13 @@ class SmartAll extends Component {
     let that = this;
     let job = this.state.userItem.job;
     let query;
-    if (JSON.stringify(job).includes('200002')) {
+    if (JSON.stringify(job).includes('200008')) {
+      query = {
+        idcard: this.state.xmppUser,
+        device: 'mobile',
+        admin: '1',
+      };
+    } else if (JSON.stringify(job).includes('200002')) {
       query = {
         idcard: this.state.xmppUser,
         device: 'mobile',
