@@ -65,6 +65,7 @@ class LoginPage extends Component {
     window.addEventListener('popstate', this.callBack);
   }
   getConfig = () => {
+    window.configUrl = {};
     this.props.dispatch({
       type: 'user/getConfigGoto',
       callback: response => {
@@ -91,17 +92,19 @@ class LoginPage extends Component {
             };
           }
         }
-        this.props.dispatch({
-          type: 'login/getLoginSetting',
-          payload: {},
-          callback: response => {
-            if (response && response.result) {
-              this.setState({
-                login_way: response.result.login_way,
-              });
-            }
-          },
-        });
+        if(window.configUrl && window.configUrl.testUrl){
+          this.props.dispatch({
+            type: 'login/getLoginSetting',
+            payload: {},
+            callback: response => {
+              if (response && response.result) {
+                this.setState({
+                  login_way: response.result.login_way,
+                });
+              }
+            },
+          });
+        }
       },
     });
   };
@@ -140,7 +143,7 @@ class LoginPage extends Component {
   }
   handleSubmit = (err, values) => {
     const { type } = this.state;
-    if (!err) {
+    if (!err && window.configUrl && window.configUrl.testUrl) {
       window.removeEventListener('popstate', this.callBack);
       message.destroy();
       this.props.dispatch({
@@ -162,6 +165,8 @@ class LoginPage extends Component {
       this.props.dispatch({
         type: 'login/getLogin',
       });
+    }else{
+      message.warn('登录失败,请重试');
     }
   };
 
