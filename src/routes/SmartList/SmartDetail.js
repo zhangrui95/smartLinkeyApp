@@ -97,7 +97,7 @@ export default class SmartDetail extends Component {
     if (JSON.stringify(job).includes('200002')) {
       jobGl.push(this.state.userItem.department);
     }
-    jobGl.push(this.state.userItem.idCard);
+    jobGl.push(this.state.userItem.idCard ? this.state.userItem.idCard : this.state.userItem.pcard);
     this.setState({
       jobGl: JSON.stringify(job).includes('200008') ? [] : jobGl,
     });

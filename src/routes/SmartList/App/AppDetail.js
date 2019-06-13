@@ -35,7 +35,7 @@ class AppDetail extends Component {
               type: 'user/getQuestionStatus',
               payload: {
                 id: this.props.detail.id,
-                sfzh: this.props.userItem.idCard,
+                sfzh: this.props.userItem.idCard ? this.props.userItem.idCard : this.props.userItem.pcard,
                 name: this.props.userItem.name,
                 fkr_fkyj: this.state.connent,
               },
@@ -50,7 +50,7 @@ class AppDetail extends Component {
                     callback: response => {
                       if (!response.error) {
                         let payloads = {
-                          idcard: this.props.userItem.idCard,
+                          idcard: this.props.userItem.idCard ? this.props.userItem.idCard : this.props.userItem.pcard,
                           size: this.props.pageCount,
                           page: 0,
                           timeStart: '',
@@ -98,11 +98,11 @@ class AppDetail extends Component {
     let params = this.props.detail;
     let btnName, cardTo;
     params.btn_ary.map(btn => {
-      if (btn.msg.indexOf('详情') > -1 || !btn.isvisible || params.active !== 0) {
+      if (!btn.isvisible || params.active !== 0) {
         return false;
-      } else {
-        btnName = btn.msg;
-        cardTo = btn.comment;
+      } else if(btn.msg.indexOf('督办') > -1 || btn.msg.indexOf('反馈') > -1){
+          btnName = btn.msg;
+          cardTo = btn.comment;
       }
     });
     return (

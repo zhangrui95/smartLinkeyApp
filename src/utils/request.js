@@ -1,15 +1,16 @@
 import fetch from 'dva/fetch';
-import { notification,message } from 'antd';
+import { notification, message } from 'antd';
 
 function checkStatus(response) {
-  let checkResponse = response.clone();
-  const res = checkResponse.json();
-  const check = res.then(value => {
-    if (value.reason) {
-      message.error(value.reason.text);
-      return false;
-    }
-  });
+  // let checkResponse = response.clone();
+  // console.log('checkResponse----->',checkResponse)
+  // const res = checkResponse.json();
+  // const check = res.then(value => {
+  //   if (value.reason) {
+  //     message.error(value.reason.text);
+  //     return false;
+  //   }
+  // });
 
   if (response.status >= 200 && response.status <= 401) {
     return response;
@@ -51,7 +52,7 @@ export default function request(url, options) {
   } else if (newOptions.method === 'post'||newOptions.method === 'get') {
     newOptions.headers = {
       Accept: 'application/json',
-      'Content-Type': 'application/json;',
+      'Content-Type': 'application/json; charset=utf-8',
     };
     newOptions.body = JSON.stringify(newOptions.body);
   } else if (newOptions.method === 'Post') {
@@ -72,7 +73,7 @@ export default function request(url, options) {
       idcard:
         sessionStorage.getItem('user') === undefined || sessionStorage.getItem('user') === null
           ? ''
-          : JSON.parse(sessionStorage.getItem('user')).user.idCard,
+          : JSON.parse(sessionStorage.getItem('user')).user.idCard ? JSON.parse(sessionStorage.getItem('user')).user.idCard : JSON.parse(sessionStorage.getItem('user')).user.pcard,
       ...newOptions.headers,
     };
     newOptions.body = JSON.stringify(newOptions.body);
@@ -82,18 +83,6 @@ export default function request(url, options) {
     .then(checkStatus)
     .then(response => response.json())
     .catch(error => {
-      if (error.code) {
-        notification.error({
-          message: error.name,
-          description: error.message,
-        });
-      }
-      if ('stack' in error && 'message' in error) {
-        /*         notification.error({
-                  message: `请求错误: ${url}`,
-                  description: error.message,
-                }); */
-      }
       return error;
     });
 }

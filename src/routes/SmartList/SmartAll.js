@@ -24,7 +24,7 @@ class SmartAll extends Component {
     const user = sessionStorage.getItem('user');
     const userNew = JSON.parse(user).user;
     this.state = {
-      xmppUser: userNew.idCard,
+      xmppUser: userNew.idCard ? userNew.idCard : userNew.pcard,
       nodeList: '',
       userItem: userNew,
       user: user,
@@ -143,7 +143,7 @@ class SmartAll extends Component {
         console.log('被PC端挤下线');
         that.props.dispatch({
           type: 'user/loginIp',
-          payload: { idCard: that.state.userItem.idCard },
+          payload: { idCard: that.state.userItem.idCard ? that.state.userItem.idCard : that.state.userItem.pcard },
           callback: response => {
             let ip = response.data ? response.data.ip : '其他客户端';
             Modal.warning({
@@ -203,7 +203,7 @@ class SmartAll extends Component {
           that.props.dispatch({
             type: 'user/SocketQuery',
             payload: {
-              idcard: that.state.userItem.idCard,
+              idcard:that.state.userItem.idCard ? that.state.userItem.idCard : that.state.userItem.pcard,
               size: data.count,
               page: 0,
               timeStart: '',
@@ -269,7 +269,7 @@ class SmartAll extends Component {
         read_m: 0,
         active: 0,
         nodeid: nodeId,
-        systemid: this.state.userItem.idCard,
+        systemid: this.state.userItem.idCard ? this.state.userItem.idCard : this.state.userItem.pcard,
         time: moment().format('YYYY-MM-DD HH:mm:ss'),
         id: 'Z111111111',
         xxtb: {
